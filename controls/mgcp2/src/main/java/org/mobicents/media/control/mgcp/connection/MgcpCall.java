@@ -82,10 +82,10 @@ public class MgcpCall {
 
         // Verify connection is not a duplicate
         if (oldConnection != null) {
-            throw new IllegalArgumentException("Conection " + connectionId + " is already registered in call " + this.id);
+            throw new IllegalArgumentException("Conection " + connection.getHexIdentifier() + " is already registered in call " + this.id);
         } else {
             if (log.isDebugEnabled()) {
-                log.debug("Registered connection " + connectionId + " to call " + this.id);
+                log.debug("Registered connection " + connection.getHexIdentifier() + " to call " + this.id + ". Count: " + this.connections.size());
             }
         }
     }
@@ -99,7 +99,7 @@ public class MgcpCall {
     public MgcpConnection removeConnection(int connectionId) {
         MgcpConnection connection = this.connections.remove(connectionId);
         if (log.isDebugEnabled() && connection != null) {
-            log.debug("Unregistered connection " + connectionId + " from call " + this.id);
+            log.debug("Unregistered connection " + connection.getHexIdentifier() + " from call " + this.id + ". Count: " + this.connections.size());
         }
         // TODO alert listener that call has ended if connections == 0
         return connection;
@@ -113,6 +113,9 @@ public class MgcpCall {
     public List<MgcpConnection> removeConnections() {
         ArrayList<MgcpConnection> values = new ArrayList<>(this.connections.values());
         this.connections.clear();
+        if (log.isDebugEnabled()) {
+            log.debug("Unregistered "+ values.size() +" connections from call " + this.id + ". Count: " + this.connections.size());
+        }
         return values;
     }
 

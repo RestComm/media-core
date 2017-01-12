@@ -70,11 +70,17 @@ public class MgcpChannel extends MultiplexedNetworkChannel implements MgcpMessag
     @Override
     public void observe(MgcpMessageObserver observer) {
         this.observers.add(observer);
+        if (log.isTraceEnabled()) {
+            log.trace("Registered MgcpMessageObserver@" + observer.hashCode() + ". Count: " + this.observers.size());
+        }
     }
 
     @Override
     public void forget(MgcpMessageObserver observer) {
         this.observers.remove(observer);
+        if (log.isTraceEnabled()) {
+            log.trace("Unregistered MgcpMessageObserver@" + observer.hashCode() + ". Count: " + this.observers.size());
+        }
     }
 
     @Override
@@ -96,7 +102,7 @@ public class MgcpChannel extends MultiplexedNetworkChannel implements MgcpMessag
 
     public void send(InetSocketAddress to, MgcpMessage message) throws IOException {
         if (log.isDebugEnabled()) {
-            log.debug("Outgoing MGCP message to " + to.toString() + ":\n" + message.toString());
+            log.debug("Outgoing MGCP message to " + to.toString() + ":\n\n" + message.toString() + "\n");
         }
 
         final byte[] data = message.toString().getBytes();

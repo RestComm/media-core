@@ -109,6 +109,10 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
                 this.transactions.observe(this);
                 this.endpoints.observe(this);
                 this.active = true;
+                
+                if (log.isInfoEnabled()) {
+                    log.info("MGCP controller is active");
+                }
             } catch (IOException e) {
                 // TODO throw exception
             }
@@ -121,10 +125,19 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
             // TODO stop resources
             this.channel.close();
             this.channel.forget(this);
+            
+            if (log.isInfoEnabled()) {
+                log.info("MGCP channel is closed");
+            }
+            
             this.transactions.forget(this);
             this.endpoints.forget(this);
             // TODO clear transactions
             this.active = false;
+            
+            if (log.isInfoEnabled()) {
+                log.info("MGCP controller is inactive");
+            }
         } else {
             throw new IllegalStateException("Controller is already inactive");
         }
@@ -182,6 +195,12 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
             // Transaction is already being processed
             // Send provisional message
             MgcpResponseCode provisional = MgcpResponseCode.TRANSACTION_BEING_EXECUTED;
+
+            if (log.isDebugEnabled()) {
+                log.debug("Received duplicate request tx=" + request.getTransactionId() + " from " + from.toString()
+                        + ". Sending provisional response with code " + provisional.code());
+            }
+
             try {
                 sendResponse(to, request.getTransactionId(), provisional.code(), provisional.message());
             } catch (IOException e1) {

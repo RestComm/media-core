@@ -67,11 +67,20 @@ public class MgcpEndpointManager implements MgcpEndpointObserver, MgcpMessageObs
 
         if (old != null) {
             throw new IllegalArgumentException("Provider for namespace " + provider.getNamespace() + "already exists.");
+        } else {
+            if (log.isInfoEnabled()) {
+                log.info("Installed MGCP Endpoint Provider for namespace " + provider.getNamespace());
+            }
         }
     }
 
     public void uninstallProvider(String namespace) {
-        this.providers.remove(namespace);
+        MgcpEndpointProvider<?> provider = this.providers.remove(namespace);
+        if(provider != null) {
+            if (log.isInfoEnabled()) {
+                log.info("Uninstalled MGCP Endpoint Provider for namespace " + provider.getNamespace());
+            }
+        }
     }
 
     public boolean supportsNamespace(String namespace) {
@@ -95,6 +104,11 @@ public class MgcpEndpointManager implements MgcpEndpointObserver, MgcpMessageObs
         endpoint.observe((MgcpEndpointObserver) this);
         endpoint.observe((MgcpMessageObserver) this);
         this.endpoints.put(endpoint.getEndpointId().toString(), endpoint);
+        
+        if (log.isDebugEnabled()) {
+            log.debug("Registered endpoint " + endpoint.getEndpointId().toString() + ". Count: " + this.endpoints.size());
+        }
+        
         return endpoint;
     }
 
@@ -121,6 +135,10 @@ public class MgcpEndpointManager implements MgcpEndpointObserver, MgcpMessageObs
         }
         endpoint.forget((MgcpMessageObserver) this);
         endpoint.forget((MgcpEndpointObserver) this);
+        
+        if (log.isDebugEnabled()) {
+            log.debug("Unregistered endpoint " + endpoint.getEndpointId().toString() + ". Count: " + this.endpoints.size());
+        }
     }
 
     @Override
@@ -131,11 +149,17 @@ public class MgcpEndpointManager implements MgcpEndpointObserver, MgcpMessageObs
     @Override
     public void observe(MgcpMessageObserver observer) {
         this.observers.add(observer);
+        if (log.isTraceEnabled()) {
+            log.trace("Registered MgcpMessageObserver@" + observer.hashCode() + ". Count: " + this.observers.size());
+        }
     }
 
     @Override
     public void forget(MgcpMessageObserver observer) {
         this.observers.remove(observer);
+        if (log.isTraceEnabled()) {
+            log.trace("Registered MgcpMessageObserver@" + observer.hashCode() + ". Count: " + this.observers.size());
+        }
     }
 
     @Override
@@ -151,6 +175,10 @@ public class MgcpEndpointManager implements MgcpEndpointObserver, MgcpMessageObs
 
     @Override
     public void onEndpointStateChanged(MgcpEndpoint endpoint, MgcpEndpointState state) {
+        if (log.isTraceEnabled()) {
+            log.debug("Endpoint " + endpoint.getEndpointId().toString() + " changed state to " + state.name());
+        }
+        
         if(MgcpEndpointState.INACTIVE.equals(state)) {
             final String endpointId = endpoint.getEndpointId().toString();
             try {

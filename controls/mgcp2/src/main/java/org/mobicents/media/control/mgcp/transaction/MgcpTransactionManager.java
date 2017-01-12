@@ -91,10 +91,11 @@ public class MgcpTransactionManager implements TransactionManager {
 
     private MgcpTransaction createTransaction(MgcpRequest request) throws DuplicateMgcpTransactionException {
         int transactionId = request.getTransactionId();
+        final boolean local = (transactionId == 0);
 
         // Create Transaction
         MgcpTransaction transaction;
-        if (transactionId == 0) {
+        if (local) {
             // Transaction originated from within this Media Server (NTFY, for example)
             // to be sent out to call agent. A transaction ID must be generated
             transaction = this.transactionProvider.provideLocal();
@@ -116,7 +117,7 @@ public class MgcpTransactionManager implements TransactionManager {
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("Created new transaction " + transactionId + " to process request");
+            log.debug("Created " + (local ? "local" : "remote") + " transaction " + transactionId);
         }
 
         return transaction;
@@ -140,19 +141,27 @@ public class MgcpTransactionManager implements TransactionManager {
         MgcpTransaction transaction = this.transactions.remove(response.getTransactionId());
         if (transaction == null) {
             throw new MgcpTransactionNotFoundException("Could not find transaction " + response.getTransactionId());
-        } else if (log.isDebugEnabled()) {
-            log.debug("Closed transaction " + response.getTransactionId() + " with code " + response.getCode());
+        } else {
+            if (log.isDebugEnabled()) {
+                log.debug("Closed transaction " + response.getTransactionId() + " with code " + response.getCode());
+            }
         }
     }
 
     @Override
     public void observe(MgcpMessageObserver observer) {
         this.observers.add(observer);
+        if (log.isTraceEnabled()) {
+            log.trace("Registered MgcpMessageObserver@" + observer.hashCode() + ". Count: " + this.observers.size());
+        }
     }
 
     @Override
     public void forget(MgcpMessageObserver observer) {
         this.observers.remove(observer);
+        if (log.isTraceEnabled()) {
+            log.trace("Unregistered MgcpMessageObserver@" + observer.hashCode() + ". Count: " + this.observers.size());
+        }
     }
 
     @Override
@@ -184,6 +193,9 @@ public class MgcpTransactionManager implements TransactionManager {
 
         @Override
         public void onSuccess(MgcpCommandResult result) {
+            if(log.isTraceEnabled()) {
+                log.trace("MGCP Command of transaction " + result.getTransactionId() + " executed successfully.");
+            }
             MgcpResponse response = buildResponse(result);
             MgcpTransactionManager.this.notify(MgcpTransactionManager.this, this.to, this.from, response, MessageDirection.OUTGOING);
         }

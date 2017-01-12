@@ -96,7 +96,7 @@ public class MgcpPacketHandler implements PacketHandler, MgcpMessageSubject {
         }
 
         if (log.isDebugEnabled()) {
-            log.info("Incoming MGCP message from " + remotePeer.toString() + ":\n" + message.toString());
+            log.debug("Incoming MGCP message from " + remotePeer.toString() + ":\n\n" + message.toString() + "\n");
         }
 
         // Warn listener packet was decoded

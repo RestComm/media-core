@@ -140,6 +140,10 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
                 call = oldCall;
             }
         }
+        
+        if(log.isDebugEnabled()) {
+            log.debug("Endpoint " + this.endpointId.toString() + " is registering connection " + connection.getHexIdentifier() + " to call " + callId);
+        }
 
         // Store connection under call
         call.addConnection(connection);
@@ -169,6 +173,11 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
         if (call == null) {
             throw new MgcpCallNotFoundException("Call " + callId + " was not found.");
         } else {
+            if (log.isDebugEnabled()) {
+                log.debug("Endpoint " + this.endpointId.toString() + " is unregistering connection "
+                        + Integer.toString(connectionId, 16) + " from call " + callId);
+            }
+            
             // Unregister connection
             MgcpConnection connection = call.removeConnection(connectionId);
 
@@ -178,6 +187,9 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
                 // Unregister call if it contains no more connections
                 if (!call.hasConnections()) {
                     this.calls.remove(callId);
+                    if (log.isDebugEnabled()) {
+                        log.debug("Endpoint " + this.endpointId.toString() + " unregistered call " + callId + ". Count: " + this.calls.size());
+                    }
                 }
 
                 // Warn child class that connection was deleted
@@ -223,6 +235,10 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
         } else {
             // Delete all connections from call
             List<MgcpConnection> connections = deleteConnections(call);
+            
+            if(log.isDebugEnabled()) {
+                log.debug("Endpoint " + this.endpointId.toString() + " deleted " + connections.size() + " connections from call " + callId + ". Call count: " + this.calls.size());
+            }
 
             // Set endpoint state
             if (!hasCalls()) {
@@ -255,6 +271,10 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
     @Override
     public void onCallTerminated(MgcpCall call) {
         this.calls.remove(call.getId());
+        
+        if(log.isDebugEnabled()) {
+            log.debug("Call " + call.getId() + " terminated on endpoint " + this.endpointId.toString() +". Call count: " + this.calls.size());
+        }
     }
 
     public boolean isActive() {
@@ -267,6 +287,11 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
         } else {
             this.active.set(true);
             onActivated();
+            
+            if(log.isDebugEnabled()) {
+                log.debug("Endpoint " + this.endpointId.toString() + " is active.");
+            }
+            
             notify(this, MgcpEndpointState.ACTIVE);
         }
     }
@@ -275,6 +300,11 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
         if (this.active.get()) {
             this.active.set(false);
             onDeactivated();
+            
+            if(log.isDebugEnabled()) {
+                log.debug("Endpoint " + this.endpointId.toString() + " is inactive.");
+            }
+            
             notify(this, MgcpEndpointState.INACTIVE);
         } else {
             throw new IllegalArgumentException("Endpoint " + this.endpointId + " is already inactive.");
@@ -436,12 +466,17 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
     @Override
     public void observe(MgcpMessageObserver observer) {
         this.messageObservers.add(observer);
-
+        if (log.isTraceEnabled()) {
+            log.trace("Endpoint " + this.endpointId.toString() + " unregistered MgcpMessageObserver@" + observer.hashCode() + ". Count: " + this.messageObservers.size());
+        }
     }
 
     @Override
     public void forget(MgcpMessageObserver observer) {
         this.messageObservers.remove(observer);
+        if (log.isTraceEnabled()) {
+            log.trace("Endpoint " + this.endpointId.toString() + " unregistered MgcpMessageObserver@" + observer.hashCode() + ". Count: " + this.messageObservers.size());
+        }
     }
 
     @Override
@@ -488,11 +523,17 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
     @Override
     public void observe(MgcpEndpointObserver observer) {
         this.endpointObservers.add(observer);
+        if (log.isTraceEnabled()) {
+            log.trace("Registered MgcpEndpointObserver@" + observer.hashCode() + ". Count: " + this.endpointObservers.size());
+        }
     }
 
     @Override
     public void forget(MgcpEndpointObserver observer) {
         this.endpointObservers.remove(observer);
+        if (log.isTraceEnabled()) {
+            log.trace("Unregistered MgcpEndpointObserver@" + observer.hashCode() + ". Count: " + this.endpointObservers.size());
+        }
     }
 
     @Override
