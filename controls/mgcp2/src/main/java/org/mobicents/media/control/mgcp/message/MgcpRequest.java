@@ -85,12 +85,18 @@ public class MgcpRequest extends MgcpMessage {
         Iterator<MgcpParameterType> keys = this.parameters.keySet().iterator();
         while (keys.hasNext()) {
             MgcpParameterType key = (MgcpParameterType) keys.next();
-            if(!MgcpParameterType.ENDPOINT_ID.equals(key)) {
+            if(!MgcpParameterType.ENDPOINT_ID.equals(key) && !MgcpParameterType.SDP.equals(key)) {
                 Optional<String> value = this.parameters.getString(key);
                 if(value.isPresent()) {
                     builder.append(key.getCode()).append(":").append(value.get()).append(System.lineSeparator());
                 }
             }
+        }
+        
+        // Print SDP (if any)
+        Optional<String> sdp = this.parameters.getString(MgcpParameterType.SDP);
+        if(sdp.isPresent()) {
+            builder.append(System.lineSeparator()).append(sdp.get());
         }
         return builder.toString();
     }

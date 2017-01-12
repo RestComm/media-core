@@ -32,7 +32,6 @@ import org.mobicents.media.control.mgcp.message.MessageDirection;
 import org.mobicents.media.control.mgcp.message.MgcpMessage;
 import org.mobicents.media.control.mgcp.message.MgcpMessageObserver;
 import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
-import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 import org.mobicents.media.server.io.network.channel.MultiplexedNetworkChannel;
 import org.mobicents.media.server.io.network.channel.NetworkGuard;
 
@@ -96,6 +95,10 @@ public class MgcpChannel extends MultiplexedNetworkChannel implements MgcpMessag
     }
 
     public void send(InetSocketAddress to, MgcpMessage message) throws IOException {
+        if (log.isDebugEnabled()) {
+            log.debug("Outgoing MGCP message to " + to.toString() + ":\n" + message.toString());
+        }
+
         final byte[] data = message.toString().getBytes();
         send(data, to);
     }
