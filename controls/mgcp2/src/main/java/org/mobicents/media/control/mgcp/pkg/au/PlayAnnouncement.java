@@ -177,8 +177,8 @@ public class PlayAnnouncement extends AbstractMgcpSignal implements PlayerListen
     }
 
     private void playAnnouncement(String segment, long delay) {
-        if (log.isInfoEnabled()) {
-            log.info("Playing announcement " + segment);
+        if (log.isDebugEnabled()) {
+            log.debug("Playing announcement " + segment);
         }
 
         try {
@@ -220,8 +220,8 @@ public class PlayAnnouncement extends AbstractMgcpSignal implements PlayerListen
     public void process(PlayerEvent event) {
         switch (event.getID()) {
             case PlayerEvent.STOP:
-                if (log.isInfoEnabled()) {
-                    log.info("Announcement " + this.playlist.current() + " has completed.");
+                if (log.isDebugEnabled()) {
+                    log.debug("Announcement " + this.playlist.current() + " has completed.");
                 }
 
                 String announcement = this.playlist.next();
