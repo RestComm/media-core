@@ -22,6 +22,7 @@
 package org.mobicents.media.control.mgcp.controller;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.command.MgcpCommand;
@@ -37,6 +38,7 @@ import org.mobicents.media.control.mgcp.message.MgcpResponse;
 import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
 import org.mobicents.media.control.mgcp.network.MgcpChannel;
 import org.mobicents.media.control.mgcp.transaction.TransactionManager;
+import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.spi.ControlProtocol;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.EndpointInstaller;
@@ -50,6 +52,9 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
 
     private static final Logger log = Logger.getLogger(MgcpController.class);
 
+    // Core Components
+    private final UdpManager networkManager;
+    
     // MGCP Components
     private final MgcpChannel channel;
     private final TransactionManager transactions;
@@ -57,9 +62,14 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
     private final MgcpCommandProvider commands;
 
     // MGCP Controller State
+    private final String address;
+    private final int port;
     private boolean active;
 
-    public MgcpController(MgcpChannel channel, TransactionManager transactions, MgcpEndpointManager endpoints, MgcpCommandProvider commands) {
+    public MgcpController(String address, int port, UdpManager networkManager, MgcpChannel channel, TransactionManager transactions, MgcpEndpointManager endpoints, MgcpCommandProvider commands) {
+        // Core Components
+        this.networkManager = networkManager;
+
         // MGCP Components
         this.channel = channel;
         this.transactions = transactions;
@@ -67,6 +77,8 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
         this.commands = commands;
 
         // MGCP Controller State
+        this.address = address;
+        this.port = port;
         this.active = false;
     }
 
@@ -81,7 +93,18 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
             throw new IllegalStateException("Controller is already active");
         } else {
             try {
+                // Open MGCP channel and bind it to configured address
                 this.channel.open();
+                this.channel.bind(new InetSocketAddress(this.address, this.port));
+
+                if (log.isInfoEnabled()) {
+                    log.info("Opened MGCP channel at " + this.address + ":" + this.port);
+                }
+                
+                // Register channel to network manager for multiplexing purposes
+                this.networkManager.register(this.channel);
+
+                // Register as observer to other components to receive notifications
                 this.channel.observe(this);
                 this.transactions.observe(this);
                 this.endpoints.observe(this);
@@ -125,21 +148,21 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
     }
 
     @Override
-    public void onMessage(MgcpMessage message, MessageDirection direction) {
+    public void onMessage(InetSocketAddress from, InetSocketAddress to, MgcpMessage message, MessageDirection direction) {
         switch (direction) {
             case INCOMING:
                 if (message.isRequest()) {
-                    onIncomingRequest((MgcpRequest) message);
+                    onIncomingRequest(from, to, (MgcpRequest) message);
                 } else {
-                    onIncomingResponse((MgcpResponse) message);
+                    onIncomingResponse(from, to, (MgcpResponse) message);
                 }
                 break;
 
             case OUTGOING:
                 if (message.isRequest()) {
-                    onOutgoingRequest((MgcpRequest) message);
+                    onOutgoingRequest(from, to, (MgcpRequest) message);
                 } else {
-                    onOutgoingResponse((MgcpResponse) message);
+                    onOutgoingResponse(from, to, (MgcpResponse) message);
                 }
                 break;
 
@@ -148,31 +171,31 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
         }
     }
 
-    private void onIncomingRequest(MgcpRequest request) {
+    private void onIncomingRequest(InetSocketAddress from, InetSocketAddress to, MgcpRequest request) {
         // Get command to be executed
         MgcpCommand command = this.commands.provide(request.getRequestType(), request.getTransactionId(), request.getParameters());
 
         try {
             // Start transaction that will execute the command
-            this.transactions.process(request, command);
+            this.transactions.process(from, to, request, command);
         } catch (DuplicateMgcpTransactionException e) {
             // Transaction is already being processed
             // Send provisional message
             MgcpResponseCode provisional = MgcpResponseCode.TRANSACTION_BEING_EXECUTED;
             try {
-                sendResponse(request.getTransactionId(), provisional.code(), provisional.message());
+                sendResponse(to, request.getTransactionId(), provisional.code(), provisional.message());
             } catch (IOException e1) {
                 log.error("Could not send provisional response to call agent, regarding transaction " + request.getTransactionId(), e);
             }
         }
     }
 
-    private void onOutgoingRequest(MgcpRequest request) {
+    private void onOutgoingRequest(InetSocketAddress from, InetSocketAddress to, MgcpRequest request) {
         try {
             // Start transaction
-            this.transactions.process(request, null);
+            this.transactions.process(from, to, request, null);
             // Send request to call agent
-            this.channel.send(request);
+            this.channel.send(to, request);
         } catch (DuplicateMgcpTransactionException e) {
             log.error(e.getMessage() + ". Request wont' be sent to call agent.");
         } catch (IOException e) {
@@ -180,21 +203,21 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
         }
     }
 
-    private void onIncomingResponse(MgcpResponse response) {
+    private void onIncomingResponse(InetSocketAddress from, InetSocketAddress to, MgcpResponse response) {
         try {
             // Close transaction
-            this.transactions.process(response);
+            this.transactions.process(from, to, response);
         } catch (MgcpTransactionNotFoundException e) {
             log.error(e.getMessage());
         }
     }
 
-    private void onOutgoingResponse(MgcpResponse response) {
+    private void onOutgoingResponse(InetSocketAddress from, InetSocketAddress to, MgcpResponse response) {
         try {
             // Close transaction
-            this.transactions.process(response);
+            this.transactions.process(from, to, response);
             // Send response to call agent
-            this.channel.send(response);
+            this.channel.send(to, response);
         } catch (MgcpTransactionNotFoundException e) {
             log.error(e.getMessage() + ". Response won't be sent to call agent.");
         } catch (IOException e) {
@@ -202,12 +225,12 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
         }
     }
 
-    private void sendResponse(int transactionId, int code, String message) throws IOException {
+    private void sendResponse(InetSocketAddress to, int transactionId, int code, String message) throws IOException {
         MgcpResponse response = new MgcpResponse();
         response.setTransactionId(transactionId);
         response.setCode(code);
         response.setMessage(message);
-        this.channel.send(response);
+        this.channel.send(to, response);
     }
 
 }

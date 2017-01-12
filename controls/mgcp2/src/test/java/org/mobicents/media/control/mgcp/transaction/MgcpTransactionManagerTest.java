@@ -25,6 +25,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
+import java.net.InetSocketAddress;
+
 import org.junit.Test;
 import org.mobicents.media.control.mgcp.command.MgcpCommand;
 import org.mobicents.media.control.mgcp.command.MgcpCommandResult;
@@ -51,6 +53,8 @@ public class MgcpTransactionManagerTest {
     public void testProcessRemoteTransaction() throws DuplicateMgcpTransactionException, MgcpTransactionNotFoundException {
         // given
         final int transactionId = 147483653;
+        final InetSocketAddress local = new InetSocketAddress("127.0.0.1", 2427);
+        final InetSocketAddress remote = new InetSocketAddress("127.0.0.1", 2727);
         final MgcpRequest request = mock(MgcpRequest.class);
         final MgcpResponse response = mock(MgcpResponse.class);
         final MgcpCommand command = mock(MgcpCommand.class);
@@ -66,7 +70,7 @@ public class MgcpTransactionManagerTest {
         when(request.getTransactionId()).thenReturn(transactionId);
         when(txProvider.provideRemote(transactionId)).thenReturn(transaction);
         when(executor.submit(command)).thenReturn(new AbstractFuture<MgcpCommandResult>() {});
-        txManager.process(request, command);
+        txManager.process(remote, local, request, command);
 
         // then
         assertTrue(txManager.contains(transactionId));
@@ -78,7 +82,7 @@ public class MgcpTransactionManagerTest {
         when(response.isRequest()).thenReturn(false);
         when(response.getTransactionId()).thenReturn(transactionId);
 
-        txManager.process(response);
+        txManager.process(local, remote, response);
 
         // then
         assertFalse(txManager.contains(transactionId));
@@ -89,6 +93,8 @@ public class MgcpTransactionManagerTest {
         // given
         final int initialTransactionId = 0;
         final int finalTransactionId = 147483653;
+        final InetSocketAddress local = new InetSocketAddress("127.0.0.1", 2427);
+        final InetSocketAddress remote = new InetSocketAddress("127.0.0.1", 2727);
         final MgcpRequest request = mock(MgcpRequest.class);
         final MgcpResponse response = mock(MgcpResponse.class);
         final MgcpTransaction transaction = new MgcpTransaction(147483653);
@@ -103,7 +109,7 @@ public class MgcpTransactionManagerTest {
         when(request.getTransactionId()).thenReturn(initialTransactionId, finalTransactionId);
         when(txProvider.provideLocal()).thenReturn(transaction);
 
-        txManager.process(request, null);
+        txManager.process(local, remote, request, null);
 
         // then
         assertTrue(txManager.contains(finalTransactionId));
@@ -114,7 +120,7 @@ public class MgcpTransactionManagerTest {
         when(response.isRequest()).thenReturn(false);
         when(response.getTransactionId()).thenReturn(finalTransactionId);
 
-        txManager.process(response);
+        txManager.process(remote, local, response);
 
         // then
         assertFalse(txManager.contains(finalTransactionId));
@@ -125,6 +131,8 @@ public class MgcpTransactionManagerTest {
     public void testProcessRetransmission() throws DuplicateMgcpTransactionException, MgcpTransactionNotFoundException {
         // given
         final int transactionId = 147483653;
+        final InetSocketAddress local = new InetSocketAddress("127.0.0.1", 2427);
+        final InetSocketAddress remote = new InetSocketAddress("127.0.0.1", 2727);
         final MgcpRequest request = mock(MgcpRequest.class);
         final MgcpCommand command = mock(MgcpCommand.class);
         final MgcpTransaction transaction = new MgcpTransaction(transactionId);
@@ -140,8 +148,8 @@ public class MgcpTransactionManagerTest {
         when(request.getTransactionId()).thenReturn(transactionId);
         when(txProvider.provideRemote(transactionId)).thenReturn(transaction);
 
-        txManager.process(request, command);
-        txManager.process(request, command);
+        txManager.process(remote, local, request, command);
+        txManager.process(remote, local, request, command);
     }
 
 }

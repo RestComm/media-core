@@ -18,23 +18,29 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
+        
+package org.mobicents.media.server.bootstrap.ioc.provider;
 
-package org.mobicents.media.control.mgcp.message;
+import org.mobicents.media.control.mgcp.message.MgcpMessageParser;
+import org.mobicents.media.control.mgcp.network.MgcpPacketHandler;
 
-import java.net.InetSocketAddress;
+import com.google.inject.Provider;
 
 /**
- * Subscribes observers to receive notifications about MGCP Message passing.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpMessageSubject {
+public class MgcpPacketHandlerProvider implements Provider<MgcpPacketHandler> {
 
-    void observe(MgcpMessageObserver observer);
-
-    void forget(MgcpMessageObserver observer);
-
-    void notify(Object originator, InetSocketAddress from, InetSocketAddress to, MgcpMessage message, MessageDirection direction);
+    private final MgcpMessageParser parser;
+    
+    public MgcpPacketHandlerProvider() {
+        this.parser = new MgcpMessageParser();
+    }
+    
+    @Override
+    public MgcpPacketHandler get() {
+        return new MgcpPacketHandler(this.parser);
+    }
 
 }

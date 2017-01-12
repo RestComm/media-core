@@ -21,6 +21,7 @@
 
 package org.mobicents.media.control.mgcp.transaction;
 
+import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
@@ -57,7 +58,6 @@ public class MgcpTransactionManager implements TransactionManager {
 
     // Concurrency Components
     private final ListeningExecutorService executor;
-    private final MgcpCommandCallback commandCallback;
 
     // MGCP Components
     private final MgcpTransactionProvider transactionProvider;
@@ -78,7 +78,6 @@ public class MgcpTransactionManager implements TransactionManager {
     public MgcpTransactionManager(MgcpTransactionProvider transactionProvider, ListeningExecutorService executor) {
         // Concurrency Components
         this.executor = executor;
-        this.commandCallback = new MgcpCommandCallback();
 
         // MGCP Components
         this.transactionProvider = transactionProvider;
@@ -128,16 +127,16 @@ public class MgcpTransactionManager implements TransactionManager {
     }
 
     @Override
-    public void process(MgcpRequest request, MgcpCommand command) throws DuplicateMgcpTransactionException {
+    public void process(InetSocketAddress from, InetSocketAddress to, MgcpRequest request, MgcpCommand command) throws DuplicateMgcpTransactionException {
         createTransaction(request);
         if (command != null) {
             ListenableFuture<MgcpCommandResult> future = this.executor.submit(command);
-            Futures.addCallback(future, this.commandCallback);
+            Futures.addCallback(future, new MgcpCommandCallback(from, to));
         }
     }
 
     @Override
-    public void process(MgcpResponse response) throws MgcpTransactionNotFoundException {
+    public void process(InetSocketAddress from, InetSocketAddress to, MgcpResponse response) throws MgcpTransactionNotFoundException {
         MgcpTransaction transaction = this.transactions.remove(response.getTransactionId());
         if (transaction == null) {
             throw new MgcpTransactionNotFoundException("Could not find transaction " + response.getTransactionId());
@@ -157,12 +156,12 @@ public class MgcpTransactionManager implements TransactionManager {
     }
 
     @Override
-    public void notify(Object originator, MgcpMessage message, MessageDirection direction) {
+    public void notify(Object originator, InetSocketAddress from, InetSocketAddress to, MgcpMessage message, MessageDirection direction) {
         Iterator<MgcpMessageObserver> iterator = this.observers.iterator();
         while (iterator.hasNext()) {
             MgcpMessageObserver observer = iterator.next();
             if (observer != originator) {
-                observer.onMessage(message, direction);
+                observer.onMessage(from, to, message, direction);
             }
         }
     }
@@ -174,11 +173,19 @@ public class MgcpTransactionManager implements TransactionManager {
      *
      */
     private final class MgcpCommandCallback implements FutureCallback<MgcpCommandResult> {
+        
+        private final InetSocketAddress from;
+        private final InetSocketAddress to;
+        
+        public MgcpCommandCallback(InetSocketAddress from, InetSocketAddress to) {
+            this.from = from;
+            this.to = to;
+        }
 
         @Override
         public void onSuccess(MgcpCommandResult result) {
             MgcpResponse response = buildResponse(result);
-            MgcpTransactionManager.this.notify(MgcpTransactionManager.this, response, MessageDirection.OUTGOING);
+            MgcpTransactionManager.this.notify(MgcpTransactionManager.this, this.to, this.from, response, MessageDirection.OUTGOING);
         }
 
         @Override

@@ -26,11 +26,13 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.net.InetSocketAddress;
+
 import org.junit.Test;
 import org.mobicents.media.control.mgcp.exception.MgcpParseException;
 import org.mobicents.media.control.mgcp.message.MessageDirection;
+import org.mobicents.media.control.mgcp.message.MgcpMessageObserver;
 import org.mobicents.media.control.mgcp.message.MgcpMessageParser;
-import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
 import org.mobicents.media.server.io.network.channel.PacketHandlerException;
@@ -51,18 +53,21 @@ public class MgcpPacketHandlerTest {
         builder.append("N:restcomm@127.0.0.1:2727").append(System.lineSeparator());
         builder.append("Z2:mobicents/ivr/$@127.0.0.1:2427");
         final byte[] data = builder.toString().getBytes();
-        final MgcpMessageSubject listener = mock(MgcpMessageSubject.class);
+        final InetSocketAddress from = new InetSocketAddress("127.0.0.1", 2727);
+        final InetSocketAddress to = new InetSocketAddress("127.0.0.1", 2427);
+        final MgcpMessageObserver observer = mock(MgcpMessageObserver.class);
         final MgcpMessageParser parser = mock(MgcpMessageParser.class);
         final MgcpRequest request = mock(MgcpRequest.class);
-        final MgcpPacketHandler handler = new MgcpPacketHandler(parser, listener);
+        final MgcpPacketHandler handler = new MgcpPacketHandler(parser);
 
         // when
         when(parser.parseRequest(data, 0, data.length)).thenReturn(request);
-        handler.handle(data, null, null);
+        handler.observe(observer);
+        handler.handle(data, to, from);
 
         // then
         verify(parser, times(1)).parseRequest(data, 0, data.length);
-        verify(listener, times(1)).notify(handler, request, MessageDirection.INCOMING);
+        verify(observer, times(1)).onMessage(from, to, request, MessageDirection.INCOMING);
     }
 
     @Test
@@ -75,18 +80,21 @@ public class MgcpPacketHandlerTest {
         builder.append("Z2:mobicents/ivr/1@127.0.0.1:2427").append(System.lineSeparator());
         builder.append("I2:10").append(System.lineSeparator());
         final byte[] data = builder.toString().getBytes();
-        final MgcpMessageSubject listener = mock(MgcpMessageSubject.class);
+        final InetSocketAddress from = new InetSocketAddress("127.0.0.1", 2727);
+        final InetSocketAddress to = new InetSocketAddress("127.0.0.1", 2427);
+        final MgcpMessageObserver observer = mock(MgcpMessageObserver.class);
         final MgcpMessageParser parser = mock(MgcpMessageParser.class);
         final MgcpResponse response = mock(MgcpResponse.class);
-        final MgcpPacketHandler handler = new MgcpPacketHandler(parser, listener);
+        final MgcpPacketHandler handler = new MgcpPacketHandler(parser);
 
         // when
         when(parser.parseResponse(data, 0, data.length)).thenReturn(response);
-        handler.handle(data, null, null);
+        handler.observe(observer);
+        handler.handle(data, to, from);
 
         // then
         verify(parser, times(1)).parseResponse(data, 0, data.length);
-        verify(listener, times(1)).notify(handler, response, MessageDirection.INCOMING);
+        verify(observer, times(1)).onMessage(from, to, response, MessageDirection.INCOMING);
     }
 
 }

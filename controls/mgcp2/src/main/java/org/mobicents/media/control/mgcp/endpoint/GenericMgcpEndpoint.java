@@ -21,6 +21,7 @@
 
 package org.mobicents.media.control.mgcp.endpoint;
 
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -444,12 +445,12 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
     }
 
     @Override
-    public void notify(Object originator, MgcpMessage message, MessageDirection direction) {
+    public void notify(Object originator, InetSocketAddress from, InetSocketAddress to, MgcpMessage message, MessageDirection direction) {
         Iterator<MgcpMessageObserver> iterator = this.messageObservers.iterator();
         while (iterator.hasNext()) {
             MgcpMessageObserver observer = (MgcpMessageObserver) iterator.next();
             if (observer != originator) {
-                observer.onMessage(message, direction);
+                observer.onMessage(from, to, message, direction);
             }
         }
     }
@@ -474,7 +475,12 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
                 notify.addParameter(MgcpParameterType.REQUEST_ID, Integer.toString(signal.getRequestId(), 16));
 
                 // Send notification to call agent
-                notify(this, notify, MessageDirection.OUTGOING);
+                // FIXME ADD PORT to endpoint domain
+//                String[] localTokens = this.endpointId.getDomainName().split(":");
+//                InetSocketAddress from = new InetSocketAddress(localTokens[0], Integer.parseInt(localTokens[1]));
+                InetSocketAddress from = new InetSocketAddress(this.endpointId.getDomainName(), 2427);
+                InetSocketAddress to = new InetSocketAddress(this.notifiedEntity.getDomain(), this.notifiedEntity.getPort());
+                notify(this, from, to, notify, MessageDirection.OUTGOING);
             }
         }
     }

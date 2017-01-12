@@ -21,6 +21,7 @@
 
 package org.mobicents.media.control.mgcp.endpoint;
 
+import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
@@ -123,8 +124,8 @@ public class MgcpEndpointManager implements MgcpEndpointObserver, MgcpMessageObs
     }
 
     @Override
-    public void onMessage(MgcpMessage message, MessageDirection direction) {
-        notify(this, message, direction);
+    public void onMessage(InetSocketAddress from, InetSocketAddress to, MgcpMessage message, MessageDirection direction) {
+        notify(this, from, to, message, direction);
     }
 
     @Override
@@ -138,12 +139,12 @@ public class MgcpEndpointManager implements MgcpEndpointObserver, MgcpMessageObs
     }
 
     @Override
-    public void notify(Object originator, MgcpMessage message, MessageDirection direction) {
+    public void notify(Object originator, InetSocketAddress from, InetSocketAddress to, MgcpMessage message, MessageDirection direction) {
         Iterator<MgcpMessageObserver> iterator = this.observers.iterator();
         while (iterator.hasNext()) {
             MgcpMessageObserver observer = iterator.next();
             if (observer != originator) {
-                observer.onMessage(message, direction);
+                observer.onMessage(from, to, message, direction);
             }
         }
     }
