@@ -21,6 +21,8 @@
 
 package org.mobicents.media.control.mgcp.pkg;
 
+import org.mobicents.media.control.mgcp.command.param.NotifiedEntity;
+
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
@@ -40,6 +42,17 @@ public interface MgcpSignal extends MgcpEventSubject {
      * @return The request identifier.
      */
     int getRequestId();
+
+    /**
+     * Gets the entity which requested the notification of events resulting from the completion of the signal.
+     * <p>
+     * This parameter is equal to the NotifiedEntity parameter of the NotificationRequest that triggered this notification. The
+     * parameter is absent if there was no such parameter in the triggering request.
+     * </p>
+     * 
+     * @return The entity that submitted the signal. May return null if parameter was not specified in original RQNT command.
+     */
+    NotifiedEntity getNotifiedEntity();
 
     /**
      * Gets the type of signal.

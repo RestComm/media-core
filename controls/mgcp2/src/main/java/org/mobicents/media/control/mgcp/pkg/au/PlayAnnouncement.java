@@ -25,6 +25,7 @@ import java.net.MalformedURLException;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.mobicents.media.control.mgcp.command.param.NotifiedEntity;
 import org.mobicents.media.control.mgcp.pkg.AbstractMgcpSignal;
 import org.mobicents.media.control.mgcp.pkg.SignalType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
@@ -79,8 +80,8 @@ public class PlayAnnouncement extends AbstractMgcpSignal implements PlayerListen
     private final long duration;
     private final long interval;
 
-    public PlayAnnouncement(Player player, int requestId, Map<String, String> parameters) {
-        super(AudioPackage.PACKAGE_NAME, SIGNAL, SignalType.TIME_OUT, requestId, parameters);
+    public PlayAnnouncement(Player player, int requestId, NotifiedEntity notifiedEntity, Map<String, String> parameters) {
+        super(AudioPackage.PACKAGE_NAME, SIGNAL, SignalType.TIME_OUT, requestId, notifiedEntity, parameters);
 
         // Setup Play Parameters
         this.duration = getDuration();
@@ -96,6 +97,10 @@ public class PlayAnnouncement extends AbstractMgcpSignal implements PlayerListen
         } catch (TooManyListenersException e) {
             log.error("Too many listeners for audio player", e);
         }
+    }
+
+    public PlayAnnouncement(Player player, int requestId, Map<String, String> parameters) {
+        this(player, requestId, null, parameters);
     }
 
     private String[] getSegments() {

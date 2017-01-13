@@ -97,6 +97,19 @@ public class NotifiedEntity {
     public void setPort(int port) {
         this.port = port;
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if(obj == null) {
+            return false;
+        }
+        
+        if(obj instanceof NotifiedEntity) {
+            NotifiedEntity other = (NotifiedEntity) obj;
+            return this.name.equals(other.name) && this.domain.equals(other.domain) && this.port == other.port;
+        }
+        return false;
+    }
 
     @Override
     public String toString() {

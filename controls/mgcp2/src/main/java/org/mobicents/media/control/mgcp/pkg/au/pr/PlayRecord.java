@@ -23,6 +23,7 @@ package org.mobicents.media.control.mgcp.pkg.au.pr;
 
 import java.util.Map;
 
+import org.mobicents.media.control.mgcp.command.param.NotifiedEntity;
 import org.mobicents.media.control.mgcp.pkg.AbstractMgcpSignal;
 import org.mobicents.media.control.mgcp.pkg.SignalType;
 import org.mobicents.media.control.mgcp.pkg.au.AudioPackage;
@@ -61,8 +62,8 @@ public class PlayRecord extends AbstractMgcpSignal {
     // Execution Context
     private final PlayRecordContext context;
 
-    public PlayRecord(Player player, DtmfDetector detector, Recorder recorder, int requestId, Map<String, String> parameters) {
-        super(AudioPackage.PACKAGE_NAME, SYMBOL, SignalType.TIME_OUT, requestId, parameters);
+    public PlayRecord(Player player, DtmfDetector detector, Recorder recorder, int requestId, NotifiedEntity notifiedEntity, Map<String, String> parameters) {
+        super(AudioPackage.PACKAGE_NAME, SYMBOL, SignalType.TIME_OUT, requestId, notifiedEntity, parameters);
 
         // Media Components
         this.player = player;
@@ -80,6 +81,10 @@ public class PlayRecord extends AbstractMgcpSignal {
         // Finite State Machine
         this.fsm = PlayRecordFsmBuilder.INSTANCE.build(this, recorder, recorderListener, detector, detectorListener, player,
                 playerListener, context);
+    }
+    
+    public PlayRecord(Player player, DtmfDetector detector, Recorder recorder, int requestId, Map<String, String> parameters) {
+        this(player, detector, recorder, requestId, null, parameters);
     }
 
     @Override
