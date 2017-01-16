@@ -514,8 +514,8 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
                 notify.addParameter(MgcpParameterType.REQUEST_ID, Integer.toString(signal.getRequestId(), 16));
 
                 // Send notification to call agent
-                String[] localTokens = this.endpointId.getDomainName().split(":");
-                InetSocketAddress from = new InetSocketAddress(localTokens[0], Integer.parseInt(localTokens[1]));
+                // TODO hard-coded port in FROM field
+                InetSocketAddress from = new InetSocketAddress(this.endpointId.getDomainName(), 2427);
                 InetSocketAddress to = new InetSocketAddress(this.notifiedEntity.getDomain(), this.notifiedEntity.getPort());
                 notify(this, from, to, notify, MessageDirection.OUTGOING);
             }

@@ -91,6 +91,7 @@ public class MgcpEndpointManager implements MgcpEndpointObserver, MgcpMessageObs
      * Registers a new endpoint.
      * 
      * @param endpoint The name space of the endpoint which indicates what kind of endpoint is generated.
+     * @param domain The domain where the endpoint is to be registered.
      */
     public MgcpEndpoint registerEndpoint(String namespace) throws UnrecognizedMgcpNamespaceException {
         // Get correct endpoint provider
