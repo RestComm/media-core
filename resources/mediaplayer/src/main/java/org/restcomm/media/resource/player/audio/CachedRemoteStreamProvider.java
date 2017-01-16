@@ -1,12 +1,5 @@
 package org.restcomm.media.resource.player.audio;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.ehcache.Cache;
@@ -15,7 +8,14 @@ import org.ehcache.config.builders.CacheConfigurationBuilder;
 import org.ehcache.config.builders.CacheManagerBuilder;
 import org.ehcache.config.builders.ResourcePoolsBuilder;
 import org.ehcache.config.units.MemoryUnit;
-import org.ehcache.sizeof.annotations.IgnoreSizeOf;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by achikin on 5/9/16.
@@ -26,68 +26,78 @@ public class CachedRemoteStreamProvider implements RemoteStreamProvider {
 
     private CacheManager cacheManager;
 
-    private ByteStreamCache.ISizeChangedListener sizeChangedListener;
+    private ConcurrentHashMap<String, ByteStreamDownloader> inProgress = new ConcurrentHashMap<>();
 
     public CachedRemoteStreamProvider(int size) {
         log.info("Create AudioCache with size: " + size + "Mb");
         cacheManager = CacheManagerBuilder.newCacheManagerBuilder()
                 .withCache("preConfigured",
-                        CacheConfigurationBuilder.newCacheConfigurationBuilder(URL.class, ByteStreamCache.class,
-                                ResourcePoolsBuilder.newResourcePoolsBuilder().heap(size, MemoryUnit.MB))
+                        CacheConfigurationBuilder.newCacheConfigurationBuilder(String.class, byte[].class,
+                                ResourcePoolsBuilder.newResourcePoolsBuilder().offheap(size, MemoryUnit.MB))
                                 .build())
                 .build(true);
-        sizeChangedListener = new ByteStreamCache.ISizeChangedListener() {
-            @Override
-            public void onSizeChanged(final URL uri, final ByteStreamCache self) {
-                log.debug("onSizeChanged for " + uri);
-                getCache().put(uri, self);
-            }
-        };
     }
 
-    private Cache<URL, ByteStreamCache> getCache() {
-        return cacheManager.getCache("preConfigured", URL.class, ByteStreamCache.class);
+    private Cache<String, byte[]> getCache() {
+        return cacheManager.getCache("preConfigured", String.class, byte[].class);
     }
 
     public InputStream getStream(URL uri) throws IOException {
-        Cache<URL, ByteStreamCache> cache = getCache();
+        String key = uri.toString();
+        Cache<String, byte[]> cache = getCache();
 
-        ByteStreamCache stream = cache.get(uri);
+        byte[] stream = cache.get(key);
         if (stream == null) {
-            stream = new ByteStreamCache();
-            ByteStreamCache exists = cache.putIfAbsent(uri, stream);
-            if (exists != null) {
-                stream = exists;
-            }
+            stream = download(cache, uri);
         }
-        return new ByteArrayInputStream(stream.getBytes(uri, sizeChangedListener));
+
+        return new ByteArrayInputStream(stream);
     }
 
-    private static class ByteStreamCache {
+    private byte[] download(Cache<String, byte[]> cache, final URL uri) throws IOException {
+        String key = uri.toString();
+        ByteStreamDownloader stream = inProgress.get(key);
+        if (stream == null) {
+            stream = new ByteStreamDownloader();
+            ByteStreamDownloader prev = inProgress.putIfAbsent(key, stream);
+            if (prev == null) {
+                //check bytes in cache again too, maybe it's already added
+                byte[] bytes = cache.get(key);
+                if (bytes != null) {
+                    return bytes;
+                }
+            } else {
+                stream = prev;
+            }
+        }
+        try {
+            byte[] bytes = stream.download(uri);
+            cache.putIfAbsent(key, bytes);
+            return bytes;
+        } finally {
+            inProgress.remove(key);
+        }
+    }
 
-        @IgnoreSizeOf
+    private static class ByteStreamDownloader {
+
         private Lock lock = new ReentrantLock();
 
-        private volatile byte[] bytes;
+        volatile byte[] bytes;
 
-        public byte[] getBytes(final URL uri, final ISizeChangedListener listener) throws IOException {
+        public byte[] download(final URL uri) throws IOException {
             if (bytes == null) {
                 lock.lock();
                 try {
                     //need to check twice
                     if (bytes == null) {
                         bytes = IOUtils.toByteArray(uri.openStream());
-                        listener.onSizeChanged(uri, this);
                     }
                 } finally {
                     lock.unlock();
                 }
             }
             return bytes;
-        }
-
-        interface ISizeChangedListener {
-            void onSizeChanged(URL uri, ByteStreamCache self);
         }
     }
 }
