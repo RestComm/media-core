@@ -21,18 +21,28 @@
 
 package org.mobicents.media.control.mgcp.endpoint;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
+
+import java.net.InetSocketAddress;
 
 import org.junit.Test;
 import org.mobicents.media.control.mgcp.command.NotificationRequest;
 import org.mobicents.media.control.mgcp.command.param.NotifiedEntity;
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
+import org.mobicents.media.control.mgcp.message.MessageDirection;
+import org.mobicents.media.control.mgcp.message.MgcpMessage;
+import org.mobicents.media.control.mgcp.message.MgcpMessageObserver;
+import org.mobicents.media.control.mgcp.message.MgcpParameterType;
+import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.pkg.AbstractMgcpSignal;
+import org.mobicents.media.control.mgcp.pkg.MgcpEvent;
 import org.mobicents.media.control.mgcp.pkg.MgcpRequestedEvent;
 import org.mobicents.media.control.mgcp.pkg.MgcpSignal;
 import org.mobicents.media.control.mgcp.pkg.SignalType;
+import org.mockito.ArgumentCaptor;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -201,6 +211,91 @@ public class GenericMgcpEndpointTest {
         assertFalse(signal1.calledCancel);
         assertFalse(signal2.calledExecute);
         assertFalse(signal2.calledCancel);
+    }
+
+    @Test
+    public void testExecuteTimeoutSignalAndTriggerNotifyActionWithoutNotifiedEntity() {
+        // given
+        final ArgumentCaptor<MgcpMessage> eventCaptor = ArgumentCaptor.forClass(MgcpMessage.class);
+        final InetSocketAddress localAddress = new InetSocketAddress("127.0.0.1", 2427);
+        final InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 2727);
+        final MgcpMessageObserver msgObserver = mock(MgcpMessageObserver.class);
+        
+        final MgcpRequestedEvent ocEvent = mock(MgcpRequestedEvent.class);
+        final MgcpRequestedEvent ofEvent = mock(MgcpRequestedEvent.class);
+        final MgcpRequestedEvent[] requestedEvents = new MgcpRequestedEvent[] { ocEvent, ofEvent };
+
+        final MgcpSignal signal = mock(MgcpSignal.class);
+        final MgcpEvent event = mock(MgcpEvent.class);
+        final NotificationRequest rqnt = new NotificationRequest(1, "1a", null, requestedEvents, signal);
+        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
+        final MediaGroup mediaGroup = mock(MediaGroup.class);
+        final EndpointIdentifier endpointId = new EndpointIdentifier("mobicents/endpoint/1", "127.0.0.1:2427");
+        final MgcpEndpoint genericMgcpEndpoint = new GenericMgcpEndpoint(endpointId, connectionProvider, mediaGroup);
+
+        // when
+        when(signal.getSignalType()).thenReturn(SignalType.TIME_OUT);
+        when(signal.getName()).thenReturn("AU/pa");
+        when(signal.getNotifiedEntity()).thenReturn(null);
+        when(event.getPackage()).thenReturn("AU");
+        when(event.getSymbol()).thenReturn("oc");
+        when(ocEvent.getQualifiedName()).thenReturn("AU/oc");
+        when(ofEvent.getQualifiedName()).thenReturn("AU/oc");
+        
+        genericMgcpEndpoint.observe(msgObserver);
+        genericMgcpEndpoint.requestNotification(rqnt);
+        genericMgcpEndpoint.onEvent(signal, event);
+        
+        // then
+        verify(signal, times(1)).execute();
+        verify(msgObserver, timeout(5)).onMessage(eq(localAddress), eq(remoteAddress), eventCaptor.capture(), eq(MessageDirection.OUTGOING));
+        
+        final MgcpMessage ntfy = eventCaptor.getValue();
+        assertTrue(ntfy instanceof MgcpRequest);
+        assertEquals(null, ntfy.getParameter(MgcpParameterType.NOTIFIED_ENTITY));
+    }
+
+    @Test
+    public void testExecuteTimeoutSignalAndTriggerNotifyActionWithNotifiedEntity() {
+        // given
+        final ArgumentCaptor<MgcpMessage> eventCaptor = ArgumentCaptor.forClass(MgcpMessage.class);
+        final InetSocketAddress localAddress = new InetSocketAddress("127.0.0.1", 2427);
+        final InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 2727);
+        final MgcpMessageObserver msgObserver = mock(MgcpMessageObserver.class);
+        
+        final NotifiedEntity notifiedEntity = new NotifiedEntity("call-agent", "127.0.0.1", 2727);
+        final MgcpRequestedEvent ocEvent = mock(MgcpRequestedEvent.class);
+        final MgcpRequestedEvent ofEvent = mock(MgcpRequestedEvent.class);
+        final MgcpRequestedEvent[] requestedEvents = new MgcpRequestedEvent[] { ocEvent, ofEvent };
+        
+        final MgcpSignal signal = mock(MgcpSignal.class);
+        final MgcpEvent event = mock(MgcpEvent.class);
+        final NotificationRequest rqnt = new NotificationRequest(1, "1a", notifiedEntity, requestedEvents, signal);
+        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
+        final MediaGroup mediaGroup = mock(MediaGroup.class);
+        final EndpointIdentifier endpointId = new EndpointIdentifier("mobicents/endpoint/1", "127.0.0.1:2427");
+        final MgcpEndpoint genericMgcpEndpoint = new GenericMgcpEndpoint(endpointId, connectionProvider, mediaGroup);
+        
+        // when
+        when(signal.getSignalType()).thenReturn(SignalType.TIME_OUT);
+        when(signal.getNotifiedEntity()).thenReturn(notifiedEntity);
+        when(signal.getName()).thenReturn("AU/pa");
+        when(event.getPackage()).thenReturn("AU");
+        when(event.getSymbol()).thenReturn("oc");
+        when(ocEvent.getQualifiedName()).thenReturn("AU/oc");
+        when(ofEvent.getQualifiedName()).thenReturn("AU/oc");
+        
+        genericMgcpEndpoint.observe(msgObserver);
+        genericMgcpEndpoint.requestNotification(rqnt);
+        genericMgcpEndpoint.onEvent(signal, event);
+        
+        // then
+        verify(signal, times(1)).execute();
+        verify(msgObserver, timeout(5)).onMessage(eq(localAddress), eq(remoteAddress), eventCaptor.capture(), eq(MessageDirection.OUTGOING));
+        
+        final MgcpMessage ntfy = eventCaptor.getValue();
+        assertTrue(ntfy instanceof MgcpRequest);
+        assertEquals(notifiedEntity.toString(), ntfy.getParameter(MgcpParameterType.NOTIFIED_ENTITY));
     }
 
     /**
