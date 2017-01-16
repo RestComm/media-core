@@ -420,8 +420,8 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
     public void cancelSignal(String signal) {
         MgcpSignal ongoing = this.signals.get(signal);
         if(ongoing != null) {
-            if (log.isInfoEnabled()) {
-                log.info("Canceling signal " + ongoing.toString() + " on endpoint " + getEndpointId().toString());
+            if (log.isDebugEnabled()) {
+                log.debug("Canceling signal " + ongoing.toString() + " on endpoint " + getEndpointId().toString());
             }
             ongoing.cancel();
         }
@@ -505,15 +505,17 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
                 notify.setRequestType(MgcpRequestType.NTFY);
                 notify.setTransactionId(0);
                 notify.setEndpointId(this.endpointId.toString());
-                notify.addParameter(MgcpParameterType.NOTIFIED_ENTITY, this.notifiedEntity.toString());
+                
+                NotifiedEntity entity = signal.getNotifiedEntity();
+                if(entity != null) {
+                    notify.addParameter(MgcpParameterType.NOTIFIED_ENTITY, this.notifiedEntity.toString());
+                }
                 notify.addParameter(MgcpParameterType.OBSERVED_EVENT, event.toString());
                 notify.addParameter(MgcpParameterType.REQUEST_ID, Integer.toString(signal.getRequestId(), 16));
 
                 // Send notification to call agent
-                // FIXME ADD PORT to endpoint domain
-//                String[] localTokens = this.endpointId.getDomainName().split(":");
-//                InetSocketAddress from = new InetSocketAddress(localTokens[0], Integer.parseInt(localTokens[1]));
-                InetSocketAddress from = new InetSocketAddress(this.endpointId.getDomainName(), 2427);
+                String[] localTokens = this.endpointId.getDomainName().split(":");
+                InetSocketAddress from = new InetSocketAddress(localTokens[0], Integer.parseInt(localTokens[1]));
                 InetSocketAddress to = new InetSocketAddress(this.notifiedEntity.getDomain(), this.notifiedEntity.getPort());
                 notify(this, from, to, notify, MessageDirection.OUTGOING);
             }

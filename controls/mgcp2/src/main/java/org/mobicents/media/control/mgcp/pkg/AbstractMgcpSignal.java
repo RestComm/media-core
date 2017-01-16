@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.mobicents.media.control.mgcp.command.param.NotifiedEntity;
+
 /**
  * Generic representation of an MGCP Signal.
  * 
@@ -40,11 +42,12 @@ public abstract class AbstractMgcpSignal implements MgcpSignal {
     private final String packageName;
     private final String symbol;
     private final SignalType type;
+    private final NotifiedEntity notifiedEntity;
     private final Map<String, String> parameters;
     private final List<MgcpEventObserver> observers;
     protected final AtomicBoolean executing;
 
-    public AbstractMgcpSignal(String packageName, String symbol, SignalType type, int requestId, Map<String, String> parameters) {
+    public AbstractMgcpSignal(String packageName, String symbol, SignalType type, int requestId, NotifiedEntity notifiedEntity, Map<String, String> parameters) {
         super();
         this.packageName = packageName;
         this.symbol = symbol;
@@ -53,16 +56,25 @@ public abstract class AbstractMgcpSignal implements MgcpSignal {
         this.parameters = parameters;
         this.observers = new CopyOnWriteArrayList<>();
         this.executing = new AtomicBoolean(false);
+        this.notifiedEntity = notifiedEntity;
+    }
+
+    public AbstractMgcpSignal(String packageName, String symbol, SignalType type, int requestId, Map<String, String> parameters) {
+        this(packageName, symbol, type, requestId, null, parameters);
+    }
+
+    public AbstractMgcpSignal(String packageName, String symbol, SignalType type, int requestId, NotifiedEntity notifiedEntity) {
+        this(packageName, symbol, type, requestId, notifiedEntity, Collections.<String, String> emptyMap());
     }
 
     public AbstractMgcpSignal(String packageName, String symbol, SignalType type, int requestId) {
-        this(packageName, symbol, type, requestId, Collections.<String, String> emptyMap());
+        this(packageName, symbol, type, requestId, null, Collections.<String, String> emptyMap());
     }
 
     public String getSymbol() {
         return symbol;
     }
-    
+
     @Override
     public String getName() {
         return this.packageName + "/" + this.symbol;
@@ -72,10 +84,15 @@ public abstract class AbstractMgcpSignal implements MgcpSignal {
     public SignalType getSignalType() {
         return type;
     }
-    
+
     @Override
     public int getRequestId() {
         return this.requestId;
+    }
+    
+    @Override
+    public NotifiedEntity getNotifiedEntity() {
+        return this.notifiedEntity;
     }
 
     public String getParameter(String name) {
@@ -98,13 +115,13 @@ public abstract class AbstractMgcpSignal implements MgcpSignal {
     public void forget(MgcpEventObserver observer) {
         this.observers.remove(observer);
     }
-    
+
     @Override
     public void notify(Object originator, MgcpEvent event) {
         Iterator<MgcpEventObserver> iterator = this.observers.iterator();
         while (iterator.hasNext()) {
             MgcpEventObserver observer = iterator.next();
-            if(observer != originator) {
+            if (observer != originator) {
                 observer.onEvent(originator, event);
             }
         }
@@ -129,7 +146,7 @@ public abstract class AbstractMgcpSignal implements MgcpSignal {
         }
         return equals;
     }
-    
+
     @Override
     public String toString() {
         return this.packageName + "/" + this.symbol;

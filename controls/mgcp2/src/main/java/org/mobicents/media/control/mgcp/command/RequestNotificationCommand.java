@@ -143,7 +143,7 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
                 signals = new MgcpSignal[signalRequests.length];
                 for (int i = 0; i < signalRequests.length; i++) {
                     SignalRequest signalRequest = signalRequests[i];
-                    signals[i] = this.signalProvider.provide(signalRequest.getPackageName(), signalRequest.getSignalType(), Integer.parseInt(context.requestId, 16), signalRequest.getParameters(), endpoint);
+                    signals[i] = this.signalProvider.provide(signalRequest.getPackageName(), signalRequest.getSignalType(), Integer.parseInt(context.requestId, 16), context.notifiedEntity, signalRequest.getParameters(), endpoint);
                 }
             } catch (UnrecognizedMgcpPackageException e) {
                 throw new MgcpCommandException(MgcpResponseCode.UNKNOWN_PACKAGE);
@@ -153,8 +153,7 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
         }
 
         // Submit notification request to endpoint
-        NotificationRequest rqnt = new NotificationRequest(transactionId, context.requestId, context.notifiedEntity,
-                context.requestedEvents, signals);
+        NotificationRequest rqnt = new NotificationRequest(transactionId, context.requestId, context.notifiedEntity, context.requestedEvents, signals);
 
         // TODO Make MGCP Controller observe state of the endpoint
         // Iterator<MgcpMessageObserver> iterator = this.observers.iterator();
@@ -185,11 +184,11 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
             context.code = MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code();
             context.message = MgcpResponseCode.TRANSACTION_WAS_EXECUTED.message();
         } catch (RuntimeException e) {
-            log.error("Unexpected error occurred during tx=" + this.transactionId + " execution. Rolling back.");
+            log.warn("Unexpected error occurred during tx=" + this.transactionId + " execution. Reason:", e);
             context.code = MgcpResponseCode.PROTOCOL_ERROR.code();
             context.message = MgcpResponseCode.PROTOCOL_ERROR.message();
         } catch (MgcpCommandException e) {
-            log.error("Protocol error occurred during tx=" + this.transactionId + " execution: " + e.getMessage());
+            log.warn("Protocol error occurred during tx=" + this.transactionId + " execution. Reason:", e);
             context.code = e.getCode();
             context.message = e.getMessage();
         }

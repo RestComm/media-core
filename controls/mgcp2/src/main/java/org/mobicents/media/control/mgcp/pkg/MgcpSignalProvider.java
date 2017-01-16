@@ -23,6 +23,7 @@ package org.mobicents.media.control.mgcp.pkg;
 
 import java.util.Map;
 
+import org.mobicents.media.control.mgcp.command.param.NotifiedEntity;
 import org.mobicents.media.control.mgcp.endpoint.MediaGroup;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.mobicents.media.control.mgcp.pkg.au.AudioPackage;
@@ -56,24 +57,26 @@ public class MgcpSignalProvider {
      * 
      * @param pkg The package name.
      * @param signal The signal name.
+     * @param requestId The request identifier.
+     * @param notifiedEntity The entity that requested to be notified about events resulting from signal completion. May be null.
      * @param parameters The parameters that configure the signal
      * @param endpoint The endpoint where the signal is going to be executed.
      * @return The MGCP signal.
      * @throws UnrecognizedMgcpPackageException When package name is unrecognized.
      * @throws UnsupportedMgcpSignalException When package does not support the specified signal.
      */
-    public MgcpSignal provide(String pkg, String signal, int requestId, Map<String, String> parameters, MgcpEndpoint endpoint)
+    public MgcpSignal provide(String pkg, String signal, int requestId, NotifiedEntity notifiedEntity, Map<String, String> parameters, MgcpEndpoint endpoint)
             throws UnrecognizedMgcpPackageException, UnsupportedMgcpSignalException {
         switch (pkg) {
             case AudioPackage.PACKAGE_NAME:
-                return provideAudioSignal(signal, requestId, parameters, endpoint, this.executor);
+                return provideAudioSignal(signal, requestId, notifiedEntity, parameters, endpoint, this.executor);
 
             default:
                 throw new UnrecognizedMgcpPackageException("Unrecognized package " + pkg);
         }
     }
 
-    private MgcpSignal provideAudioSignal(String signal, int requestId, Map<String, String> parameters, MgcpEndpoint endpoint, ListeningScheduledExecutorService executor) throws UnsupportedMgcpSignalException {
+    private MgcpSignal provideAudioSignal(String signal, int requestId, NotifiedEntity notifiedEntity, Map<String, String> parameters, MgcpEndpoint endpoint, ListeningScheduledExecutorService executor) throws UnsupportedMgcpSignalException {
         // Validate signal type
         final AudioSignalType signalType = AudioSignalType.fromSymbol(signal);
 
@@ -86,16 +89,16 @@ public class MgcpSignalProvider {
 
         switch (signalType) {
             case PLAY_ANNOUNCEMENT:
-                return new PlayAnnouncement(mediaGroup.getPlayer(), requestId, parameters);
+                return new PlayAnnouncement(mediaGroup.getPlayer(), requestId, notifiedEntity, parameters);
 
             case PLAY_COLLECT:
-                return new PlayCollect(mediaGroup.getPlayer(), mediaGroup.getDetector(), requestId, parameters, executor);
+                return new PlayCollect(mediaGroup.getPlayer(), mediaGroup.getDetector(), requestId, notifiedEntity, parameters, executor);
 
             case PLAY_RECORD:
-                return new PlayRecord(mediaGroup.getPlayer(), mediaGroup.getDetector(), mediaGroup.getRecorder(), requestId, parameters);
+                return new PlayRecord(mediaGroup.getPlayer(), mediaGroup.getDetector(), mediaGroup.getRecorder(), requestId, notifiedEntity, parameters);
 
             case END_SIGNAL:
-                return new EndSignal(endpoint, requestId, parameters);
+                return new EndSignal(endpoint, requestId, notifiedEntity, parameters);
 
             default:
                 throw new IllegalArgumentException("Unsupported audio signal: " + signal);

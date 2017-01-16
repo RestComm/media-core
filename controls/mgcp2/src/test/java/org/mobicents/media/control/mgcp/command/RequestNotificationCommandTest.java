@@ -23,6 +23,7 @@ package org.mobicents.media.control.mgcp.command;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -66,6 +67,7 @@ public class RequestNotificationCommandTest {
 
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
+        final NotifiedEntity notifiedEntity = new NotifiedEntity("restcomm", "10.229.72.130", 2727);
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MediaGroup mediaGroup = mock(MediaGroup.class);
@@ -75,7 +77,7 @@ public class RequestNotificationCommandTest {
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10@127.0.0.1:2427")).thenReturn(endpoint);
         when(endpoint.getMediaGroup()).thenReturn(mediaGroup);
-        when(signalProvider.provide(eq("AU"), eq("pa"), eq(16), any(Map.class), eq(endpoint))).thenReturn(mock(MgcpSignal.class));
+        when(signalProvider.provide(eq("AU"), eq("pa"), eq(16), eq(notifiedEntity), any(Map.class), eq(endpoint))).thenReturn(mock(MgcpSignal.class));
 
         doAnswer(new Answer<Object>() {
 
@@ -85,12 +87,12 @@ public class RequestNotificationCommandTest {
                 NotificationRequest rqnt = invocation.getArgumentAt(0, NotificationRequest.class);
                 int transactionId = rqnt.getTransactionId();
                 String requestId = rqnt.getRequestIdentifier();
-                NotifiedEntity notifiedEntity = rqnt.getNotifiedEntity();
+                NotifiedEntity entity = rqnt.getNotifiedEntity();
 
                 Assert.assertEquals(12345, transactionId);
                 Assert.assertEquals("10", requestId);
                 Assert.assertNotNull(notifiedEntity);
-                Assert.assertEquals("restcomm@10.229.72.130:2727", notifiedEntity.toString());
+                Assert.assertEquals("restcomm@10.229.72.130:2727", entity.toString());
                 Assert.assertEquals("10", requestId);
                 Assert.assertTrue(rqnt.isListening("AU/oc"));
                 Assert.assertTrue(rqnt.isListening("AU/of"));
@@ -112,6 +114,60 @@ public class RequestNotificationCommandTest {
 
     @Test
     @SuppressWarnings("unchecked")
+    public void testNotificationRequestWithoutNotifiedEntity() throws MgcpParseException, UnrecognizedMgcpPackageException, UnsupportedMgcpSignalException {
+        // given
+        final StringBuilder builder = new StringBuilder("RQNT 12345 mobicents/ivr/10@127.0.0.1:2427 MGCP 1.0").append("\n");
+        builder.append("X:10").append("\n");
+        builder.append("S:AU/pa(an=http://127.0.0.1:8080/restcomm/cache/ACae6e420f/5a26d1299.wav it=1)").append("\n");
+        builder.append("R:AU/oc(N),AU/of(N)");
+        
+        final MgcpMessageParser parser = new MgcpMessageParser();
+        final MgcpRequest request = parser.parseRequest(builder.toString());
+        final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
+        final MediaGroup mediaGroup = mock(MediaGroup.class);
+        final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
+        final RequestNotificationCommand rqnt = new RequestNotificationCommand(request.getTransactionId(), request.getParameters(), endpointManager, signalProvider);
+        
+        // when
+        when(endpointManager.getEndpoint("mobicents/ivr/10@127.0.0.1:2427")).thenReturn(endpoint);
+        when(endpoint.getMediaGroup()).thenReturn(mediaGroup);
+        when(signalProvider.provide(eq("AU"), eq("pa"), eq(16), isNull(NotifiedEntity.class), any(Map.class), eq(endpoint))).thenReturn(mock(MgcpSignal.class));
+        
+        doAnswer(new Answer<Object>() {
+            
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                // then
+                NotificationRequest rqnt = invocation.getArgumentAt(0, NotificationRequest.class);
+                int transactionId = rqnt.getTransactionId();
+                String requestId = rqnt.getRequestIdentifier();
+                NotifiedEntity entity = rqnt.getNotifiedEntity();
+
+                Assert.assertEquals(12345, transactionId);
+                Assert.assertEquals("10", requestId);
+                Assert.assertNull(entity);
+                Assert.assertEquals("10", requestId);
+                Assert.assertTrue(rqnt.isListening("AU/oc"));
+                Assert.assertTrue(rqnt.isListening("AU/of"));
+                Assert.assertEquals(1, rqnt.countSignals());
+                Assert.assertNotNull(rqnt.pollSignal());
+                Assert.assertNull(rqnt.pollSignal());
+                return null;
+            }
+            
+        }).when(endpoint).requestNotification(any(NotificationRequest.class));
+        
+        MgcpCommandResult result = rqnt.call();
+        
+        // then
+        Assert.assertNotNull(result);
+        Assert.assertEquals(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code(), result.getCode());
+        verify(endpoint, times(1)).requestNotification(any(NotificationRequest.class));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
     public void testNotificationRequestWithMultipleSignals()
             throws MgcpParseException, UnrecognizedMgcpPackageException, UnsupportedMgcpSignalException {
         // given
@@ -124,6 +180,7 @@ public class RequestNotificationCommandTest {
 
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
+        final NotifiedEntity notifiedEntity = new NotifiedEntity("restcomm", "10.229.72.130", 2727);
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MediaGroup mediaGroup = mock(MediaGroup.class);
@@ -133,7 +190,7 @@ public class RequestNotificationCommandTest {
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10@127.0.0.1:2427")).thenReturn(endpoint);
         when(endpoint.getMediaGroup()).thenReturn(mediaGroup);
-        when(signalProvider.provide(eq("AU"), eq("pa"), eq(16), any(Map.class), eq(endpoint))).thenReturn(mock(MgcpSignal.class));
+        when(signalProvider.provide(eq("AU"), eq("pa"), eq(16), eq(notifiedEntity), any(Map.class), eq(endpoint))).thenReturn(mock(MgcpSignal.class));
         doAnswer(new Answer<Object>() {
 
             @Override
@@ -255,6 +312,7 @@ public class RequestNotificationCommandTest {
         builder.append("R:AX/oc(N),AX/of(N)");
 
         final MgcpMessageParser parser = new MgcpMessageParser();
+        final NotifiedEntity notifiedEntity = new NotifiedEntity("restcomm", "10.229.72.130", 2727);
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
@@ -265,7 +323,7 @@ public class RequestNotificationCommandTest {
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10@127.0.0.1:2427")).thenReturn(endpoint);
         when(endpoint.getMediaGroup()).thenReturn(mediaGroup);
-        when(signalProvider.provide(eq("AX"), eq("pa"), eq(16), any(Map.class), eq(endpoint))).thenThrow(new UnrecognizedMgcpPackageException(""));
+        when(signalProvider.provide(eq("AX"), eq("pa"), eq(16), eq(notifiedEntity), any(Map.class), eq(endpoint))).thenThrow(new UnrecognizedMgcpPackageException(""));
 
         MgcpCommandResult result = rqnt.call();
         
@@ -285,6 +343,7 @@ public class RequestNotificationCommandTest {
         builder.append("R:AU/oc(N),AU/of(N)");
 
         final MgcpMessageParser parser = new MgcpMessageParser();
+        final NotifiedEntity notifiedEntity = new NotifiedEntity("restcomm", "10.229.72.130", 2727);
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
@@ -295,7 +354,7 @@ public class RequestNotificationCommandTest {
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10@127.0.0.1:2427")).thenReturn(endpoint);
         when(endpoint.getMediaGroup()).thenReturn(mediaGroup);
-        when(signalProvider.provide(eq("AU"), eq("xyz"), eq(16), any(Map.class), eq(endpoint))).thenThrow(new UnsupportedMgcpSignalException(""));
+        when(signalProvider.provide(eq("AU"), eq("xyz"), eq(16), eq(notifiedEntity), any(Map.class), eq(endpoint))).thenThrow(new UnsupportedMgcpSignalException(""));
 
         MgcpCommandResult result = rqnt.call();
         

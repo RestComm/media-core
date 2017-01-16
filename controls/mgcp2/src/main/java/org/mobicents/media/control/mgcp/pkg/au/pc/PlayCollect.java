@@ -23,6 +23,7 @@ package org.mobicents.media.control.mgcp.pkg.au.pc;
 
 import java.util.Map;
 
+import org.mobicents.media.control.mgcp.command.param.NotifiedEntity;
 import org.mobicents.media.control.mgcp.pkg.AbstractMgcpSignal;
 import org.mobicents.media.control.mgcp.pkg.SignalType;
 import org.mobicents.media.control.mgcp.pkg.au.AudioPackage;
@@ -70,9 +71,8 @@ public class PlayCollect extends AbstractMgcpSignal {
     // Execution Context
     private final PlayCollectContext context;
 
-    public PlayCollect(Player player, DtmfDetector detector, int requestId, Map<String, String> parameters,
-            ListeningScheduledExecutorService executor) {
-        super(AudioPackage.PACKAGE_NAME, SYMBOL, SignalType.TIME_OUT, requestId, parameters);
+    public PlayCollect(Player player, DtmfDetector detector, int requestId, NotifiedEntity notifiedEntity, Map<String, String> parameters, ListeningScheduledExecutorService executor) {
+        super(AudioPackage.PACKAGE_NAME, SYMBOL, SignalType.TIME_OUT, requestId, notifiedEntity, parameters);
 
         // Media Components
         this.detector = detector;
@@ -86,6 +86,10 @@ public class PlayCollect extends AbstractMgcpSignal {
 
         // Build FSM
         this.fsm = PlayCollectFsmBuilder.INSTANCE.build(detector, detectorListener, player, playerListener, this, executor, context);
+    }
+    
+    public PlayCollect(Player player, DtmfDetector detector, int requestId, Map<String, String> parameters, ListeningScheduledExecutorService executor) {
+        this(player, detector, requestId, null, parameters, executor);
     }
 
     @Override
