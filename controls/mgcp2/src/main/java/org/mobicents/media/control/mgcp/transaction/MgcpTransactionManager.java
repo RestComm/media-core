@@ -38,6 +38,7 @@ import org.mobicents.media.control.mgcp.message.MgcpMessageObserver;
 import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
+import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
 import org.mobicents.media.control.mgcp.util.collections.Parameters;
 
 import com.google.common.base.Optional;
@@ -132,7 +133,7 @@ public class MgcpTransactionManager implements TransactionManager {
         createTransaction(request);
         if (command != null) {
             ListenableFuture<MgcpCommandResult> future = this.executor.submit(command);
-            Futures.addCallback(future, new MgcpCommandCallback(from, to));
+            Futures.addCallback(future, new MgcpCommandCallback(from, to, request.getTransactionId()));
         }
     }
 
@@ -185,10 +186,12 @@ public class MgcpTransactionManager implements TransactionManager {
         
         private final InetSocketAddress from;
         private final InetSocketAddress to;
+        private final int transactionId;
         
-        public MgcpCommandCallback(InetSocketAddress from, InetSocketAddress to) {
+        public MgcpCommandCallback(InetSocketAddress from, InetSocketAddress to, int transactionId) {
             this.from = from;
             this.to = to;
+            this.transactionId = transactionId;
         }
 
         @Override
@@ -202,8 +205,9 @@ public class MgcpTransactionManager implements TransactionManager {
 
         @Override
         public void onFailure(Throwable t) {
-            // TODO Treat MGCP Command failures. Should never happen but let's still make it rock-solid.
-            log.error("An error occurred processing an MGCP Command.", t);
+            log.warn("MGCP Command of transaction " + this.transactionId + " failed. Replying with error code " + MgcpResponseCode.PROTOCOL_ERROR.code(), t);
+            MgcpResponse response = buildResponse(MgcpResponseCode.PROTOCOL_ERROR);
+            MgcpTransactionManager.this.notify(MgcpTransactionManager.this, this.to, this.from, response, MessageDirection.OUTGOING);
         }
         
         private MgcpResponse buildResponse(MgcpCommandResult result) {
@@ -224,6 +228,14 @@ public class MgcpTransactionManager implements TransactionManager {
                 }
             }
             
+            return response;
+        }
+        
+        private MgcpResponse buildResponse(MgcpResponseCode code) {
+            MgcpResponse response = new MgcpResponse();
+            response.setCode(code.code());
+            response.setMessage(code.message());
+            response.setTransactionId(this.transactionId);
             return response;
         }
 
