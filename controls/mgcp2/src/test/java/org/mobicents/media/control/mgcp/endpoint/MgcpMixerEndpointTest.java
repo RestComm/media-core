@@ -61,15 +61,16 @@ public class MgcpMixerEndpointTest {
         endpoint.createConnection(1, false);
 
         // then
+        // 2 components are registered: one for the connection, another for the media group of the endpoint upon activation
         verify(inbandMixer, times(2)).addComponent(any(AudioComponent.class));
-        verify(outbandMixer, times(1)).addComponent(any(OOBComponent.class));
+        verify(outbandMixer, times(2)).addComponent(any(OOBComponent.class));
 
         // when - close connection
         endpoint.deleteConnection(1, connection.getIdentifier());
 
         // then
-        verify(inbandMixer, times(1)).release(any(AudioComponent.class));
-        verify(outbandMixer, times(1)).release(any(OOBComponent.class));
+        verify(inbandMixer, times(2)).release(any(AudioComponent.class));
+        verify(outbandMixer, times(2)).release(any(OOBComponent.class));
     }
 
 }

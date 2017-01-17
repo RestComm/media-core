@@ -70,8 +70,8 @@ public class MgcpMixerEndpoint extends GenericMgcpEndpoint {
     @Override
     protected void onDeactivated() {
         // Disconnect media group from mixer
-        this.inbandMixer.addComponent(((MediaGroupImpl) this.mediaGroup).getAudioComponent());
-        this.outbandMixer.addComponent(((MediaGroupImpl) this.mediaGroup).getOobComponent());
+        this.inbandMixer.release(((MediaGroupImpl) this.mediaGroup).getAudioComponent());
+        this.outbandMixer.release(((MediaGroupImpl) this.mediaGroup).getOobComponent());
 
         // Stop mixer
         this.inbandMixer.stop();
