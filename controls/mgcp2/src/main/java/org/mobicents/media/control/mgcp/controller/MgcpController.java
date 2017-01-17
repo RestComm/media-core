@@ -114,7 +114,8 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
                     log.info("MGCP controller is active");
                 }
             } catch (IOException e) {
-                // TODO throw exception
+                log.error("An error occurred while activating the controller. Aborting.", e);
+                // TODO cleanup
             }
         }
     }
@@ -150,14 +151,12 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
 
     @Override
     public void onStarted(Endpoint endpoint, EndpointInstaller installer) {
-        // TODO Auto-generated method stub
-
+        // Legacy stuff
     }
 
     @Override
     public void onStopped(Endpoint endpoint) {
-        // TODO Auto-generated method stub
-
+        // Legacy stuff
     }
 
     @Override

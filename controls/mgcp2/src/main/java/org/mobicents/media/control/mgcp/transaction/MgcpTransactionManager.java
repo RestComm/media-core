@@ -202,7 +202,7 @@ public class MgcpTransactionManager implements TransactionManager {
 
         @Override
         public void onFailure(Throwable t) {
-            // TODO Auto-generated method stub
+            // TODO Treat MGCP Command failures. Should never happen but let's still make it rock-solid.
             log.error("An error occurred processing an MGCP Command.", t);
         }
         

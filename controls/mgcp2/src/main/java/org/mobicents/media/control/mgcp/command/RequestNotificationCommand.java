@@ -132,7 +132,7 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
             throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_UNKNOWN);
         }
 
-        // TODO Check if connection is specified (to do later down in roadmap)
+        // TODO Check if connection is specified (to do later down in roadmap as soon as connections support events)
 
         // Build signals (if any)
         SignalRequest[] signalRequests = context.signalRequests;
@@ -154,13 +154,6 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
 
         // Submit notification request to endpoint
         NotificationRequest rqnt = new NotificationRequest(transactionId, context.requestId, context.notifiedEntity, context.requestedEvents, signals);
-
-        // TODO Make MGCP Controller observe state of the endpoint
-        // Iterator<MgcpMessageObserver> iterator = this.observers.iterator();
-        // while (iterator.hasNext()) {
-        // MgcpMessageObserver observer = iterator.next();
-        // this.endpoint.observe(observer);
-        // }
 
         // Request notification to endpoint
         endpoint.requestNotification(rqnt);

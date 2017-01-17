@@ -193,16 +193,14 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
      * </p>
      * 
      * @param callId The the call identifies which indicates to which session the connection belongs to.
-     * @param mode The connection mode.
      * @param secondEndpoint The endpoint where the connection will be registered to.
      * 
      * @return The new connection
      * @throws MgcpException If connection could not be opened.
      */
-    private MgcpConnection createLocalConnection(int callId, ConnectionMode mode, MgcpEndpoint endpoint) throws MgcpConnectionException {
+    private MgcpConnection createLocalConnection(int callId, MgcpEndpoint endpoint) throws MgcpConnectionException {
         MgcpConnection connection = endpoint.createConnection(callId, true);
         connection.open(null);
-        // connection.setMode(mode);
         return connection;
     }
 
@@ -242,8 +240,8 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
             context.setConnectionId(connection.getIdentifier());
         } else {
             // Create two local connections between both endpoints
-            MgcpConnection connection1 = createLocalConnection(context.getCallId(), context.getConnectionMode(), endpoint1);
-            MgcpConnection connection2 = createLocalConnection(context.getCallId(), ConnectionMode.SEND_RECV, endpoint2);
+            MgcpConnection connection1 = createLocalConnection(context.getCallId(), endpoint1);
+            MgcpConnection connection2 = createLocalConnection(context.getCallId(), endpoint2);
             
             // Update context with identifiers of newly created connection
             context.setConnectionId(connection1.getIdentifier());
@@ -332,8 +330,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
             context.setCode(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code());
             context.setMessage(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.message());
         } catch (RuntimeException | MgcpConnectionException e) {
-            log.error("Unexpected error occurred during tx=" + this.transactionId + " execution. Reason: " + e.getMessage()
-                    + ". Rolling back.");
+            log.error("Unexpected error occurred during tx=" + this.transactionId + " execution. Reason: " + e.getMessage() + ". Rolling back.");
             rollback(context);
             context.setCode(MgcpResponseCode.PROTOCOL_ERROR.code());
             context.setMessage(MgcpResponseCode.PROTOCOL_ERROR.message());

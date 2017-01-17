@@ -76,8 +76,6 @@ public abstract class AbstractMgcpConnection implements MgcpConnection {
                 throw new IllegalStateException("Cannot update mode because connection is closed.");
             }
         }
-
-        // TODO update mode of media components
         this.mode = mode;
     }
 
