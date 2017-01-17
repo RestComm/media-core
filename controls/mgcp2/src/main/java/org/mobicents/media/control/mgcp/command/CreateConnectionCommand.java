@@ -202,7 +202,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
     private MgcpConnection createLocalConnection(int callId, ConnectionMode mode, MgcpEndpoint endpoint) throws MgcpConnectionException {
         MgcpConnection connection = endpoint.createConnection(callId, true);
         connection.open(null);
-        connection.setMode(mode);
+        // connection.setMode(mode);
         return connection;
     }
 
@@ -251,6 +251,10 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
 
             // Join connections
             ((MgcpLocalConnection) connection1).join((MgcpLocalConnection) connection2);
+            
+            // Set connection mode
+            connection1.setMode(context.getConnectionMode());
+            connection2.setMode(ConnectionMode.SEND_RECV);
         }
     }
     

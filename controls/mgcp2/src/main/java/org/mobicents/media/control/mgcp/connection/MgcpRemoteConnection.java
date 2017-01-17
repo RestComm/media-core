@@ -98,6 +98,10 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
     public void setMode(ConnectionMode mode) throws IllegalStateException {
         super.setMode(mode);
         this.audioChannel.setConnectionMode(mode);
+        
+        if(log.isDebugEnabled()) {
+            log.debug("Connection " + getHexIdentifier() + " mode is " + mode.name());
+        }
     }
 
     @Override
@@ -129,6 +133,11 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
 
                     // Generate SDP offer
                     this.localSdp = SdpFactory.buildSdp(true, this.localAddress, this.externalAddress, this.audioChannel);
+                    
+                    if(log.isDebugEnabled()) {
+                        log.debug("Connection " + getHexIdentifier() + " state is " + this.state.name());
+                    }
+                    
                     return this.localSdp.toString();
                 default:
                     throw new MgcpConnectionException("Cannot half-open connection " + this.getHexIdentifier()
@@ -155,6 +164,10 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
 
                     // Open connection
                     openConnection();
+                    
+                    if(log.isDebugEnabled()) {
+                        log.debug("Connection " + getHexIdentifier() + " state is " + this.state.name());
+                    }
                     break;
 
                 default:
@@ -336,6 +349,10 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
 
                     // Reset internal state
                     reset();
+                    
+                    if(log.isDebugEnabled()) {
+                        log.debug("Connection " + getHexIdentifier() + " state is " + this.state.name());
+                    }
 
                     break;
                 default:
