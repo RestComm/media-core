@@ -42,8 +42,6 @@ public class MgcpMixerEndpoint extends GenericMgcpEndpoint {
         super(endpointId, connectionProvider, mediaGroup);
         this.inbandMixer = inbandMixer;
         this.outbandMixer = outbandMixer;
-        // FIXME Solve the need for casting
-        this.inbandMixer.addComponent(((MediaGroupImpl) this.mediaGroup).getAudioComponent());
     }
 
     @Override
@@ -60,12 +58,22 @@ public class MgcpMixerEndpoint extends GenericMgcpEndpoint {
 
     @Override
     protected void onActivated() {
+        // Wire media group to mixer
+        this.inbandMixer.addComponent(((MediaGroupImpl) this.mediaGroup).getAudioComponent());
+        this.outbandMixer.addComponent(((MediaGroupImpl) this.mediaGroup).getOobComponent());
+
+        // Start mixers
         this.inbandMixer.start();
         this.outbandMixer.start();
     }
 
     @Override
     protected void onDeactivated() {
+        // Disconnect media group from mixer
+        this.inbandMixer.addComponent(((MediaGroupImpl) this.mediaGroup).getAudioComponent());
+        this.outbandMixer.addComponent(((MediaGroupImpl) this.mediaGroup).getOobComponent());
+
+        // Stop mixer
         this.inbandMixer.stop();
         this.outbandMixer.stop();
     }

@@ -125,9 +125,9 @@ public class LocalDataChannel {
 	}
 
 	public void updateMode(ConnectionMode connectionMode) throws ModeNotSupportedException {
-//		if (this.otherChannel == null) {
-//			throw new ModeNotSupportedException("You should join channel first");
-//		}
+		if (this.otherChannel == null) {
+			throw new ModeNotSupportedException("You should join channel first");
+		}
 
 		switch (connectionMode) {
 		case SEND_ONLY:
