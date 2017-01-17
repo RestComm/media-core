@@ -37,7 +37,7 @@ RestComm Media Server is licensed under dual license policy. The default license
 
 Continuous Integration and Delivery
 ========
-[![RestComm Media Server Continuous Job](http://www.cloudbees.com/sites/default/files/Button-Built-on-CB-1.png)](https://mobicents.ci.cloudbees.com/job/Mobicents-MediaServer-2.x/)
+[![RestComm Media Server Continuous Job](http://www.cloudbees.com/sites/default/files/Button-Built-on-CB-1.png)](https://mobicents.ci.cloudbees.com/job/RestComm-MediaServer-5.x/)
 
 Acknowledgements
 ========
