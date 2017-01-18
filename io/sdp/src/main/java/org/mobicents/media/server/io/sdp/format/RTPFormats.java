@@ -132,6 +132,17 @@ public class RTPFormats {
         return null;
     }
     
+    public RTPFormat find(String name) {
+    	int size = rtpFormats.size();
+        for (int i = 0; i < size; i++) {
+        	if (rtpFormats.get(i).getFormat().getName().toString().compareTo(name)== 0) {
+        		return rtpFormats.get(i);
+        	}
+        }
+        return null;
+    
+    }
+    
     public boolean contains(int p) {
     	return this.find(p) != null;
     }

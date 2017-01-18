@@ -644,8 +644,27 @@ public abstract class MediaChannel {
 		
 		// Map payload types tp RTP Format
 		for (int payloadType : media.getPayloadTypes()) {
-			RTPFormat format = AVProfile.getFormat(payloadType, AVProfile.AUDIO);
+			RTPFormat format = null;
+			if (payloadType < 96 )
+				format = AVProfile.getFormat(payloadType, AVProfile.AUDIO);
+			else
+			{
+				// it's a dynamic payload, we need to found them via the name of the codec.
+				
+				String codec = media.getFormat(payloadType).getCodec();
+				logger.debug(" dynamic payload:" + payloadType + " codec:"+codec);
+				
+				// we check if we have a codec with the same name but a different payloadid
+				// if we found them we add them but with the correct id
+				RTPFormat ourFormat = AVProfile.getFormat(codec);
+				if(ourFormat != null)
+				{
+					format = new RTPFormat(payloadType,ourFormat.getFormat(), ourFormat.getClockRate());
+				}
+				
+			}
 			if(format != null) {
+				logger.debug("add RTPFormat:" + format.toString());
 				this.offeredFormats.add(format);
 			}
 		}
