@@ -18,38 +18,22 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
+        
 package org.mobicents.media.server.bootstrap.ioc.provider.mgcp;
 
-import org.mobicents.media.control.mgcp.transaction.MgcpTransactionManager;
 import org.mobicents.media.control.mgcp.transaction.MgcpTransactionNumberspace;
-import org.mobicents.media.control.mgcp.transaction.MgcpTransactionProvider;
-import org.mobicents.media.control.mgcp.transaction.TransactionManager;
 
-import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpTransactionManagerProvider implements Provider<TransactionManager> {
-
-    private final MgcpTransactionNumberspace numberspace;
-    private final MgcpTransactionProvider transactionProvider;
-    private final ListeningExecutorService executor;
-
-    @Inject
-    public MgcpTransactionManagerProvider(MgcpTransactionNumberspace numberspace, MgcpTransactionProvider transactionProvider, ListeningExecutorService executor) {
-        this.numberspace = numberspace;
-        this.transactionProvider = transactionProvider;
-        this.executor = executor;
-    }
+public class MgcpTransactionNumberspaceProvider implements Provider<MgcpTransactionNumberspace> {
 
     @Override
-    public MgcpTransactionManager get() {
-        return new MgcpTransactionManager(numberspace, transactionProvider, executor);
+    public MgcpTransactionNumberspace get() {
+        return new MgcpTransactionNumberspace();
     }
 
 }

@@ -28,6 +28,7 @@ import org.mobicents.media.control.mgcp.endpoint.provider.MediaGroupProvider;
 import org.mobicents.media.control.mgcp.network.MgcpChannel;
 import org.mobicents.media.control.mgcp.network.MgcpPacketHandler;
 import org.mobicents.media.control.mgcp.pkg.MgcpSignalProvider;
+import org.mobicents.media.control.mgcp.transaction.MgcpTransactionNumberspace;
 import org.mobicents.media.control.mgcp.transaction.MgcpTransactionProvider;
 import org.mobicents.media.control.mgcp.transaction.TransactionManager;
 import org.mobicents.media.server.bootstrap.ioc.provider.ListeningScheduledExecutorServiceProvider;
@@ -42,6 +43,7 @@ import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MgcpEndpointInstal
 import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MgcpEndpointManagerProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MgcpSignalProviderProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MgcpTransactionManagerProvider;
+import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MgcpTransactionNumberspaceProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MgcpTransactionProviderProvider;
 import org.mobicents.media.server.spi.ServerManager;
 
@@ -63,6 +65,7 @@ public class MgcpModule extends AbstractModule {
         bind(MgcpEndpointManager.class).toProvider(MgcpEndpointManagerProvider.class).in(Singleton.class);
         bind(MgcpCommandProvider.class).toProvider(MgcpCommandProviderProvider.class).in(Singleton.class);
         bind(MgcpTransactionProvider.class).toProvider(MgcpTransactionProviderProvider.class).in(Singleton.class);
+        bind(MgcpTransactionNumberspace.class).toProvider(MgcpTransactionNumberspaceProvider.class).in(Singleton.class);
         bind(TransactionManager.class).toProvider(MgcpTransactionManagerProvider.class).in(Singleton.class);
         bind(MgcpPacketHandler.class).toProvider(MgcpPacketHandlerProvider.class);
         bind(MgcpChannel.class).toProvider(MgcpChannelProvider.class).in(Singleton.class);
