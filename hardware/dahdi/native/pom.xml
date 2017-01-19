@@ -4,7 +4,7 @@
 	<parent>
                 <groupId>org.mobicents.media.hardware</groupId>
                 <artifactId>mobicents-dahdi-parent</artifactId>
-                <version>5.2.0-SNAPSHOT</version>
+                <version>5.2.0.41</version>
         </parent>
 
 	<artifactId>mobicents-dahdi-native</artifactId>
