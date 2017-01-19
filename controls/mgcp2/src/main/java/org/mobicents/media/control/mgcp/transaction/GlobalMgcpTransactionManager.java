@@ -22,8 +22,12 @@
 package org.mobicents.media.control.mgcp.transaction;
 
 import java.net.InetSocketAddress;
+import java.util.Iterator;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 
+import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.command.MgcpCommand;
 import org.mobicents.media.control.mgcp.exception.DuplicateMgcpTransactionException;
 import org.mobicents.media.control.mgcp.exception.MgcpTransactionNotFoundException;
@@ -38,48 +42,66 @@ import org.mobicents.media.control.mgcp.message.MgcpResponse;
  *
  */
 public class GlobalMgcpTransactionManager implements TransactionManager {
+    
+    private static final Logger log = Logger.getLogger(GlobalMgcpTransactionManager.class);
 
     private final ConcurrentHashMap<String, TransactionManager> managers;
+    private final Set<MgcpMessageObserver> observers;
 
-    public GlobalMgcpTransactionManager(MgcpTransactionNumberspace numberspace) {
+    public GlobalMgcpTransactionManager() {
         this.managers = new ConcurrentHashMap<>();
+        this.observers = new CopyOnWriteArraySet<>();
     }
 
     @Override
     public void observe(MgcpMessageObserver observer) {
-        // TODO Auto-generated method stub
-
+        final boolean added = this.observers.add(observer);
+        if(added && log.isTraceEnabled()) {
+            if (log.isTraceEnabled()) {
+                log.trace("Registered MgcpMessageObserver@" + observer.hashCode() + ". Count: " + this.observers.size());
+            }
+        }
     }
 
     @Override
     public void forget(MgcpMessageObserver observer) {
-        // TODO Auto-generated method stub
-
+        final boolean removed = this.observers.remove(observer);
+        if(removed && log.isTraceEnabled()) {
+            if (log.isTraceEnabled()) {
+                log.trace("Unregistered MgcpMessageObserver@" + observer.hashCode() + ". Count: " + this.observers.size());
+            }
+        }
     }
 
     @Override
-    public void notify(Object originator, InetSocketAddress from, InetSocketAddress to, MgcpMessage message,
-            MessageDirection direction) {
-        // TODO Auto-generated method stub
-
+    public void notify(Object originator, InetSocketAddress from, InetSocketAddress to, MgcpMessage message, MessageDirection direction) {
+        Iterator<MgcpMessageObserver> observers = this.observers.iterator();
+        while (observers.hasNext()) {
+            MgcpMessageObserver observer = observers.next();
+            if(observer != originator) {
+                observer.onMessage(from, to, message, direction);
+            }
+        }
     }
 
     @Override
     public void process(InetSocketAddress from, InetSocketAddress to, MgcpRequest request, MgcpCommand command, MessageDirection direction) throws DuplicateMgcpTransactionException {
         final String key = from.toString();
-
         TransactionManager manager = this.managers.get(key);
         if (manager == null) {
             // TODO manager = this.managers.putIfAbsent(key, provider.provide());
         }
-        
         manager.process(from, to, request, command, direction);
     }
 
     @Override
     public void process(InetSocketAddress from, InetSocketAddress to, MgcpResponse response, MessageDirection direction) throws MgcpTransactionNotFoundException {
-        // TODO Auto-generated method stub
-
+        final String key = from.toString();
+        TransactionManager manager = this.managers.get(key);
+        if (manager == null) {
+            // TODO manager = this.managers.putIfAbsent(key, provider.provide());
+        }
+        manager.process(from, to, response, direction);
     }
 
 }
