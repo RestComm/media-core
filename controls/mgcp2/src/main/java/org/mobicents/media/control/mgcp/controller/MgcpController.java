@@ -189,7 +189,7 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
 
         try {
             // Start transaction that will execute the command
-            this.transactions.process(from, to, request, command);
+            this.transactions.process(from, to, request, command, MessageDirection.INCOMING);
         } catch (DuplicateMgcpTransactionException e) {
             // Transaction is already being processed
             // Send provisional message
@@ -211,7 +211,7 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
     private void onOutgoingRequest(InetSocketAddress from, InetSocketAddress to, MgcpRequest request) {
         try {
             // Start transaction
-            this.transactions.process(from, to, request, null);
+            this.transactions.process(from, to, request, null, MessageDirection.OUTGOING);
             // Send request to call agent
             this.channel.send(to, request);
         } catch (DuplicateMgcpTransactionException e) {
@@ -224,7 +224,7 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
     private void onIncomingResponse(InetSocketAddress from, InetSocketAddress to, MgcpResponse response) {
         try {
             // Close transaction
-            this.transactions.process(from, to, response);
+            this.transactions.process(from, to, response, MessageDirection.INCOMING);
         } catch (MgcpTransactionNotFoundException e) {
             log.error(e.getMessage());
         }
@@ -233,7 +233,7 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
     private void onOutgoingResponse(InetSocketAddress from, InetSocketAddress to, MgcpResponse response) {
         try {
             // Close transaction
-            this.transactions.process(from, to, response);
+            this.transactions.process(from, to, response, MessageDirection.OUTGOING);
             // Send response to call agent
             this.channel.send(to, response);
         } catch (MgcpTransactionNotFoundException e) {

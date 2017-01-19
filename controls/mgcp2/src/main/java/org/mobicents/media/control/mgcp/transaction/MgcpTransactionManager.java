@@ -131,7 +131,8 @@ public class MgcpTransactionManager implements TransactionManager {
     }
 
     @Override
-    public void process(InetSocketAddress from, InetSocketAddress to, MgcpRequest request, MgcpCommand command) throws DuplicateMgcpTransactionException {
+    public void process(InetSocketAddress from, InetSocketAddress to, MgcpRequest request, MgcpCommand command, MessageDirection direction) throws DuplicateMgcpTransactionException {
+        // TODO check message direction
         createTransaction(request);
         if (command != null) {
             ListenableFuture<MgcpCommandResult> future = this.executor.submit(command);
@@ -140,7 +141,8 @@ public class MgcpTransactionManager implements TransactionManager {
     }
 
     @Override
-    public void process(InetSocketAddress from, InetSocketAddress to, MgcpResponse response) throws MgcpTransactionNotFoundException {
+    public void process(InetSocketAddress from, InetSocketAddress to, MgcpResponse response, MessageDirection direction) throws MgcpTransactionNotFoundException {
+     // TODO check message direction
         MgcpTransaction transaction = this.transactions.remove(response.getTransactionId());
         if (transaction == null) {
             throw new MgcpTransactionNotFoundException("Could not find transaction " + response.getTransactionId());

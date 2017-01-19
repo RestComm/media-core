@@ -32,6 +32,7 @@ import org.mobicents.media.control.mgcp.command.MgcpCommand;
 import org.mobicents.media.control.mgcp.command.MgcpCommandResult;
 import org.mobicents.media.control.mgcp.exception.DuplicateMgcpTransactionException;
 import org.mobicents.media.control.mgcp.exception.MgcpTransactionNotFoundException;
+import org.mobicents.media.control.mgcp.message.MessageDirection;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpRequestType;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
@@ -71,7 +72,7 @@ public class MgcpTransactionManagerTest {
         when(request.getTransactionId()).thenReturn(transactionId);
         when(txProvider.provideRemote(transactionId)).thenReturn(transaction);
         when(executor.submit(command)).thenReturn(new AbstractFuture<MgcpCommandResult>() {});
-        txManager.process(remote, local, request, command);
+        txManager.process(remote, local, request, command, MessageDirection.INCOMING);
 
         // then
         assertTrue(txManager.contains(transactionId));
@@ -83,7 +84,7 @@ public class MgcpTransactionManagerTest {
         when(response.isRequest()).thenReturn(false);
         when(response.getTransactionId()).thenReturn(transactionId);
 
-        txManager.process(local, remote, response);
+        txManager.process(local, remote, response, MessageDirection.OUTGOING);
 
         // then
         assertFalse(txManager.contains(transactionId));
@@ -111,7 +112,7 @@ public class MgcpTransactionManagerTest {
         when(request.getTransactionId()).thenReturn(initialTransactionId, finalTransactionId);
         when(txProvider.provideLocal()).thenReturn(transaction);
 
-        txManager.process(local, remote, request, null);
+        txManager.process(local, remote, request, null, MessageDirection.OUTGOING);
 
         // then
         assertTrue(txManager.contains(finalTransactionId));
@@ -122,7 +123,7 @@ public class MgcpTransactionManagerTest {
         when(response.isRequest()).thenReturn(false);
         when(response.getTransactionId()).thenReturn(finalTransactionId);
 
-        txManager.process(remote, local, response);
+        txManager.process(remote, local, response, MessageDirection.INCOMING);
 
         // then
         assertFalse(txManager.contains(finalTransactionId));
@@ -151,8 +152,8 @@ public class MgcpTransactionManagerTest {
         when(request.getTransactionId()).thenReturn(transactionId);
         when(txProvider.provideRemote(transactionId)).thenReturn(transaction);
 
-        txManager.process(remote, local, request, command);
-        txManager.process(remote, local, request, command);
+        txManager.process(remote, local, request, command, MessageDirection.INCOMING);
+        txManager.process(remote, local, request, command, MessageDirection.INCOMING);
     }
 
 }

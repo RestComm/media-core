@@ -26,6 +26,7 @@ import java.net.InetSocketAddress;
 import org.mobicents.media.control.mgcp.command.MgcpCommand;
 import org.mobicents.media.control.mgcp.exception.DuplicateMgcpTransactionException;
 import org.mobicents.media.control.mgcp.exception.MgcpTransactionNotFoundException;
+import org.mobicents.media.control.mgcp.message.MessageDirection;
 import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
@@ -36,8 +37,27 @@ import org.mobicents.media.control.mgcp.message.MgcpResponse;
  */
 public interface TransactionManager extends MgcpMessageSubject {
 
-    void process(InetSocketAddress from, InetSocketAddress to, MgcpRequest request, MgcpCommand command) throws DuplicateMgcpTransactionException;
+    /**
+     * Processes a new MGCP Request to be handled in a new transaction.
+     * 
+     * @param from The sender of the request.
+     * @param to The recipient of the request.
+     * @param request The MGCP request message.
+     * @param command The MGCP command to be executed.
+     * @param direction Dictates whether the message is incoming or outgoing.
+     * @throws DuplicateMgcpTransactionException In case there is an existing transaction for the same call agent.
+     */
+    void process(InetSocketAddress from, InetSocketAddress to, MgcpRequest request, MgcpCommand command, MessageDirection direction) throws DuplicateMgcpTransactionException;
 
-    void process(InetSocketAddress from, InetSocketAddress to, MgcpResponse response) throws MgcpTransactionNotFoundException;
+    /**
+     * Processes an MGCP Response to close an open transaction.
+     * 
+     * @param from The sender of the request.
+     * @param to The recipient of the request.
+     * @param response The MGCP response message.
+     * @param direction Dictates whether the message is incoming or outgoing.
+     * @throws MgcpTransactionNotFoundException In case there is no matching transaction to close.
+     */
+    void process(InetSocketAddress from, InetSocketAddress to, MgcpResponse response, MessageDirection direction) throws MgcpTransactionNotFoundException;
 
 }
