@@ -25,6 +25,12 @@ package org.mobicents.media.control.mgcp.transaction;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class SubMgcpTransactionManagerProvider {
+public class SubMgcpTransactionManagerProvider implements MgcpTransactionManagerProvider {
+
+    @Override
+    public MgcpTransactionManager provide() {
+        // TODO provide manager
+        return null;
+    }
 
 }

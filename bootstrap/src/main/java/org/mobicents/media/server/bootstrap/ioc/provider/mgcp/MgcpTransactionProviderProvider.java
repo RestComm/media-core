@@ -21,6 +21,7 @@
 
 package org.mobicents.media.server.bootstrap.ioc.provider.mgcp;
 
+import org.mobicents.media.control.mgcp.transaction.MgcpTransactionNumberspace;
 import org.mobicents.media.control.mgcp.transaction.MgcpTransactionProvider;
 
 import com.google.inject.Inject;
@@ -32,14 +33,16 @@ import com.google.inject.Provider;
  */
 public class MgcpTransactionProviderProvider implements Provider<MgcpTransactionProvider> {
 
+    private final MgcpTransactionNumberspace numbespace;
+    
     @Inject
-    public MgcpTransactionProviderProvider() {
-        super();
+    public MgcpTransactionProviderProvider(MgcpTransactionNumberspace numbespace) {
+        this.numbespace = numbespace;
     }
 
     @Override
     public MgcpTransactionProvider get() {
-        return new MgcpTransactionProvider(1, 100000000);
+        return new MgcpTransactionProvider(this.numbespace);
     }
 
 }

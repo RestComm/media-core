@@ -21,39 +21,24 @@
 
 package org.mobicents.media.control.mgcp.transaction;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
 public class MgcpTransactionProvider {
+    
+    private final MgcpTransactionNumberspace numberspace;
 
-    // Provider Properties
-    private final AtomicInteger idGenerator;
-    private final int minId;
-    private final int maxId;
-
-    public MgcpTransactionProvider(int minId, int maxId) {
-        // Provider Properties
-        this.minId = minId;
-        this.maxId = maxId;
-        this.idGenerator = new AtomicInteger(minId);
-    }
-
-    private synchronized void verifyIdRange() {
-        if (this.idGenerator.get() > maxId) {
-            this.idGenerator.set(this.minId);
-        }
+    public MgcpTransactionProvider(MgcpTransactionNumberspace numberspace) {
+        this.numberspace = numberspace;
     }
 
     private int generateId() {
-        verifyIdRange();
-        return this.idGenerator.getAndIncrement();
+        return this.numberspace.generateId();
     }
 
     public boolean isLocal(int transactionId) {
-        return transactionId >= this.minId && transactionId <= this.maxId;
+        return transactionId >= this.numberspace.getMinimum() && transactionId <= this.numberspace.getMaximum();
     }
     
     private MgcpTransaction provide(int transactionId) {

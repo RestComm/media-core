@@ -100,7 +100,7 @@ public class MgcpTransactionNumberspace {
         return current.get();
     }
 
-    public int getAndIncrement() {
+    public int generateId() {
         final int next = this.current.getAndIncrement();
         boolean reset = this.current.compareAndSet(this.maximum + 1, this.minimum);
 

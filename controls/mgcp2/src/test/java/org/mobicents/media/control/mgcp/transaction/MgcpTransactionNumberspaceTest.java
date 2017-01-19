@@ -117,7 +117,7 @@ public class MgcpTransactionNumberspaceTest {
         assertFalse(existDuplicate(consumer1.numbers, uniques));
         assertFalse(existDuplicate(consumer2.numbers, uniques));
         assertFalse(existDuplicate(consumer3.numbers, uniques));
-        assertEquals(minimum, numberspace.getAndIncrement());
+        assertEquals(minimum, numberspace.generateId());
     }
 
     private boolean existDuplicate(Collection<Integer> source, Set<Integer> existing) {
@@ -145,7 +145,7 @@ public class MgcpTransactionNumberspaceTest {
         @Override
         public void run() {
             for (int i = 0; i < runs; i++) {
-                int next = numberspace.getAndIncrement();
+                int next = numberspace.generateId();
                 this.numbers.add(next);
             }
         }

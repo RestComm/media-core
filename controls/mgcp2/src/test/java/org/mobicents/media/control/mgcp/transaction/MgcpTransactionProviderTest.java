@@ -42,7 +42,8 @@ public class MgcpTransactionProviderTest {
         // given
         final int minId = 1;
         final int maxId = 10;
-        final MgcpTransactionProvider provider = new MgcpTransactionProvider(minId, maxId);
+        final MgcpTransactionNumberspace numberspace = new MgcpTransactionNumberspace(minId, maxId);
+        final MgcpTransactionProvider provider = new MgcpTransactionProvider(numberspace);
 
         // when
         boolean minIdIsLocal = provider.isLocal(minId);
@@ -60,7 +61,8 @@ public class MgcpTransactionProviderTest {
         // given
         final int minId = 1;
         final int maxId = 10;
-        final MgcpTransactionProvider provider = new MgcpTransactionProvider(minId, maxId);
+        final MgcpTransactionNumberspace numberspace = new MgcpTransactionNumberspace(minId, maxId);
+        final MgcpTransactionProvider provider = new MgcpTransactionProvider(numberspace);
 
         // when
         List<Integer> identifiers = new ArrayList<>(maxId * 2);
@@ -79,7 +81,8 @@ public class MgcpTransactionProviderTest {
         // given
         final int minId = 1;
         final int maxId = 10;
-        final MgcpTransactionProvider provider = new MgcpTransactionProvider(minId, maxId);
+        final MgcpTransactionNumberspace numberspace = new MgcpTransactionNumberspace(minId, maxId);
+        final MgcpTransactionProvider provider = new MgcpTransactionProvider(numberspace);
 
         // when
         MgcpTransaction transaction = provider.provideRemote(maxId + 1);
@@ -94,7 +97,8 @@ public class MgcpTransactionProviderTest {
         // given
         final int minId = 1;
         final int maxId = 10;
-        final MgcpTransactionProvider provider = new MgcpTransactionProvider(minId, maxId);
+        final MgcpTransactionNumberspace numberspace = new MgcpTransactionNumberspace(minId, maxId);
+        final MgcpTransactionProvider provider = new MgcpTransactionProvider(numberspace);
 
         // when
         provider.provideRemote(maxId);
