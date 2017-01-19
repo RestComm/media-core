@@ -18,7 +18,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
+
 package org.mobicents.media.control.mgcp.transaction;
 
 import java.net.InetSocketAddress;
@@ -35,9 +35,9 @@ import org.mobicents.media.control.mgcp.message.MgcpResponse;
  *
  */
 public interface TransactionManager extends MgcpMessageSubject {
-    
+
     void process(InetSocketAddress from, InetSocketAddress to, MgcpRequest request, MgcpCommand command) throws DuplicateMgcpTransactionException;
-    
+
     void process(InetSocketAddress from, InetSocketAddress to, MgcpResponse response) throws MgcpTransactionNotFoundException;
 
 }

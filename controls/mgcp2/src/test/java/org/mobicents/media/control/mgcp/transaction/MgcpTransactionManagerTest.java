@@ -59,9 +59,10 @@ public class MgcpTransactionManagerTest {
         final MgcpResponse response = mock(MgcpResponse.class);
         final MgcpCommand command = mock(MgcpCommand.class);
         final MgcpTransaction transaction = new MgcpTransaction(transactionId);
+        final MgcpTransactionNumberspace numberspace = mock(MgcpTransactionNumberspace.class);
         final MgcpTransactionProvider txProvider = mock(MgcpTransactionProvider.class);
         final ListeningExecutorService executor = mock(ListeningExecutorService.class);
-        final MgcpTransactionManager txManager = new MgcpTransactionManager(txProvider, executor);
+        final MgcpTransactionManager txManager = new MgcpTransactionManager(numberspace, txProvider, executor);
 
         // when - request
         when(request.toString()).thenReturn(REQUEST);
@@ -98,9 +99,10 @@ public class MgcpTransactionManagerTest {
         final MgcpRequest request = mock(MgcpRequest.class);
         final MgcpResponse response = mock(MgcpResponse.class);
         final MgcpTransaction transaction = new MgcpTransaction(147483653);
+        final MgcpTransactionNumberspace numberspace = mock(MgcpTransactionNumberspace.class);
         final MgcpTransactionProvider txProvider = mock(MgcpTransactionProvider.class);
         final ListeningExecutorService executor = mock(ListeningExecutorService.class);
-        final MgcpTransactionManager txManager = new MgcpTransactionManager(txProvider, executor);
+        final MgcpTransactionManager txManager = new MgcpTransactionManager(numberspace, txProvider, executor);
 
         // when - request
         when(request.toString()).thenReturn(REQUEST);
@@ -136,9 +138,10 @@ public class MgcpTransactionManagerTest {
         final MgcpRequest request = mock(MgcpRequest.class);
         final MgcpCommand command = mock(MgcpCommand.class);
         final MgcpTransaction transaction = new MgcpTransaction(transactionId);
+        final MgcpTransactionNumberspace numberspace = mock(MgcpTransactionNumberspace.class);
         final MgcpTransactionProvider txProvider = mock(MgcpTransactionProvider.class);
         final ListeningExecutorService executor = mock(ListeningExecutorService.class);
-        final MgcpTransactionManager txManager = new MgcpTransactionManager(txProvider, executor);
+        final MgcpTransactionManager txManager = new MgcpTransactionManager(numberspace, txProvider, executor);
 
         // when - request
         when(executor.submit(command)).thenReturn(mock(ListenableFuture.class));

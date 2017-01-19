@@ -43,7 +43,7 @@ import org.apache.log4j.Logger;
  */
 public class MgcpTransactionNumberspace {
 
-    private static final Logger log = Logger.getLogger(MgcpTransactionNumberspaceTest.class);
+    private static final Logger log = Logger.getLogger(MgcpTransactionNumberspace.class);
 
     private static final int MINIMUM_ID = 1;
     private static final int MAXIMUM_ID = 999999999;

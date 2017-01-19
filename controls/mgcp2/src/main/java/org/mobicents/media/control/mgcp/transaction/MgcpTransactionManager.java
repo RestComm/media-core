@@ -61,6 +61,7 @@ public class MgcpTransactionManager implements TransactionManager {
     private final ListeningExecutorService executor;
 
     // MGCP Components
+    private final MgcpTransactionNumberspace numberspace;
     private final MgcpTransactionProvider transactionProvider;
 
     // MGCP Transaction Manager
@@ -76,11 +77,12 @@ public class MgcpTransactionManager implements TransactionManager {
     // Observers
     private final Collection<MgcpMessageObserver> observers;
 
-    public MgcpTransactionManager(MgcpTransactionProvider transactionProvider, ListeningExecutorService executor) {
+    public MgcpTransactionManager(MgcpTransactionNumberspace numberspace, MgcpTransactionProvider transactionProvider, ListeningExecutorService executor) {
         // Concurrency Components
         this.executor = executor;
 
         // MGCP Components
+        this.numberspace = numberspace;
         this.transactionProvider = transactionProvider;
 
         // MGCP Transaction Manager
