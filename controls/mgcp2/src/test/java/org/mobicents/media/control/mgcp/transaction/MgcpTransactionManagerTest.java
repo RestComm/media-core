@@ -63,7 +63,7 @@ public class MgcpTransactionManagerTest {
         final MgcpTransactionNumberspace numberspace = mock(MgcpTransactionNumberspace.class);
         final MgcpTransactionProvider txProvider = mock(MgcpTransactionProvider.class);
         final ListeningExecutorService executor = mock(ListeningExecutorService.class);
-        final MgcpTransactionManager txManager = new MgcpTransactionManager(numberspace, txProvider, executor);
+        final SubMgcpTransactionManager txManager = new SubMgcpTransactionManager(numberspace, txProvider, executor);
 
         // when - request
         when(request.toString()).thenReturn(REQUEST);
@@ -103,7 +103,7 @@ public class MgcpTransactionManagerTest {
         final MgcpTransactionNumberspace numberspace = mock(MgcpTransactionNumberspace.class);
         final MgcpTransactionProvider txProvider = mock(MgcpTransactionProvider.class);
         final ListeningExecutorService executor = mock(ListeningExecutorService.class);
-        final MgcpTransactionManager txManager = new MgcpTransactionManager(numberspace, txProvider, executor);
+        final SubMgcpTransactionManager txManager = new SubMgcpTransactionManager(numberspace, txProvider, executor);
 
         // when - request
         when(request.toString()).thenReturn(REQUEST);
@@ -142,7 +142,7 @@ public class MgcpTransactionManagerTest {
         final MgcpTransactionNumberspace numberspace = mock(MgcpTransactionNumberspace.class);
         final MgcpTransactionProvider txProvider = mock(MgcpTransactionProvider.class);
         final ListeningExecutorService executor = mock(ListeningExecutorService.class);
-        final MgcpTransactionManager txManager = new MgcpTransactionManager(numberspace, txProvider, executor);
+        final SubMgcpTransactionManager txManager = new SubMgcpTransactionManager(numberspace, txProvider, executor);
 
         // when - request
         when(executor.submit(command)).thenReturn(mock(ListenableFuture.class));

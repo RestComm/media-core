@@ -41,11 +41,11 @@ import org.mobicents.media.control.mgcp.message.MgcpResponse;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class GlobalMgcpTransactionManager implements TransactionManager {
+public class GlobalMgcpTransactionManager implements MgcpTransactionManager {
     
     private static final Logger log = Logger.getLogger(GlobalMgcpTransactionManager.class);
 
-    private final ConcurrentHashMap<String, TransactionManager> managers;
+    private final ConcurrentHashMap<String, MgcpTransactionManager> managers;
     private final Set<MgcpMessageObserver> observers;
 
     public GlobalMgcpTransactionManager() {
@@ -87,7 +87,7 @@ public class GlobalMgcpTransactionManager implements TransactionManager {
     @Override
     public void process(InetSocketAddress from, InetSocketAddress to, MgcpRequest request, MgcpCommand command, MessageDirection direction) throws DuplicateMgcpTransactionException {
         final String key = from.toString();
-        TransactionManager manager = this.managers.get(key);
+        MgcpTransactionManager manager = this.managers.get(key);
         if (manager == null) {
             // TODO manager = this.managers.putIfAbsent(key, provider.provide());
         }
@@ -97,7 +97,7 @@ public class GlobalMgcpTransactionManager implements TransactionManager {
     @Override
     public void process(InetSocketAddress from, InetSocketAddress to, MgcpResponse response, MessageDirection direction) throws MgcpTransactionNotFoundException {
         final String key = from.toString();
-        TransactionManager manager = this.managers.get(key);
+        MgcpTransactionManager manager = this.managers.get(key);
         if (manager == null) {
             // TODO manager = this.managers.putIfAbsent(key, provider.provide());
         }

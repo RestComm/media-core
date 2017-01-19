@@ -25,7 +25,7 @@ import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
 import org.mobicents.media.control.mgcp.controller.MgcpController;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.network.MgcpChannel;
-import org.mobicents.media.control.mgcp.transaction.TransactionManager;
+import org.mobicents.media.control.mgcp.transaction.MgcpTransactionManager;
 import org.mobicents.media.core.configuration.MediaServerConfiguration;
 import org.mobicents.media.server.io.network.UdpManager;
 
@@ -42,12 +42,12 @@ public class Mgcp2ControllerProvider implements Provider<MgcpController> {
     private final int port;
     private final MgcpChannel channel;
     private final UdpManager networkManager;
-    private final TransactionManager transactions;
+    private final MgcpTransactionManager transactions;
     private final MgcpEndpointManager endpoints;
     private final MgcpCommandProvider commands;
 
     @Inject
-    public Mgcp2ControllerProvider(MediaServerConfiguration config, UdpManager networkManager, MgcpChannel channel, TransactionManager transactions, MgcpEndpointManager endpoints, MgcpCommandProvider commands) {
+    public Mgcp2ControllerProvider(MediaServerConfiguration config, UdpManager networkManager, MgcpChannel channel, MgcpTransactionManager transactions, MgcpEndpointManager endpoints, MgcpCommandProvider commands) {
         this.address = config.getControllerConfiguration().getAddress();
         this.port = config.getControllerConfiguration().getPort();
         this.channel = channel;

@@ -37,7 +37,7 @@ import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
 import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
 import org.mobicents.media.control.mgcp.network.MgcpChannel;
-import org.mobicents.media.control.mgcp.transaction.TransactionManager;
+import org.mobicents.media.control.mgcp.transaction.MgcpTransactionManager;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.spi.ControlProtocol;
 import org.mobicents.media.server.spi.Endpoint;
@@ -57,7 +57,7 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
     
     // MGCP Components
     private final MgcpChannel channel;
-    private final TransactionManager transactions;
+    private final MgcpTransactionManager transactions;
     private final MgcpEndpointManager endpoints;
     private final MgcpCommandProvider commands;
 
@@ -66,7 +66,7 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
     private final int port;
     private boolean active;
 
-    public MgcpController(String address, int port, UdpManager networkManager, MgcpChannel channel, TransactionManager transactions, MgcpEndpointManager endpoints, MgcpCommandProvider commands) {
+    public MgcpController(String address, int port, UdpManager networkManager, MgcpChannel channel, MgcpTransactionManager transactions, MgcpEndpointManager endpoints, MgcpCommandProvider commands) {
         // Core Components
         this.networkManager = networkManager;
 

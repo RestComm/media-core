@@ -21,10 +21,10 @@
 
 package org.mobicents.media.server.bootstrap.ioc.provider.mgcp;
 
-import org.mobicents.media.control.mgcp.transaction.MgcpTransactionManager;
+import org.mobicents.media.control.mgcp.transaction.SubMgcpTransactionManager;
 import org.mobicents.media.control.mgcp.transaction.MgcpTransactionNumberspace;
 import org.mobicents.media.control.mgcp.transaction.MgcpTransactionProvider;
-import org.mobicents.media.control.mgcp.transaction.TransactionManager;
+import org.mobicents.media.control.mgcp.transaction.MgcpTransactionManager;
 
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.inject.Inject;
@@ -34,7 +34,7 @@ import com.google.inject.Provider;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpTransactionManagerProvider implements Provider<TransactionManager> {
+public class MgcpTransactionManagerProvider implements Provider<MgcpTransactionManager> {
 
     private final MgcpTransactionNumberspace numberspace;
     private final MgcpTransactionProvider transactionProvider;
@@ -48,8 +48,8 @@ public class MgcpTransactionManagerProvider implements Provider<TransactionManag
     }
 
     @Override
-    public MgcpTransactionManager get() {
-        return new MgcpTransactionManager(numberspace, transactionProvider, executor);
+    public SubMgcpTransactionManager get() {
+        return new SubMgcpTransactionManager(numberspace, transactionProvider, executor);
     }
 
 }
