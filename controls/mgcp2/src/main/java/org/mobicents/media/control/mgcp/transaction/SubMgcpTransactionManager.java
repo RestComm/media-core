@@ -117,10 +117,6 @@ public class SubMgcpTransactionManager implements MgcpTransactionManager {
             throw new DuplicateMgcpTransactionException("Transaction " + transactionId + " already exists.");
         }
 
-        if (log.isDebugEnabled()) {
-            log.debug("Created " + (local ? "local" : "remote") + " transaction " + transactionId);
-        }
-
         return transaction;
     }
 
@@ -132,6 +128,12 @@ public class SubMgcpTransactionManager implements MgcpTransactionManager {
     public void process(InetSocketAddress from, InetSocketAddress to, MgcpRequest request, MgcpCommand command, MessageDirection direction) throws DuplicateMgcpTransactionException {
         // TODO check message direction
         createTransaction(request);
+        
+        if (log.isDebugEnabled()) {
+            String callAgent = MessageDirection.INCOMING.equals(direction) ? from.toString() : to.toString();
+            log.debug("Started transaction " + request.getTransactionId() + " for call agent " + callAgent);
+        }
+        
         if (command != null) {
             ListenableFuture<MgcpCommandResult> future = this.executor.submit(command);
             Futures.addCallback(future, new MgcpCommandCallback(from, to, request.getTransactionId()));

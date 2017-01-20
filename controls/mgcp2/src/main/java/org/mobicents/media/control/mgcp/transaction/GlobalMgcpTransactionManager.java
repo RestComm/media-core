@@ -107,6 +107,10 @@ public class GlobalMgcpTransactionManager implements MgcpTransactionManager, Mgc
             if(oldManager == null) {
                 manager = newManager;
                 manager.observe(this);
+                
+                if(log.isDebugEnabled()) {
+                    log.debug("Created new transaction manager to handle transactions for call agent " + callAgent);
+                }
             } else {
                 manager = oldManager;
             }
@@ -125,6 +129,10 @@ public class GlobalMgcpTransactionManager implements MgcpTransactionManager, Mgc
             if(oldManager == null) {
                 manager = newManager;
                 manager.observe(this);
+                
+                if(log.isDebugEnabled()) {
+                    log.debug("Created new transaction manager to handle transactions for call agent " + callAgent);
+                }
             } else {
                 manager = oldManager;
             }
