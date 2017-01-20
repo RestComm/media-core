@@ -41,14 +41,16 @@ import org.mobicents.media.control.mgcp.message.MgcpResponse;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class GlobalMgcpTransactionManager implements MgcpTransactionManager {
+public class GlobalMgcpTransactionManager implements MgcpTransactionManager, MgcpMessageObserver {
     
     private static final Logger log = Logger.getLogger(GlobalMgcpTransactionManager.class);
 
+    private final MgcpTransactionManagerProvider provider;
     private final ConcurrentHashMap<String, MgcpTransactionManager> managers;
     private final Set<MgcpMessageObserver> observers;
 
-    public GlobalMgcpTransactionManager() {
+    public GlobalMgcpTransactionManager(MgcpTransactionManagerProvider provider) {
+        this.provider = provider;
         this.managers = new ConcurrentHashMap<>();
         this.observers = new CopyOnWriteArraySet<>();
     }
@@ -72,6 +74,10 @@ public class GlobalMgcpTransactionManager implements MgcpTransactionManager {
             }
         }
     }
+    
+    protected int countObservers() {
+        return this.observers.size();
+    }
 
     @Override
     public void notify(Object originator, InetSocketAddress from, InetSocketAddress to, MgcpMessage message, MessageDirection direction) {
@@ -83,13 +89,26 @@ public class GlobalMgcpTransactionManager implements MgcpTransactionManager {
             }
         }
     }
+    
+    @Override
+    public void onMessage(InetSocketAddress from, InetSocketAddress to, MgcpMessage message, MessageDirection direction) {
+        // Forward message from sub transaction manager to remaining observers
+        notify(this, from, to, message, direction);
+    }
 
     @Override
     public void process(InetSocketAddress from, InetSocketAddress to, MgcpRequest request, MgcpCommand command, MessageDirection direction) throws DuplicateMgcpTransactionException {
         final String key = from.toString();
         MgcpTransactionManager manager = this.managers.get(key);
         if (manager == null) {
-            // TODO manager = this.managers.putIfAbsent(key, provider.provide());
+            MgcpTransactionManager newManager = provider.provide();
+            MgcpTransactionManager oldManager = this.managers.putIfAbsent(key, newManager);
+            
+            if(oldManager == null) {
+                manager = newManager;
+            }
+            
+            manager = (oldManager == null) ? newManager : oldManager;
         }
         manager.process(from, to, request, command, direction);
     }
@@ -99,7 +118,9 @@ public class GlobalMgcpTransactionManager implements MgcpTransactionManager {
         final String key = from.toString();
         MgcpTransactionManager manager = this.managers.get(key);
         if (manager == null) {
-            // TODO manager = this.managers.putIfAbsent(key, provider.provide());
+            MgcpTransactionManager newManager = provider.provide();
+            MgcpTransactionManager oldManager = this.managers.putIfAbsent(key, newManager);
+            manager = (oldManager == null) ? newManager : oldManager;
         }
         manager.process(from, to, response, direction);
     }

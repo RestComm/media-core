@@ -63,7 +63,7 @@ public class SubMgcpTransactionManager implements MgcpTransactionManager {
     // MGCP Components
     private final MgcpTransactionNumberspace numberspace;
 
-    // MGCP Transaction Manager
+    // MGCP Transaction Manager (per call agent)
     private final ConcurrentHashMap<Integer, MgcpTransaction> transactions;
     /*
      * TODO MGCP entities MUST keep in memory a list of the responses that they sent to recent transactions, i.e., a list of all

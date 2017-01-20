@@ -18,8 +18,10 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
+
 package org.mobicents.media.control.mgcp.transaction;
+
+import com.google.common.util.concurrent.ListeningExecutorService;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -27,11 +29,17 @@ package org.mobicents.media.control.mgcp.transaction;
  */
 public class SubMgcpTransactionManagerProvider implements MgcpTransactionManagerProvider {
 
+    private final MgcpTransactionNumberspace numberspace;
+    private final ListeningExecutorService executor;
+
+    public SubMgcpTransactionManagerProvider(MgcpTransactionNumberspace numberspace, ListeningExecutorService executor) {
+        this.numberspace = numberspace;
+        this.executor = executor;
+    }
+
     @Override
     public MgcpTransactionManager provide() {
-        // TODO provide manager
-        return null;
-//        return new SubMgcpTransactionManager(numberspace, transactionProvider, executor);
+        return new SubMgcpTransactionManager(this.numberspace, this.executor);
     }
 
 }
