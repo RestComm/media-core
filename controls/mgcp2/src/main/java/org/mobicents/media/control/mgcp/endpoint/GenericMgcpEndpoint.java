@@ -467,7 +467,7 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
     public void observe(MgcpMessageObserver observer) {
         this.messageObservers.add(observer);
         if (log.isTraceEnabled()) {
-            log.trace("Endpoint " + this.endpointId.toString() + " unregistered MgcpMessageObserver@" + observer.hashCode() + ". Count: " + this.messageObservers.size());
+            log.trace("Endpoint " + this.endpointId.toString() + " registered MgcpMessageObserver@" + observer.hashCode() + ". Count: " + this.messageObservers.size());
         }
     }
 

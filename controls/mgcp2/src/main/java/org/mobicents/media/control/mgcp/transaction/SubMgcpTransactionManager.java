@@ -148,7 +148,8 @@ public class SubMgcpTransactionManager implements MgcpTransactionManager {
             throw new MgcpTransactionNotFoundException("Could not find transaction " + response.getTransactionId());
         } else {
             if (log.isDebugEnabled()) {
-                log.debug("Closed transaction " + response.getTransactionId() + " with code " + response.getCode());
+                String callAgent = MessageDirection.INCOMING.equals(direction) ? from.toString() : to.toString();
+                log.debug("Closed transaction " + response.getTransactionId() + " for call agent " + callAgent + " with code " + response.getCode());
             }
         }
     }

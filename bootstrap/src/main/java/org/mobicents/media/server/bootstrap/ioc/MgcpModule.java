@@ -29,9 +29,11 @@ import org.mobicents.media.control.mgcp.network.MgcpChannel;
 import org.mobicents.media.control.mgcp.network.MgcpPacketHandler;
 import org.mobicents.media.control.mgcp.pkg.MgcpSignalProvider;
 import org.mobicents.media.control.mgcp.transaction.MgcpTransactionManager;
+import org.mobicents.media.control.mgcp.transaction.MgcpTransactionManagerProvider;
 import org.mobicents.media.control.mgcp.transaction.MgcpTransactionNumberspace;
 import org.mobicents.media.server.bootstrap.ioc.provider.ListeningScheduledExecutorServiceProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.MgcpPacketHandlerProvider;
+import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.GlobalMgcpTransactionManagerProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MediaGroupProviderProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.Mgcp2ControllerProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MgcpChannelProvider;
@@ -41,8 +43,8 @@ import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MgcpEndpointInstal
 import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MgcpEndpointInstallerProvider.MgcpEndpointInstallerListType;
 import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MgcpEndpointManagerProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MgcpSignalProviderProvider;
-import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MgcpTransactionManagerProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MgcpTransactionNumberspaceProvider;
+import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.SubMgcpTransactionManagerProviderProvider;
 import org.mobicents.media.server.spi.ServerManager;
 
 import com.google.common.util.concurrent.ListeningExecutorService;
@@ -63,7 +65,8 @@ public class MgcpModule extends AbstractModule {
         bind(MgcpEndpointManager.class).toProvider(MgcpEndpointManagerProvider.class).in(Singleton.class);
         bind(MgcpCommandProvider.class).toProvider(MgcpCommandProviderProvider.class).in(Singleton.class);
         bind(MgcpTransactionNumberspace.class).toProvider(MgcpTransactionNumberspaceProvider.class).in(Singleton.class);
-        bind(MgcpTransactionManager.class).toProvider(MgcpTransactionManagerProvider.class).in(Singleton.class);
+        bind(MgcpTransactionManagerProvider.class).toProvider(SubMgcpTransactionManagerProviderProvider.class).in(Singleton.class);
+        bind(MgcpTransactionManager.class).toProvider(GlobalMgcpTransactionManagerProvider.class).in(Singleton.class);
         bind(MgcpPacketHandler.class).toProvider(MgcpPacketHandlerProvider.class);
         bind(MgcpChannel.class).toProvider(MgcpChannelProvider.class).in(Singleton.class);
         bind(ServerManager.class).toProvider(Mgcp2ControllerProvider.class).in(Singleton.class);
