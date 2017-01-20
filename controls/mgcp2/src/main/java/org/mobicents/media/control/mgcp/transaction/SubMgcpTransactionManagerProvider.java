@@ -31,6 +31,7 @@ public class SubMgcpTransactionManagerProvider implements MgcpTransactionManager
     public MgcpTransactionManager provide() {
         // TODO provide manager
         return null;
+//        return new SubMgcpTransactionManager(numberspace, transactionProvider, executor);
     }
 
 }

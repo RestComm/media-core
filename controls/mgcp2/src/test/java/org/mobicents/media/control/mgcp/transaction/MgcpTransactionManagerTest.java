@@ -23,7 +23,10 @@ package org.mobicents.media.control.mgcp.transaction;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.net.InetSocketAddress;
 
@@ -59,24 +62,20 @@ public class MgcpTransactionManagerTest {
         final MgcpRequest request = mock(MgcpRequest.class);
         final MgcpResponse response = mock(MgcpResponse.class);
         final MgcpCommand command = mock(MgcpCommand.class);
-        final MgcpTransaction transaction = new MgcpTransaction(transactionId);
         final MgcpTransactionNumberspace numberspace = mock(MgcpTransactionNumberspace.class);
-        final MgcpTransactionProvider txProvider = mock(MgcpTransactionProvider.class);
         final ListeningExecutorService executor = mock(ListeningExecutorService.class);
-        final SubMgcpTransactionManager txManager = new SubMgcpTransactionManager(numberspace, txProvider, executor);
+        final SubMgcpTransactionManager txManager = new SubMgcpTransactionManager(numberspace, executor);
 
         // when - request
         when(request.toString()).thenReturn(REQUEST);
         when(request.isRequest()).thenReturn(true);
         when(request.getRequestType()).thenReturn(MgcpRequestType.CRCX);
         when(request.getTransactionId()).thenReturn(transactionId);
-        when(txProvider.provideRemote(transactionId)).thenReturn(transaction);
         when(executor.submit(command)).thenReturn(new AbstractFuture<MgcpCommandResult>() {});
         txManager.process(remote, local, request, command, MessageDirection.INCOMING);
 
         // then
         assertTrue(txManager.contains(transactionId));
-        verify(txProvider, times(1)).provideRemote(transactionId);
         verify(executor, times(1)).submit(command);
 
         // when - response
@@ -99,24 +98,21 @@ public class MgcpTransactionManagerTest {
         final InetSocketAddress remote = new InetSocketAddress("127.0.0.1", 2727);
         final MgcpRequest request = mock(MgcpRequest.class);
         final MgcpResponse response = mock(MgcpResponse.class);
-        final MgcpTransaction transaction = new MgcpTransaction(147483653);
         final MgcpTransactionNumberspace numberspace = mock(MgcpTransactionNumberspace.class);
-        final MgcpTransactionProvider txProvider = mock(MgcpTransactionProvider.class);
         final ListeningExecutorService executor = mock(ListeningExecutorService.class);
-        final SubMgcpTransactionManager txManager = new SubMgcpTransactionManager(numberspace, txProvider, executor);
+        final SubMgcpTransactionManager txManager = new SubMgcpTransactionManager(numberspace, executor);
 
         // when - request
         when(request.toString()).thenReturn(REQUEST);
         when(request.isRequest()).thenReturn(true);
         when(request.getRequestType()).thenReturn(MgcpRequestType.CRCX);
         when(request.getTransactionId()).thenReturn(initialTransactionId, finalTransactionId);
-        when(txProvider.provideLocal()).thenReturn(transaction);
+        when(numberspace.generateId()).thenReturn(147483653);
 
         txManager.process(local, remote, request, null, MessageDirection.OUTGOING);
 
         // then
         assertTrue(txManager.contains(finalTransactionId));
-        verify(txProvider, times(1)).provideLocal();
 
         // when - response
         when(response.toString()).thenReturn(RESPONSE);
@@ -138,11 +134,9 @@ public class MgcpTransactionManagerTest {
         final InetSocketAddress remote = new InetSocketAddress("127.0.0.1", 2727);
         final MgcpRequest request = mock(MgcpRequest.class);
         final MgcpCommand command = mock(MgcpCommand.class);
-        final MgcpTransaction transaction = new MgcpTransaction(transactionId);
         final MgcpTransactionNumberspace numberspace = mock(MgcpTransactionNumberspace.class);
-        final MgcpTransactionProvider txProvider = mock(MgcpTransactionProvider.class);
         final ListeningExecutorService executor = mock(ListeningExecutorService.class);
-        final SubMgcpTransactionManager txManager = new SubMgcpTransactionManager(numberspace, txProvider, executor);
+        final SubMgcpTransactionManager txManager = new SubMgcpTransactionManager(numberspace, executor);
 
         // when - request
         when(executor.submit(command)).thenReturn(mock(ListenableFuture.class));
@@ -150,7 +144,6 @@ public class MgcpTransactionManagerTest {
         when(request.isRequest()).thenReturn(true);
         when(request.getRequestType()).thenReturn(MgcpRequestType.CRCX);
         when(request.getTransactionId()).thenReturn(transactionId);
-        when(txProvider.provideRemote(transactionId)).thenReturn(transaction);
 
         txManager.process(remote, local, request, command, MessageDirection.INCOMING);
         txManager.process(remote, local, request, command, MessageDirection.INCOMING);

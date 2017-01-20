@@ -62,7 +62,6 @@ public class SubMgcpTransactionManager implements MgcpTransactionManager {
 
     // MGCP Components
     private final MgcpTransactionNumberspace numberspace;
-    private final MgcpTransactionProvider transactionProvider;
 
     // MGCP Transaction Manager
     private final ConcurrentHashMap<Integer, MgcpTransaction> transactions;
@@ -77,13 +76,12 @@ public class SubMgcpTransactionManager implements MgcpTransactionManager {
     // Observers
     private final Collection<MgcpMessageObserver> observers;
 
-    public SubMgcpTransactionManager(MgcpTransactionNumberspace numberspace, MgcpTransactionProvider transactionProvider, ListeningExecutorService executor) {
+    public SubMgcpTransactionManager(MgcpTransactionNumberspace numberspace, ListeningExecutorService executor) {
         // Concurrency Components
         this.executor = executor;
 
         // MGCP Components
         this.numberspace = numberspace;
-        this.transactionProvider = transactionProvider;
 
         // MGCP Transaction Manager
         this.transactions = new ConcurrentHashMap<>(500);
@@ -101,14 +99,14 @@ public class SubMgcpTransactionManager implements MgcpTransactionManager {
         if (local) {
             // Transaction originated from within this Media Server (NTFY, for example)
             // to be sent out to call agent. A transaction ID must be generated
-            transaction = this.transactionProvider.provideLocal();
+            transaction = new MgcpTransaction(this.numberspace.generateId());
 
             // Patch transaction ID
             request.setTransactionId(transaction.getId());
             transactionId = transaction.getId();
         } else {
             // Transaction originated from the remote call agent
-            transaction = this.transactionProvider.provideRemote(transactionId);
+            transaction = new MgcpTransaction(transactionId);
         }
 
         // Register Transaction

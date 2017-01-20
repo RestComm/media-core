@@ -26,7 +26,6 @@ import org.junit.Test;
 import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.pkg.MgcpSignalProvider;
-import org.mobicents.media.control.mgcp.transaction.MgcpTransactionProvider;
 import org.mobicents.media.core.configuration.MediaServerConfiguration;
 import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MgcpEndpointManagerProvider;
 import org.mobicents.media.server.spi.ServerManager;
@@ -74,19 +73,6 @@ public class MgcpModuleTest {
 
         // when
         MgcpCommandProvider obj = injector.getInstance(MgcpCommandProvider.class);
-
-        // then
-        Assert.assertNotNull(obj);
-    }
-
-    @Test
-    public void testMgcpTransactionProviderBinding() {
-        // given
-        final MediaServerConfiguration config = new MediaServerConfiguration();
-        final Injector injector = Guice.createInjector(new MgcpModule(), new MediaModule(), new CoreModule(config));
-
-        // when
-        MgcpTransactionProvider obj = injector.getInstance(MgcpTransactionProvider.class);
 
         // then
         Assert.assertNotNull(obj);
