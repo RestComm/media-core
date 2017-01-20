@@ -98,29 +98,36 @@ public class GlobalMgcpTransactionManager implements MgcpTransactionManager, Mgc
 
     @Override
     public void process(InetSocketAddress from, InetSocketAddress to, MgcpRequest request, MgcpCommand command, MessageDirection direction) throws DuplicateMgcpTransactionException {
-        final String key = from.toString();
-        MgcpTransactionManager manager = this.managers.get(key);
+        final String callAgent = MessageDirection.INCOMING.equals(direction) ? from.toString() : to.toString();
+        MgcpTransactionManager manager = this.managers.get(callAgent);
         if (manager == null) {
             MgcpTransactionManager newManager = provider.provide();
-            MgcpTransactionManager oldManager = this.managers.putIfAbsent(key, newManager);
+            MgcpTransactionManager oldManager = this.managers.putIfAbsent(callAgent, newManager);
             
             if(oldManager == null) {
                 manager = newManager;
+                manager.observe(this);
+            } else {
+                manager = oldManager;
             }
-            
-            manager = (oldManager == null) ? newManager : oldManager;
         }
         manager.process(from, to, request, command, direction);
     }
 
     @Override
     public void process(InetSocketAddress from, InetSocketAddress to, MgcpResponse response, MessageDirection direction) throws MgcpTransactionNotFoundException {
-        final String key = from.toString();
-        MgcpTransactionManager manager = this.managers.get(key);
+        final String callAgent = MessageDirection.INCOMING.equals(direction) ? from.toString() : to.toString();
+        MgcpTransactionManager manager = this.managers.get(callAgent);
         if (manager == null) {
             MgcpTransactionManager newManager = provider.provide();
-            MgcpTransactionManager oldManager = this.managers.putIfAbsent(key, newManager);
-            manager = (oldManager == null) ? newManager : oldManager;
+            MgcpTransactionManager oldManager = this.managers.putIfAbsent(callAgent, newManager);
+            
+            if(oldManager == null) {
+                manager = newManager;
+                manager.observe(this);
+            } else {
+                manager = oldManager;
+            }
         }
         manager.process(from, to, response, direction);
     }
