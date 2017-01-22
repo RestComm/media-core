@@ -25,7 +25,7 @@ import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.command.MgcpCommand;
@@ -87,7 +87,7 @@ public class SubMgcpTransactionManager implements MgcpTransactionManager {
         this.transactions = new ConcurrentHashMap<>(500);
 
         // Observers
-        this.observers = new CopyOnWriteArrayList<>();
+        this.observers = new CopyOnWriteArraySet<>();
     }
 
     private MgcpTransaction createTransaction(MgcpRequest request) throws DuplicateMgcpTransactionException {

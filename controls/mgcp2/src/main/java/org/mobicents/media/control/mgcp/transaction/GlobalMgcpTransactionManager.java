@@ -75,10 +75,6 @@ public class GlobalMgcpTransactionManager implements MgcpTransactionManager, Mgc
         }
     }
     
-    protected int countObservers() {
-        return this.observers.size();
-    }
-
     @Override
     public void notify(Object originator, InetSocketAddress from, InetSocketAddress to, MgcpMessage message, MessageDirection direction) {
         Iterator<MgcpMessageObserver> observers = this.observers.iterator();

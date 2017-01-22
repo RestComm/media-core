@@ -21,14 +21,17 @@
 
 package org.mobicents.media.control.mgcp.transaction;
 
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.only;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.net.InetSocketAddress;
+import java.util.Collection;
 
 import org.junit.Test;
-
-import static org.junit.Assert.*;
-
 import org.mobicents.media.control.mgcp.command.MgcpCommand;
 import org.mobicents.media.control.mgcp.exception.DuplicateMgcpTransactionException;
 import org.mobicents.media.control.mgcp.exception.MgcpTransactionNotFoundException;
@@ -36,6 +39,7 @@ import org.mobicents.media.control.mgcp.message.MessageDirection;
 import org.mobicents.media.control.mgcp.message.MgcpMessageObserver;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
+import org.mockito.internal.util.reflection.Whitebox;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -44,39 +48,43 @@ import org.mobicents.media.control.mgcp.message.MgcpResponse;
 public class GlobalMgcpTransactionManagerTest {
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testObserverRegistry() {
         // given
         final MgcpMessageObserver observer = mock(MgcpMessageObserver.class);
         final MgcpTransactionManagerProvider provider = mock(MgcpTransactionManagerProvider.class);
         final GlobalMgcpTransactionManager transactionManager = new GlobalMgcpTransactionManager(provider);
+        final Collection<MgcpMessageObserver> observers = (Collection<MgcpMessageObserver>) Whitebox.getInternalState(transactionManager, "observers");
 
         // when
         transactionManager.observe(observer);
 
         // then
-        assertEquals(1, transactionManager.countObservers());
+        assertEquals(1, observers.size());
 
         // when
         transactionManager.forget(observer);
 
         // then
-        assertEquals(0, transactionManager.countObservers());
+        assertEquals(0, observers.size());
 
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testRegisterDuplicateObserver() {
         // given
         final MgcpMessageObserver observer = mock(MgcpMessageObserver.class);
         final MgcpTransactionManagerProvider provider = mock(MgcpTransactionManagerProvider.class);
         final GlobalMgcpTransactionManager transactionManager = new GlobalMgcpTransactionManager(provider);
-        
+        final Collection<MgcpMessageObserver> observers = (Collection<MgcpMessageObserver>) Whitebox.getInternalState(transactionManager, "observers");
+
         // when
         transactionManager.observe(observer);
         transactionManager.observe(observer);
         
         // then
-        assertEquals(1, transactionManager.countObservers());
+        assertEquals(1, observers.size());
     }
 
     @Test
