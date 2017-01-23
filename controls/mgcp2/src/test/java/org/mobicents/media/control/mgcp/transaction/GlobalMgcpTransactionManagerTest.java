@@ -21,12 +21,8 @@
 
 package org.mobicents.media.control.mgcp.transaction;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.only;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import java.net.InetSocketAddress;
 import java.util.Collection;
@@ -139,6 +135,46 @@ public class GlobalMgcpTransactionManagerTest {
         verify(subTransactionManager, times(1)).observe(transactionManager);
         verify(subTransactionManager, times(1)).process(local, remote, request, command, MessageDirection.OUTGOING);
         verify(subTransactionManager, times(1)).process(remote, local, response, MessageDirection.INCOMING);
+    }
+
+    @Test(expected=DuplicateMgcpTransactionException.class)
+    public void testProcessDuplicateIncomingRequest() throws DuplicateMgcpTransactionException {
+        // given
+        final InetSocketAddress remote = new InetSocketAddress("127.0.0.1", 2727);
+        final InetSocketAddress local = new InetSocketAddress("127.0.0.1", 2427);
+        final MgcpRequest request = mock(MgcpRequest.class);
+        final MgcpCommand command = mock(MgcpCommand.class);
+        final MgcpMessageObserver observer = mock(MgcpMessageObserver.class);
+        final MgcpTransactionManager subTransactionManager = mock(MgcpTransactionManager.class);
+        final MgcpTransactionManagerProvider provider = mock(MgcpTransactionManagerProvider.class);
+        final GlobalMgcpTransactionManager transactionManager = new GlobalMgcpTransactionManager(provider);
+        
+        // when
+        when(provider.provide()).thenReturn(subTransactionManager);
+        doThrow(DuplicateMgcpTransactionException.class).when(subTransactionManager).process(remote, local, request, command, MessageDirection.INCOMING);
+        
+        transactionManager.observe(observer);
+        transactionManager.process(remote, local, request, command, MessageDirection.INCOMING);
+    }
+
+    @Test(expected=MgcpTransactionNotFoundException.class)
+    public void testProcessResponseWithUnknownTransactionId() throws MgcpTransactionNotFoundException {
+        // given
+        final InetSocketAddress remote = new InetSocketAddress("127.0.0.1", 2727);
+        final InetSocketAddress local = new InetSocketAddress("127.0.0.1", 2427);
+        final MgcpResponse response = mock(MgcpResponse.class);
+        final MgcpMessageObserver observer = mock(MgcpMessageObserver.class);
+        final MgcpTransactionManager subTransactionManager = mock(MgcpTransactionManager.class);
+        final MgcpTransactionManagerProvider provider = mock(MgcpTransactionManagerProvider.class);
+        final GlobalMgcpTransactionManager transactionManager = new GlobalMgcpTransactionManager(provider);
+        
+        // when
+        when(response.getTransactionId()).thenReturn(12345);
+        when(provider.provide()).thenReturn(subTransactionManager);
+        doThrow(MgcpTransactionNotFoundException.class).when(subTransactionManager).process(remote, local, response, MessageDirection.INCOMING);
+        
+        transactionManager.observe(observer);
+        transactionManager.process(remote, local, response, MessageDirection.INCOMING);
     }
 
 }
