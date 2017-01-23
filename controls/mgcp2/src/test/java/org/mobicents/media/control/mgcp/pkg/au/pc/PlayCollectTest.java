@@ -917,7 +917,7 @@ public class PlayCollectTest {
         pc.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
 
         // Collect two digits and end input
-        Thread.sleep(10);
+        Thread.sleep(5);
         pc.detectorListener.process(new DtmfEventImpl(detector, "1", -30));
         pc.detectorListener.process(new DtmfEventImpl(detector, "2", -30));
         pc.detectorListener.process(new DtmfEventImpl(detector, "A", -30));
@@ -928,7 +928,7 @@ public class PlayCollectTest {
         verify(player, times(2)).activate();
         verify(player, times(1)).setURL("prompt.wav");
         verify(player, times(1)).setURL("reprompt.wav");
-        verify(observer, timeout(50)).onEvent(eq(pc), eventCaptor.capture());
+        verify(observer, timeout(100)).onEvent(eq(pc), eventCaptor.capture());
 
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
         assertEquals("12A", eventCaptor.getValue().getParameter("dc"));

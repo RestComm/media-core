@@ -37,7 +37,7 @@ import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
 import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
 import org.mobicents.media.control.mgcp.network.MgcpChannel;
-import org.mobicents.media.control.mgcp.transaction.TransactionManager;
+import org.mobicents.media.control.mgcp.transaction.MgcpTransactionManager;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.spi.ControlProtocol;
 import org.mobicents.media.server.spi.Endpoint;
@@ -57,7 +57,7 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
     
     // MGCP Components
     private final MgcpChannel channel;
-    private final TransactionManager transactions;
+    private final MgcpTransactionManager transactions;
     private final MgcpEndpointManager endpoints;
     private final MgcpCommandProvider commands;
 
@@ -66,7 +66,7 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
     private final int port;
     private boolean active;
 
-    public MgcpController(String address, int port, UdpManager networkManager, MgcpChannel channel, TransactionManager transactions, MgcpEndpointManager endpoints, MgcpCommandProvider commands) {
+    public MgcpController(String address, int port, UdpManager networkManager, MgcpChannel channel, MgcpTransactionManager transactions, MgcpEndpointManager endpoints, MgcpCommandProvider commands) {
         // Core Components
         this.networkManager = networkManager;
 
@@ -189,7 +189,7 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
 
         try {
             // Start transaction that will execute the command
-            this.transactions.process(from, to, request, command);
+            this.transactions.process(from, to, request, command, MessageDirection.INCOMING);
         } catch (DuplicateMgcpTransactionException e) {
             // Transaction is already being processed
             // Send provisional message
@@ -211,7 +211,7 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
     private void onOutgoingRequest(InetSocketAddress from, InetSocketAddress to, MgcpRequest request) {
         try {
             // Start transaction
-            this.transactions.process(from, to, request, null);
+            this.transactions.process(from, to, request, null, MessageDirection.OUTGOING);
             // Send request to call agent
             this.channel.send(to, request);
         } catch (DuplicateMgcpTransactionException e) {
@@ -224,7 +224,7 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
     private void onIncomingResponse(InetSocketAddress from, InetSocketAddress to, MgcpResponse response) {
         try {
             // Close transaction
-            this.transactions.process(from, to, response);
+            this.transactions.process(from, to, response, MessageDirection.INCOMING);
         } catch (MgcpTransactionNotFoundException e) {
             log.error(e.getMessage());
         }
@@ -233,7 +233,7 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
     private void onOutgoingResponse(InetSocketAddress from, InetSocketAddress to, MgcpResponse response) {
         try {
             // Close transaction
-            this.transactions.process(from, to, response);
+            this.transactions.process(from, to, response, MessageDirection.OUTGOING);
             // Send response to call agent
             this.channel.send(to, response);
         } catch (MgcpTransactionNotFoundException e) {

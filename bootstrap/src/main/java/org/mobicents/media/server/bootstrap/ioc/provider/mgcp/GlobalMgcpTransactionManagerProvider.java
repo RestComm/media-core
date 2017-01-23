@@ -21,7 +21,9 @@
 
 package org.mobicents.media.server.bootstrap.ioc.provider.mgcp;
 
-import org.mobicents.media.control.mgcp.transaction.MgcpTransactionProvider;
+import org.mobicents.media.control.mgcp.transaction.GlobalMgcpTransactionManager;
+import org.mobicents.media.control.mgcp.transaction.MgcpTransactionManager;
+import org.mobicents.media.control.mgcp.transaction.MgcpTransactionManagerProvider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -30,16 +32,18 @@ import com.google.inject.Provider;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpTransactionProviderProvider implements Provider<MgcpTransactionProvider> {
+public class GlobalMgcpTransactionManagerProvider implements Provider<MgcpTransactionManager> {
+
+    private final MgcpTransactionManagerProvider provider;
 
     @Inject
-    public MgcpTransactionProviderProvider() {
-        super();
+    public GlobalMgcpTransactionManagerProvider(MgcpTransactionManagerProvider provider) {
+        this.provider = provider;
     }
 
     @Override
-    public MgcpTransactionProvider get() {
-        return new MgcpTransactionProvider(1, 100000000);
+    public MgcpTransactionManager get() {
+        return new GlobalMgcpTransactionManager(provider);
     }
 
 }
