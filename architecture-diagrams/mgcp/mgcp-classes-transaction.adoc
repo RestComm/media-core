@@ -1,0 +1,131 @@
+[plantuml,file="mgcp-classes-transaction.png"]
+--
+interface MgcpMessageObserver {
+    + onMessage(MgcpMessage, MessageDirection)
+}
+
+interface ServerManager {
+    + activate()
+    + deactivate()
+}
+
+class MgcpController {
+    - UdpManager networkManager;
+    - MgcpChannel channel;
+    - MgcpTransactionManager transactions;
+    - MgcpEndpointManager endpoints;
+    - MgcpCommandProvider commands;
+    - String address;
+    - int port;
+    - boolean active;
+}
+
+ServerManager <|-- MgcpController
+MgcpMessageObserver <|-- MgcpController
+MgcpController -> MgcpTransactionManager : > process message
+
+
+
+
+
+interface MgcpTransactionManager {
+    + process(InetAddress, InetAddress, MgcpRequest, MgcpCommand, MessageDirection)
+    + process(InetAddress, InetAddress, MgcpResponse, MessageDirection)
+}
+
+class GlobalMgcpTransactionManager {
+- MgcpTransactionManagerProvider provider
+- Map<Integer, MgcpTransactionManager> managers
+- Set<MgcpMessageObserver> observers
+}
+
+class SubMgcpTransactionManager {
+    - Map<Integer, MgcpTransaction> transactions
+    - MgcpTransactionNumberspace numberspace;
+    - ListeningExecutorService executor;
+    - Set<MgcpMessageObserver> observers
+}
+
+class SubMgcpTransactionManagerProvider {
+- MgcpTransactionNumberspace numberspace;
+- ListeningExecutorService executor;
+}
+
+class MgcpTransactionNumberspace {
+- int minimumId
+- int maximumId
+- AtomicInteger current
++ int generateId()
+}
+
+class MgcpTransaction {
+- int transactionId
+- String transactionIdHex
+}
+
+interface MgcpTransactionManagerProvider {
++ MgcpTransactionManager provide()
+}
+
+MgcpTransactionManager <|-- GlobalMgcpTransactionManager
+MgcpTransactionManager <|-- SubMgcpTransactionManager
+
+GlobalMgcpTransactionManager -> MgcpTransactionManagerProvider : > provide
+GlobalMgcpTransactionManager *-left-> SubMgcpTransactionManager : > process message
+
+MgcpTransactionManagerProvider <|-- SubMgcpTransactionManagerProvider
+
+SubMgcpTransactionManager *--> MgcpTransaction : > ongoing
+SubMgcpTransactionManager --> MgcpTransactionNumberspace : > generate id
+SubMgcpTransactionManager -up-> MgcpController : > on message
+
+
+
+
+class MgcpCommandProvider {
+    + provide(MgcpRequest)
+}
+
+class MgcpCommandResult {
+    - int transactionId;
+    - int code;
+    - String message;
+    - Parameters<MgcpParameterType> parameters;
+}
+
+class MgcpCommandCallback {
+    - InetAddress from
+    - InetAddress to
+    - int transactionId
+    + onSuccess(MgcpCommandResult)
+    + onFailure(Throwable)
+}
+
+interface MgcpCommand {
+    + MgcpCommandResult call()
+}
+
+abstract class AbstractMgcpCommand {
+    # String WILDCARD_ALL = "*"
+    # String WILDCARD_ANY = "$"
+    # String ENDPOINT_ID_SEPARATOR = "@"
+    - int transactionId
+    - MgcpEndpointManager endpoints
+    - Parameters<MgcpParameterType> params
+}
+
+
+MgcpCommandProvider <- MgcpController : < provide
+(MgcpCommandProvider,MgcpController) .. MgcpCommand
+MgcpCommand <|-- AbstractMgcpCommand
+
+MgcpCommand <- SubMgcpTransactionManager : < call
+(SubMgcpTransactionManager,MgcpCommand) .. MgcpCommandResult
+MgcpCommandResult <-- MgcpCommandCallback
+SubMgcpTransactionManager <-- MgcpCommandCallback : < notify
+
+AbstractMgcpCommand <|-- CreateConnectionCommand
+AbstractMgcpCommand <|-- ModifyConnectionCommand
+AbstractMgcpCommand <|-- DeleteConnectionCommand
+AbstractMgcpCommand <|-- RequestNotificationCommand
+--
