@@ -22,6 +22,7 @@
 package org.mobicents.media.control.mgcp.connection;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
@@ -42,6 +43,9 @@ import org.mobicents.media.server.io.sdp.dtls.attributes.FingerprintAttribute;
 import org.mobicents.media.server.io.sdp.fields.MediaDescriptionField;
 import org.mobicents.media.server.io.sdp.rtcp.attributes.RtcpAttribute;
 import org.mobicents.media.server.spi.ConnectionMode;
+
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 
 /**
  * Type of connection that connects one endpoint to a remote peer.
@@ -67,8 +71,15 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
 
     // Listeners
     private MgcpConnectionListener connectionListener;
+    
+    // Call Timers
+    private static final int TIMEOUT_HALF_OPEN = 10;
+    private static final int TIMEOUT_OPEN = 10;
+    
+    private final ListeningScheduledExecutorService executor;
+    private ListenableFuture<?> timerFuture;
 
-    public MgcpRemoteConnection(int identifier, MediaChannelProvider channelProvider) {
+    public MgcpRemoteConnection(int identifier, MediaChannelProvider channelProvider, ListeningScheduledExecutorService executor) {
         super(identifier);
 
         // Connection Properties
@@ -83,6 +94,10 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
         // Media Channels
         this.audioChannel = channelProvider.provideAudioChannel();
         this.audioChannel.setCname(this.cname);
+        
+        // Timers
+        this.executor = executor;
+        this.timerFuture = null;
     }
 
     public void setConnectionListener(MgcpConnectionListener connectionListener) {
@@ -138,6 +153,8 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
                         log.debug("Connection " + getHexIdentifier() + " state is " + this.state.name());
                     }
                     
+                    this.timerFuture = this.executor.schedule(new MgcpRemoteConnectionTimer(), TIMEOUT_HALF_OPEN, TimeUnit.SECONDS);
+                    
                     return this.localSdp.toString();
                 default:
                     throw new MgcpConnectionException("Cannot half-open connection " + this.getHexIdentifier()
@@ -167,6 +184,21 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
                     
                     if(log.isDebugEnabled()) {
                         log.debug("Connection " + getHexIdentifier() + " state is " + this.state.name());
+                    }
+                    
+                    // Check if existing timer needs to be canceled
+                    // Required when passing from HALF_OPEN to OPEN
+                    if(this.timerFuture != null && !this.timerFuture.isCancelled()) {
+                        this.timerFuture.cancel(true);
+                        if(log.isDebugEnabled()) {
+                            log.debug("Connection " + getHexIdentifier() + " canceled HALF_OPEN timer");
+                        }
+                    }
+                    
+                    // Submit timer
+                    this.timerFuture = this.executor.schedule(new MgcpRemoteConnectionTimer(), TIMEOUT_OPEN, TimeUnit.SECONDS);
+                    if(log.isDebugEnabled()) {
+                        log.debug("Connection " + getHexIdentifier() + " initialized OPEN timer. Timeout in " + TIMEOUT_OPEN +" seconds");
                     }
                     break;
 
@@ -336,6 +368,12 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
             switch (this.state) {
                 case HALF_OPEN:
                 case OPEN:
+                    // Cancel Timer
+                    if(log.isDebugEnabled()) {
+                        log.debug("Connection " + getHexIdentifier() + " canceled timer.");
+                    }
+                    this.timerFuture.cancel(true);
+                    
                     // Deactivate connection
                     setMode(ConnectionMode.INACTIVE);
 
@@ -417,6 +455,13 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
         this.remoteSdp = null;
     }
 
-    // TODO Implement time-to-live mechanism
+    private final class MgcpRemoteConnectionTimer implements Runnable {
+
+        @Override
+        public void run() {
+            MgcpRemoteConnection.this.onRtpFailure("Maximum call duration reached.");
+        }
+        
+    }
 
 }

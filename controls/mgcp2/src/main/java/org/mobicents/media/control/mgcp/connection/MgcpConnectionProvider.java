@@ -26,6 +26,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.impl.rtp.channels.MediaChannelProvider;
 
+import com.google.common.util.concurrent.ListeningScheduledExecutorService;
+
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
@@ -35,15 +37,17 @@ public class MgcpConnectionProvider {
     private final AtomicInteger idGenerator;
     private final MediaChannelProvider channelProvider;
     private final ChannelsManager channelsManager;
+    private final ListeningScheduledExecutorService executor;
     
-    public MgcpConnectionProvider(MediaChannelProvider channelProvider, ChannelsManager channelsManager) {
+    public MgcpConnectionProvider(MediaChannelProvider channelProvider, ChannelsManager channelsManager, ListeningScheduledExecutorService executor) {
         this.idGenerator = new AtomicInteger(0);
         this.channelProvider = channelProvider;
         this.channelsManager = channelsManager;
+        this.executor = executor;
     }
     
     public MgcpRemoteConnection provideRemote() {
-        return new MgcpRemoteConnection(this.idGenerator.incrementAndGet(), channelProvider);
+        return new MgcpRemoteConnection(this.idGenerator.incrementAndGet(), channelProvider, executor);
     }
     
     public MgcpLocalConnection provideLocal() {

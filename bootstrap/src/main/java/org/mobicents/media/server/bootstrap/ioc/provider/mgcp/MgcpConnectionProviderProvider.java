@@ -25,6 +25,7 @@ import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.impl.rtp.channels.MediaChannelProvider;
 
+import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
@@ -36,17 +37,19 @@ public class MgcpConnectionProviderProvider implements Provider<MgcpConnectionPr
 
     private final MediaChannelProvider mediaChannelProvider;
     private final ChannelsManager channelsManager;
+    private final ListeningScheduledExecutorService executor;
 
     @Inject
-    public MgcpConnectionProviderProvider(MediaChannelProvider mediaChannelProvider, ChannelsManager channelsManager) {
+    public MgcpConnectionProviderProvider(MediaChannelProvider mediaChannelProvider, ChannelsManager channelsManager, ListeningScheduledExecutorService executor) {
         super();
         this.mediaChannelProvider = mediaChannelProvider;
         this.channelsManager = channelsManager;
+        this.executor = executor;
     }
 
     @Override
     public MgcpConnectionProvider get() {
-        return new MgcpConnectionProvider(this.mediaChannelProvider, this.channelsManager);
+        return new MgcpConnectionProvider(this.mediaChannelProvider, this.channelsManager, executor);
     }
 
 }

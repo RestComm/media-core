@@ -72,7 +72,7 @@ public class MgcpModule extends AbstractModule {
         bind(ServerManager.class).toProvider(Mgcp2ControllerProvider.class).in(Singleton.class);
         bind(MgcpSignalProvider.class).toProvider(MgcpSignalProviderProvider.class).in(Singleton.class);
         bind(MediaGroupProvider.class).toProvider(MediaGroupProviderProvider.class).in(Singleton.class);
-        bind(ListeningExecutorService.class).toProvider(ListeningScheduledExecutorServiceProvider.class).in(Singleton.class);
         bind(ListeningScheduledExecutorService.class).toProvider(ListeningScheduledExecutorServiceProvider.class).in(Singleton.class);
+        bind(ListeningExecutorService.class).to(ListeningScheduledExecutorService.class);
     }
 }
