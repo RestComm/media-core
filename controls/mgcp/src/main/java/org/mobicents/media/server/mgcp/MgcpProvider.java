@@ -142,7 +142,7 @@ public class MgcpProvider {
             this.dataChannel.open();
 
             // Bind channel to local address
-            final InetSocketAddress address = new InetSocketAddress(this.transport.getBindAddress(), this.port);
+            final InetSocketAddress address = new InetSocketAddress(this.transport.getLocalBindAddress(), this.port);
             this.dataChannel.bind(address);
             
             // Register channel in Network Manager to handle read operations
