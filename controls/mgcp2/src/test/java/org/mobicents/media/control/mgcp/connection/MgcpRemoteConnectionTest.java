@@ -151,5 +151,65 @@ public class MgcpRemoteConnectionTest {
         assertEquals(MgcpConnectionState.CLOSED, connection2.state);
         verify(listener, times(1)).onConnectionFailure(connection2);
     }
+    
+    @Test
+    public void testInactiveHalfOpenTimer() throws MgcpConnectionException, InterruptedException {
+        // given
+        final int identifier = 1;
+        final int halfOpenTimeout = 0;
+        final int openTimeout = 4;
+        final MgcpConnectionListener listener = mock(MgcpConnectionListener.class);
+        final AudioChannel audioChannel = mock(AudioChannel.class);
+        final MediaChannelProvider channelProvider = mock(MediaChannelProvider.class);
+
+        // when
+        when(channelProvider.provideAudioChannel()).thenReturn(audioChannel);
+        when(audioChannel.getFormats()).thenReturn(AVProfile.audio);
+        when(audioChannel.getMediaType()).thenReturn(AudioChannel.MEDIA_TYPE);
+
+        final MgcpRemoteConnection connection = new MgcpRemoteConnection(identifier, halfOpenTimeout, openTimeout, channelProvider, this.executor);
+        connection.setConnectionListener(listener);
+        connection.halfOpen(new LocalConnectionOptions());
+
+        Thread.sleep(openTimeout * 1000);
+        
+        // then
+        assertEquals(MgcpConnectionState.HALF_OPEN, connection.state);
+        verify(listener, never()).onConnectionFailure(connection);
+    }
+    
+    @Test
+    public void testInactiveOpenTimer() throws MgcpConnectionException, InterruptedException {
+        // given
+        final int openTimeout = 0;
+        final int halfOpenTimeout = 2;
+        final MgcpConnectionListener listener = mock(MgcpConnectionListener.class);
+        final AudioChannel audioChannel = mock(AudioChannel.class);
+        final MediaChannelProvider channelProvider = mock(MediaChannelProvider.class);
+
+        // when
+        when(channelProvider.provideAudioChannel()).thenReturn(audioChannel);
+        when(audioChannel.getFormats()).thenReturn(AVProfile.audio);
+        when(audioChannel.getMediaType()).thenReturn(AudioChannel.MEDIA_TYPE);
+        when(audioChannel.containsNegotiatedFormats()).thenReturn(true);
+
+        final MgcpRemoteConnection connection1 = new MgcpRemoteConnection(1, halfOpenTimeout, openTimeout, channelProvider, this.executor);
+        connection1.setConnectionListener(listener);
+        final String sdp1 = connection1.halfOpen(new LocalConnectionOptions());
+
+        final MgcpRemoteConnection connection2 = new MgcpRemoteConnection(2, halfOpenTimeout, openTimeout, channelProvider, this.executor);
+        connection2.setConnectionListener(listener);
+        connection2.open(sdp1);
+
+        // then
+        Thread.sleep(halfOpenTimeout * 1000 + 200);
+        assertEquals(MgcpConnectionState.CLOSED, connection1.state);
+        verify(listener, times(1)).onConnectionFailure(connection1);
+        assertEquals(MgcpConnectionState.OPEN, connection2.state);
+
+        Thread.sleep(halfOpenTimeout * 1000 + 200);
+        assertEquals(MgcpConnectionState.OPEN, connection2.state);
+        verify(listener, never()).onConnectionFailure(connection2);
+    }
 
 }
