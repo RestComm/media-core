@@ -35,19 +35,21 @@ import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 public class MgcpConnectionProvider {
     
     private final AtomicInteger idGenerator;
+    private final int timeout;
     private final MediaChannelProvider channelProvider;
     private final ChannelsManager channelsManager;
     private final ListeningScheduledExecutorService executor;
     
-    public MgcpConnectionProvider(MediaChannelProvider channelProvider, ChannelsManager channelsManager, ListeningScheduledExecutorService executor) {
+    public MgcpConnectionProvider(int timeout, MediaChannelProvider channelProvider, ChannelsManager channelsManager, ListeningScheduledExecutorService executor) {
         this.idGenerator = new AtomicInteger(0);
+        this.timeout = timeout;
         this.channelProvider = channelProvider;
         this.channelsManager = channelsManager;
         this.executor = executor;
     }
     
     public MgcpRemoteConnection provideRemote() {
-        return new MgcpRemoteConnection(this.idGenerator.incrementAndGet(), channelProvider, executor);
+        return new MgcpRemoteConnection(this.idGenerator.incrementAndGet(), this.timeout, channelProvider, executor);
     }
     
     public MgcpLocalConnection provideLocal() {
