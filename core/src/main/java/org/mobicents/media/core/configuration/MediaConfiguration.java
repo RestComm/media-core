@@ -33,11 +33,13 @@ import java.util.Set;
  */
 public class MediaConfiguration {
     
+    public static final int MAX_DURATION = 4 * 60 * 60;
     public static final int TIMEOUT = 0;
     public static final int LOW_PORT = 64534;
     public static final int HIGH_PORT = 65534;
     public static final int JITTER_BUFFER_SIZE = 50;
 
+    private int maxDuration;
     private int timeout;
     private int lowPort;
     private int highPort;
@@ -45,11 +47,20 @@ public class MediaConfiguration {
     private final Set<String> codecs;
 
     public MediaConfiguration() {
+        this.maxDuration = MAX_DURATION;
         this.timeout = TIMEOUT;
         this.lowPort = LOW_PORT;
         this.highPort = HIGH_PORT;
         this.jitterBufferSize = JITTER_BUFFER_SIZE;
         this.codecs = new HashSet<>(5);
+    }
+    
+    public int getMaxDuration() {
+        return maxDuration;
+    }
+    
+    public void setMaxDuration(int maxDuration) {
+        this.maxDuration = maxDuration;
     }
 
     public int getTimeout() {

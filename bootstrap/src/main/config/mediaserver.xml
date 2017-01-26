@@ -32,6 +32,7 @@
 
 	<media>
 		<timeout>0</timeout>
+		<maxDuration>14400</maxDuration>
 		<lowPort>34534</lowPort>
 		<highPort>65534</highPort>
 		<jitterBuffer size="50" />

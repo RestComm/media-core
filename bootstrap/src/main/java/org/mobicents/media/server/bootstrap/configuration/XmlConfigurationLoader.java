@@ -114,6 +114,7 @@ public class XmlConfigurationLoader implements ConfigurationLoader {
 
     private static void configureMedia(HierarchicalConfiguration<ImmutableNode> src, MediaConfiguration dst) {
         // Basic Media configuration
+        dst.setMaxDuration(src.getInt("maxDuration", MediaConfiguration.MAX_DURATION));
         dst.setTimeout(src.getInt("timeout", MediaConfiguration.TIMEOUT));
         dst.setLowPort(src.getInt("lowPort", MediaConfiguration.LOW_PORT));
         dst.setHighPort(src.getInt("highPort", MediaConfiguration.HIGH_PORT));
