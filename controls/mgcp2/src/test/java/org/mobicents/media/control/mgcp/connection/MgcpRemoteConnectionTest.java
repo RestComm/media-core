@@ -22,7 +22,6 @@
 package org.mobicents.media.control.mgcp.connection;
 
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -36,7 +35,6 @@ import java.util.concurrent.Executors;
 import org.junit.Before;
 import org.junit.Test;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
-import org.mobicents.media.control.mgcp.listener.MgcpConnectionListener;
 import org.mobicents.media.control.mgcp.message.LocalConnectionOptions;
 import org.mobicents.media.control.mgcp.pkg.MgcpEventObserver;
 import org.mobicents.media.control.mgcp.pkg.r.RtpTimeout;

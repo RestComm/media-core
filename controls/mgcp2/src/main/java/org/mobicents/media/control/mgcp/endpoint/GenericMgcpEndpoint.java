@@ -40,7 +40,6 @@ import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFound;
 import org.mobicents.media.control.mgcp.listener.MgcpCallListener;
-import org.mobicents.media.control.mgcp.listener.MgcpConnectionListener;
 import org.mobicents.media.control.mgcp.message.MessageDirection;
 import org.mobicents.media.control.mgcp.message.MgcpMessage;
 import org.mobicents.media.control.mgcp.message.MgcpMessageObserver;
@@ -58,7 +57,7 @@ import org.mobicents.media.control.mgcp.pkg.SignalType;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, MgcpConnectionListener {
+public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener {
 
     private static final Logger log = Logger.getLogger(GenericMgcpEndpoint.class);
 
@@ -309,32 +308,6 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
             notify(this, MgcpEndpointState.INACTIVE);
         } else {
             throw new IllegalArgumentException("Endpoint " + this.endpointId + " is already inactive.");
-        }
-    }
-
-    @Override
-    public void onConnectionFailure(MgcpConnection connection) {
-        // Find call that holds the connection
-        Iterator<MgcpCall> iterator = this.calls.values().iterator();
-        while (iterator.hasNext()) {
-            MgcpCall call = iterator.next();
-            MgcpConnection removed = call.removeConnection(connection.getIdentifier());
-
-            // Found call where connection was contained
-            if (removed != null) {
-                // Unregister call if it does not contain any connections
-                if (!call.hasConnections()) {
-                    iterator.remove();
-                }
-
-                // Warn child implementations that a connection was deleted
-                onConnectionDeleted(connection);
-
-                // Deactivate endpoint if there are no active calls
-                if (!hasCalls()) {
-                    deactivate();
-                }
-            }
         }
     }
 
