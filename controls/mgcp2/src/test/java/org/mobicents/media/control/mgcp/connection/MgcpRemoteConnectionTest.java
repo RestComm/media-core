@@ -22,7 +22,14 @@
 package org.mobicents.media.control.mgcp.connection;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.only;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executors;
 
@@ -31,9 +38,12 @@ import org.junit.Test;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
 import org.mobicents.media.control.mgcp.listener.MgcpConnectionListener;
 import org.mobicents.media.control.mgcp.message.LocalConnectionOptions;
+import org.mobicents.media.control.mgcp.pkg.MgcpEventObserver;
+import org.mobicents.media.control.mgcp.pkg.r.RtpTimeout;
 import org.mobicents.media.server.impl.rtp.channels.AudioChannel;
 import org.mobicents.media.server.impl.rtp.channels.MediaChannelProvider;
 import org.mobicents.media.server.io.sdp.format.AVProfile;
+import org.mockito.ArgumentCaptor;
 
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -62,7 +72,8 @@ public class MgcpRemoteConnectionTest {
         final int identifier = 1;
         final int halfOpenTimeout = 2;
         final int openTimeout = 3;
-        final MgcpConnectionListener listener = mock(MgcpConnectionListener.class);
+        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
+        final ArgumentCaptor<RtpTimeout> timeoutCaptor = ArgumentCaptor.forClass(RtpTimeout.class);
         final AudioChannel audioChannel = mock(AudioChannel.class);
         final MediaChannelProvider channelProvider = mock(MediaChannelProvider.class);
 
@@ -72,13 +83,15 @@ public class MgcpRemoteConnectionTest {
         when(audioChannel.getMediaType()).thenReturn(AudioChannel.MEDIA_TYPE);
 
         final MgcpRemoteConnection connection = new MgcpRemoteConnection(identifier, halfOpenTimeout, openTimeout, channelProvider, this.executor);
-        connection.setConnectionListener(listener);
+        connection.observe(observer);
         connection.halfOpen(new LocalConnectionOptions());
         Thread.sleep(halfOpenTimeout * 1000 + 200);
 
         // then
         assertEquals(MgcpConnectionState.CLOSED, connection.state);
-        verify(listener, only()).onConnectionFailure(connection);
+        verify(observer, only()).onEvent(eq(connection), timeoutCaptor.capture());
+        assertNotNull(timeoutCaptor.getValue());
+        assertEquals(halfOpenTimeout, timeoutCaptor.getValue().getTimeout());
     }
 
     @Test
@@ -86,7 +99,8 @@ public class MgcpRemoteConnectionTest {
         // given
         final int openTimeout = 4;
         final int halfOpenTimeout = openTimeout / 2;
-        final MgcpConnectionListener listener = mock(MgcpConnectionListener.class);
+        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
+        final ArgumentCaptor<RtpTimeout> timeoutCaptor = ArgumentCaptor.forClass(RtpTimeout.class);
         final AudioChannel audioChannel = mock(AudioChannel.class);
         final MediaChannelProvider channelProvider = mock(MediaChannelProvider.class);
 
@@ -97,22 +111,26 @@ public class MgcpRemoteConnectionTest {
         when(audioChannel.containsNegotiatedFormats()).thenReturn(true);
 
         final MgcpRemoteConnection connection1 = new MgcpRemoteConnection(1, halfOpenTimeout, openTimeout, channelProvider, this.executor);
-        connection1.setConnectionListener(listener);
+        connection1.observe(observer);
         final String sdp1 = connection1.halfOpen(new LocalConnectionOptions());
 
         final MgcpRemoteConnection connection2 = new MgcpRemoteConnection(2, halfOpenTimeout, openTimeout, channelProvider, this.executor);
-        connection2.setConnectionListener(listener);
+        connection2.observe(observer);
         connection2.open(sdp1);
 
         // then
         Thread.sleep(halfOpenTimeout * 1000 + 200);
         assertEquals(MgcpConnectionState.CLOSED, connection1.state);
-        verify(listener, times(1)).onConnectionFailure(connection1);
+        verify(observer, times(1)).onEvent(eq(connection1), timeoutCaptor.capture());
+        assertNotNull(timeoutCaptor.getValue());
+        assertEquals(halfOpenTimeout, timeoutCaptor.getValue().getTimeout());
         assertEquals(MgcpConnectionState.OPEN, connection2.state);
 
         Thread.sleep(halfOpenTimeout * 1000 + 200);
         assertEquals(MgcpConnectionState.CLOSED, connection2.state);
-        verify(listener, times(1)).onConnectionFailure(connection2);
+        verify(observer, times(1)).onEvent(eq(connection2), timeoutCaptor.capture());
+        assertNotNull(timeoutCaptor.getValue());
+        assertEquals(openTimeout, timeoutCaptor.getValue().getTimeout());
     }
 
     @Test
@@ -120,7 +138,8 @@ public class MgcpRemoteConnectionTest {
         // given
         final int openTimeout = 4;
         final int halfOpenTimeout = openTimeout / 2;
-        final MgcpConnectionListener listener = mock(MgcpConnectionListener.class);
+        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
+        final ArgumentCaptor<RtpTimeout> timeoutCaptor = ArgumentCaptor.forClass(RtpTimeout.class);
         final AudioChannel audioChannel = mock(AudioChannel.class);
         final MediaChannelProvider channelProvider = mock(MediaChannelProvider.class);
 
@@ -131,11 +150,11 @@ public class MgcpRemoteConnectionTest {
         when(audioChannel.containsNegotiatedFormats()).thenReturn(true);
 
         final MgcpRemoteConnection connection1 = new MgcpRemoteConnection(1, halfOpenTimeout, openTimeout, channelProvider, this.executor);
-        connection1.setConnectionListener(listener);
+        connection1.observe(observer);
         final String sdp1 = connection1.halfOpen(new LocalConnectionOptions());
 
         final MgcpRemoteConnection connection2 = new MgcpRemoteConnection(2, halfOpenTimeout, openTimeout, channelProvider, this.executor);
-        connection2.setConnectionListener(listener);
+        connection2.observe(observer);
         final String sdp2 = connection2.open(sdp1);
 
         connection1.open(sdp2);
@@ -147,9 +166,14 @@ public class MgcpRemoteConnectionTest {
 
         Thread.sleep(halfOpenTimeout * 1000 + 200);
         assertEquals(MgcpConnectionState.CLOSED, connection1.state);
-        verify(listener, times(1)).onConnectionFailure(connection1);
+        verify(observer, times(1)).onEvent(eq(connection1), timeoutCaptor.capture());
+        assertNotNull(timeoutCaptor.getValue());
+        assertEquals(openTimeout, timeoutCaptor.getValue().getTimeout());
+        
         assertEquals(MgcpConnectionState.CLOSED, connection2.state);
-        verify(listener, times(1)).onConnectionFailure(connection2);
+        verify(observer, times(1)).onEvent(eq(connection2), timeoutCaptor.capture());
+        assertNotNull(timeoutCaptor.getValue());
+        assertEquals(openTimeout, timeoutCaptor.getValue().getTimeout());
     }
     
     @Test
@@ -158,7 +182,8 @@ public class MgcpRemoteConnectionTest {
         final int identifier = 1;
         final int halfOpenTimeout = 0;
         final int openTimeout = 4;
-        final MgcpConnectionListener listener = mock(MgcpConnectionListener.class);
+        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
+        final ArgumentCaptor<RtpTimeout> timeoutCaptor = ArgumentCaptor.forClass(RtpTimeout.class);
         final AudioChannel audioChannel = mock(AudioChannel.class);
         final MediaChannelProvider channelProvider = mock(MediaChannelProvider.class);
 
@@ -168,14 +193,14 @@ public class MgcpRemoteConnectionTest {
         when(audioChannel.getMediaType()).thenReturn(AudioChannel.MEDIA_TYPE);
 
         final MgcpRemoteConnection connection = new MgcpRemoteConnection(identifier, halfOpenTimeout, openTimeout, channelProvider, this.executor);
-        connection.setConnectionListener(listener);
+        connection.observe(observer);
         connection.halfOpen(new LocalConnectionOptions());
 
         Thread.sleep(openTimeout * 1000);
         
         // then
         assertEquals(MgcpConnectionState.HALF_OPEN, connection.state);
-        verify(listener, never()).onConnectionFailure(connection);
+        verify(observer, never()).onEvent(eq(connection), timeoutCaptor.capture());
     }
     
     @Test
@@ -183,7 +208,8 @@ public class MgcpRemoteConnectionTest {
         // given
         final int openTimeout = 0;
         final int halfOpenTimeout = 2;
-        final MgcpConnectionListener listener = mock(MgcpConnectionListener.class);
+        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
+        final ArgumentCaptor<RtpTimeout> timeoutCaptor = ArgumentCaptor.forClass(RtpTimeout.class);
         final AudioChannel audioChannel = mock(AudioChannel.class);
         final MediaChannelProvider channelProvider = mock(MediaChannelProvider.class);
 
@@ -194,22 +220,24 @@ public class MgcpRemoteConnectionTest {
         when(audioChannel.containsNegotiatedFormats()).thenReturn(true);
 
         final MgcpRemoteConnection connection1 = new MgcpRemoteConnection(1, halfOpenTimeout, openTimeout, channelProvider, this.executor);
-        connection1.setConnectionListener(listener);
+        connection1.observe(observer);
         final String sdp1 = connection1.halfOpen(new LocalConnectionOptions());
 
         final MgcpRemoteConnection connection2 = new MgcpRemoteConnection(2, halfOpenTimeout, openTimeout, channelProvider, this.executor);
-        connection2.setConnectionListener(listener);
+        connection2.observe(observer);
         connection2.open(sdp1);
 
         // then
         Thread.sleep(halfOpenTimeout * 1000 + 200);
         assertEquals(MgcpConnectionState.CLOSED, connection1.state);
-        verify(listener, times(1)).onConnectionFailure(connection1);
+        verify(observer, times(1)).onEvent(eq(connection1), timeoutCaptor.capture());
+        assertNotNull(timeoutCaptor.getValue());
+        assertEquals(halfOpenTimeout, timeoutCaptor.getValue().getTimeout());
         assertEquals(MgcpConnectionState.OPEN, connection2.state);
 
         Thread.sleep(halfOpenTimeout * 1000 + 200);
         assertEquals(MgcpConnectionState.OPEN, connection2.state);
-        verify(listener, never()).onConnectionFailure(connection2);
+        verify(observer, never()).onEvent(eq(connection2), timeoutCaptor.capture());
     }
 
 }

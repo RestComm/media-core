@@ -26,9 +26,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
-import org.mobicents.media.control.mgcp.listener.MgcpConnectionListener;
 import org.mobicents.media.control.mgcp.message.LocalConnectionOptionType;
 import org.mobicents.media.control.mgcp.message.LocalConnectionOptions;
+import org.mobicents.media.control.mgcp.pkg.r.RtpTimeout;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtp.CnameGenerator;
@@ -69,15 +69,12 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
     // Media Channels
     private final AudioChannel audioChannel;
 
-    // Listeners
-    private MgcpConnectionListener connectionListener;
-    
     // Call Timers
     static final int HALF_OPEN_TIMER = 30;
     
     private final ListeningScheduledExecutorService executor;
     private ListenableFuture<?> timerFuture;
-    private final int openTimeout;
+    private final int timeout;
     private final int halfOpenTimeout;
 
     public MgcpRemoteConnection(int identifier, int halfOpenTimeout, int openTimeout, MediaChannelProvider channelProvider, ListeningScheduledExecutorService executor) {
@@ -100,7 +97,7 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
         this.executor = executor;
         this.timerFuture = null;
         this.halfOpenTimeout = halfOpenTimeout;
-        this.openTimeout = openTimeout;
+        this.timeout = openTimeout;
     }
 
     public MgcpRemoteConnection(int identifier, int timeout, MediaChannelProvider channelProvider, ListeningScheduledExecutorService executor) {
@@ -109,10 +106,6 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
 
     public MgcpRemoteConnection(int identifier, MediaChannelProvider channelProvider, ListeningScheduledExecutorService executor) {
         this(identifier, 0, channelProvider, executor);
-    }
-
-    public void setConnectionListener(MgcpConnectionListener connectionListener) {
-        this.connectionListener = connectionListener;
     }
 
     @Override
@@ -213,10 +206,10 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
                     }
 
                     // Submit timer
-                    if (this.openTimeout > 0) {
-                        this.timerFuture = this.executor.schedule(new MgcpRemoteConnectionTimer(), this.openTimeout, TimeUnit.SECONDS);
+                    if (this.timeout > 0) {
+                        this.timerFuture = this.executor.schedule(new MgcpRemoteConnectionTimer(), this.timeout, TimeUnit.SECONDS);
                         if (log.isDebugEnabled()) {
-                            log.debug("Connection " + getHexIdentifier() + " initialized OPEN timer. Timeout in " + this.openTimeout + " seconds");
+                            log.debug("Connection " + getHexIdentifier() + " initialized OPEN timer. Timeout in " + this.timeout + " seconds");
                         }
                     }
                     break;
@@ -442,6 +435,7 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
 
     @Override
     public void onRtpFailure(String message) {
+        final int timeoutValue = MgcpConnectionState.HALF_OPEN.equals(this.state) ? this.halfOpenTimeout : this.timeout;
         try {
             // RTP is mandatory, if it fails close everything
             close();
@@ -449,9 +443,7 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
             log.warn("Failed to elegantly close connection " + this.cname + " after RTP failure", e);
         } finally {
             // Warn connection listener about failure
-            if (this.connectionListener != null) {
-                this.connectionListener.onConnectionFailure(this);
-            }
+            notify(this, new RtpTimeout(timeoutValue));
         }
     }
 
