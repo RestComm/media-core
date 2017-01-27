@@ -162,5 +162,10 @@ public class MgcpLocalConnection extends AbstractMgcpConnection {
     public OOBComponent getOutOfBandComponent() {
         return this.audioChannel.getOOBComponent();
     }
+    
+    @Override
+    protected Logger log() {
+        return log;
+    }
 
 }

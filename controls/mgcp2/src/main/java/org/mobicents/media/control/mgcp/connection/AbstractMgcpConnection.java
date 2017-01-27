@@ -21,6 +21,13 @@
 
 package org.mobicents.media.control.mgcp.connection;
 
+import java.util.Iterator;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
+
+import org.apache.log4j.Logger;
+import org.mobicents.media.control.mgcp.pkg.MgcpEvent;
+import org.mobicents.media.control.mgcp.pkg.MgcpEventObserver;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.spi.ConnectionMode;
@@ -39,6 +46,9 @@ public abstract class AbstractMgcpConnection implements MgcpConnection {
     private ConnectionMode mode;
     protected volatile MgcpConnectionState state;
     protected final Object stateLock;
+    
+    // Observers
+    protected final Set<MgcpEventObserver> observers;
 
     public AbstractMgcpConnection(int identifier) {
         // Connection State
@@ -47,6 +57,9 @@ public abstract class AbstractMgcpConnection implements MgcpConnection {
         this.mode = ConnectionMode.INACTIVE;
         this.state = MgcpConnectionState.CLOSED;
         this.stateLock = new Object();
+        
+        // Observers
+        this.observers = new CopyOnWriteArraySet<>();
     }
 
     @Override
@@ -82,6 +95,35 @@ public abstract class AbstractMgcpConnection implements MgcpConnection {
     public abstract AudioComponent getAudioComponent();
 
     public abstract OOBComponent getOutOfBandComponent();
+
+    @Override
+    public void observe(MgcpEventObserver observer) {
+        boolean added = this.observers.add(observer);
+        if (added && log().isTraceEnabled()) {
+            log().trace("Connection " + this.hexIdentifier + " registered MgcpEventObserver@" + observer.hashCode() + ". Count: " + this.observers.size());
+        }
+    }
+
+    @Override
+    public void forget(MgcpEventObserver observer) {
+        boolean removed = this.observers.remove(observer);
+        if (removed && log().isTraceEnabled()) {
+            log().trace("Connection " + this.hexIdentifier + " unregistered MgcpEventObserver@" + observer.hashCode() + ". Count: " + this.observers.size());
+        }
+    }
+
+    @Override
+    public void notify(Object originator, MgcpEvent event) {
+        Iterator<MgcpEventObserver> iterator = this.observers.iterator();
+        while (iterator.hasNext()) {
+            MgcpEventObserver observer = (MgcpEventObserver) iterator.next();
+            if(observer != originator) {
+                observer.onEvent(originator, event);
+            }
+        }
+    }
+    
+    protected abstract Logger log();
     
     // TODO implement heart beat
 }

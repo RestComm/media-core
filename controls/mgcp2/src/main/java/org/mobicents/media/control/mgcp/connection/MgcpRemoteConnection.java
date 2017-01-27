@@ -475,6 +475,11 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
         this.localSdp = null;
         this.remoteSdp = null;
     }
+    
+    @Override
+    protected Logger log() {
+        return log;
+    }
 
     final class MgcpRemoteConnectionTimer implements Runnable {
 

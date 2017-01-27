@@ -27,8 +27,9 @@ import org.mobicents.media.control.mgcp.connection.MgcpConnection;
  * Listens to events related to an MGCP connection.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
+ * @deprecated
  */
+@Deprecated
 public interface MgcpConnectionListener {
 
     void onConnectionFailure(MgcpConnection connection);

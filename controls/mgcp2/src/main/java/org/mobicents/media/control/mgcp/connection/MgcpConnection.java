@@ -23,6 +23,7 @@ package org.mobicents.media.control.mgcp.connection;
 
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
 import org.mobicents.media.control.mgcp.message.LocalConnectionOptions;
+import org.mobicents.media.control.mgcp.pkg.MgcpEventSubject;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
@@ -38,7 +39,7 @@ import org.mobicents.media.server.component.oob.OOBComponent;
  *
  * @see <a href=""https://tools.ietf.org/html/rfc3435#section-2.1.3>RFC3435 - Section 2.1.3</a>
  */
-public interface MgcpConnection {
+public interface MgcpConnection extends MgcpEventSubject {
 
     /**
      * Gets the connection identifier

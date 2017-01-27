@@ -36,7 +36,6 @@ import org.mobicents.media.control.mgcp.command.param.NotifiedEntity;
 import org.mobicents.media.control.mgcp.connection.MgcpCall;
 import org.mobicents.media.control.mgcp.connection.MgcpConnection;
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
-import org.mobicents.media.control.mgcp.connection.MgcpRemoteConnection;
 import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFound;
@@ -162,7 +161,7 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
         MgcpConnection connection = local ? this.connectionProvider.provideLocal() : this.connectionProvider.provideRemote();
         registerConnection(callId, connection);
         if (!connection.isLocal()) {
-            ((MgcpRemoteConnection) connection).setConnectionListener(this);
+            connection.observe(this);
         }
         return connection;
     }
@@ -199,9 +198,10 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
                 if (!hasCalls()) {
                     deactivate();
                 }
-
-                // Close connection
+                
+                // Unregister from connection and close it
                 try {
+                    connection.forget(this);
                     connection.close();
                 } catch (MgcpConnectionException e) {
                     log.error(this.endpointId + ": Connection " + connection.getHexIdentifier() + " was not closed properly", e);
@@ -215,8 +215,9 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
     private List<MgcpConnection> deleteConnections(MgcpCall call) {
         List<MgcpConnection> connections = call.removeConnections();
         for (MgcpConnection connection : connections) {
-            // Close connection
+            // Unregister from connection and close it
             try {
+                connection.forget(this);
                 connection.close();
             } catch (MgcpConnectionException e) {
                 log.error(this.endpointId + ": Connection " + connection.getHexIdentifier() + " was not closed properly", e);
