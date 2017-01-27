@@ -44,6 +44,10 @@ public class GenericMgcpEvent implements MgcpEvent {
         this.builder = new StringBuilder();
     }
 
+    public GenericMgcpEvent(String pkg, String symbol) {
+        this(pkg, symbol, "");
+    }
+
     @Override
     public String getPackage() {
         return this.pkg;
