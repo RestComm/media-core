@@ -19,33 +19,42 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.pkg.base;
+package org.mobicents.media.control.mgcp.pkg.au;
 
 /**
+ * List of events supported by Advance Audio Package.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum MgcpEventType {
-
-    // TODO Deprecate this enum. Each MGCP package should keep enum of their own supported events.
+public enum AdvancedAudioEventType {
     
     OPERATION_COMPLETE("oc"),
-    OPERATION_FAILURE("of"),
-    RTP_TIMEOUT("rto");
-
+    OPERATION_FAILED("of");
+    
     private final String symbol;
+    private final boolean parameterized;
 
-    private MgcpEventType(String symbol) {
+    private AdvancedAudioEventType(String symbol, boolean parameterized) {
         this.symbol = symbol;
+        this.parameterized = parameterized;
+    }
+
+    private AdvancedAudioEventType(String symbol) {
+        this(symbol, false);
     }
 
     public String symbol() {
         return symbol;
     }
 
-    public static final MgcpEventType fromSymbol(String symbol) {
+    public boolean parameterized() {
+        return this.parameterized;
+    }
+
+    public static final AdvancedAudioEventType fromSymbol(String symbol) {
         if (symbol != null && !symbol.isEmpty()) {
-            for (MgcpEventType eventType : values()) {
+            for (AdvancedAudioEventType eventType : values()) {
                 if (eventType.symbol.equalsIgnoreCase(symbol)) {
                     return eventType;
                 }

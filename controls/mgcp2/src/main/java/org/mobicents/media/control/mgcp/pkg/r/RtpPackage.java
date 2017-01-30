@@ -21,6 +21,8 @@
 
 package org.mobicents.media.control.mgcp.pkg.r;
 
+import org.mobicents.media.control.mgcp.pkg.MgcpPackage;
+
 /**
  * The events in this package all refer to media streams (connections), i.e., they cannot be detected on an endpoint.
  * <p>
@@ -34,8 +36,21 @@ package org.mobicents.media.control.mgcp.pkg.r;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpPackage {
+public class RtpPackage implements MgcpPackage {
 
     public static final String PACKAGE_NAME = "R";
 
+    @Override
+    public String getPackageName() {
+        return PACKAGE_NAME;
+    }
+
+    @Override
+    public boolean isEventSupported(String event) {
+        if(event == null || event.isEmpty()) {
+            return false;
+        }
+        return (RtpEventType.fromSymbol(event) != null);
+    }
+    
 }

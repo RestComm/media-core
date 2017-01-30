@@ -18,34 +18,51 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
-package org.mobicents.media.control.mgcp.pkg.base;
+        
+package org.mobicents.media.control.mgcp.pkg.r;
 
 /**
+ * List of Events supported by RTP Package.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum MgcpEventType {
+public enum RtpEventType {
 
-    // TODO Deprecate this enum. Each MGCP package should keep enum of their own supported events.
-    
+    ICMP_UNREACHABLE("iu", true),
+    JITTER_BUFFER_SIZE_CHANGED("ji", true),
+    MEDIA_START("ma"),
     OPERATION_COMPLETE("oc"),
-    OPERATION_FAILURE("of"),
-    RTP_TIMEOUT("rto");
-
+    OPERATION_FAILED("of"),
+    PACKET_LOSS_EXCEEDED("pl", true),
+    QUALITY_ALERT("qa"),
+    RTP_TIMEOUT("rto", true),
+    SAMPLING_RATE_CHANGED("sr"),
+    USED_CODEC_CHANGED("uc");
+    
     private final String symbol;
+    private final boolean parameterized;
 
-    private MgcpEventType(String symbol) {
+    private RtpEventType(String symbol, boolean parameterized) {
         this.symbol = symbol;
+        this.parameterized = parameterized;
+    }
+
+    private RtpEventType(String symbol) {
+        this(symbol, false);
     }
 
     public String symbol() {
         return symbol;
     }
 
-    public static final MgcpEventType fromSymbol(String symbol) {
+    public boolean parameterized() {
+        return this.parameterized;
+    }
+
+    public static final RtpEventType fromSymbol(String symbol) {
         if (symbol != null && !symbol.isEmpty()) {
-            for (MgcpEventType eventType : values()) {
+            for (RtpEventType eventType : values()) {
                 if (eventType.symbol.equalsIgnoreCase(symbol)) {
                     return eventType;
                 }
@@ -53,5 +70,5 @@ public enum MgcpEventType {
         }
         return null;
     }
-
+    
 }
