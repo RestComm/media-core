@@ -42,6 +42,7 @@ import org.mobicents.media.control.mgcp.exception.MgcpParseException;
 import org.mobicents.media.control.mgcp.message.MgcpMessageParser;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
+import org.mobicents.media.control.mgcp.pkg.MgcpPackageManager;
 import org.mobicents.media.control.mgcp.pkg.MgcpSignal;
 import org.mobicents.media.control.mgcp.pkg.MgcpSignalProvider;
 import org.mobicents.media.control.mgcp.pkg.exception.UnrecognizedMgcpPackageException;
@@ -69,10 +70,11 @@ public class RequestNotificationCommandTest {
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final NotifiedEntity notifiedEntity = new NotifiedEntity("restcomm", "10.229.72.130", 2727);
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final MgcpPackageManager packageManager = mock(MgcpPackageManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MediaGroup mediaGroup = mock(MediaGroup.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
-        final RequestNotificationCommand rqnt = new RequestNotificationCommand(request.getTransactionId(), request.getParameters(), endpointManager, signalProvider);
+        final RequestNotificationCommand rqnt = new RequestNotificationCommand(request.getTransactionId(), request.getParameters(), endpointManager, packageManager, signalProvider);
 
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10@127.0.0.1:2427")).thenReturn(endpoint);
@@ -124,10 +126,11 @@ public class RequestNotificationCommandTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final MgcpPackageManager packageManager = mock(MgcpPackageManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MediaGroup mediaGroup = mock(MediaGroup.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
-        final RequestNotificationCommand rqnt = new RequestNotificationCommand(request.getTransactionId(), request.getParameters(), endpointManager, signalProvider);
+        final RequestNotificationCommand rqnt = new RequestNotificationCommand(request.getTransactionId(), request.getParameters(), endpointManager, packageManager, signalProvider);
         
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10@127.0.0.1:2427")).thenReturn(endpoint);
@@ -182,10 +185,11 @@ public class RequestNotificationCommandTest {
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final NotifiedEntity notifiedEntity = new NotifiedEntity("restcomm", "10.229.72.130", 2727);
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final MgcpPackageManager packageManager = mock(MgcpPackageManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MediaGroup mediaGroup = mock(MediaGroup.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
-        final RequestNotificationCommand rqnt = new RequestNotificationCommand(request.getTransactionId(), request.getParameters(), endpointManager, signalProvider);
+        final RequestNotificationCommand rqnt = new RequestNotificationCommand(request.getTransactionId(), request.getParameters(), endpointManager, packageManager, signalProvider);
 
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10@127.0.0.1:2427")).thenReturn(endpoint);
@@ -237,9 +241,10 @@ public class RequestNotificationCommandTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final MgcpPackageManager packageManager = mock(MgcpPackageManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
-        final RequestNotificationCommand rqnt = new RequestNotificationCommand(request.getTransactionId(), request.getParameters(), endpointManager, signalProvider);
+        final RequestNotificationCommand rqnt = new RequestNotificationCommand(request.getTransactionId(), request.getParameters(), endpointManager, packageManager, signalProvider);
 
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10@127.0.0.1:2427")).thenReturn(endpoint);
@@ -262,9 +267,10 @@ public class RequestNotificationCommandTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final MgcpPackageManager packageManager = mock(MgcpPackageManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
-        final RequestNotificationCommand rqnt = new RequestNotificationCommand(request.getTransactionId(), request.getParameters(), endpointManager, signalProvider);
+        final RequestNotificationCommand rqnt = new RequestNotificationCommand(request.getTransactionId(), request.getParameters(), endpointManager, packageManager, signalProvider);
 
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10@127.0.0.1:2427")).thenReturn(endpoint);
@@ -288,8 +294,9 @@ public class RequestNotificationCommandTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final MgcpPackageManager packageManager = mock(MgcpPackageManager.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
-        final RequestNotificationCommand rqnt = new RequestNotificationCommand(request.getTransactionId(), request.getParameters(), endpointManager, signalProvider);
+        final RequestNotificationCommand rqnt = new RequestNotificationCommand(request.getTransactionId(), request.getParameters(), endpointManager, packageManager, signalProvider);
 
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10@127.0.0.1:2427")).thenReturn(null);
@@ -315,10 +322,11 @@ public class RequestNotificationCommandTest {
         final NotifiedEntity notifiedEntity = new NotifiedEntity("restcomm", "10.229.72.130", 2727);
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final MgcpPackageManager packageManager = mock(MgcpPackageManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MediaGroup mediaGroup = mock(MediaGroup.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
-        final RequestNotificationCommand rqnt = new RequestNotificationCommand(request.getTransactionId(), request.getParameters(), endpointManager, signalProvider);
+        final RequestNotificationCommand rqnt = new RequestNotificationCommand(request.getTransactionId(), request.getParameters(), endpointManager, packageManager, signalProvider);
 
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10@127.0.0.1:2427")).thenReturn(endpoint);
@@ -346,10 +354,11 @@ public class RequestNotificationCommandTest {
         final NotifiedEntity notifiedEntity = new NotifiedEntity("restcomm", "10.229.72.130", 2727);
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final MgcpPackageManager packageManager = mock(MgcpPackageManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MediaGroup mediaGroup = mock(MediaGroup.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
-        final RequestNotificationCommand rqnt = new RequestNotificationCommand(request.getTransactionId(), request.getParameters(), endpointManager, signalProvider);
+        final RequestNotificationCommand rqnt = new RequestNotificationCommand(request.getTransactionId(), request.getParameters(), endpointManager, packageManager, signalProvider);
 
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10@127.0.0.1:2427")).thenReturn(endpoint);
@@ -375,9 +384,10 @@ public class RequestNotificationCommandTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final MgcpPackageManager packageManager = mock(MgcpPackageManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
-        final RequestNotificationCommand rqnt = new RequestNotificationCommand(request.getTransactionId(), request.getParameters(), endpointManager, signalProvider);
+        final RequestNotificationCommand rqnt = new RequestNotificationCommand(request.getTransactionId(), request.getParameters(), endpointManager, packageManager, signalProvider);
 
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10@127.0.0.1:2427")).thenReturn(endpoint);
@@ -401,9 +411,10 @@ public class RequestNotificationCommandTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final MgcpPackageManager packageManager = mock(MgcpPackageManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
-        final RequestNotificationCommand rqnt = new RequestNotificationCommand(request.getTransactionId(), request.getParameters(), endpointManager, signalProvider);
+        final RequestNotificationCommand rqnt = new RequestNotificationCommand(request.getTransactionId(), request.getParameters(), endpointManager, packageManager, signalProvider);
 
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10@127.0.0.1:2427")).thenReturn(endpoint);
@@ -427,9 +438,10 @@ public class RequestNotificationCommandTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final MgcpPackageManager packageManager = mock(MgcpPackageManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
-        final RequestNotificationCommand rqnt = new RequestNotificationCommand(request.getTransactionId(), request.getParameters(), endpointManager, signalProvider);
+        final RequestNotificationCommand rqnt = new RequestNotificationCommand(request.getTransactionId(), request.getParameters(), endpointManager, packageManager, signalProvider);
 
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10@127.0.0.1:2427")).thenReturn(endpoint);
@@ -452,9 +464,10 @@ public class RequestNotificationCommandTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final MgcpPackageManager packageManager = mock(MgcpPackageManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
-        final RequestNotificationCommand rqnt = new RequestNotificationCommand(request.getTransactionId(), request.getParameters(), endpointManager, signalProvider);
+        final RequestNotificationCommand rqnt = new RequestNotificationCommand(request.getTransactionId(), request.getParameters(), endpointManager, packageManager, signalProvider);
 
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10@127.0.0.1:2427")).thenReturn(endpoint);
@@ -478,8 +491,9 @@ public class RequestNotificationCommandTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final MgcpPackageManager packageManager = mock(MgcpPackageManager.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
-        final RequestNotificationCommand rqnt = new RequestNotificationCommand(request.getTransactionId(), request.getParameters(), endpointManager, signalProvider);
+        final RequestNotificationCommand rqnt = new RequestNotificationCommand(request.getTransactionId(), request.getParameters(), endpointManager, packageManager, signalProvider);
 
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10@127.0.0.1:2427")).thenThrow(new RuntimeException());

@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 import org.mobicents.media.control.mgcp.message.MgcpRequestType;
+import org.mobicents.media.control.mgcp.pkg.MgcpPackageManager;
 import org.mobicents.media.control.mgcp.pkg.MgcpSignalProvider;
 import org.mobicents.media.control.mgcp.util.collections.Parameters;
 
@@ -44,7 +45,8 @@ public class MgcpCommandProviderTest {
         final Parameters<MgcpParameterType> parameters = new Parameters<>();
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
-        final MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager, signalProvider);
+        final MgcpPackageManager packageManager = mock(MgcpPackageManager.class);
+        final MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager, packageManager, signalProvider);
 
         // when
         MgcpCommand command = commandProvider.provide(MgcpRequestType.CRCX, transactionId, parameters);
@@ -59,8 +61,9 @@ public class MgcpCommandProviderTest {
         final int transactionId = 12345;
         final Parameters<MgcpParameterType> parameters = new Parameters<>();
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final MgcpPackageManager packageManager = mock(MgcpPackageManager.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
-        final MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager, signalProvider);
+        final MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager, packageManager, signalProvider);
 
         // when
         MgcpCommand command = commandProvider.provide(MgcpRequestType.MDCX, transactionId, parameters);
@@ -75,8 +78,9 @@ public class MgcpCommandProviderTest {
         final int transactionId = 12345;
         final Parameters<MgcpParameterType> parameters = new Parameters<>();
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final MgcpPackageManager packageManager = mock(MgcpPackageManager.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
-        final MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager, signalProvider);
+        final MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager, packageManager, signalProvider);
 
         // when
         MgcpCommand command = commandProvider.provide(MgcpRequestType.DLCX, transactionId, parameters);
@@ -91,8 +95,9 @@ public class MgcpCommandProviderTest {
         final int transactionId = 12345;
         final Parameters<MgcpParameterType> parameters = new Parameters<>();
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final MgcpPackageManager packageManager = mock(MgcpPackageManager.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
-        final MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager, signalProvider);
+        final MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager, packageManager, signalProvider);
 
         // when
         MgcpCommand command = commandProvider.provide(MgcpRequestType.AUCX, transactionId, parameters);
@@ -107,8 +112,9 @@ public class MgcpCommandProviderTest {
         final int transactionId = 12345;
         final Parameters<MgcpParameterType> parameters = new Parameters<>();
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final MgcpPackageManager packageManager = mock(MgcpPackageManager.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
-        final MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager, signalProvider);
+        final MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager, packageManager, signalProvider);
 
         // when
         MgcpCommand command = commandProvider.provide(MgcpRequestType.AUEP, transactionId, parameters);
@@ -123,8 +129,9 @@ public class MgcpCommandProviderTest {
         final int transactionId = 12345;
         final Parameters<MgcpParameterType> parameters = new Parameters<>();
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final MgcpPackageManager packageManager = mock(MgcpPackageManager.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
-        final MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager, signalProvider);
+        final MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager, packageManager, signalProvider);
 
         // when
         MgcpCommand command = commandProvider.provide(MgcpRequestType.RQNT, transactionId, parameters);
