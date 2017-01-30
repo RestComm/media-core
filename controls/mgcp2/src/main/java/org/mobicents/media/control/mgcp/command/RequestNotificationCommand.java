@@ -30,6 +30,7 @@ import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.exception.MgcpParseException;
 import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
+import org.mobicents.media.control.mgcp.pkg.MgcpPackageManager;
 import org.mobicents.media.control.mgcp.pkg.MgcpRequestedEvent;
 import org.mobicents.media.control.mgcp.pkg.MgcpRequestedEventsParser;
 import org.mobicents.media.control.mgcp.pkg.MgcpSignal;
@@ -58,9 +59,11 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
 
     // MGCP Components
     private final MgcpSignalProvider signalProvider;
+    private final MgcpPackageManager packageManager;
 
-    public RequestNotificationCommand(int transactionId, Parameters<MgcpParameterType> parameters, MgcpEndpointManager endpointManager, MgcpSignalProvider signalProvider) {
+    public RequestNotificationCommand(int transactionId, Parameters<MgcpParameterType> parameters, MgcpEndpointManager endpointManager, MgcpPackageManager packageManager, MgcpSignalProvider signalProvider) {
         super(transactionId, parameters, endpointManager);
+        this.packageManager = packageManager;
         this.signalProvider = signalProvider;
     }
 
@@ -131,8 +134,6 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
         if (endpoint == null) {
             throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_UNKNOWN);
         }
-
-        // TODO Check if connection is specified (to do later down in roadmap as soon as connections support events)
 
         // Build signals (if any)
         SignalRequest[] signalRequests = context.signalRequests;
