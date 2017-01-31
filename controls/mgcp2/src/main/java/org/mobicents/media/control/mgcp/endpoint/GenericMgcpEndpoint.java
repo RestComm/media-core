@@ -51,6 +51,10 @@ import org.mobicents.media.control.mgcp.pkg.MgcpRequestedEvent;
 import org.mobicents.media.control.mgcp.pkg.MgcpSignal;
 import org.mobicents.media.control.mgcp.pkg.SignalType;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
+
 /**
  * Abstract representation of an MGCP Endpoint that groups connections by calls.
  * 
@@ -60,7 +64,9 @@ import org.mobicents.media.control.mgcp.pkg.SignalType;
 public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener {
 
     private static final Logger log = Logger.getLogger(GenericMgcpEndpoint.class);
-
+    
+    private static final MgcpRequestedEvent[] EMPTY_ENDPOINT_EVENTS = new MgcpRequestedEvent[0];
+    
     // MGCP Components
     private final MgcpConnectionProvider connectionProvider;
     protected final MediaGroup mediaGroup;
@@ -75,7 +81,9 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener {
     // Events and Signals
     private NotifiedEntity notifiedEntity;
     private ConcurrentHashMap<String, MgcpSignal> signals;
-    private MgcpRequestedEvent[] requestedEvents;
+    // TODO requestedEndpointEvents needs to be synchronized!
+    private MgcpRequestedEvent[] requestedEndpointEvents;
+    private final Multimap<Integer, MgcpRequestedEvent> requestedConnectionEvents;
 
     // Observers
     private final Collection<MgcpEndpointObserver> endpointObservers;
@@ -98,6 +106,8 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener {
         // Events and Signals
         this.notifiedEntity = new NotifiedEntity();
         this.signals = new ConcurrentHashMap<>(5);
+        this.requestedEndpointEvents = EMPTY_ENDPOINT_EVENTS;
+        this.requestedConnectionEvents = Multimaps.synchronizedSetMultimap(HashMultimap.<Integer, MgcpRequestedEvent>create());
 
         // Observers
         this.endpointObservers = new CopyOnWriteArrayList<>();
@@ -317,9 +327,34 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener {
         if (request.getNotifiedEntity() != null) {
             this.notifiedEntity = request.getNotifiedEntity();
         }
+
+        // Clear requested events
+        this.requestedEndpointEvents = EMPTY_ENDPOINT_EVENTS;
+        this.requestedConnectionEvents.clear();
         
         // Update registered events
-        this.requestedEvents = request.getRequestedEvents();
+        int eventCount = request.getRequestedEvents().length;
+        List<MgcpRequestedEvent> endpointEvents = new ArrayList<>(eventCount);
+        
+        for (MgcpRequestedEvent requestedEvent : request.getRequestedEvents()) {
+            if(requestedEvent.getConnectionId() > 0) {
+                // Process connection event
+                this.requestedConnectionEvents.put(requestedEvent.getConnectionId(), requestedEvent);
+                if(log.isDebugEnabled()) {
+                    log.debug("Endpoint " + this.endpointId + " requested event " + requestedEvent.getQualifiedName() + " to connection " + requestedEvent.getConnectionId());
+                }
+            } else {
+                // Process endpoint event
+                endpointEvents.add(requestedEvent);
+                if(log.isDebugEnabled()) {
+                    log.debug("Endpoint " + this.endpointId + " is listening for event " + requestedEvent.getQualifiedName());
+                }
+            }
+        }
+        
+        if(endpointEvents.size() > 0) {
+            this.requestedEndpointEvents = endpointEvents.toArray(new MgcpRequestedEvent[endpointEvents.size()]);
+        }
 
         /*
          * https://tools.ietf.org/html/rfc3435#section-2.3.4
@@ -547,7 +582,7 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener {
     }
     
     private boolean isListening(String event) {
-        for (MgcpRequestedEvent evt : this.requestedEvents) {
+        for (MgcpRequestedEvent evt : this.requestedEndpointEvents) {
             if (evt.getQualifiedName().equalsIgnoreCase(event)) {
                 return true;
             }
