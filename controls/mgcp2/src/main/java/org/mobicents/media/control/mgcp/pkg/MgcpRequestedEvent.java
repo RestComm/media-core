@@ -32,11 +32,19 @@ public class MgcpRequestedEvent {
     private final String packageName;
     private final String eventType;
     private final MgcpActionType action;
+    private final int connectionId;
+    private final String[] parameters;
 
-    public MgcpRequestedEvent(String packageName, String eventType, MgcpActionType action) {
+    public MgcpRequestedEvent(String packageName, String eventType, MgcpActionType action, int connectionId, String...parameters) {
         this.packageName = packageName;
         this.eventType = eventType;
         this.action = action;
+        this.connectionId = connectionId;
+        this.parameters = (parameters == null) ? new String[0] : parameters;
+    }
+
+    public MgcpRequestedEvent(String packageName, String eventType, MgcpActionType action) {
+        this(packageName, eventType, action, 0, new String[0]);
     }
 
     public String getPackageName() {
@@ -54,10 +62,33 @@ public class MgcpRequestedEvent {
     public MgcpActionType getAction() {
         return action;
     }
+    
+    public int getConnectionId() {
+        return connectionId;
+    }
+    
+    public String[] getParameters() {
+        return parameters;
+    }
 
     @Override
     public String toString() {
-        return this.packageName + "/" + this.eventType + "(" + this.action + ")";
+        StringBuilder builder = new StringBuilder(this.packageName).append("/").append(this.eventType);
+        if(this.connectionId > 0) {
+            builder.append("@").append(Integer.toHexString(this.connectionId));
+        }
+        builder.append("(").append(this.action).append(")");
+        if(this.parameters.length > 0) {
+            builder.append("(");
+            for (int i = 0; i < parameters.length; i++) {
+                builder.append(this.parameters[i]);
+                if(i < parameters.length - 1) {
+                    builder.append(",");
+                }
+            }
+            builder.append(")");
+        }
+        return builder.toString();
     }
 
 }

@@ -466,34 +466,59 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener {
 
     @Override
     public void onEvent(Object originator, MgcpEvent event) {
+        MgcpRequest request = null;
+        
+        // Process event (if eligible)
+        if(originator instanceof MgcpSignal) {
+            request = onEndpointEvent((MgcpSignal) originator, event);
+        } else if (originator instanceof MgcpConnection) {
+            request = onConnectionEvent((MgcpConnection) originator, event);
+        }
+        
+        if (request != null) {
+            // Send notification to call agent
+            // TODO hard-coded port in FROM field
+            InetSocketAddress from = new InetSocketAddress(this.endpointId.getDomainName(), 2427);
+            InetSocketAddress to = new InetSocketAddress(this.notifiedEntity.getDomain(), this.notifiedEntity.getPort());
+            notify(this, from, to, request, MessageDirection.OUTGOING);
+        }
+    }
+    
+    private MgcpRequest onEndpointEvent(MgcpSignal signal, MgcpEvent event) {
         // Verify if endpoint is listening for such event
         final String composedName = event.getPackage() + "/" + event.getSymbol();
         if (isListening(composedName)) {
             // Unregister from current event
-            if(originator instanceof MgcpSignal) {
-                MgcpSignal signal = (MgcpSignal) originator;
-                this.signals.remove(signal.getName());
-                
-                // Build Notification
-                MgcpRequest notify = new MgcpRequest();
-                notify.setRequestType(MgcpRequestType.NTFY);
-                notify.setTransactionId(0);
-                notify.setEndpointId(this.endpointId.toString());
-                
-                NotifiedEntity entity = signal.getNotifiedEntity();
-                if(entity != null) {
-                    notify.addParameter(MgcpParameterType.NOTIFIED_ENTITY, this.notifiedEntity.toString());
-                }
-                notify.addParameter(MgcpParameterType.OBSERVED_EVENT, event.toString());
-                notify.addParameter(MgcpParameterType.REQUEST_ID, Integer.toString(signal.getRequestId(), 16));
+            this.signals.remove(signal.getName());
 
-                // Send notification to call agent
-                // TODO hard-coded port in FROM field
-                InetSocketAddress from = new InetSocketAddress(this.endpointId.getDomainName(), 2427);
-                InetSocketAddress to = new InetSocketAddress(this.notifiedEntity.getDomain(), this.notifiedEntity.getPort());
-                notify(this, from, to, notify, MessageDirection.OUTGOING);
+            // Build Notification
+            MgcpRequest notify = new MgcpRequest();
+            notify.setRequestType(MgcpRequestType.NTFY);
+            notify.setTransactionId(0);
+            notify.setEndpointId(this.endpointId.toString());
+
+            NotifiedEntity entity = signal.getNotifiedEntity();
+            if (entity != null) {
+                notify.addParameter(MgcpParameterType.NOTIFIED_ENTITY, this.notifiedEntity.toString());
             }
+            notify.addParameter(MgcpParameterType.OBSERVED_EVENT, event.toString());
+            notify.addParameter(MgcpParameterType.REQUEST_ID, Integer.toString(signal.getRequestId(), 16));
+            return notify;
         }
+        return null;
+    }
+    
+    private MgcpRequest onConnectionEvent(MgcpConnection connection, MgcpEvent event) {
+//     // Build Notification
+//        MgcpRequest notify = new MgcpRequest();
+//        notify.setRequestType(MgcpRequestType.NTFY);
+//        notify.setTransactionId(0);
+//        notify.setEndpointId(this.endpointId.toString());
+//
+//        notify.addParameter(MgcpParameterType.OBSERVED_EVENT, event.toString());
+//        notify.addParameter(MgcpParameterType.REQUEST_ID, Integer.toString(signal.getRequestId(), 16));
+//        return notify;
+        return null;
     }
 
     @Override

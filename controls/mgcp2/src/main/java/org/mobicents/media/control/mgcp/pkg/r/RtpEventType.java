@@ -21,13 +21,15 @@
         
 package org.mobicents.media.control.mgcp.pkg.r;
 
+import org.mobicents.media.control.mgcp.pkg.MgcpEventType;
+
 /**
  * List of Events supported by RTP Package.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum RtpEventType {
+public enum RtpEventType implements MgcpEventType {
 
     ICMP_UNREACHABLE("iu", true),
     JITTER_BUFFER_SIZE_CHANGED("ji", true),
@@ -52,10 +54,12 @@ public enum RtpEventType {
         this(symbol, false);
     }
 
+    @Override
     public String symbol() {
         return symbol;
     }
 
+    @Override
     public boolean parameterized() {
         return this.parameterized;
     }

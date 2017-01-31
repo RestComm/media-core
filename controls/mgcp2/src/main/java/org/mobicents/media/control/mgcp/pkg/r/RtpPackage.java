@@ -21,6 +21,7 @@
 
 package org.mobicents.media.control.mgcp.pkg.r;
 
+import org.mobicents.media.control.mgcp.pkg.MgcpEventType;
 import org.mobicents.media.control.mgcp.pkg.MgcpPackage;
 
 /**
@@ -33,6 +34,7 @@ import org.mobicents.media.control.mgcp.pkg.MgcpPackage;
  * <p>
  * Full package specification: <a href="https://tools.ietf.org/html/rfc3660#section-2.10">RFC 3660</a>
  * </p>
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
@@ -47,10 +49,15 @@ public class RtpPackage implements MgcpPackage {
 
     @Override
     public boolean isEventSupported(String event) {
-        if(event == null || event.isEmpty()) {
+        if (event == null || event.isEmpty()) {
             return false;
         }
-        return (RtpEventType.fromSymbol(event) != null);
+        return (getEventDetails(event) != null);
     }
-    
+
+    @Override
+    public MgcpEventType getEventDetails(String event) {
+        return RtpEventType.fromSymbol(event);
+    }
+
 }

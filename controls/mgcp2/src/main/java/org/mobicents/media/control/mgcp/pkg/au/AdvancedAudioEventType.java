@@ -21,13 +21,15 @@
 
 package org.mobicents.media.control.mgcp.pkg.au;
 
+import org.mobicents.media.control.mgcp.pkg.MgcpEventType;
+
 /**
  * List of events supported by Advance Audio Package.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum AdvancedAudioEventType {
+public enum AdvancedAudioEventType implements MgcpEventType {
     
     OPERATION_COMPLETE("oc"),
     OPERATION_FAILED("of");
@@ -44,10 +46,12 @@ public enum AdvancedAudioEventType {
         this(symbol, false);
     }
 
+    @Override
     public String symbol() {
         return symbol;
     }
 
+    @Override
     public boolean parameterized() {
         return this.parameterized;
     }

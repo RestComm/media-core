@@ -103,7 +103,7 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
         Optional<String> events = this.requestParameters.getString(MgcpParameterType.REQUESTED_EVENTS);
         if (events.isPresent()) {
             try {
-                MgcpRequestedEvent[] requestedEvents = MgcpRequestedEventsParser.parse(events.get());
+                MgcpRequestedEvent[] requestedEvents = MgcpRequestedEventsParser.parse(events.get(), this.packageManager);
                 context.requestedEvents = requestedEvents;
             } catch (UnrecognizedMgcpPackageException e) {
                 throw new MgcpCommandException(MgcpResponseCode.UNKNOWN_PACKAGE);

@@ -19,39 +19,26 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.pkg.base;
+package org.mobicents.media.control.mgcp.pkg;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum MgcpEventType {
+public interface MgcpEventType {
 
-    // TODO Deprecate this enum. Each MGCP package should keep enum of their own supported events.
-    
-    OPERATION_COMPLETE("oc"),
-    OPERATION_FAILURE("of"),
-    RTP_TIMEOUT("rto");
+    /**
+     * Gets the symbol of the event.
+     * 
+     * @return The event symbol.
+     */
+    String symbol();
 
-    private final String symbol;
-
-    private MgcpEventType(String symbol) {
-        this.symbol = symbol;
-    }
-
-    public String symbol() {
-        return symbol;
-    }
-
-    public static final MgcpEventType fromSymbol(String symbol) {
-        if (symbol != null && !symbol.isEmpty()) {
-            for (MgcpEventType eventType : values()) {
-                if (eventType.symbol.equalsIgnoreCase(symbol)) {
-                    return eventType;
-                }
-            }
-        }
-        return null;
-    }
+    /**
+     * Gets whether the event is parameterized or not.
+     * 
+     * @return true if parameters are supported; false otherwise.
+     */
+    boolean parameterized();
 
 }

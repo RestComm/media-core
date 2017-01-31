@@ -51,5 +51,12 @@ public interface MgcpPackage {
      * @return true if supported; false otherwise.
      */
     boolean isEventSupported(String event);
+    
+    /**
+     * Gets the details about a supported event type.
+     * @param event The name of the event.
+     * @return The event details IF supported. Returns null otherwise.
+     */
+    MgcpEventType getEventDetails(String event);
 
 }

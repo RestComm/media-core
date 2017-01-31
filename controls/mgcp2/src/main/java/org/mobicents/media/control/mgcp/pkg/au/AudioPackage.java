@@ -21,6 +21,7 @@
 
 package org.mobicents.media.control.mgcp.pkg.au;
 
+import org.mobicents.media.control.mgcp.pkg.MgcpEventType;
 import org.mobicents.media.control.mgcp.pkg.MgcpPackage;
 
 /**
@@ -52,7 +53,12 @@ public class AudioPackage implements MgcpPackage {
         if (event == null || event.isEmpty()) {
             return false;
         }
-        return (AdvancedAudioEventType.fromSymbol(event) != null);
+        return (getEventDetails(event) != null);
+    }
+
+    @Override
+    public MgcpEventType getEventDetails(String event) {
+        return AdvancedAudioEventType.fromSymbol(event);
     }
 
 }
