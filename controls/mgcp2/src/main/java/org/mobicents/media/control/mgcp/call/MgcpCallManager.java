@@ -18,8 +18,10 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
+
 package org.mobicents.media.control.mgcp.call;
+
+import java.util.Set;
 
 /**
  * Manages a group of calls, as defined by MGCP spec.
@@ -28,12 +30,14 @@ package org.mobicents.media.control.mgcp.call;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface CallManager {
+public interface MgcpCallManager {
+
+    MgcpCall getCall(int callId);
     
+    boolean registerCall(MgcpCall call);
     
+    MgcpCall unregisterCall(int callId);
     
-    
-    
-    
+    Set<MgcpCall> unregisterCalls();
 
 }
