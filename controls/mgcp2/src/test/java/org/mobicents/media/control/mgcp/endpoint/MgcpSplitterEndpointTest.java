@@ -62,6 +62,7 @@ public class MgcpSplitterEndpointTest {
         // when - half open connection
         when(connections.provideRemote(callId)).thenReturn(connection);
         when(connection.getIdentifier()).thenReturn(1);
+        when(connection.getCallIdentifier()).thenReturn(callId);
         when(connection.isLocal()).thenReturn(false);
         when(connection.getMode()).thenReturn(ConnectionMode.SEND_RECV);
         endpoint.createConnection(callId, false);
@@ -93,6 +94,7 @@ public class MgcpSplitterEndpointTest {
         // when - open connection and join it to secondary endpoint
         when(connections.provideLocal(callId)).thenReturn(connection);
         when(connection.getIdentifier()).thenReturn(1);
+        when(connection.getCallIdentifier()).thenReturn(callId);
         when(connection.isLocal()).thenReturn(true);
         when(connection.getMode()).thenReturn(ConnectionMode.SEND_RECV);
         endpoint.createConnection(callId, true);

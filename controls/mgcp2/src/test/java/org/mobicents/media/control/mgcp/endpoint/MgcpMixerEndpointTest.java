@@ -57,9 +57,10 @@ public class MgcpMixerEndpointTest {
         // when - half open connection
         when(connections.provideRemote(callId)).thenReturn(connection);
         when(connection.getIdentifier()).thenReturn(1);
+        when(connection.getCallIdentifier()).thenReturn(callId);
         when(connection.getMode()).thenReturn(ConnectionMode.SEND_RECV);
 
-        endpoint.createConnection(1, false);
+        endpoint.createConnection(callId, false);
 
         // then
         // 2 components are registered: one for the connection, another for the media group of the endpoint upon activation
