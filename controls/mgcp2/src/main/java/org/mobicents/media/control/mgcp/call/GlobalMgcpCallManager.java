@@ -21,6 +21,8 @@
 
 package org.mobicents.media.control.mgcp.call;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -56,7 +58,7 @@ public class GlobalMgcpCallManager implements MgcpCallManager {
         boolean registered = (old == null);
 
         if (registered && log.isDebugEnabled()) {
-            log.debug("Registered new call " + call.getCallIdHex());
+            log.debug("Registered new call " + call.getCallIdHex() +". Call count: " + this.calls.size());
         }
 
         return registered;
@@ -68,7 +70,7 @@ public class GlobalMgcpCallManager implements MgcpCallManager {
         boolean removed = (call != null);
 
         if (removed && log.isDebugEnabled()) {
-            log.debug("Unregistered call " + call.getCallIdHex());
+            log.debug("Unregistered call " + call.getCallIdHex() +". Call count: " + this.calls.size());
         }
         return call;
     }
@@ -84,8 +86,25 @@ public class GlobalMgcpCallManager implements MgcpCallManager {
             values = new HashSet<>(this.calls.values());
             // Unregister all calls
             this.calls.clear();
+            
+            if (log.isDebugEnabled()) {
+                log.debug("Unregistered "+ values.size() +" calls: " + Arrays.toString(getCallHexId(values)));
+            }
         }
         return values;
     }
 
+    private String[] getCallHexId(Collection<MgcpCall> calls) {
+        if(calls.isEmpty()) {
+            return new String[0];
+        }
+        
+        String[] hexIds = new String[calls.size()];
+        int index = 0;
+        for (MgcpCall call : calls) {
+            hexIds[index] = call.getCallIdHex();
+            index++;
+        }
+        return hexIds;
+    }
 }
