@@ -23,14 +23,12 @@ package org.mobicents.media.control.mgcp.command;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.*;
 
 import org.junit.Test;
+import org.mobicents.media.control.mgcp.call.MgcpCall;
+import org.mobicents.media.control.mgcp.call.MgcpCallManager;
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.connection.MgcpLocalConnection;
 import org.mobicents.media.control.mgcp.connection.MgcpRemoteConnection;
@@ -66,6 +64,8 @@ public class CreateConnectionCommandTest {
         final int transactionId = 147483655;
         final MgcpRequest request = new MgcpMessageParser().parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final MgcpCallManager callManager = mock(MgcpCallManager.class);
+        final MgcpCall call = mock(MgcpCall.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
         final MgcpEndpoint ivrEndpoint = mock(MgcpEndpoint.class);
@@ -73,7 +73,7 @@ public class CreateConnectionCommandTest {
         final MgcpLocalConnection connection2 = mock(MgcpLocalConnection.class);
         final EndpointIdentifier bridgeEndpointId = new EndpointIdentifier("mobicents/bridge/1", "127.0.0.1:2427");
         final EndpointIdentifier ivrEndpointId = new EndpointIdentifier("mobicents/ivr/1", "127.0.0.1:2427");
-        final CreateConnectionCommand crcx = new CreateConnectionCommand(transactionId, request.getParameters(), endpointManager);
+        final CreateConnectionCommand crcx = new CreateConnectionCommand(transactionId, request.getParameters(), endpointManager, callManager);
 
         // when
         when(connectionProvider.provideLocal()).thenReturn(connection1, connection2);
@@ -81,6 +81,7 @@ public class CreateConnectionCommandTest {
         when(connection2.getIdentifier()).thenReturn(2);
         when(endpointManager.registerEndpoint("mobicents/bridge/")).thenReturn(bridgeEndpoint);
         when(endpointManager.registerEndpoint("mobicents/ivr/")).thenReturn(ivrEndpoint);
+        when(callManager.getCall(1)).thenReturn(call);
         when(bridgeEndpoint.getEndpointId()).thenReturn(bridgeEndpointId);
         when(ivrEndpoint.getEndpointId()).thenReturn(ivrEndpointId);
         when(bridgeEndpoint.createConnection(1, true)).thenReturn(connection1);
@@ -94,6 +95,8 @@ public class CreateConnectionCommandTest {
         verify(bridgeEndpoint, times(1)).createConnection(1, true);
         verify(ivrEndpoint, times(1)).createConnection(1, true);
         verify(connection1, times(1)).join(connection2);
+        verify(call, times(1)).addConnection(bridgeEndpointId.toString(), connection1.getIdentifier());
+        verify(call, times(1)).addConnection(ivrEndpointId.toString(), connection2.getIdentifier());
         
         assertNotNull(result);
         assertEquals(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code(), result.getCode());
@@ -119,11 +122,13 @@ public class CreateConnectionCommandTest {
         final int transactionId = 147483655;
         final MgcpRequest request = new MgcpMessageParser().parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final MgcpCall call = mock(MgcpCall.class);
+        final MgcpCallManager callManager = mock(MgcpCallManager.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
         final EndpointIdentifier bridgeEndpointId = new EndpointIdentifier("mobicents/bridge/1", "127.0.0.1:2427");
         final MgcpRemoteConnection connection = mock(MgcpRemoteConnection.class);
-        final CreateConnectionCommand crcx = new CreateConnectionCommand(transactionId, request.getParameters(), endpointManager);
+        final CreateConnectionCommand crcx = new CreateConnectionCommand(transactionId, request.getParameters(), endpointManager, callManager);
 
         // when
         when(connection.getIdentifier()).thenReturn(1);
@@ -132,14 +137,16 @@ public class CreateConnectionCommandTest {
         when(endpointManager.registerEndpoint("mobicents/bridge/")).thenReturn(bridgeEndpoint);
         when(bridgeEndpoint.getEndpointId()).thenReturn(bridgeEndpointId);
         when(bridgeEndpoint.createConnection(1, false)).thenReturn(connection);
-
+        when(callManager.getCall(1)).thenReturn(call);
+        
         MgcpCommandResult result = crcx.call();
 
         // then
         verify(endpointManager, times(1)).registerEndpoint("mobicents/bridge/");
         verify(bridgeEndpoint, times(1)).createConnection(1, false);
         verify(connection, times(1)).halfOpen(any(LocalConnectionOptions.class));
-
+        verify(call, only()).addConnection(bridgeEndpointId.toString(), connection.getIdentifier());
+        
         assertNotNull(result);
         assertEquals(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code(), result.getCode());
 
@@ -173,11 +180,13 @@ public class CreateConnectionCommandTest {
         final int transactionId = 147483655;
         final MgcpRequest request = new MgcpMessageParser().parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final MgcpCall call = mock(MgcpCall.class);
+        final MgcpCallManager callManager = mock(MgcpCallManager.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
         final EndpointIdentifier bridgeEndpointId = new EndpointIdentifier("mobicents/bridge/1", "127.0.0.1:2427");
         final MgcpRemoteConnection connection = mock(MgcpRemoteConnection.class);
-        final CreateConnectionCommand crcx = new CreateConnectionCommand(transactionId, request.getParameters(), endpointManager);
+        final CreateConnectionCommand crcx = new CreateConnectionCommand(transactionId, request.getParameters(), endpointManager, callManager);
 
         // when
         when(connectionProvider.provideRemote()).thenReturn(connection);
@@ -186,6 +195,7 @@ public class CreateConnectionCommandTest {
         when(endpointManager.registerEndpoint("mobicents/bridge/")).thenReturn(bridgeEndpoint);
         when(bridgeEndpoint.getEndpointId()).thenReturn(bridgeEndpointId);
         when(bridgeEndpoint.createConnection(1, false)).thenReturn(connection);
+        when(callManager.getCall(1)).thenReturn(call);
 
         MgcpCommandResult result = crcx.call();
 
@@ -193,6 +203,7 @@ public class CreateConnectionCommandTest {
         verify(endpointManager, times(1)).registerEndpoint("mobicents/bridge/");
         verify(bridgeEndpoint, times(1)).createConnection(1, false);
         verify(connection, times(1)).open(builderSdp.toString());
+        verify(call, only()).addConnection(bridgeEndpointId.toString(), connection.getIdentifier());
 
         assertNotNull(result);
         assertEquals(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code(), result.getCode());
@@ -229,12 +240,15 @@ public class CreateConnectionCommandTest {
         final int transactionId = 147483655;
         final MgcpRequest request = new MgcpMessageParser().parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final CreateConnectionCommand crcx = new CreateConnectionCommand(transactionId, request.getParameters(), endpointManager);
+        final MgcpCallManager callManager = mock(MgcpCallManager.class);
+        final CreateConnectionCommand crcx = new CreateConnectionCommand(transactionId, request.getParameters(), endpointManager, callManager);
 
         // when
         MgcpCommandResult result = crcx.call();
 
         // then
+        verify(callManager, never()).registerCall(any(MgcpCall.class));
+
         assertNotNull(result);
         assertEquals(MgcpResponseCode.PROTOCOL_ERROR.code(), result.getCode());
         assertEquals(0, result.getParameters().size());
@@ -252,12 +266,15 @@ public class CreateConnectionCommandTest {
         final int transactionId = 147483655;
         final MgcpRequest request = new MgcpMessageParser().parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final CreateConnectionCommand crcx = new CreateConnectionCommand(transactionId, request.getParameters(), endpointManager);
+        final MgcpCallManager callManager = mock(MgcpCallManager.class);
+        final CreateConnectionCommand crcx = new CreateConnectionCommand(transactionId, request.getParameters(), endpointManager, callManager);
 
         // when
         MgcpCommandResult result = crcx.call();
 
         // then
+        verify(callManager, never()).registerCall(any(MgcpCall.class));
+
         assertNotNull(result);
         assertEquals(MgcpResponseCode.INCORRECT_CALL_ID.code(), result.getCode());
         assertEquals(0, result.getParameters().size());
@@ -276,12 +293,15 @@ public class CreateConnectionCommandTest {
         final int transactionId = 147483655;
         final MgcpRequest request = new MgcpMessageParser().parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final CreateConnectionCommand crcx = new CreateConnectionCommand(transactionId, request.getParameters(), endpointManager);
+        final MgcpCallManager callManager = mock(MgcpCallManager.class);
+        final CreateConnectionCommand crcx = new CreateConnectionCommand(transactionId, request.getParameters(), endpointManager, callManager);
 
         // when
         MgcpCommandResult result = crcx.call();
 
         // then
+        verify(callManager, never()).registerCall(any(MgcpCall.class));
+
         assertNotNull(result);
         assertEquals(MgcpResponseCode.INVALID_OR_UNSUPPORTED_MODE.code(), result.getCode());
         assertEquals(0, result.getParameters().size());
@@ -300,12 +320,15 @@ public class CreateConnectionCommandTest {
         final int transactionId = 147483655;
         final MgcpRequest request = new MgcpMessageParser().parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final CreateConnectionCommand crcx = new CreateConnectionCommand(transactionId, request.getParameters(), endpointManager);
+        final MgcpCallManager callManager = mock(MgcpCallManager.class);
+        final CreateConnectionCommand crcx = new CreateConnectionCommand(transactionId, request.getParameters(), endpointManager, callManager);
 
         // when
         MgcpCommandResult result = crcx.call();
 
         // then
+        verify(callManager, never()).registerCall(any(MgcpCall.class));
+
         assertNotNull(result);
         assertEquals(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(), result.getCode());
         assertEquals(0, result.getParameters().size());
@@ -324,12 +347,15 @@ public class CreateConnectionCommandTest {
         final int transactionId = 147483655;
         final MgcpRequest request = new MgcpMessageParser().parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final CreateConnectionCommand crcx = new CreateConnectionCommand(transactionId, request.getParameters(), endpointManager);
+        final MgcpCallManager callManager = mock(MgcpCallManager.class);
+        final CreateConnectionCommand crcx = new CreateConnectionCommand(transactionId, request.getParameters(), endpointManager, callManager);
 
         // when
         MgcpCommandResult result = crcx.call();
 
         // then
+        verify(callManager, never()).registerCall(any(MgcpCall.class));
+
         assertNotNull(result);
         assertEquals(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(), result.getCode());
         assertEquals(0, result.getParameters().size());
@@ -348,7 +374,8 @@ public class CreateConnectionCommandTest {
         final int transactionId = 147483655;
         final MgcpRequest request = new MgcpMessageParser().parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final CreateConnectionCommand crcx = new CreateConnectionCommand(transactionId, request.getParameters(), endpointManager);
+        final MgcpCallManager callManager = mock(MgcpCallManager.class);
+        final CreateConnectionCommand crcx = new CreateConnectionCommand(transactionId, request.getParameters(), endpointManager, callManager);
 
         // when
         when(endpointManager.registerEndpoint("mobicents/bridge/")).thenThrow(new UnrecognizedMgcpNamespaceException(""));
@@ -356,6 +383,8 @@ public class CreateConnectionCommandTest {
         MgcpCommandResult result = crcx.call();
 
         // then
+        verify(callManager, never()).registerCall(any(MgcpCall.class));
+
         assertNotNull(result);
         assertEquals(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE.code(), result.getCode());
         assertEquals(0, result.getParameters().size());
@@ -374,9 +403,10 @@ public class CreateConnectionCommandTest {
         final int transactionId = 147483655;
         final MgcpRequest request = new MgcpMessageParser().parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final MgcpCallManager callManager = mock(MgcpCallManager.class);
         final MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
         final EndpointIdentifier bridgeEndpointId = new EndpointIdentifier("mobicents/bridge/1", "127.0.0.1:2427");
-        final CreateConnectionCommand crcx = new CreateConnectionCommand(transactionId, request.getParameters(), endpointManager);
+        final CreateConnectionCommand crcx = new CreateConnectionCommand(transactionId, request.getParameters(), endpointManager, callManager);
 
         // when
         when(endpointManager.registerEndpoint("mobicents/bridge/")).thenReturn(bridgeEndpoint);
@@ -386,6 +416,8 @@ public class CreateConnectionCommandTest {
         MgcpCommandResult result = crcx.call();
 
         // then
+        verify(callManager, never()).registerCall(any(MgcpCall.class));
+
         assertNotNull(result);
         assertEquals(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE.code(), result.getCode());
         assertEquals(0, result.getParameters().size());
@@ -404,6 +436,8 @@ public class CreateConnectionCommandTest {
         final int transactionId = 147483655;
         final MgcpRequest request = new MgcpMessageParser().parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final MgcpCall call = mock(MgcpCall.class);
+        final MgcpCallManager callManager = mock(MgcpCallManager.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
         final MgcpEndpoint ivrEndpoint = mock(MgcpEndpoint.class);
@@ -411,9 +445,10 @@ public class CreateConnectionCommandTest {
         final EndpointIdentifier ivrEndpointId = new EndpointIdentifier("mobicents/ivr/2", "127.0.0.1:2427");
         final MgcpLocalConnection connection1 = mock(MgcpLocalConnection.class);
         final MgcpLocalConnection connection2 = mock(MgcpLocalConnection.class);
-        final CreateConnectionCommand crcx = new CreateConnectionCommand(transactionId, request.getParameters(), endpointManager);
+        final CreateConnectionCommand crcx = new CreateConnectionCommand(transactionId, request.getParameters(), endpointManager, callManager);
 
         // when
+        when(callManager.getCall(1)).thenReturn(call);
         when(connectionProvider.provideLocal()).thenReturn(connection1, connection2);
         when(connection1.getIdentifier()).thenReturn(1);
         when(connection1.getHexIdentifier()).thenReturn(Integer.toHexString(1));
@@ -435,6 +470,8 @@ public class CreateConnectionCommandTest {
         // then
         verify(bridgeEndpoint, times(1)).deleteConnection(1, connection1.getIdentifier());
         verify(ivrEndpoint, times(1)).deleteConnection(1, connection2.getIdentifier());
+        verify(call, times(1)).removeConnection(bridgeEndpointId.toString(), connection1.getIdentifier());
+        verify(call, times(1)).removeConnection(ivrEndpointId.toString(), connection2.getIdentifier());
 
         assertNotNull(result);
         assertEquals(MgcpResponseCode.PROTOCOL_ERROR.code(), result.getCode());

@@ -21,6 +21,7 @@
 
 package org.mobicents.media.server.bootstrap.ioc;
 
+import org.mobicents.media.control.mgcp.call.MgcpCallManager;
 import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
@@ -34,6 +35,7 @@ import org.mobicents.media.control.mgcp.transaction.MgcpTransactionManagerProvid
 import org.mobicents.media.control.mgcp.transaction.MgcpTransactionNumberspace;
 import org.mobicents.media.server.bootstrap.ioc.provider.ListeningScheduledExecutorServiceProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.MgcpPacketHandlerProvider;
+import org.mobicents.media.server.bootstrap.ioc.provider.media.MgcpCallManagerProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.DynamicMgcpPackageManagerProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.GlobalMgcpTransactionManagerProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MediaGroupProviderProvider;
@@ -73,9 +75,11 @@ public class MgcpModule extends AbstractModule {
         bind(MgcpChannel.class).toProvider(MgcpChannelProvider.class).in(Singleton.class);
         bind(ServerManager.class).toProvider(Mgcp2ControllerProvider.class).in(Singleton.class);
         bind(MgcpPackageManager.class).toProvider(DynamicMgcpPackageManagerProvider.class).in(Singleton.class);
+        bind(MgcpCallManager.class).toProvider(MgcpCallManagerProvider.class).in(Singleton.class);
         bind(MgcpSignalProvider.class).toProvider(MgcpSignalProviderProvider.class).in(Singleton.class);
         bind(MediaGroupProvider.class).toProvider(MediaGroupProviderProvider.class).in(Singleton.class);
         bind(ListeningScheduledExecutorService.class).toProvider(ListeningScheduledExecutorServiceProvider.class).in(Singleton.class);
         bind(ListeningExecutorService.class).to(ListeningScheduledExecutorService.class);
     }
+
 }
