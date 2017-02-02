@@ -167,7 +167,7 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener {
 
     @Override
     public MgcpConnection createConnection(int callId, boolean local) {
-        MgcpConnection connection = local ? this.connectionProvider.provideLocal() : this.connectionProvider.provideRemote();
+        MgcpConnection connection = local ? this.connectionProvider.provideLocal(callId) : this.connectionProvider.provideRemote(callId);
         registerConnection(callId, connection);
         if (!connection.isLocal()) {
             connection.observe(this);

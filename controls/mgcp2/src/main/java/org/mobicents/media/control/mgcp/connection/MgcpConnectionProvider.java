@@ -48,12 +48,12 @@ public class MgcpConnectionProvider {
         this.executor = executor;
     }
     
-    public MgcpRemoteConnection provideRemote() {
-        return new MgcpRemoteConnection(this.idGenerator.incrementAndGet(), this.timeout, channelProvider, executor);
+    public MgcpRemoteConnection provideRemote(int callId) {
+        return new MgcpRemoteConnection(this.idGenerator.incrementAndGet(), callId, this.timeout, channelProvider, executor);
     }
     
-    public MgcpLocalConnection provideLocal() {
-        return new MgcpLocalConnection(this.idGenerator.incrementAndGet(), this.channelsManager);
+    public MgcpLocalConnection provideLocal(int callId) {
+        return new MgcpLocalConnection(this.idGenerator.incrementAndGet(), callId, this.channelsManager);
     }
 
 }
