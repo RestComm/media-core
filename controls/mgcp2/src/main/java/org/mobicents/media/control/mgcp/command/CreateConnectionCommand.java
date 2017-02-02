@@ -22,8 +22,6 @@
 package org.mobicents.media.control.mgcp.command;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.control.mgcp.call.MgcpCall;
-import org.mobicents.media.control.mgcp.call.MgcpCallManager;
 import org.mobicents.media.control.mgcp.connection.MgcpConnection;
 import org.mobicents.media.control.mgcp.connection.MgcpLocalConnection;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
@@ -55,11 +53,8 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
     protected static final String WILDCARD_ANY = "$";
     protected static final String ENDPOINT_ID_SEPARATOR = "@";
     
-    private final MgcpCallManager callManager;
-    
-    public CreateConnectionCommand(int transactionId, Parameters<MgcpParameterType> parameters, MgcpEndpointManager endpointManager, MgcpCallManager callManager) {
+    public CreateConnectionCommand(int transactionId, Parameters<MgcpParameterType> parameters, MgcpEndpointManager endpointManager) {
         super(transactionId, parameters, endpointManager);
-        this.callManager = callManager;
     }
 
     private int loadCallId(Parameters<MgcpParameterType> parameters) throws MgcpCommandException {
@@ -241,9 +236,6 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
                 connection = createRemoteConnection(context.getCallId(), context.getConnectionMode(), context.getRemoteDescription(), endpoint1, context);
             }
             
-            // Update Call Manager
-            registerCallConnection(context.getCallId(), context.getEndpointId(), connection.getIdentifier());
-
             // Update context with identifiers of newly created connection
             context.setConnectionId(connection.getIdentifier());
         } else {
@@ -261,27 +253,6 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
             // Set connection mode
             connection1.setMode(context.getConnectionMode());
             connection2.setMode(ConnectionMode.SEND_RECV);
-
-            // Update Call Manager
-            registerCallConnection(context.getCallId(), endpoint1.getEndpointId().toString(), connection1.getIdentifier());
-            registerCallConnection(context.getCallId(), endpoint2.getEndpointId().toString(), connection2.getIdentifier());
-        }
-    }
-    
-    private void registerCallConnection(int callId, String endpointId, int connectionId) {
-        // TODO check possible concurrency problems here
-        MgcpCall call = this.callManager.getCall(callId);
-        if(call == null) {
-            call = new MgcpCall(callId);
-            this.callManager.registerCall(call);
-        }
-        call.addConnection(endpointId, connectionId);
-    }
-
-    private void unregisterCallConnection(int callId, String endpointId, int connectionId) {
-        MgcpCall call = this.callManager.getCall(callId);
-        if(call != null) {
-            call.removeConnection(endpointId, connectionId);
         }
     }
     
@@ -313,9 +284,6 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
             }
         }
         
-        // Unregister connections from call
-        unregisterCallConnection(callId, endpointId, connectionId);
-        unregisterCallConnection(callId, secondEndpointId, secondConnectionId);
     }
     
     private MgcpCommandResult respond(CrcxContext context) {

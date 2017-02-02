@@ -53,7 +53,7 @@ public class MgcpCommandProvider {
     public MgcpCommand provide(MgcpRequestType type, int transactionId, Parameters<MgcpParameterType> parameters) {
         switch (type) {
             case CRCX:
-                return new CreateConnectionCommand(transactionId, parameters, this.endpointManager, this.callManager);
+                return new CreateConnectionCommand(transactionId, parameters, this.endpointManager);
 
             case MDCX:
                 return new ModifyConnectionCommand(transactionId, parameters, this.endpointManager);
