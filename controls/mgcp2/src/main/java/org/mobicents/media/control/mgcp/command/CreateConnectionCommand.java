@@ -28,7 +28,7 @@ import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
-import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFound;
+import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFoundException;
 import org.mobicents.media.control.mgcp.exception.MgcpException;
 import org.mobicents.media.control.mgcp.exception.UnrecognizedMgcpNamespaceException;
 import org.mobicents.media.control.mgcp.message.LocalConnectionOptions;
@@ -271,7 +271,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
         if (endpoint1 != null && connectionId > 0) {
             try {
                 endpoint1.deleteConnection(callId, connectionId);
-            } catch (MgcpCallNotFoundException | MgcpConnectionNotFound e) {
+            } catch (MgcpCallNotFoundException | MgcpConnectionNotFoundException e) {
                 log.error("Could not delete primary connection. " + e.getMessage());
             }
         }
@@ -279,7 +279,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
         if (endpoint2 != null && secondConnectionId > 0) {
             try {
                 endpoint2.deleteConnection(callId, secondConnectionId);
-            } catch (MgcpCallNotFoundException | MgcpConnectionNotFound e) {
+            } catch (MgcpCallNotFoundException | MgcpConnectionNotFoundException e) {
                 log.error("Could not delete secondary connection. " + e.getMessage());
             }
         }

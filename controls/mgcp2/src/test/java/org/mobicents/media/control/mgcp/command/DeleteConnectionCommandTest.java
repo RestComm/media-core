@@ -37,7 +37,7 @@ import org.mobicents.media.control.mgcp.connection.MgcpRemoteConnection;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
-import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFound;
+import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFoundException;
 import org.mobicents.media.control.mgcp.exception.MgcpException;
 import org.mobicents.media.control.mgcp.message.MgcpMessageParser;
 import org.mobicents.media.control.mgcp.message.MgcpParameterType;
@@ -169,7 +169,7 @@ public class DeleteConnectionCommandTest {
 
         // when
         when(endpointManager.getEndpoint("mobicents/bridge/1@127.0.0.1:2427")).thenReturn(bridgeEndpoint);
-        when(bridgeEndpoint.deleteConnection(1, 1)).thenThrow(new MgcpConnectionNotFound(""));
+        when(bridgeEndpoint.deleteConnection(1, 1)).thenThrow(new MgcpConnectionNotFoundException(""));
 
         MgcpCommandResult result = dlcx.call();
 

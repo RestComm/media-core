@@ -39,7 +39,7 @@ import org.mobicents.media.control.mgcp.connection.MgcpConnection;
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
-import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFound;
+import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFoundException;
 import org.mobicents.media.control.mgcp.message.MessageDirection;
 import org.mobicents.media.control.mgcp.message.MgcpMessage;
 import org.mobicents.media.control.mgcp.message.MgcpMessageObserver;
@@ -168,11 +168,13 @@ public class GenericMgcpEndpoint implements MgcpEndpoint {
     }
 
     @Override
-    public MgcpConnection deleteConnection(int callId, int connectionId) throws MgcpCallNotFoundException, MgcpConnectionNotFound {
+    public MgcpConnection deleteConnection(int callId, int connectionId) throws MgcpCallNotFoundException, MgcpConnectionNotFoundException {
         MgcpConnection connection = this.connections.get(connectionId);
         
-        if(connection == null || connection.getCallIdentifier() != callId) {
-            throw new MgcpConnectionNotFound("Connection " + Integer.toHexString(connectionId).toUpperCase() + " was not found in call " + Integer.toHexString(callId).toUpperCase());
+        if(connection == null) {
+            throw new MgcpConnectionNotFoundException(this.endpointId + " could not find connection " + Integer.toHexString(connectionId).toUpperCase() + " in call " + Integer.toHexString(callId).toUpperCase());
+        } else if (connection.getCallIdentifier() != callId) {
+            throw new MgcpCallNotFoundException(this.endpointId + " could not find connection " + Integer.toHexString(connectionId).toUpperCase() + " in call " + Integer.toHexString(callId).toUpperCase());
         }
         
         connection = this.connections.remove(connectionId);
@@ -185,7 +187,7 @@ public class GenericMgcpEndpoint implements MgcpEndpoint {
         onConnectionDeleted(connection);
 
         // Set endpoint state
-        if (!hasConnections()) {
+        if (!hasConnections() && isActive()) {
             deactivate();
         }
         
@@ -227,7 +229,7 @@ public class GenericMgcpEndpoint implements MgcpEndpoint {
         }
         
         // Update endpoint state if all connections were deleted
-        if (!hasConnections()) {
+        if (!hasConnections() && isActive()) {
             deactivate();
         }
         return deleted;
@@ -261,7 +263,7 @@ public class GenericMgcpEndpoint implements MgcpEndpoint {
         }
         
         // Deactivate endpoint if no connections exist
-        if (!hasConnections()) {
+        if (!hasConnections() && isActive()) {
             deactivate();
         }
         return deleted;

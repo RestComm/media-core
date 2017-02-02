@@ -33,7 +33,7 @@ import org.mobicents.media.control.mgcp.connection.MgcpLocalConnection;
 import org.mobicents.media.control.mgcp.connection.MgcpRemoteConnection;
 import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
-import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFound;
+import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFoundException;
 import org.mobicents.media.control.mgcp.exception.MgcpException;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.audio.AudioSplitter;
@@ -48,7 +48,7 @@ import org.mobicents.media.server.spi.ConnectionMode;
 public class MgcpSplitterEndpointTest {
 
     @Test
-    public void testOpenCloseRemoteConnection() throws MgcpConnectionException, MgcpCallNotFoundException, MgcpConnectionNotFound {
+    public void testOpenCloseRemoteConnection() throws MgcpConnectionException, MgcpCallNotFoundException, MgcpConnectionNotFoundException {
         // given
         final int callId = 1;
         final MgcpRemoteConnection connection = mock(MgcpRemoteConnection.class);
