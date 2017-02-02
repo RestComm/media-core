@@ -45,8 +45,8 @@ public class MgcpLocalConnection extends AbstractMgcpConnection {
 
     private final LocalDataChannel audioChannel;
 
-    public MgcpLocalConnection(int identifier, ChannelsManager channelProvider) {
-        super(identifier);
+    public MgcpLocalConnection(int identifier, int callId, ChannelsManager channelProvider) {
+        super(identifier, callId);
         this.audioChannel = channelProvider.getLocalChannel();
     }
 

@@ -42,18 +42,32 @@ import org.mobicents.media.server.component.oob.OOBComponent;
 public interface MgcpConnection extends MgcpEventSubject {
 
     /**
-     * Gets the connection identifier
+     * Gets the connection identifier.
      * 
-     * @return The connection identifier
+     * @return The connection identifier, in base 10
      */
     int getIdentifier();
 
     /**
-     * Gets the connection identifier in hexadecimal base.
+     * Gets the connection identifier.
      * 
-     * @return The connection identifier
+     * @return The connection identifier, in base 16.
      */
     String getHexIdentifier();
+
+    /**
+     * Gets the call identifier.
+     * 
+     * @return The call identifier, in base 10
+     */
+    int getCallIdentifier();
+    
+    /**
+     * Gets the call identifier.
+     * 
+     * @return The connection identifier, in base 16
+     */
+    String getCallIdentifierHex();
 
     /**
      * Gets whether the connection is local or remote.

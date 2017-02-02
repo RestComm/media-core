@@ -28,7 +28,7 @@ import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
-import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFound;
+import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFoundException;
 import org.mobicents.media.control.mgcp.exception.MgcpException;
 import org.mobicents.media.control.mgcp.exception.UnrecognizedMgcpNamespaceException;
 import org.mobicents.media.control.mgcp.message.LocalConnectionOptions;
@@ -52,7 +52,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
     protected static final String WILDCARD_ALL = "*";
     protected static final String WILDCARD_ANY = "$";
     protected static final String ENDPOINT_ID_SEPARATOR = "@";
-
+    
     public CreateConnectionCommand(int transactionId, Parameters<MgcpParameterType> parameters, MgcpEndpointManager endpointManager) {
         super(transactionId, parameters, endpointManager);
     }
@@ -235,7 +235,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
                 // Create open connection
                 connection = createRemoteConnection(context.getCallId(), context.getConnectionMode(), context.getRemoteDescription(), endpoint1, context);
             }
-
+            
             // Update context with identifiers of newly created connection
             context.setConnectionId(connection.getIdentifier());
         } else {
@@ -271,7 +271,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
         if (endpoint1 != null && connectionId > 0) {
             try {
                 endpoint1.deleteConnection(callId, connectionId);
-            } catch (MgcpCallNotFoundException | MgcpConnectionNotFound e) {
+            } catch (MgcpCallNotFoundException | MgcpConnectionNotFoundException e) {
                 log.error("Could not delete primary connection. " + e.getMessage());
             }
         }
@@ -279,10 +279,11 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
         if (endpoint2 != null && secondConnectionId > 0) {
             try {
                 endpoint2.deleteConnection(callId, secondConnectionId);
-            } catch (MgcpCallNotFoundException | MgcpConnectionNotFound e) {
+            } catch (MgcpCallNotFoundException | MgcpConnectionNotFoundException e) {
                 log.error("Could not delete secondary connection. " + e.getMessage());
             }
         }
+        
     }
     
     private MgcpCommandResult respond(CrcxContext context) {

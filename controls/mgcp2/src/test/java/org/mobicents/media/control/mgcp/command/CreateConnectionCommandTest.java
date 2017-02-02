@@ -63,6 +63,7 @@ public class CreateConnectionCommandTest {
         builder.append("N:restcomm@127.0.0.1:2727").append(System.lineSeparator());
         builder.append("Z2:mobicents/ivr/$@127.0.0.1:2427");
 
+        final int callId = 1;
         final int transactionId = 147483655;
         final MgcpRequest request = new MgcpMessageParser().parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
@@ -76,23 +77,25 @@ public class CreateConnectionCommandTest {
         final CreateConnectionCommand crcx = new CreateConnectionCommand(transactionId, request.getParameters(), endpointManager);
 
         // when
-        when(connectionProvider.provideLocal()).thenReturn(connection1, connection2);
+        when(connectionProvider.provideLocal(callId)).thenReturn(connection1, connection2);
         when(connection1.getIdentifier()).thenReturn(1);
+        when(connection1.getCallIdentifier()).thenReturn(callId);
         when(connection2.getIdentifier()).thenReturn(2);
+        when(connection2.getCallIdentifier()).thenReturn(callId);
         when(endpointManager.registerEndpoint("mobicents/bridge/")).thenReturn(bridgeEndpoint);
         when(endpointManager.registerEndpoint("mobicents/ivr/")).thenReturn(ivrEndpoint);
         when(bridgeEndpoint.getEndpointId()).thenReturn(bridgeEndpointId);
         when(ivrEndpoint.getEndpointId()).thenReturn(ivrEndpointId);
-        when(bridgeEndpoint.createConnection(1, true)).thenReturn(connection1);
-        when(ivrEndpoint.createConnection(1, true)).thenReturn(connection2);
+        when(bridgeEndpoint.createConnection(callId, true)).thenReturn(connection1);
+        when(ivrEndpoint.createConnection(callId, true)).thenReturn(connection2);
 
         MgcpCommandResult result = crcx.call();
 
         // then
         verify(endpointManager, times(1)).registerEndpoint("mobicents/bridge/");
         verify(endpointManager, times(1)).registerEndpoint("mobicents/ivr/");
-        verify(bridgeEndpoint, times(1)).createConnection(1, true);
-        verify(ivrEndpoint, times(1)).createConnection(1, true);
+        verify(bridgeEndpoint, times(1)).createConnection(callId, true);
+        verify(ivrEndpoint, times(1)).createConnection(callId, true);
         verify(connection1, times(1)).join(connection2);
         
         assertNotNull(result);
@@ -116,6 +119,7 @@ public class CreateConnectionCommandTest {
         builder.append("N:restcomm@127.0.0.1:2727").append(System.lineSeparator());
         builder.append("L:webrtc:false").append(System.lineSeparator());
 
+        final int callId = 1;
         final int transactionId = 147483655;
         final MgcpRequest request = new MgcpMessageParser().parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
@@ -128,18 +132,18 @@ public class CreateConnectionCommandTest {
         // when
         when(connection.getIdentifier()).thenReturn(1);
         when(connection.halfOpen(any(LocalConnectionOptions.class))).thenReturn("answer");
-        when(connectionProvider.provideRemote()).thenReturn(connection);
+        when(connectionProvider.provideRemote(callId)).thenReturn(connection);
         when(endpointManager.registerEndpoint("mobicents/bridge/")).thenReturn(bridgeEndpoint);
         when(bridgeEndpoint.getEndpointId()).thenReturn(bridgeEndpointId);
-        when(bridgeEndpoint.createConnection(1, false)).thenReturn(connection);
-
+        when(bridgeEndpoint.createConnection(callId, false)).thenReturn(connection);
+        
         MgcpCommandResult result = crcx.call();
 
         // then
         verify(endpointManager, times(1)).registerEndpoint("mobicents/bridge/");
-        verify(bridgeEndpoint, times(1)).createConnection(1, false);
+        verify(bridgeEndpoint, times(1)).createConnection(callId, false);
         verify(connection, times(1)).halfOpen(any(LocalConnectionOptions.class));
-
+        
         assertNotNull(result);
         assertEquals(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code(), result.getCode());
 
@@ -170,6 +174,7 @@ public class CreateConnectionCommandTest {
         builderSdp.append("a=rtpmap:101 telephone-event/8000");
         builder.append(builderSdp.toString());
 
+        final int callId = 1;
         final int transactionId = 147483655;
         final MgcpRequest request = new MgcpMessageParser().parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
@@ -180,18 +185,18 @@ public class CreateConnectionCommandTest {
         final CreateConnectionCommand crcx = new CreateConnectionCommand(transactionId, request.getParameters(), endpointManager);
 
         // when
-        when(connectionProvider.provideRemote()).thenReturn(connection);
+        when(connectionProvider.provideRemote(callId)).thenReturn(connection);
         when(connection.getIdentifier()).thenReturn(1);
         when(connection.open(builderSdp.toString())).thenReturn("answer");
         when(endpointManager.registerEndpoint("mobicents/bridge/")).thenReturn(bridgeEndpoint);
         when(bridgeEndpoint.getEndpointId()).thenReturn(bridgeEndpointId);
-        when(bridgeEndpoint.createConnection(1, false)).thenReturn(connection);
+        when(bridgeEndpoint.createConnection(callId, false)).thenReturn(connection);
 
         MgcpCommandResult result = crcx.call();
 
         // then
         verify(endpointManager, times(1)).registerEndpoint("mobicents/bridge/");
-        verify(bridgeEndpoint, times(1)).createConnection(1, false);
+        verify(bridgeEndpoint, times(1)).createConnection(callId, false);
         verify(connection, times(1)).open(builderSdp.toString());
 
         assertNotNull(result);
@@ -401,6 +406,7 @@ public class CreateConnectionCommandTest {
         builder.append("N:restcomm@127.0.0.1:2727").append(System.lineSeparator());
         builder.append("Z2:mobicents/ivr/$@127.0.0.1:2427");
 
+        final int callId = 1;
         final int transactionId = 147483655;
         final MgcpRequest request = new MgcpMessageParser().parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
@@ -414,7 +420,7 @@ public class CreateConnectionCommandTest {
         final CreateConnectionCommand crcx = new CreateConnectionCommand(transactionId, request.getParameters(), endpointManager);
 
         // when
-        when(connectionProvider.provideLocal()).thenReturn(connection1, connection2);
+        when(connectionProvider.provideLocal(callId)).thenReturn(connection1, connection2);
         when(connection1.getIdentifier()).thenReturn(1);
         when(connection1.getHexIdentifier()).thenReturn(Integer.toHexString(1));
         when(connection2.getIdentifier()).thenReturn(2);
@@ -425,16 +431,16 @@ public class CreateConnectionCommandTest {
         when(endpointManager.registerEndpoint("mobicents/ivr/")).thenReturn(ivrEndpoint);
         when(endpointManager.getEndpoint(bridgeEndpoint.getEndpointId().toString())).thenReturn(bridgeEndpoint);
         when(endpointManager.getEndpoint(ivrEndpoint.getEndpointId().toString())).thenReturn(ivrEndpoint);
-        when(bridgeEndpoint.createConnection(1, true)).thenReturn(connection1);
-        when(ivrEndpoint.createConnection(1, true)).thenReturn(connection2);
+        when(bridgeEndpoint.createConnection(callId, true)).thenReturn(connection1);
+        when(ivrEndpoint.createConnection(callId, true)).thenReturn(connection2);
 
         doThrow(MgcpConnectionException.class).when(connection1).join(connection2);
 
         MgcpCommandResult result = crcx.call();
 
         // then
-        verify(bridgeEndpoint, times(1)).deleteConnection(1, connection1.getIdentifier());
-        verify(ivrEndpoint, times(1)).deleteConnection(1, connection2.getIdentifier());
+        verify(bridgeEndpoint, times(1)).deleteConnection(callId, connection1.getIdentifier());
+        verify(ivrEndpoint, times(1)).deleteConnection(callId, connection2.getIdentifier());
 
         assertNotNull(result);
         assertEquals(MgcpResponseCode.PROTOCOL_ERROR.code(), result.getCode());

@@ -19,18 +19,24 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.listener;
-
-import org.mobicents.media.control.mgcp.connection.MgcpCall;
+package org.mobicents.media.control.mgcp.exception;
 
 /**
- * Listens to events related to an MGCP Call.
+ * Represents failure when searching for a supposedly registered endpoint.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpCallListener {
+public class MgcpConnectionNotFoundException extends MgcpConnectionException {
 
-    void onCallTerminated(MgcpCall call);
+    private static final long serialVersionUID = 8852471630089010250L;
+
+    public MgcpConnectionNotFoundException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public MgcpConnectionNotFoundException(String message) {
+        super(message);
+    }
 
 }

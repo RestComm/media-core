@@ -42,7 +42,7 @@ public abstract class AbstractMgcpConnection implements MgcpConnection {
 
     // Connection State
     private final int identifier;
-    private final String hexIdentifier;
+    private final int callIdentifier;
     private ConnectionMode mode;
     protected volatile MgcpConnectionState state;
     protected final Object stateLock;
@@ -50,10 +50,10 @@ public abstract class AbstractMgcpConnection implements MgcpConnection {
     // Observers
     protected final Set<MgcpEventObserver> observers;
 
-    public AbstractMgcpConnection(int identifier) {
+    public AbstractMgcpConnection(int identifier, int callId) {
         // Connection State
         this.identifier = identifier;
-        this.hexIdentifier = Integer.toHexString(identifier);
+        this.callIdentifier = callId;
         this.mode = ConnectionMode.INACTIVE;
         this.state = MgcpConnectionState.CLOSED;
         this.stateLock = new Object();
@@ -69,7 +69,17 @@ public abstract class AbstractMgcpConnection implements MgcpConnection {
 
     @Override
     public String getHexIdentifier() {
-        return this.hexIdentifier;
+        return Integer.toHexString(identifier).toUpperCase();
+    }
+
+    @Override
+    public int getCallIdentifier() {
+        return this.callIdentifier;
+    }
+    
+    @Override
+    public String getCallIdentifierHex() {
+        return Integer.toHexString(this.callIdentifier).toUpperCase();
     }
 
     @Override
@@ -100,7 +110,7 @@ public abstract class AbstractMgcpConnection implements MgcpConnection {
     public void observe(MgcpEventObserver observer) {
         boolean added = this.observers.add(observer);
         if (added && log().isTraceEnabled()) {
-            log().trace("Connection " + this.hexIdentifier + " registered MgcpEventObserver@" + observer.hashCode() + ". Count: " + this.observers.size());
+            log().trace("Connection " + getHexIdentifier() + " registered MgcpEventObserver@" + observer.hashCode() + ". Count: " + this.observers.size());
         }
     }
 
@@ -108,7 +118,7 @@ public abstract class AbstractMgcpConnection implements MgcpConnection {
     public void forget(MgcpEventObserver observer) {
         boolean removed = this.observers.remove(observer);
         if (removed && log().isTraceEnabled()) {
-            log().trace("Connection " + this.hexIdentifier + " unregistered MgcpEventObserver@" + observer.hashCode() + ". Count: " + this.observers.size());
+            log().trace("Connection " + getHexIdentifier() + " unregistered MgcpEventObserver@" + observer.hashCode() + ". Count: " + this.observers.size());
         }
     }
 

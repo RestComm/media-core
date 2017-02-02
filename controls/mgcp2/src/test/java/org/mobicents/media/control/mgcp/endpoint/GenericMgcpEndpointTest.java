@@ -21,17 +21,26 @@
 
 package org.mobicents.media.control.mgcp.endpoint;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.net.InetSocketAddress;
+import java.util.List;
 
 import org.junit.Test;
 import org.mobicents.media.control.mgcp.command.NotificationRequest;
 import org.mobicents.media.control.mgcp.command.param.NotifiedEntity;
+import org.mobicents.media.control.mgcp.connection.MgcpConnection;
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
+import org.mobicents.media.control.mgcp.connection.MgcpLocalConnection;
+import org.mobicents.media.control.mgcp.connection.MgcpRemoteConnection;
+import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
+import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFoundException;
 import org.mobicents.media.control.mgcp.message.MessageDirection;
 import org.mobicents.media.control.mgcp.message.MgcpMessage;
 import org.mobicents.media.control.mgcp.message.MgcpMessageObserver;
@@ -49,6 +58,209 @@ import org.mockito.ArgumentCaptor;
  *
  */
 public class GenericMgcpEndpointTest {
+    
+    @Test
+    public void testCreateConnection() {
+        // given
+        final int callId1 = 1;
+        final int callId2 = 2;
+        final int connectionId1 = 3;
+        final int connectionId2 = 4;
+        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
+        final MgcpLocalConnection connection1 = mock(MgcpLocalConnection.class);
+        final MgcpRemoteConnection connection2 = mock(MgcpRemoteConnection.class);
+        final MediaGroup mediaGroup = mock(MediaGroup.class);
+        final EndpointIdentifier endpointId = new EndpointIdentifier("mobicents/endpoint/1", "127.0.0.1");
+        final GenericMgcpEndpoint endpoint = new GenericMgcpEndpoint(endpointId, connectionProvider, mediaGroup);
+
+        // when
+        when(connectionProvider.provideLocal(callId1)).thenReturn(connection1);
+        when(connectionProvider.provideRemote(callId2)).thenReturn(connection2);
+        when(connection1.getIdentifier()).thenReturn(connectionId1);
+        when(connection1.getCallIdentifier()).thenReturn(callId1);
+        when(connection2.getIdentifier()).thenReturn(connectionId2);
+        when(connection2.getCallIdentifier()).thenReturn(callId2);
+        
+        final MgcpConnection created1 = endpoint.createConnection(callId1, true);
+        final MgcpConnection created2 = endpoint.createConnection(callId2, false);
+        
+        // then
+        assertTrue(endpoint.hasConnections());
+        assertEquals(connection1, created1);
+        assertEquals(connection2, created2);
+    }
+    
+    @Test
+    public void testDeleteConnectionFromCall() throws Exception {
+        // given
+        final int callId1 = 1;
+        final int callId2 = 2;
+        final int connectionId1 = 3;
+        final int connectionId2 = 4;
+        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
+        final MgcpLocalConnection connection1 = mock(MgcpLocalConnection.class);
+        final MgcpRemoteConnection connection2 = mock(MgcpRemoteConnection.class);
+        final MediaGroup mediaGroup = mock(MediaGroup.class);
+        final EndpointIdentifier endpointId = new EndpointIdentifier("mobicents/endpoint/1", "127.0.0.1");
+        final GenericMgcpEndpoint endpoint = new GenericMgcpEndpoint(endpointId, connectionProvider, mediaGroup);
+
+        // when
+        when(connectionProvider.provideLocal(callId1)).thenReturn(connection1);
+        when(connectionProvider.provideRemote(callId2)).thenReturn(connection2);
+        when(connection1.getIdentifier()).thenReturn(connectionId1);
+        when(connection1.getCallIdentifier()).thenReturn(callId1);
+        when(connection2.getIdentifier()).thenReturn(connectionId2);
+        when(connection2.getCallIdentifier()).thenReturn(callId2);
+        
+        endpoint.createConnection(callId1, true);
+        endpoint.createConnection(callId2, false);
+        MgcpConnection deleted = endpoint.deleteConnection(callId2, connectionId2);
+        MgcpConnection existing = endpoint.getConnection(callId1, connectionId1);
+        
+        // then
+        assertTrue(endpoint.hasConnections());
+        assertEquals(connection2, deleted);
+        assertEquals(connection1, existing);
+    }
+
+    @Test(expected=MgcpCallNotFoundException.class)
+    public void testDeleteConnectionFromInexistentCall() throws Exception {
+        // given
+        final int callId1 = 1;
+        final int callId2 = 2;
+        final int connectionId1 = 3;
+        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
+        final MgcpLocalConnection connection1 = mock(MgcpLocalConnection.class);
+        final MediaGroup mediaGroup = mock(MediaGroup.class);
+        final EndpointIdentifier endpointId = new EndpointIdentifier("mobicents/endpoint/1", "127.0.0.1");
+        final GenericMgcpEndpoint endpoint = new GenericMgcpEndpoint(endpointId, connectionProvider, mediaGroup);
+        
+        // when
+        when(connectionProvider.provideLocal(callId1)).thenReturn(connection1);
+        when(connection1.getIdentifier()).thenReturn(connectionId1);
+        when(connection1.getCallIdentifier()).thenReturn(callId1);
+        
+        endpoint.createConnection(callId1, true);
+        endpoint.deleteConnection(callId2, connectionId1);
+    }
+
+    @Test(expected=MgcpConnectionNotFoundException.class)
+    public void testDeleteInexistentConnectionFromCall() throws Exception {
+        // given
+        final int callId1 = 1;
+        final int connectionId1 = 3;
+        final int connectionId2 = 4;
+        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
+        final MgcpLocalConnection connection1 = mock(MgcpLocalConnection.class);
+        final MediaGroup mediaGroup = mock(MediaGroup.class);
+        final EndpointIdentifier endpointId = new EndpointIdentifier("mobicents/endpoint/1", "127.0.0.1");
+        final GenericMgcpEndpoint endpoint = new GenericMgcpEndpoint(endpointId, connectionProvider, mediaGroup);
+        
+        // when
+        when(connectionProvider.provideLocal(callId1)).thenReturn(connection1);
+        when(connection1.getIdentifier()).thenReturn(connectionId1);
+        when(connection1.getCallIdentifier()).thenReturn(callId1);
+        
+        endpoint.createConnection(callId1, true);
+        endpoint.deleteConnection(callId1, connectionId2);
+    }
+    
+    @Test
+    public void testDeleteConnectionsFromCall() throws Exception {
+        // given
+        final int callId1 = 1;
+        final int callId2 = 2;
+        final int connectionId1 = 3;
+        final int connectionId2 = 4;
+        final int connectionId3 = 5;
+        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
+        final MgcpLocalConnection connection1 = mock(MgcpLocalConnection.class);
+        final MgcpRemoteConnection connection2 = mock(MgcpRemoteConnection.class);
+        final MgcpRemoteConnection connection3 = mock(MgcpRemoteConnection.class);
+        final MediaGroup mediaGroup = mock(MediaGroup.class);
+        final EndpointIdentifier endpointId = new EndpointIdentifier("mobicents/endpoint/1", "127.0.0.1");
+        final GenericMgcpEndpoint endpoint = new GenericMgcpEndpoint(endpointId, connectionProvider, mediaGroup);
+
+        // when
+        when(connectionProvider.provideLocal(callId1)).thenReturn(connection1);
+        when(connectionProvider.provideRemote(callId2)).thenReturn(connection2, connection3);
+        when(connection1.getIdentifier()).thenReturn(connectionId1);
+        when(connection1.getCallIdentifier()).thenReturn(callId1);
+        when(connection2.getIdentifier()).thenReturn(connectionId2);
+        when(connection2.getCallIdentifier()).thenReturn(callId2);
+        when(connection3.getIdentifier()).thenReturn(connectionId3);
+        when(connection3.getCallIdentifier()).thenReturn(callId2);
+        
+        endpoint.createConnection(callId1, true);
+        endpoint.createConnection(callId2, false);
+        endpoint.createConnection(callId2, false);
+
+        List<MgcpConnection> deleted = endpoint.deleteConnections(callId2);
+        MgcpConnection existing = endpoint.getConnection(callId1, connectionId1);
+        
+        // then
+        assertTrue(endpoint.hasConnections());
+        assertEquals(2, deleted.size());
+        assertTrue(deleted.contains(connection2));
+        assertTrue(deleted.contains(connection3));
+        assertEquals(connection1, existing);
+    }
+
+    @Test
+    public void testDeleteConnections() throws Exception {
+        // given
+        final int callId1 = 1;
+        final int callId2 = 2;
+        final int connectionId1 = 3;
+        final int connectionId2 = 4;
+        final int connectionId3 = 5;
+        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
+        final MgcpLocalConnection connection1 = mock(MgcpLocalConnection.class);
+        final MgcpRemoteConnection connection2 = mock(MgcpRemoteConnection.class);
+        final MgcpRemoteConnection connection3 = mock(MgcpRemoteConnection.class);
+        final MediaGroup mediaGroup = mock(MediaGroup.class);
+        final EndpointIdentifier endpointId = new EndpointIdentifier("mobicents/endpoint/1", "127.0.0.1");
+        final GenericMgcpEndpoint endpoint = new GenericMgcpEndpoint(endpointId, connectionProvider, mediaGroup);
+        
+        // when
+        when(connectionProvider.provideLocal(callId1)).thenReturn(connection1);
+        when(connectionProvider.provideRemote(callId2)).thenReturn(connection2, connection3);
+        when(connection1.getIdentifier()).thenReturn(connectionId1);
+        when(connection1.getCallIdentifier()).thenReturn(callId1);
+        when(connection2.getIdentifier()).thenReturn(connectionId2);
+        when(connection2.getCallIdentifier()).thenReturn(callId2);
+        when(connection3.getIdentifier()).thenReturn(connectionId3);
+        when(connection3.getCallIdentifier()).thenReturn(callId2);
+        
+        endpoint.createConnection(callId1, true);
+        endpoint.createConnection(callId2, false);
+        endpoint.createConnection(callId2, false);
+        
+        List<MgcpConnection> deleted = endpoint.deleteConnections();
+        
+        // then
+        assertFalse(endpoint.hasConnections());
+        assertEquals(3, deleted.size());
+        assertTrue(deleted.contains(connection1));
+        assertTrue(deleted.contains(connection2));
+        assertTrue(deleted.contains(connection3));
+    }
+
+    @Test
+    public void testDeleteConnectionsFromInactiveEndpoint() throws Exception {
+        // given
+        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
+        final MediaGroup mediaGroup = mock(MediaGroup.class);
+        final EndpointIdentifier endpointId = new EndpointIdentifier("mobicents/endpoint/1", "127.0.0.1");
+        final GenericMgcpEndpoint endpoint = new GenericMgcpEndpoint(endpointId, connectionProvider, mediaGroup);
+        
+        // when
+        List<MgcpConnection> deleted = endpoint.deleteConnections();
+        
+        // then
+        assertNotNull(deleted);
+        assertTrue(deleted.isEmpty());
+    }
 
     @Test
     public void testExecuteTimeoutSignal() {

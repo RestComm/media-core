@@ -23,9 +23,11 @@ package org.mobicents.media.control.mgcp.endpoint;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -33,13 +35,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.command.NotificationRequest;
 import org.mobicents.media.control.mgcp.command.param.NotifiedEntity;
-import org.mobicents.media.control.mgcp.connection.MgcpCall;
 import org.mobicents.media.control.mgcp.connection.MgcpConnection;
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
-import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFound;
-import org.mobicents.media.control.mgcp.listener.MgcpCallListener;
+import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFoundException;
 import org.mobicents.media.control.mgcp.message.MessageDirection;
 import org.mobicents.media.control.mgcp.message.MgcpMessage;
 import org.mobicents.media.control.mgcp.message.MgcpMessageObserver;
@@ -61,7 +61,7 @@ import com.google.common.collect.Multimaps;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener {
+public class GenericMgcpEndpoint implements MgcpEndpoint {
 
     private static final Logger log = Logger.getLogger(GenericMgcpEndpoint.class);
     
@@ -73,7 +73,7 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener {
 
     // Endpoint Properties
     private final EndpointIdentifier endpointId;
-    private final ConcurrentHashMap<Integer, MgcpCall> calls;
+    private final ConcurrentHashMap<Integer, MgcpConnection> connections;
 
     // Endpoint State
     private final AtomicBoolean active;
@@ -95,7 +95,7 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener {
 
         // Endpoint Properties
         this.endpointId = endpointId;
-        this.calls = new ConcurrentHashMap<>(10);
+        this.connections = new ConcurrentHashMap<>(5);
 
         // Endpoint State
         this.active = new AtomicBoolean(false);
@@ -124,50 +124,42 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener {
         return this.mediaGroup;
     }
 
-    public boolean hasCalls() {
-        return !this.calls.isEmpty();
+    public boolean hasConnections() {
+        return !this.connections.isEmpty();
     }
 
     @Override
     public MgcpConnection getConnection(int callId, int connectionId) {
-        MgcpCall call = this.calls.get(callId);
-        return (call == null) ? null : call.getConnection(connectionId);
+        MgcpConnection connection = this.connections.get(connectionId);
+        if(connection != null && connection.getCallIdentifier() == callId) {
+            return connection;
+        }
+        return null;
     }
 
-    private void registerConnection(int callId, MgcpConnection connection) {
-        // Retrieve corresponding call
-        MgcpCall call = calls.get(callId);
-        if (call == null) {
-            // Attempt to insert a new call
-            call = new MgcpCall(callId);
-            MgcpCall oldCall = this.calls.putIfAbsent(callId, call);
+    private boolean registerConnection(int callId, MgcpConnection connection) {
+        MgcpConnection old = this.connections.putIfAbsent(connection.getIdentifier(), connection);
+        boolean registered = (old == null);
 
-            // Drop newly create call and use existing one
-            // This is possible because we are working in non-blocking concurrent scenario
-            if (oldCall != null) {
-                call = oldCall;
+        if (registered) {
+            if (log.isDebugEnabled()) {
+                log.debug("Endpoint " + this.endpointId.toString() + " registered connection " + connection.getHexIdentifier() + " to call " + connection.getCallIdentifierHex());
+            }
+
+            // Warn child class that connection was created
+            onConnectionCreated(connection);
+
+            // Activate endpoint on first registered connection
+            if (!isActive()) {
+                activate();
             }
         }
-        
-        if(log.isDebugEnabled()) {
-            log.debug("Endpoint " + this.endpointId.toString() + " is registering connection " + connection.getHexIdentifier() + " to call " + callId);
-        }
-
-        // Store connection under call
-        call.addConnection(connection);
-
-        // Warn child class that connection was created
-        onConnectionCreated(connection);
-
-        // Activate endpoint on first registered connection
-        if (!isActive()) {
-            activate();
-        }
+        return registered;
     }
 
     @Override
     public MgcpConnection createConnection(int callId, boolean local) {
-        MgcpConnection connection = local ? this.connectionProvider.provideLocal() : this.connectionProvider.provideRemote();
+        MgcpConnection connection = local ? this.connectionProvider.provideLocal(callId) : this.connectionProvider.provideRemote(callId);
         registerConnection(callId, connection);
         if (!connection.isLocal()) {
             connection.observe(this);
@@ -176,115 +168,115 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener {
     }
 
     @Override
-    public MgcpConnection deleteConnection(int callId, int connectionId) throws MgcpCallNotFoundException, MgcpConnectionNotFound {
-        MgcpCall call = this.calls.get(callId);
-        if (call == null) {
-            throw new MgcpCallNotFoundException("Call " + callId + " was not found.");
-        } else {
-            if (log.isDebugEnabled()) {
-                log.debug("Endpoint " + this.endpointId.toString() + " is unregistering connection "
-                        + Integer.toString(connectionId, 16) + " from call " + callId);
+    public MgcpConnection deleteConnection(int callId, int connectionId) throws MgcpCallNotFoundException, MgcpConnectionNotFoundException {
+        MgcpConnection connection = this.connections.get(connectionId);
+        
+        if(connection == null) {
+            throw new MgcpConnectionNotFoundException(this.endpointId + " could not find connection " + Integer.toHexString(connectionId).toUpperCase() + " in call " + Integer.toHexString(callId).toUpperCase());
+        } else if (connection.getCallIdentifier() != callId) {
+            throw new MgcpCallNotFoundException(this.endpointId + " could not find connection " + Integer.toHexString(connectionId).toUpperCase() + " in call " + Integer.toHexString(callId).toUpperCase());
+        }
+        
+        connection = this.connections.remove(connectionId);
+        
+        if (log.isDebugEnabled()) {
+            log.debug("Endpoint " + this.endpointId + " unregistered connection " + connection.getHexIdentifier() + " from call " + connection.getCallIdentifierHex());
+        }
+        
+        // Warn child class that connection was deleted
+        onConnectionDeleted(connection);
+
+        // Set endpoint state
+        if (!hasConnections() && isActive()) {
+            deactivate();
+        }
+        
+        // Unregister from connection and close it
+        try {
+            connection.forget(this);
+            connection.close();
+        } catch (MgcpConnectionException e) {
+            log.warn(this.endpointId + " could not close connection " + connection.getHexIdentifier() + " in elegant manner.", e);
+        }
+        return connection;
+    }
+
+    @Override
+    public List<MgcpConnection> deleteConnections(int callId) throws MgcpCallNotFoundException {
+        // Fetch all current connections
+        Collection<MgcpConnection> current = this.connections.values();
+        List<MgcpConnection> deleted = new ArrayList<>(current.size());
+        
+        for (MgcpConnection connection : current) {
+            // Delete connection if owned by specific call-id
+            if(connection.getCallIdentifier() == callId) {
+                MgcpConnection removed = this.connections.remove(connection.getIdentifier());
+                if(removed != null) {
+                    deleted.add(removed);
+                }
             }
-            
-            // Unregister connection
-            MgcpConnection connection = call.removeConnection(connectionId);
+        }
+        
+        // No connections were found for specific call
+        if(deleted.size() == 0) {
+            throw new MgcpCallNotFoundException(this.endpointId + " could not find call " + Integer.toHexString(callId).toUpperCase());
+        }
+        
+        // Log deleted calls
+        if(log.isDebugEnabled()) {
+            String hexIdentifiers = Arrays.toString(getConnectionHexId(deleted));
+            log.debug("Endpoint " + this.endpointId.toString() + " deleted " + deleted.size() + " connections from call " + callId + ": "+ hexIdentifiers +". Connection count: " + this.connections.size());
+        }
+        
+        // Update endpoint state if all connections were deleted
+        if (!hasConnections() && isActive()) {
+            deactivate();
+        }
+        return deleted;
+    }
 
-            if (connection == null) {
-                throw new MgcpConnectionNotFound("Connection " + Integer.toHexString(connectionId) + " was not found in call " + callId);
-            } else {
-                // Unregister call if it contains no more connections
-                if (!call.hasConnections()) {
-                    this.calls.remove(callId);
-                    if (log.isDebugEnabled()) {
-                        log.debug("Endpoint " + this.endpointId.toString() + " unregistered call " + callId + ". Count: " + this.calls.size());
-                    }
-                }
-
-                // Warn child class that connection was deleted
-                onConnectionDeleted(connection);
-
-                // Set endpoint state
-                if (!hasCalls()) {
-                    deactivate();
-                }
-                
+    @Override
+    public List<MgcpConnection> deleteConnections() {
+        Set<Integer> keys = this.connections.keySet();
+        List<MgcpConnection> deleted = new ArrayList<>(keys.size());
+        
+        for (Integer key : keys) {
+            MgcpConnection connection = this.connections.remove(key);
+            if(connection != null) {
                 // Unregister from connection and close it
                 try {
                     connection.forget(this);
                     connection.close();
                 } catch (MgcpConnectionException e) {
-                    log.error(this.endpointId + ": Connection " + connection.getHexIdentifier() + " was not closed properly", e);
+                    log.warn(this.endpointId + " could not close connection " + connection.getHexIdentifier() + " in elegant manner.", e);
                 }
 
-                return connection;
+                // Add connection to list of deleted connections
+                deleted.add(connection);
             }
         }
-    }
-
-    private List<MgcpConnection> deleteConnections(MgcpCall call) {
-        List<MgcpConnection> connections = call.removeConnections();
-        for (MgcpConnection connection : connections) {
-            // Unregister from connection and close it
-            try {
-                connection.forget(this);
-                connection.close();
-            } catch (MgcpConnectionException e) {
-                log.error(this.endpointId + ": Connection " + connection.getHexIdentifier() + " was not closed properly", e);
-
-            }
+        
+        // Log deleted calls
+        if(log.isDebugEnabled()) {
+            String hexIdentifiers = Arrays.toString(getConnectionHexId(deleted));
+            log.debug("Endpoint " + this.endpointId.toString() + " deleted " + deleted.size() + " connections: "+ hexIdentifiers +". Connection count: " + this.connections.size());
         }
-        return connections;
-    }
-
-    @Override
-    public List<MgcpConnection> deleteConnections(int callId) throws MgcpCallNotFoundException {
-        // De-register call from active sessions
-        MgcpCall call = this.calls.remove(callId);
-        if (call == null) {
-            throw new MgcpCallNotFoundException("Call " + callId + " was not found.");
-        } else {
-            // Delete all connections from call
-            List<MgcpConnection> connections = deleteConnections(call);
-            
-            if(log.isDebugEnabled()) {
-                log.debug("Endpoint " + this.endpointId.toString() + " deleted " + connections.size() + " connections from call " + callId + ". Call count: " + this.calls.size());
-            }
-
-            // Set endpoint state
-            if (!hasCalls()) {
-                deactivate();
-            }
-            return connections;
-        }
-    }
-
-    @Override
-    public List<MgcpConnection> deleteConnections() {
-        List<MgcpConnection> connections = new ArrayList<>();
-        Iterator<MgcpCall> iterator = this.calls.values().iterator();
-        while (iterator.hasNext()) {
-            // Remove call from active call list
-            MgcpCall call = iterator.next();
-            iterator.remove();
-
-            // Close connections
-            connections.addAll(deleteConnections(call));
-        }
-
-        // Set endpoint state
-        if (!hasCalls()) {
+        
+        // Deactivate endpoint if no connections exist
+        if (!hasConnections() && isActive()) {
             deactivate();
         }
-        return connections;
+        return deleted;
     }
-
-    @Override
-    public void onCallTerminated(MgcpCall call) {
-        this.calls.remove(call.getId());
-        
-        if(log.isDebugEnabled()) {
-            log.debug("Call " + call.getId() + " terminated on endpoint " + this.endpointId.toString() +". Call count: " + this.calls.size());
+    
+    private String[] getConnectionHexId(Collection<MgcpConnection> connections) {
+        String[] hex = new String[connections.size()];
+        int index = 0;
+        for (MgcpConnection connection : connections) {
+            hex[index] = connection.getHexIdentifier();
+            index++;
         }
+        return hex;
     }
 
     public boolean isActive() {

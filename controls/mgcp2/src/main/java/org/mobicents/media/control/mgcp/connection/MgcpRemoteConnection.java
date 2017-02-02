@@ -77,8 +77,8 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
     private final int timeout;
     private final int halfOpenTimeout;
 
-    public MgcpRemoteConnection(int identifier, int halfOpenTimeout, int openTimeout, MediaChannelProvider channelProvider, ListeningScheduledExecutorService executor) {
-        super(identifier);
+    public MgcpRemoteConnection(int identifier, int callId, int halfOpenTimeout, int openTimeout, MediaChannelProvider channelProvider, ListeningScheduledExecutorService executor) {
+        super(identifier, callId);
         
         // Connection Properties
         this.localAddress = channelProvider.getLocalAddress();
@@ -100,12 +100,12 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
         this.timeout = openTimeout;
     }
 
-    public MgcpRemoteConnection(int identifier, int timeout, MediaChannelProvider channelProvider, ListeningScheduledExecutorService executor) {
-        this(identifier, HALF_OPEN_TIMER, timeout, channelProvider, executor);
+    public MgcpRemoteConnection(int identifier, int callId, int timeout, MediaChannelProvider channelProvider, ListeningScheduledExecutorService executor) {
+        this(identifier, callId, HALF_OPEN_TIMER, timeout, channelProvider, executor);
     }
 
-    public MgcpRemoteConnection(int identifier, MediaChannelProvider channelProvider, ListeningScheduledExecutorService executor) {
-        this(identifier, 0, channelProvider, executor);
+    public MgcpRemoteConnection(int identifier, int callId, MediaChannelProvider channelProvider, ListeningScheduledExecutorService executor) {
+        this(identifier, callId, 0, channelProvider, executor);
     }
 
     @Override

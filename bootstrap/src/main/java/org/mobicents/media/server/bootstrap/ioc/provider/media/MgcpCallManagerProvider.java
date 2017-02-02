@@ -19,24 +19,22 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.exception;
+package org.mobicents.media.server.bootstrap.ioc.provider.media;
+
+import org.mobicents.media.control.mgcp.call.GlobalMgcpCallManager;
+import org.mobicents.media.control.mgcp.call.MgcpCallManager;
+
+import com.google.inject.Provider;
 
 /**
- * Represents failure when searching for a supposedly registered endpoint.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpConnectionNotFound extends MgcpConnectionException {
+public class MgcpCallManagerProvider implements Provider<MgcpCallManager> {
 
-    private static final long serialVersionUID = 8852471630089010250L;
-
-    public MgcpConnectionNotFound(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public MgcpConnectionNotFound(String message) {
-        super(message);
+    @Override
+    public MgcpCallManager get() {
+        return new GlobalMgcpCallManager();
     }
 
 }
