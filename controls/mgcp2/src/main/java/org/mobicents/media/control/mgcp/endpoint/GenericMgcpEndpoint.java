@@ -145,6 +145,9 @@ public class GenericMgcpEndpoint implements MgcpEndpoint {
             if (log.isDebugEnabled()) {
                 log.debug("Endpoint " + this.endpointId.toString() + " registered connection " + connection.getHexIdentifier() + " to call " + connection.getCallIdentifierHex());
             }
+            
+            // Observe connection
+            connection.observe(this);
 
             // Warn child class that connection was created
             onConnectionCreated(connection);
@@ -536,6 +539,9 @@ public class GenericMgcpEndpoint implements MgcpEndpoint {
     }
     
     private MgcpRequest onConnectionEvent(MgcpConnection connection, MgcpEvent event) {
+        if(log.isDebugEnabled()) {
+            log.debug(this.endpointId + " received MGCP event " + event.toString() + " from connection " + connection.getCallIdentifier());
+        }
 //     // Build Notification
 //        MgcpRequest notify = new MgcpRequest();
 //        notify.setRequestType(MgcpRequestType.NTFY);

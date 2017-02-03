@@ -30,11 +30,11 @@ import java.util.Map;
  */
 public class GenericMgcpEvent implements MgcpEvent {
 
-    private final String pkg;
-    private final String symbol;
-    private final String signal;
-    private final Map<String, String> parameters;
-    private final StringBuilder builder;
+    protected final String pkg;
+    protected final String symbol;
+    protected final String signal;
+    protected final Map<String, String> parameters;
+    protected final StringBuilder builder;
 
     public GenericMgcpEvent(String pkg, String symbol, String signal) {
         this.pkg = pkg;

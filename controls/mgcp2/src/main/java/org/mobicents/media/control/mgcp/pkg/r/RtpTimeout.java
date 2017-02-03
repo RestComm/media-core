@@ -29,14 +29,14 @@ import org.mobicents.media.control.mgcp.pkg.GenericMgcpEvent;
  */
 public class RtpTimeout extends GenericMgcpEvent {
 
-    public static final String symbol = "rto";
+    public static final String SYMBOL = "rto";
     public static final String TIMEOUT_KEY = "to";
 
     private final int timeout;
     private final RtpTimeoutStarter when;
 
     public RtpTimeout(int timeout) {
-        super(RtpPackage.PACKAGE_NAME, symbol);
+        super(RtpPackage.PACKAGE_NAME, SYMBOL);
 
         this.timeout = timeout;
         this.when = RtpTimeoutStarter.IMMEDIATE;
@@ -48,6 +48,14 @@ public class RtpTimeout extends GenericMgcpEvent {
 
     public RtpTimeoutStarter getWhen() {
         return when;
+    }
+
+    @Override
+    public String toString() {
+        this.builder.setLength(0);
+        this.builder.append(this.pkg).append("/").append(this.symbol);
+        this.builder.append("(").append(this.timeout).append(")");
+        return builder.toString();
     }
 
     // TODO support Starter = RTCP_AFTER
