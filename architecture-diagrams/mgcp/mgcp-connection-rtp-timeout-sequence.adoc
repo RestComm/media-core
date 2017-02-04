@@ -1,0 +1,20 @@
+[plantuml,file="mgcp-connection-rtp-timeout-sequence.png"]
+--
+== Call Setup ==
+
+CallAgent -> MediaServer : CRCX endpoint/$
+CallAgent <-- MediaServer : 200 OK, Z:<endpointId>, I:<connectionId>
+CallAgent -> MediaServer : RQNT endpoint/<endpointId>, R: R/rto@<connectionId>(N)(<timeout>)
+CallAgent <-- MediaServer: 200 OK
+
+== Timeout ==
+
+... <timeout> seconds without receiving an RTP packet ...
+CallAgent <- MediaServer : NTFY O:R/rto@<connectionId>(<timeout>)
+CallAgent --> MediaServer : 200 OK
+
+== Call Cleanup ==
+
+CallAgent -> MediaServer : DLCX endpoint/<endpointId>
+CallAgent <-- MediaServer : 200 OK
+--
