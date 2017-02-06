@@ -19,45 +19,35 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.pkg.r;
-
-import org.mobicents.media.control.mgcp.pkg.GenericMgcpEvent;
+package org.mobicents.media.control.mgcp.pkg.r.rto;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpTimeout extends GenericMgcpEvent {
+public enum RtpTimeoutStartTime {
 
-    public static final String SYMBOL = "rto";
-    public static final String TIMEOUT_KEY = "to";
+    IMMEDIATE("im"), WAIT_RTCP("ra");
 
-    private final int timeout;
-    private final RtpTimeoutStarter when;
+    private final String symbol;
 
-    public RtpTimeout(int timeout) {
-        super(RtpPackage.PACKAGE_NAME, SYMBOL);
-
-        this.timeout = timeout;
-        this.when = RtpTimeoutStarter.IMMEDIATE;
+    private RtpTimeoutStartTime(String symbol) {
+        this.symbol = symbol;
     }
 
-    public int getTimeout() {
-        return timeout;
+    public String symbol() {
+        return symbol;
     }
 
-    public RtpTimeoutStarter getWhen() {
-        return when;
+    public static final RtpTimeoutStartTime fromSymbol(String symbol) {
+        if (symbol != null && !symbol.isEmpty()) {
+            for (RtpTimeoutStartTime value : values()) {
+                if (value.symbol.equals(symbol)) {
+                    return value;
+                }
+            }
+        }
+        return null;
     }
-
-    @Override
-    public String toString() {
-        this.builder.setLength(0);
-        this.builder.append(this.pkg).append("/").append(this.symbol);
-        this.builder.append("(").append(this.timeout).append(")");
-        return builder.toString();
-    }
-
-    // TODO support Starter = RTCP_AFTER
 
 }
