@@ -21,56 +21,40 @@
 
 package org.mobicents.media.control.mgcp.pkg.r;
 
+import org.mobicents.media.control.mgcp.exception.AbstractSubMgcpEventProvider;
+import org.mobicents.media.control.mgcp.exception.MalformedMgcpEventRequestException;
+import org.mobicents.media.control.mgcp.exception.MgcpParseException;
 import org.mobicents.media.control.mgcp.pkg.MgcpEvent;
 import org.mobicents.media.control.mgcp.pkg.MgcpRequestedEvent;
-import org.mobicents.media.control.mgcp.pkg.r.rto.RtpTimeout;
-import org.mobicents.media.control.mgcp.pkg.r.rto.RtpTimeoutStartTime;
+import org.mobicents.media.control.mgcp.pkg.r.rto.RtpTimeoutEventParser;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpEventProvider {
+public class RtpEventProvider extends AbstractSubMgcpEventProvider {
 
-    public MgcpEvent provide(MgcpRequestedEvent event) {
-        String packageName = event.getPackageName();
-
-        if (RtpPackage.PACKAGE_NAME.equalsIgnoreCase(packageName)) {
-            RtpEventType eventType = RtpEventType.fromSymbol(event.getEventType());
-            if (eventType != null) {
-                switch (eventType) {
-                    case RTP_TIMEOUT:
-                        return parseRtpTimeout(event.getParameters());
-
-                    default:
-                        break;
-                }
-            }
-        }
-        return null;
+    public RtpEventProvider(RtpPackage pkg) {
+        super(pkg);
     }
 
-    private RtpTimeout parseRtpTimeout(String... parameters) {
-        int timeout = 0;
-        RtpTimeoutStartTime when = RtpTimeoutStartTime.IMMEDIATE;
-        
-        for (String parameter : parameters) {
-            if(parameter.matches("\\d+")) {
-                
-            }
-            
-            int indexOfEqual = parameter.indexOf("=");
-            if(indexOfEqual == -1) {
-                timeout = Integer.valueOf(parameter);
-            } else {
-                String whenSymbol = parameter.substring(indexOfEqual + 1);
-                when = RtpTimeoutStartTime.fromSymbol(whenSymbol);
+    @Override
+    protected MgcpEvent parse(MgcpRequestedEvent requestedEvent) throws MalformedMgcpEventRequestException {
+        RtpEventType eventType = RtpEventType.fromSymbol(requestedEvent.getEventType());
+        if (eventType != null) {
+            switch (eventType) {
+                case RTP_TIMEOUT:
+                    try {
+                        return RtpTimeoutEventParser.parse(requestedEvent.getParameters());
+                    } catch (MgcpParseException e) {
+                        throw new MalformedMgcpEventRequestException("Could not parse " + requestedEvent.toString() + "event request.", e);
+                    }
+
+                default:
+                    throw new MalformedMgcpEventRequestException("Unsupported event type " + requestedEvent.toString());
             }
         }
-        
-        
-        
-        return null;
+        throw new MalformedMgcpEventRequestException("Unrecognizable event type " + requestedEvent.toString());
     }
 
 }

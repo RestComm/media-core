@@ -30,7 +30,7 @@ import org.mobicents.media.control.mgcp.exception.MgcpParseException;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpTimeoutParserTest {
+public class RtpTimeoutEventParserTest {
 
     @Test
     public void testParseTimeoutandStartTimeParameters() throws MgcpParseException {
@@ -40,7 +40,7 @@ public class RtpTimeoutParserTest {
         final String startTimeParam = "st=" + startTime.symbol();
 
         // when
-        final RtpTimeout rtpTimeout = RtpTimeoutParser.parse(timeout, startTimeParam);
+        final RtpTimeoutEvent rtpTimeout = RtpTimeoutEventParser.parse(timeout, startTimeParam);
 
         // then
         assertEquals(Integer.parseInt(timeout), rtpTimeout.getTimeout());
@@ -53,7 +53,7 @@ public class RtpTimeoutParserTest {
         final String timeout = "10";
 
         // when
-        final RtpTimeout rtpTimeout = RtpTimeoutParser.parse(timeout);
+        final RtpTimeoutEvent rtpTimeout = RtpTimeoutEventParser.parse(timeout);
 
         // then
         assertEquals(Integer.parseInt(timeout), rtpTimeout.getTimeout());
@@ -66,7 +66,7 @@ public class RtpTimeoutParserTest {
         final String timeout = "-1";
 
         // when
-        RtpTimeoutParser.parse(timeout);
+        RtpTimeoutEventParser.parse(timeout);
     }
 
     @Test(expected = MgcpParseException.class)
@@ -76,7 +76,7 @@ public class RtpTimeoutParserTest {
         final String startTimeParam = "st=" + startTime.symbol();
 
         // when
-        RtpTimeoutParser.parse(startTimeParam);
+        RtpTimeoutEventParser.parse(startTimeParam);
     }
 
     @Test(expected = MgcpParseException.class)
@@ -85,7 +85,7 @@ public class RtpTimeoutParserTest {
         final String startTime = "st=xxx";
 
         // when
-        RtpTimeoutParser.parse(startTime);
+        RtpTimeoutEventParser.parse(startTime);
     }
 
 }

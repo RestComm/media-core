@@ -28,39 +28,44 @@ import org.mobicents.media.control.mgcp.pkg.r.RtpPackage;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpTimeout extends GenericMgcpEvent {
+public class RtpTimeoutEvent extends GenericMgcpEvent {
 
     public static final String SYMBOL = "rto";
     public static final String TIMEOUT_KEY = "to";
     public static final String START_TIME_KEY = "st";
 
-    private final int timeout;
-    private final RtpTimeoutStartTime when;
-
-    public RtpTimeout(int timeout) {
+    public RtpTimeoutEvent(int timeout) {
         this(timeout, RtpTimeoutStartTime.IMMEDIATE);
     }
 
-    public RtpTimeout(int timeout, RtpTimeoutStartTime startTime) {
+    public RtpTimeoutEvent(int timeout, RtpTimeoutStartTime startTime) {
         super(RtpPackage.PACKAGE_NAME, SYMBOL);
 
-        this.timeout = timeout;
-        this.when = startTime;
+        this.setParameter(TIMEOUT_KEY, String.valueOf(timeout));
+        this.setParameter(START_TIME_KEY, startTime.symbol());
     }
 
     public int getTimeout() {
-        return timeout;
+        String timeout = getParameter(TIMEOUT_KEY);
+        if (timeout == null || timeout.isEmpty()) {
+            return 0;
+        }
+        return Integer.parseInt(timeout);
     }
 
     public RtpTimeoutStartTime getWhen() {
-        return when;
+        String when = getParameter(START_TIME_KEY);
+        if (when == null || when.isEmpty()) {
+            return RtpTimeoutStartTime.IMMEDIATE;
+        }
+        return RtpTimeoutStartTime.fromSymbol(when);
     }
 
     @Override
     public String toString() {
         this.builder.setLength(0);
         this.builder.append(this.pkg).append("/").append(this.symbol);
-        this.builder.append("(").append(this.timeout).append(")");
+        this.builder.append("(").append(getTimeout()).append(")");
         return builder.toString();
     }
 

@@ -29,15 +29,15 @@ import org.mobicents.media.control.mgcp.exception.MgcpParseException;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpTimeoutParser {
+public class RtpTimeoutEventParser {
 
     private static final String TIMEOUT_REGEX = "\\d+";
     private static final Pattern TIMEOUT_PATTERN = Pattern.compile(TIMEOUT_REGEX);
 
-    private static final String START_TIME_REGEX = RtpTimeout.START_TIME_KEY + "=\\w{2}";
+    private static final String START_TIME_REGEX = RtpTimeoutEvent.START_TIME_KEY + "=\\w{2}";
     private static final Pattern START_TIME_PATTERN = Pattern.compile(START_TIME_REGEX);
 
-    public static RtpTimeout parse(String... parameters) throws MgcpParseException {
+    public static RtpTimeoutEvent parse(String... parameters) throws MgcpParseException {
         int timeout = 0;
         RtpTimeoutStartTime when = RtpTimeoutStartTime.IMMEDIATE;
         try {
@@ -59,7 +59,7 @@ public class RtpTimeoutParser {
         } catch (Exception e) {
             throw new MgcpParseException("Could not parse parameters RTP Timeout event.", e);
         }
-        return new RtpTimeout(timeout, when);
+        return new RtpTimeoutEvent(timeout, when);
     }
 
 }
