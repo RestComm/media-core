@@ -28,7 +28,11 @@ import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
 import org.mobicents.media.control.mgcp.message.LocalConnectionOptionType;
 import org.mobicents.media.control.mgcp.message.LocalConnectionOptions;
-import org.mobicents.media.control.mgcp.pkg.r.RtpTimeout;
+import org.mobicents.media.control.mgcp.pkg.MgcpEvent;
+import org.mobicents.media.control.mgcp.pkg.MgcpEventProvider;
+import org.mobicents.media.control.mgcp.pkg.MgcpRequestedEvent;
+import org.mobicents.media.control.mgcp.pkg.r.RtpPackage;
+import org.mobicents.media.control.mgcp.pkg.r.rto.RtpTimeoutEvent;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtp.CnameGenerator;
@@ -77,8 +81,8 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
     private final int timeout;
     private final int halfOpenTimeout;
 
-    public MgcpRemoteConnection(int identifier, int callId, int halfOpenTimeout, int openTimeout, MediaChannelProvider channelProvider, ListeningScheduledExecutorService executor) {
-        super(identifier, callId);
+    public MgcpRemoteConnection(int identifier, int callId, int halfOpenTimeout, int openTimeout, MgcpEventProvider eventProvider, MediaChannelProvider channelProvider, ListeningScheduledExecutorService executor) {
+        super(identifier, callId, eventProvider);
         
         // Connection Properties
         this.localAddress = channelProvider.getLocalAddress();
@@ -100,12 +104,12 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
         this.timeout = openTimeout;
     }
 
-    public MgcpRemoteConnection(int identifier, int callId, int timeout, MediaChannelProvider channelProvider, ListeningScheduledExecutorService executor) {
-        this(identifier, callId, HALF_OPEN_TIMER, timeout, channelProvider, executor);
+    public MgcpRemoteConnection(int identifier, int callId, int timeout, MgcpEventProvider eventProvider, MediaChannelProvider channelProvider, ListeningScheduledExecutorService executor) {
+        this(identifier, callId, HALF_OPEN_TIMER, timeout, eventProvider, channelProvider, executor);
     }
 
-    public MgcpRemoteConnection(int identifier, int callId, MediaChannelProvider channelProvider, ListeningScheduledExecutorService executor) {
-        this(identifier, callId, 0, channelProvider, executor);
+    public MgcpRemoteConnection(int identifier, int callId, MgcpEventProvider eventProvider, MediaChannelProvider channelProvider, ListeningScheduledExecutorService executor) {
+        this(identifier, callId, 0, eventProvider, channelProvider, executor);
     }
 
     @Override
@@ -413,7 +417,38 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
             }
         }
     }
+    
+    @Override
+    protected void listen(MgcpEvent event) {
+        if(event instanceof RtpTimeoutEvent) {
+            listen((RtpTimeoutEvent) event);
+        }
+        
+        if (log.isDebugEnabled()) {
+            log.debug("Connection " + getCallIdentifierHex() + " is listening to event " + event.toString());
+        }
+    }
+    
+    private void listen(RtpTimeoutEvent timeoutEvent) {
+        // TODO start RTP timeout
+    }
+    
+    @Override
+    protected boolean isEventSupported(MgcpRequestedEvent event) {
+        switch (event.getPackageName()) {
+            case RtpPackage.PACKAGE_NAME:
+                switch (event.getEventType()) {
+                    case RtpTimeoutEvent.SYMBOL:
+                        return true;
 
+                    default:
+                        return false;
+                }
+            default:
+                return false;
+        }
+    }
+    
     @Override
     public AudioComponent getAudioComponent() {
         return this.audioChannel.getAudioComponent();
@@ -443,7 +478,7 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
             log.warn("Failed to elegantly close connection " + this.cname + " after RTP failure", e);
         } finally {
             // Warn connection listener about failure
-            notify(this, new RtpTimeout(timeoutValue));
+            notify(this, new RtpTimeoutEvent(timeoutValue));
         }
     }
 

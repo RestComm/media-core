@@ -23,14 +23,23 @@ package org.mobicents.media.control.mgcp.connection;
 
 import java.util.Iterator;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.apache.log4j.Logger;
+import org.mobicents.media.control.mgcp.exception.MalformedMgcpEventRequestException;
+import org.mobicents.media.control.mgcp.exception.MgcpEventNotFoundException;
+import org.mobicents.media.control.mgcp.exception.MgcpPackageNotFoundException;
+import org.mobicents.media.control.mgcp.exception.UnsupportedMgcpEventException;
 import org.mobicents.media.control.mgcp.pkg.MgcpEvent;
 import org.mobicents.media.control.mgcp.pkg.MgcpEventObserver;
+import org.mobicents.media.control.mgcp.pkg.MgcpEventProvider;
+import org.mobicents.media.control.mgcp.pkg.MgcpRequestedEvent;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.spi.ConnectionMode;
+
+import com.google.common.collect.Sets;
 
 /**
  * Base implementation for any MGCP connection.
@@ -47,10 +56,12 @@ public abstract class AbstractMgcpConnection implements MgcpConnection {
     protected volatile MgcpConnectionState state;
     protected final Object stateLock;
     
-    // Observers
+    // Events
+    private final MgcpEventProvider eventProvider;
+    protected final ConcurrentMap<String, MgcpEvent> events;
     protected final Set<MgcpEventObserver> observers;
 
-    public AbstractMgcpConnection(int identifier, int callId) {
+    public AbstractMgcpConnection(int identifier, int callId, MgcpEventProvider eventProvider) {
         // Connection State
         this.identifier = identifier;
         this.callIdentifier = callId;
@@ -58,8 +69,10 @@ public abstract class AbstractMgcpConnection implements MgcpConnection {
         this.state = MgcpConnectionState.CLOSED;
         this.stateLock = new Object();
         
-        // Observers
-        this.observers = new CopyOnWriteArraySet<>();
+        // Events
+        this.eventProvider = eventProvider;
+        this.events = new ConcurrentHashMap<>();
+        this.observers = Sets.newConcurrentHashSet();
     }
 
     @Override
@@ -101,7 +114,34 @@ public abstract class AbstractMgcpConnection implements MgcpConnection {
         }
         this.mode = mode;
     }
+    
+    public void listen(MgcpRequestedEvent event) throws UnsupportedMgcpEventException {
+        if(isEventSupported(event)) {
+            // Parse event request
+            MgcpEvent mgcpEvent;
+            try {
+                mgcpEvent = this.eventProvider.provide(event);
+            } catch (MgcpPackageNotFoundException | MgcpEventNotFoundException | MalformedMgcpEventRequestException e) {
+                throw new UnsupportedMgcpEventException("MGCP Event " + event.toString() + " is not supported.", e);
+            }
+            
+            // Listen for requested event
+            MgcpEvent old = this.events.putIfAbsent(event.getQualifiedName(), mgcpEvent);
+            if(old == null) {
+                listen(mgcpEvent);
+            } else {
+                // TODO override event
+            }
+        } else {
+            // Event not supported
+            throw new UnsupportedMgcpEventException("Connection " + getCallIdentifierHex() + " does not support event " + event.getQualifiedName());
+        }
+    }
 
+    protected abstract boolean isEventSupported(MgcpRequestedEvent event);
+    
+    protected abstract void listen(MgcpEvent event) throws UnsupportedMgcpEventException;
+    
     public abstract AudioComponent getAudioComponent();
 
     public abstract OOBComponent getOutOfBandComponent();

@@ -22,6 +22,7 @@
 package org.mobicents.media.server.bootstrap.ioc.provider.mgcp;
 
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
+import org.mobicents.media.control.mgcp.pkg.MgcpEventProvider;
 import org.mobicents.media.core.configuration.MediaServerConfiguration;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.impl.rtp.channels.MediaChannelProvider;
@@ -40,11 +41,13 @@ public class MgcpConnectionProviderProvider implements Provider<MgcpConnectionPr
     private final MediaChannelProvider mediaChannelProvider;
     private final ChannelsManager channelsManager;
     private final ListeningScheduledExecutorService executor;
+    private final MgcpEventProvider eventProvider;
 
     @Inject
-    public MgcpConnectionProviderProvider(MediaServerConfiguration configuration, MediaChannelProvider mediaChannelProvider, ChannelsManager channelsManager, ListeningScheduledExecutorService executor) {
+    public MgcpConnectionProviderProvider(MediaServerConfiguration configuration, MgcpEventProvider eventProvider, MediaChannelProvider mediaChannelProvider, ChannelsManager channelsManager, ListeningScheduledExecutorService executor) {
         super();
         this.configuration = configuration;
+        this.eventProvider = eventProvider;
         this.mediaChannelProvider = mediaChannelProvider;
         this.channelsManager = channelsManager;
         this.executor = executor;
@@ -53,7 +56,7 @@ public class MgcpConnectionProviderProvider implements Provider<MgcpConnectionPr
     @Override
     public MgcpConnectionProvider get() {
         int timeout = this.configuration.getMediaConfiguration().getMaxDuration();
-        return new MgcpConnectionProvider(timeout, this.mediaChannelProvider, this.channelsManager, executor);
+        return new MgcpConnectionProvider(timeout, this.eventProvider, this.mediaChannelProvider, this.channelsManager, executor);
     }
 
 }

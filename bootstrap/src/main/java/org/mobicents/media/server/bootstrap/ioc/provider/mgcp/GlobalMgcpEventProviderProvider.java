@@ -19,26 +19,34 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.pkg;
+package org.mobicents.media.server.bootstrap.ioc.provider.mgcp;
 
-import org.mobicents.media.control.mgcp.exception.MgcpException;
+import org.mobicents.media.control.mgcp.pkg.GlobalMgcpEventProvider;
+import org.mobicents.media.control.mgcp.pkg.MgcpEventProvider;
+import org.mobicents.media.control.mgcp.pkg.r.RtpEventProvider;
+import org.mobicents.media.control.mgcp.pkg.r.RtpPackage;
+
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 /**
- * Exception thrown when an MGCP event is not supported by an Endpoint or Connection.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpEventNotSupported extends MgcpException {
+public class GlobalMgcpEventProviderProvider implements Provider<MgcpEventProvider> {
 
-    private static final long serialVersionUID = 8004561310492916048L;
-
-    public MgcpEventNotSupported(String message) {
-        super(message);
+    private final RtpEventProvider rtpProvider;
+    
+    @Inject
+    public GlobalMgcpEventProviderProvider(RtpEventProvider rtpProvider) {
+        this.rtpProvider = rtpProvider;
     }
 
-    public MgcpEventNotSupported(String message, Throwable e) {
-        super(message, e);
+    @Override
+    public MgcpEventProvider get() {
+        GlobalMgcpEventProvider eventProvider = new GlobalMgcpEventProvider();
+        eventProvider.registerProvider(RtpPackage.PACKAGE_NAME, this.rtpProvider);
+        return eventProvider;
     }
 
 }

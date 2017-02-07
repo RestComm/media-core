@@ -22,8 +22,10 @@
 package org.mobicents.media.control.mgcp.connection;
 
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
+import org.mobicents.media.control.mgcp.exception.UnsupportedMgcpEventException;
 import org.mobicents.media.control.mgcp.message.LocalConnectionOptions;
 import org.mobicents.media.control.mgcp.pkg.MgcpEventSubject;
+import org.mobicents.media.control.mgcp.pkg.MgcpRequestedEvent;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
@@ -61,7 +63,7 @@ public interface MgcpConnection extends MgcpEventSubject {
      * @return The call identifier, in base 10
      */
     int getCallIdentifier();
-    
+
     /**
      * Gets the call identifier.
      * 
@@ -141,6 +143,14 @@ public interface MgcpConnection extends MgcpEventSubject {
      * @throws MgcpConnectionException If connection state is not half-open nor open.
      */
     void close() throws MgcpConnectionException;
+
+    /**
+     * Requests the connection to send notifications about a certain event.
+     * 
+     * @param event The event to liste to.
+     * @throws UnsupportedMgcpEventException If the connection does not support the event.
+     */
+    void listen(MgcpRequestedEvent event) throws UnsupportedMgcpEventException;
 
     /**
      * Gets the in-band audio component of the connection.

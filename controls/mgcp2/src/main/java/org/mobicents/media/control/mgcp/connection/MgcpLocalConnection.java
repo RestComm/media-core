@@ -25,7 +25,11 @@ import java.io.IOException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
+import org.mobicents.media.control.mgcp.exception.UnsupportedMgcpEventException;
 import org.mobicents.media.control.mgcp.message.LocalConnectionOptions;
+import org.mobicents.media.control.mgcp.pkg.MgcpEvent;
+import org.mobicents.media.control.mgcp.pkg.MgcpEventProvider;
+import org.mobicents.media.control.mgcp.pkg.MgcpRequestedEvent;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
@@ -45,8 +49,8 @@ public class MgcpLocalConnection extends AbstractMgcpConnection {
 
     private final LocalDataChannel audioChannel;
 
-    public MgcpLocalConnection(int identifier, int callId, ChannelsManager channelProvider) {
-        super(identifier, callId);
+    public MgcpLocalConnection(int identifier, int callId, MgcpEventProvider eventProvider, ChannelsManager channelProvider) {
+        super(identifier, callId, eventProvider);
         this.audioChannel = channelProvider.getLocalChannel();
     }
 
@@ -151,6 +155,18 @@ public class MgcpLocalConnection extends AbstractMgcpConnection {
             log.warn("Could not update data channel mode of local connection " + this.getHexIdentifier());
         }
         super.setMode(mode);
+    }
+    
+    @Override
+    protected boolean isEventSupported(MgcpRequestedEvent event) {
+        return false;
+    }
+    
+    @Override
+    protected void listen(MgcpEvent event) throws UnsupportedMgcpEventException {
+        if (log.isDebugEnabled()) {
+            log.debug("Connection " + getCallIdentifierHex() + " is listening to event " + event.toString());
+        }
     }
 
     @Override

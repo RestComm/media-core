@@ -28,8 +28,10 @@ import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.endpoint.provider.MediaGroupProvider;
 import org.mobicents.media.control.mgcp.network.MgcpChannel;
 import org.mobicents.media.control.mgcp.network.MgcpPacketHandler;
+import org.mobicents.media.control.mgcp.pkg.MgcpEventProvider;
 import org.mobicents.media.control.mgcp.pkg.MgcpPackageManager;
 import org.mobicents.media.control.mgcp.pkg.MgcpSignalProvider;
+import org.mobicents.media.control.mgcp.pkg.r.RtpEventProvider;
 import org.mobicents.media.control.mgcp.transaction.MgcpTransactionManager;
 import org.mobicents.media.control.mgcp.transaction.MgcpTransactionManagerProvider;
 import org.mobicents.media.control.mgcp.transaction.MgcpTransactionNumberspace;
@@ -37,6 +39,7 @@ import org.mobicents.media.server.bootstrap.ioc.provider.ListeningScheduledExecu
 import org.mobicents.media.server.bootstrap.ioc.provider.MgcpPacketHandlerProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.media.MgcpCallManagerProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.DynamicMgcpPackageManagerProvider;
+import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.GlobalMgcpEventProviderProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.GlobalMgcpTransactionManagerProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MediaGroupProviderProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.Mgcp2ControllerProvider;
@@ -48,6 +51,7 @@ import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MgcpEndpointInstal
 import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MgcpEndpointManagerProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MgcpSignalProviderProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MgcpTransactionNumberspaceProvider;
+import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.RtpEventProviderProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.SubMgcpTransactionManagerProviderProvider;
 import org.mobicents.media.server.spi.ServerManager;
 
@@ -76,6 +80,8 @@ public class MgcpModule extends AbstractModule {
         bind(ServerManager.class).toProvider(Mgcp2ControllerProvider.class).in(Singleton.class);
         bind(MgcpPackageManager.class).toProvider(DynamicMgcpPackageManagerProvider.class).in(Singleton.class);
         bind(MgcpCallManager.class).toProvider(MgcpCallManagerProvider.class).in(Singleton.class);
+        bind(RtpEventProvider.class).toProvider(RtpEventProviderProvider.class).in(Singleton.class);
+        bind(MgcpEventProvider.class).toProvider(GlobalMgcpEventProviderProvider.class).in(Singleton.class);
         bind(MgcpSignalProvider.class).toProvider(MgcpSignalProviderProvider.class).in(Singleton.class);
         bind(MediaGroupProvider.class).toProvider(MediaGroupProviderProvider.class).in(Singleton.class);
         bind(ListeningScheduledExecutorService.class).toProvider(ListeningScheduledExecutorServiceProvider.class).in(Singleton.class);
