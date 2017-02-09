@@ -33,19 +33,25 @@ public class GenericMgcpEvent implements MgcpEvent {
     protected final String pkg;
     protected final String symbol;
     protected final String signal;
+    protected final int connectionId;
     protected final Map<String, String> parameters;
     protected final StringBuilder builder;
-
-    public GenericMgcpEvent(String pkg, String symbol, String signal) {
+    
+    private GenericMgcpEvent(String pkg, String symbol, String signal, int connectionId) {
         this.pkg = pkg;
         this.symbol = symbol;
         this.signal = signal;
+        this.connectionId = connectionId;
         this.parameters = new HashMap<>(5);
         this.builder = new StringBuilder();
     }
 
-    public GenericMgcpEvent(String pkg, String symbol) {
-        this(pkg, symbol, "");
+    public GenericMgcpEvent(String pkg, String symbol, int connectionId) {
+        this(pkg, symbol, "", connectionId);
+    }
+
+    public GenericMgcpEvent(String pkg, String symbol, String signal) {
+        this(pkg, symbol, signal, 0);
     }
 
     @Override
@@ -56,6 +62,11 @@ public class GenericMgcpEvent implements MgcpEvent {
     @Override
     public String getSymbol() {
         return this.symbol;
+    }
+    
+    @Override
+    public int getConnectionId() {
+        return this.connectionId;
     }
 
     @Override
@@ -75,8 +86,11 @@ public class GenericMgcpEvent implements MgcpEvent {
     @Override
     public String toString() {
         this.builder.setLength(0);
-        this.builder.append(this.pkg).append("/").append(this.symbol).append("(");
-        this.builder.append(this.pkg).append("/").append(this.signal);
+        this.builder.append(this.pkg).append("/").append(this.symbol);
+        if(this.connectionId > 0) {
+            this.builder.append("@").append(this.connectionId);
+        }
+        this.builder.append("(").append(this.pkg).append("/").append(this.signal);
 
         if (!this.parameters.isEmpty()) {
             Iterator<String> iterator = this.parameters.keySet().iterator();

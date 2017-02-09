@@ -34,12 +34,12 @@ public class RtpTimeoutEvent extends GenericMgcpEvent {
     public static final String TIMEOUT_KEY = "to";
     public static final String START_TIME_KEY = "st";
 
-    public RtpTimeoutEvent(int timeout) {
-        this(timeout, RtpTimeoutStartTime.IMMEDIATE);
+    public RtpTimeoutEvent(int connectionId, int timeout) {
+        this(connectionId, timeout, RtpTimeoutStartTime.IMMEDIATE);
     }
 
-    public RtpTimeoutEvent(int timeout, RtpTimeoutStartTime startTime) {
-        super(RtpPackage.PACKAGE_NAME, SYMBOL);
+    public RtpTimeoutEvent(int connectionId, int timeout, RtpTimeoutStartTime startTime) {
+        super(RtpPackage.PACKAGE_NAME, SYMBOL, connectionId);
 
         this.setParameter(TIMEOUT_KEY, String.valueOf(timeout));
         this.setParameter(START_TIME_KEY, startTime.symbol());

@@ -23,8 +23,6 @@ package org.mobicents.media.control.mgcp.connection;
 
 import java.util.Iterator;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.exception.MalformedMgcpEventRequestException;
@@ -58,7 +56,6 @@ public abstract class AbstractMgcpConnection implements MgcpConnection {
     
     // Events
     private final MgcpEventProvider eventProvider;
-    protected final ConcurrentMap<String, MgcpEvent> events;
     protected final Set<MgcpEventObserver> observers;
 
     public AbstractMgcpConnection(int identifier, int callId, MgcpEventProvider eventProvider) {
@@ -71,7 +68,6 @@ public abstract class AbstractMgcpConnection implements MgcpConnection {
         
         // Events
         this.eventProvider = eventProvider;
-        this.events = new ConcurrentHashMap<>();
         this.observers = Sets.newConcurrentHashSet();
     }
 
@@ -116,21 +112,15 @@ public abstract class AbstractMgcpConnection implements MgcpConnection {
     }
     
     public void listen(MgcpRequestedEvent event) throws UnsupportedMgcpEventException {
-        if(isEventSupported(event)) {
-            // Parse event request
-            MgcpEvent mgcpEvent;
+        if (isEventSupported(event)) {
             try {
-                mgcpEvent = this.eventProvider.provide(event);
+                // Parse event request
+                MgcpEvent mgcpEvent = this.eventProvider.provide(event);
+
+                // Listen for event
+                listen(mgcpEvent);
             } catch (MgcpPackageNotFoundException | MgcpEventNotFoundException | MalformedMgcpEventRequestException e) {
                 throw new UnsupportedMgcpEventException("MGCP Event " + event.toString() + " is not supported.", e);
-            }
-            
-            // Listen for requested event
-            MgcpEvent old = this.events.putIfAbsent(event.getQualifiedName(), mgcpEvent);
-            if(old == null) {
-                listen(mgcpEvent);
-            } else {
-                // TODO override event
             }
         } else {
             // Event not supported

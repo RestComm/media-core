@@ -29,22 +29,30 @@ package org.mobicents.media.control.mgcp.pkg;
  */
 public class MgcpRequestedEvent {
 
+    private static final String[] EMPTY_PARAMS = new String[0];
+
+    private final int requestId;
     private final String packageName;
     private final String eventType;
     private final MgcpActionType action;
     private final int connectionId;
     private final String[] parameters;
 
-    public MgcpRequestedEvent(String packageName, String eventType, MgcpActionType action, int connectionId, String...parameters) {
+    public MgcpRequestedEvent(int requestId, String packageName, String eventType, MgcpActionType action, int connectionId, String... parameters) {
+        this.requestId = requestId;
         this.packageName = packageName;
         this.eventType = eventType;
         this.action = action;
         this.connectionId = connectionId;
-        this.parameters = (parameters == null) ? new String[0] : parameters;
+        this.parameters = (parameters == null) ? EMPTY_PARAMS : parameters;
     }
 
-    public MgcpRequestedEvent(String packageName, String eventType, MgcpActionType action) {
-        this(packageName, eventType, action, 0, new String[0]);
+    public MgcpRequestedEvent(int requestId, String packageName, String eventType, MgcpActionType action) {
+        this(requestId, packageName, eventType, action, 0, EMPTY_PARAMS);
+    }
+
+    public int getRequestId() {
+        return requestId;
     }
 
     public String getPackageName() {
@@ -54,7 +62,7 @@ public class MgcpRequestedEvent {
     public String getEventType() {
         return eventType;
     }
-    
+
     public String getQualifiedName() {
         return this.packageName + "/" + this.eventType;
     }
@@ -62,11 +70,11 @@ public class MgcpRequestedEvent {
     public MgcpActionType getAction() {
         return action;
     }
-    
+
     public int getConnectionId() {
         return connectionId;
     }
-    
+
     public String[] getParameters() {
         return parameters;
     }
@@ -74,15 +82,15 @@ public class MgcpRequestedEvent {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder(this.packageName).append("/").append(this.eventType);
-        if(this.connectionId > 0) {
+        if (this.connectionId > 0) {
             builder.append("@").append(Integer.toHexString(this.connectionId));
         }
         builder.append("(").append(this.action).append(")");
-        if(this.parameters.length > 0) {
+        if (this.parameters.length > 0) {
             builder.append("(");
             for (int i = 0; i < parameters.length; i++) {
                 builder.append(this.parameters[i]);
-                if(i < parameters.length - 1) {
+                if (i < parameters.length - 1) {
                     builder.append(",");
                 }
             }

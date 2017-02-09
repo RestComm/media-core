@@ -42,6 +42,7 @@ public class MgcpRequestedEventsParserTest {
     @Test
     public void testParseEndpointEventWithoutParameters() throws Exception {
         // given
+        final int requestId = 16;
         final String requestedEvents = "AU/oc(N)";
         final MgcpEventType eventType = mock(MgcpEventType.class);
         final MgcpPackage mgcpPackage = mock(MgcpPackage.class);
@@ -52,13 +53,14 @@ public class MgcpRequestedEventsParserTest {
         when(mgcpPackage.getEventDetails("oc")).thenReturn(eventType);
         when(eventType.parameterized()).thenReturn(false);
 
-        MgcpRequestedEvent[] events = MgcpRequestedEventsParser.parse(requestedEvents, packageManager);
+        MgcpRequestedEvent[] events = MgcpRequestedEventsParser.parse(requestId, requestedEvents, packageManager);
 
         // then
         assertEquals(1, events.length);
 
         final MgcpRequestedEvent oc = events[0];
         assertNotNull(oc);
+        assertEquals(requestId, oc.getRequestId());
         assertEquals("AU", oc.getPackageName());
         assertEquals("oc", oc.getEventType());
         assertEquals(0, oc.getConnectionId());
@@ -69,6 +71,7 @@ public class MgcpRequestedEventsParserTest {
     @Test
     public void testParseEndpointEventWithParameters() throws Exception {
         // given
+        final int requestId = 16;
         final String requestedEvents = "AU/oc(N)(param1=value1,param2=value2)";
         final MgcpEventType eventType = mock(MgcpEventType.class);
         final MgcpPackage mgcpPackage = mock(MgcpPackage.class);
@@ -79,13 +82,14 @@ public class MgcpRequestedEventsParserTest {
         when(mgcpPackage.getEventDetails("oc")).thenReturn(eventType);
         when(eventType.parameterized()).thenReturn(true);
 
-        MgcpRequestedEvent[] events = MgcpRequestedEventsParser.parse(requestedEvents, packageManager);
+        MgcpRequestedEvent[] events = MgcpRequestedEventsParser.parse(requestId, requestedEvents, packageManager);
 
         // then
         assertEquals(1, events.length);
 
         final MgcpRequestedEvent event = events[0];
         assertNotNull(event);
+        assertEquals(requestId, event.getRequestId());
         assertEquals("AU", event.getPackageName());
         assertEquals("oc", event.getEventType());
         assertEquals(0, event.getConnectionId());
@@ -96,6 +100,7 @@ public class MgcpRequestedEventsParserTest {
     @Test
     public void testParseConnectionEventWithoutParameters() throws Exception {
         // given
+        final int requestId = 16;
         final String requestedEvents = "R/rto@364823(N)";
         final MgcpEventType eventType = mock(MgcpEventType.class);
         final MgcpPackage mgcpPackage = mock(MgcpPackage.class);
@@ -106,13 +111,14 @@ public class MgcpRequestedEventsParserTest {
         when(mgcpPackage.getEventDetails("rto")).thenReturn(eventType);
         when(eventType.parameterized()).thenReturn(false);
 
-        MgcpRequestedEvent[] events = MgcpRequestedEventsParser.parse(requestedEvents, packageManager);
+        MgcpRequestedEvent[] events = MgcpRequestedEventsParser.parse(requestId, requestedEvents, packageManager);
 
         // then
         assertEquals(1, events.length);
 
         final MgcpRequestedEvent event = events[0];
         assertNotNull(event);
+        assertEquals(requestId, event.getRequestId());
         assertEquals("R", event.getPackageName());
         assertEquals("rto", event.getEventType());
         assertEquals(Integer.parseInt("364823", 16), event.getConnectionId());
@@ -122,6 +128,7 @@ public class MgcpRequestedEventsParserTest {
     @Test
     public void testParseMulitpleEvents() throws Exception {
         // given
+        final int requestId = 16;
         final String requestedEvents = "AU/oc(N),R/rto@AB23F(N)(100,st=im),AU/of(N)";
         final MgcpEventType audioEventType = mock(MgcpEventType.class);
         final MgcpPackage audioPackage = mock(MgcpPackage.class);
@@ -138,13 +145,14 @@ public class MgcpRequestedEventsParserTest {
         when(rtpPackage.getEventDetails("rto")).thenReturn(rtpEventType);
         when(rtpEventType.parameterized()).thenReturn(true);
 
-        MgcpRequestedEvent[] events = MgcpRequestedEventsParser.parse(requestedEvents, packageManager);
+        MgcpRequestedEvent[] events = MgcpRequestedEventsParser.parse(requestId, requestedEvents, packageManager);
 
         // then
         assertEquals(3, events.length);
 
         final MgcpRequestedEvent oc = events[0];
         assertNotNull(oc);
+        assertEquals(requestId, oc.getRequestId());
         assertEquals("AU", oc.getPackageName());
         assertEquals("oc", oc.getEventType());
         assertEquals(0, oc.getConnectionId());
@@ -153,6 +161,7 @@ public class MgcpRequestedEventsParserTest {
 
         final MgcpRequestedEvent rto = events[1];
         assertNotNull(rto);
+        assertEquals(requestId, rto.getRequestId());
         assertEquals("R", rto.getPackageName());
         assertEquals("rto", rto.getEventType());
         assertEquals(Integer.parseInt("AB23F", 16), rto.getConnectionId());
@@ -161,6 +170,7 @@ public class MgcpRequestedEventsParserTest {
 
         final MgcpRequestedEvent of = events[2];
         assertNotNull(of);
+        assertEquals(requestId, of.getRequestId());
         assertEquals("AU", of.getPackageName());
         assertEquals("of", of.getEventType());
         assertEquals(0, of.getConnectionId());
@@ -171,17 +181,19 @@ public class MgcpRequestedEventsParserTest {
     @Test(expected = UnrecognizedMgcpPackageException.class)
     public void testParseUnrecognizedPackage() throws Exception {
         // given
+        final int requestId = 16;
         final String requestedEvents = "XYZ/oc(N),AU/of(N)";
         final MgcpPackageManager packageManager = mock(MgcpPackageManager.class);
 
         // when
         when(packageManager.getPackage("XYZ")).thenReturn(null);
-        MgcpRequestedEventsParser.parse(requestedEvents, packageManager);
+        MgcpRequestedEventsParser.parse(requestId, requestedEvents, packageManager);
     }
 
     @Test(expected = UnrecognizedMgcpEventException.class)
     public void testParseUnrecognizedEvent() throws Exception {
         // given
+        final int requestId = 16;
         final String requestedEvents = "AU/xyz(N),AU/of(N)";
         final MgcpPackage mgcpPackage = mock(MgcpPackage.class);
         final MgcpPackageManager packageManager = mock(MgcpPackageManager.class);
@@ -190,12 +202,13 @@ public class MgcpRequestedEventsParserTest {
         when(packageManager.getPackage("AU")).thenReturn(mgcpPackage);
         when(mgcpPackage.getEventDetails("xyz")).thenReturn(null);
 
-        MgcpRequestedEventsParser.parse(requestedEvents, packageManager);
+        MgcpRequestedEventsParser.parse(requestId, requestedEvents, packageManager);
     }
 
     @Test(expected = UnrecognizedMgcpActionException.class)
     public void testParseUnrecognizedAction() throws Exception {
         // given
+        final int requestId = 16;
         final String requestedEvents = "AU/oc(XYZ),AU/of(N)";
         final MgcpPackage mgcpPackage = mock(MgcpPackage.class);
         final MgcpEventType eventType = mock(MgcpEventType.class);
@@ -206,12 +219,13 @@ public class MgcpRequestedEventsParserTest {
         when(mgcpPackage.getEventDetails(any(String.class))).thenReturn(eventType);
         when(eventType.parameterized()).thenReturn(false);
 
-        MgcpRequestedEventsParser.parse(requestedEvents, packageManager);
+        MgcpRequestedEventsParser.parse(requestId, requestedEvents, packageManager);
     }
 
     @Test(expected = MgcpParseException.class)
     public void testParseMalformedRequest() throws Exception {
         // given
+        final int requestId = 16;
         final String requestedEvents = "AU/oc(XYZ";
         final MgcpPackage mgcpPackage = mock(MgcpPackage.class);
         final MgcpEventType eventType = mock(MgcpEventType.class);
@@ -222,7 +236,7 @@ public class MgcpRequestedEventsParserTest {
         when(mgcpPackage.getEventDetails(any(String.class))).thenReturn(eventType);
         when(eventType.parameterized()).thenReturn(false);
 
-        MgcpRequestedEventsParser.parse(requestedEvents, packageManager);
+        MgcpRequestedEventsParser.parse(requestId, requestedEvents, packageManager);
     }
 
 }

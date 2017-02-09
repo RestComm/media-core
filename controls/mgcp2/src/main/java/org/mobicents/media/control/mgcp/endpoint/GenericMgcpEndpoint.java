@@ -37,9 +37,11 @@ import org.mobicents.media.control.mgcp.command.NotificationRequest;
 import org.mobicents.media.control.mgcp.command.param.NotifiedEntity;
 import org.mobicents.media.control.mgcp.connection.MgcpConnection;
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
+import org.mobicents.media.control.mgcp.connection.MgcpConnectionState;
 import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFoundException;
+import org.mobicents.media.control.mgcp.exception.UnsupportedMgcpEventException;
 import org.mobicents.media.control.mgcp.message.MessageDirection;
 import org.mobicents.media.control.mgcp.message.MgcpMessage;
 import org.mobicents.media.control.mgcp.message.MgcpMessageObserver;
@@ -194,10 +196,13 @@ public class GenericMgcpEndpoint implements MgcpEndpoint {
             deactivate();
         }
         
-        // Unregister from connection and close it
+        // Unregister from connection and close it if necessary
         try {
             connection.forget(this);
-            connection.close();
+            
+            if(!MgcpConnectionState.CLOSED.equals(connection.getState())) {
+                connection.close();
+            }
         } catch (MgcpConnectionException e) {
             log.warn(this.endpointId + " could not close connection " + connection.getHexIdentifier() + " in elegant manner.", e);
         }
@@ -246,10 +251,12 @@ public class GenericMgcpEndpoint implements MgcpEndpoint {
         for (Integer key : keys) {
             MgcpConnection connection = this.connections.remove(key);
             if(connection != null) {
-                // Unregister from connection and close it
+                // Unregister from connection and close it if needed
                 try {
                     connection.forget(this);
-                    connection.close();
+                    if(!MgcpConnectionState.CLOSED.equals(connection.getState())) {
+                        connection.close();
+                    }
                 } catch (MgcpConnectionException e) {
                     log.warn(this.endpointId + " could not close connection " + connection.getHexIdentifier() + " in elegant manner.", e);
                 }
@@ -333,10 +340,24 @@ public class GenericMgcpEndpoint implements MgcpEndpoint {
         
         for (MgcpRequestedEvent requestedEvent : request.getRequestedEvents()) {
             if(requestedEvent.getConnectionId() > 0) {
-                // Process connection event
-                this.requestedConnectionEvents.put(requestedEvent.getConnectionId(), requestedEvent);
-                if(log.isDebugEnabled()) {
-                    log.debug("Endpoint " + this.endpointId + " requested event " + requestedEvent.getQualifiedName() + " to connection " + requestedEvent.getConnectionId());
+                int connectionId = requestedEvent.getConnectionId();
+                MgcpConnection connection = this.connections.get(connectionId);
+                
+                if(connection == null) {
+                    log.warn("Requested event " + requestedEvent.toString() + " was dropped because connection " + Integer.toHexString(connectionId) + "was not found.");
+                } else {
+                    try {
+                        // Process connection event
+                        connection.listen(requestedEvent);
+
+                        // Register event notification
+                        this.requestedConnectionEvents.put(connectionId, requestedEvent);
+                        if (log.isDebugEnabled()) {
+                            log.debug("Endpoint " + this.endpointId + " requested event " + requestedEvent.getQualifiedName() + " to connection " + requestedEvent.getConnectionId());
+                        }
+                    } catch (UnsupportedMgcpEventException e) {
+                        log.warn("Requested event " + requestedEvent.toString() + " was dropped because it was not supported by connection " + connection.getHexIdentifier(), e);
+                    }
                 }
             } else {
                 // Process endpoint event
@@ -540,17 +561,28 @@ public class GenericMgcpEndpoint implements MgcpEndpoint {
     
     private MgcpRequest onConnectionEvent(MgcpConnection connection, MgcpEvent event) {
         if(log.isDebugEnabled()) {
-            log.debug(this.endpointId + " received MGCP event " + event.toString() + " from connection " + connection.getCallIdentifier());
+            log.debug(this.endpointId + " received MGCP event " + event.toString() + " from connection " + connection.getHexIdentifier());
         }
-//     // Build Notification
-//        MgcpRequest notify = new MgcpRequest();
-//        notify.setRequestType(MgcpRequestType.NTFY);
-//        notify.setTransactionId(0);
-//        notify.setEndpointId(this.endpointId.toString());
-//
-//        notify.addParameter(MgcpParameterType.OBSERVED_EVENT, event.toString());
-//        notify.addParameter(MgcpParameterType.REQUEST_ID, Integer.toString(signal.getRequestId(), 16));
-//        return notify;
+        
+        // Verify if endpoint is listening for such event
+        final String composedName = event.getPackage() + "/" + event.getSymbol();
+        final int connectionId = connection.getIdentifier();
+        
+        MgcpRequestedEvent requestedEvent = isListening(connectionId, composedName);
+        if(requestedEvent != null) {
+            boolean removed = this.requestedConnectionEvents.remove(connectionId, requestedEvent);
+            if(removed) {
+              // Build Notification
+              MgcpRequest notify = new MgcpRequest();
+              notify.setRequestType(MgcpRequestType.NTFY);
+              notify.setTransactionId(0);
+              notify.setEndpointId(this.endpointId.toString());
+      
+              notify.addParameter(MgcpParameterType.OBSERVED_EVENT, event.toString());
+              notify.addParameter(MgcpParameterType.REQUEST_ID, String.valueOf(requestedEvent.getRequestId()));
+              return notify;
+            }
+        }
         return null;
     }
 
@@ -586,6 +618,16 @@ public class GenericMgcpEndpoint implements MgcpEndpoint {
             }
         }
         return false;
+    }
+
+    private MgcpRequestedEvent isListening(int connectionId, String event) {
+        Collection<MgcpRequestedEvent> events = this.requestedConnectionEvents.get(connectionId);
+        for (MgcpRequestedEvent evt : events) {
+            if (evt.getQualifiedName().equalsIgnoreCase(event)) {
+                return evt;
+            }
+        }
+        return null;
     }
 
 }

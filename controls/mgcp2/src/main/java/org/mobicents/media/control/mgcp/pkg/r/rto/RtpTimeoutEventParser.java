@@ -37,7 +37,7 @@ public class RtpTimeoutEventParser {
     private static final String START_TIME_REGEX = RtpTimeoutEvent.START_TIME_KEY + "=\\w{2}";
     private static final Pattern START_TIME_PATTERN = Pattern.compile(START_TIME_REGEX);
 
-    public static RtpTimeoutEvent parse(String... parameters) throws MgcpParseException {
+    public static RtpTimeoutEvent parse(int connectionId, String... parameters) throws MgcpParseException {
         int timeout = 0;
         RtpTimeoutStartTime when = RtpTimeoutStartTime.IMMEDIATE;
         try {
@@ -59,7 +59,7 @@ public class RtpTimeoutEventParser {
         } catch (Exception e) {
             throw new MgcpParseException("Could not parse parameters RTP Timeout event.", e);
         }
-        return new RtpTimeoutEvent(timeout, when);
+        return new RtpTimeoutEvent(connectionId, timeout, when);
     }
 
 }

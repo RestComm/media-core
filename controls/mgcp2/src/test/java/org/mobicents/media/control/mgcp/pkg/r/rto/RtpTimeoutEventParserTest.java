@@ -35,14 +35,16 @@ public class RtpTimeoutEventParserTest {
     @Test
     public void testParseTimeoutandStartTimeParameters() throws MgcpParseException {
         // given
+        final int connectionId = 5;
         final String timeout = "10";
         final RtpTimeoutStartTime startTime = RtpTimeoutStartTime.WAIT_RTCP;
         final String startTimeParam = "st=" + startTime.symbol();
 
         // when
-        final RtpTimeoutEvent rtpTimeout = RtpTimeoutEventParser.parse(timeout, startTimeParam);
+        final RtpTimeoutEvent rtpTimeout = RtpTimeoutEventParser.parse(connectionId, timeout, startTimeParam);
 
         // then
+        assertEquals(connectionId, rtpTimeout.getConnectionId());
         assertEquals(Integer.parseInt(timeout), rtpTimeout.getTimeout());
         assertEquals(RtpTimeoutStartTime.WAIT_RTCP, rtpTimeout.getWhen());
     }
@@ -50,10 +52,11 @@ public class RtpTimeoutEventParserTest {
     @Test
     public void testDefaultStartTime() throws MgcpParseException {
         // given
+        final int connectionId = 5;
         final String timeout = "10";
 
         // when
-        final RtpTimeoutEvent rtpTimeout = RtpTimeoutEventParser.parse(timeout);
+        final RtpTimeoutEvent rtpTimeout = RtpTimeoutEventParser.parse(connectionId, timeout);
 
         // then
         assertEquals(Integer.parseInt(timeout), rtpTimeout.getTimeout());
@@ -63,29 +66,32 @@ public class RtpTimeoutEventParserTest {
     @Test(expected = MgcpParseException.class)
     public void testParseInvalidTimeoutParameter() throws MgcpParseException {
         // given
+        final int connectionId = 5;
         final String timeout = "-1";
 
         // when
-        RtpTimeoutEventParser.parse(timeout);
+        RtpTimeoutEventParser.parse(connectionId, timeout);
     }
 
     @Test(expected = MgcpParseException.class)
     public void testParseMissingTimeoutParameter() throws MgcpParseException {
         // given
+        final int connectionId = 5;
         final RtpTimeoutStartTime startTime = RtpTimeoutStartTime.WAIT_RTCP;
         final String startTimeParam = "st=" + startTime.symbol();
 
         // when
-        RtpTimeoutEventParser.parse(startTimeParam);
+        RtpTimeoutEventParser.parse(connectionId, startTimeParam);
     }
 
     @Test(expected = MgcpParseException.class)
     public void testParseUnknownStartTimeParameter() throws MgcpParseException {
         // given
+        final int connectionId = 5;
         final String startTime = "st=xxx";
 
         // when
-        RtpTimeoutEventParser.parse(startTime);
+        RtpTimeoutEventParser.parse(connectionId, startTime);
     }
 
 }

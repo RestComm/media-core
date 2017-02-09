@@ -41,7 +41,7 @@ public class MgcpRequestedEventsParser {
     private static final String PARAMETER_START_SEPARATOR = ACTION_START_SEPARATOR;
     private static final String PARAMETER_END_SEPARATOR = ACTION_END_SEPARATOR;
 
-    public static MgcpRequestedEvent[] parse(String requestedEvents, MgcpPackageManager packageManager)
+    public static MgcpRequestedEvent[] parse(int requestId, String requestedEvents, MgcpPackageManager packageManager)
             throws UnrecognizedMgcpPackageException, UnrecognizedMgcpEventException, UnrecognizedMgcpActionException, MgcpParseException {
         // Split requested events
         String[] tokens = requestedEvents.split("(?<=\\)),");
@@ -49,7 +49,7 @@ public class MgcpRequestedEventsParser {
 
         // Parse requested events
         for (int i = 0; i < events.length; i++) {
-            events[i] = parseSingle(tokens[i], packageManager);
+            events[i] = parseSingle(requestId, tokens[i], packageManager);
         }
         return events;
     }
@@ -60,7 +60,7 @@ public class MgcpRequestedEventsParser {
      * 
      *<package>/<event>[@<connectionId>](<action>)[(<params>)],
      */
-    private static MgcpRequestedEvent parseSingle(String requestedEvent, MgcpPackageManager packageManager)
+    private static MgcpRequestedEvent parseSingle(int requestId, String requestedEvent, MgcpPackageManager packageManager)
             throws UnrecognizedMgcpPackageException, UnrecognizedMgcpEventException, UnrecognizedMgcpActionException, MgcpParseException {
         // Get indexes of separators
         int indexOfEvent = requestedEvent.indexOf(EVENT_SEPARATOR);
@@ -137,7 +137,7 @@ public class MgcpRequestedEventsParser {
             // Build object
             int connectionId = connectionIdHex.isEmpty() ? 0 : Integer.parseInt(connectionIdHex, 16);
             String[] eventParametersTokens = eventParameters.isEmpty() ? new String[0] : eventParameters.split(",");
-            return new MgcpRequestedEvent(packageName, eventName, actionType, connectionId, eventParametersTokens);
+            return new MgcpRequestedEvent(requestId, packageName, eventName, actionType, connectionId, eventParametersTokens);
         } catch (RuntimeException e) {
             throw new MgcpParseException("Could not parse requested event " + requestedEvent, e);
         }

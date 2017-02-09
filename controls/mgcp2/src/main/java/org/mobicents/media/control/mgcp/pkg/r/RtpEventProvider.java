@@ -45,7 +45,7 @@ public class RtpEventProvider extends AbstractSubMgcpEventProvider {
             switch (eventType) {
                 case RTP_TIMEOUT:
                     try {
-                        return RtpTimeoutEventParser.parse(requestedEvent.getParameters());
+                        return RtpTimeoutEventParser.parse(requestedEvent.getConnectionId(), requestedEvent.getParameters());
                     } catch (MgcpParseException e) {
                         throw new MalformedMgcpEventRequestException("Could not parse " + requestedEvent.toString() + "event request.", e);
                     }

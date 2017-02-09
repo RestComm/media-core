@@ -386,7 +386,7 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
                 case OPEN:
                     if (this.timerFuture != null) {
                         // Cancel Timer
-                        this.timerFuture.cancel(true);
+                        this.timerFuture.cancel(false);
                         if (log.isDebugEnabled()) {
                             log.debug("Connection " + getHexIdentifier() + " canceled timer.");
                         }
@@ -412,8 +412,7 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
 
                     break;
                 default:
-                    throw new MgcpConnectionException(
-                            "Cannot close connection " + this.getHexIdentifier() + "because state is " + this.state.name());
+                    throw new MgcpConnectionException("Cannot close connection " + this.getHexIdentifier() + "because state is " + this.state.name());
             }
         }
     }
@@ -425,12 +424,12 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
         }
         
         if (log.isDebugEnabled()) {
-            log.debug("Connection " + getCallIdentifierHex() + " is listening to event " + event.toString());
+            log.debug("Connection " + getHexIdentifier() + " is listening to event " + event.toString());
         }
     }
     
     private void listen(RtpTimeoutEvent timeoutEvent) {
-        // TODO start RTP timeout
+        // TODO start inter-rtp timer or override existing one.
     }
     
     @Override
@@ -478,8 +477,24 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
             log.warn("Failed to elegantly close connection " + this.cname + " after RTP failure", e);
         } finally {
             // Warn connection listener about failure
-            notify(this, new RtpTimeoutEvent(timeoutValue));
+            notify(this, new RtpTimeoutEvent(getIdentifier(), timeoutValue));
         }
+    }
+    
+    protected void timeout(int elapsedTime) {
+        if (log.isInfoEnabled()) {
+            log.info("Connection " + getHexIdentifier() + " timed out after " + elapsedTime + " seconds");
+        }
+
+        // Close connection
+        try {
+            close();
+        } catch (MgcpConnectionException e) {
+            log.warn("Could not close connection " + this.getHexIdentifier() + " in elegant manner after timeout.");
+        }
+
+        // Raise RTP Timeout event
+        notify(this, new RtpTimeoutEvent(getIdentifier(), elapsedTime));
     }
 
     @Override
@@ -508,13 +523,20 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
         return log;
     }
 
+    /**
+     * Raises an RTP Timeout event when connection reaches the end of it's life
+     * 
+     * @author Henrique Rosa (henrique.rosa@telestax.com)
+     *
+     */
     final class MgcpRemoteConnectionTimer implements Runnable {
 
         @Override
         public void run() {
-            MgcpRemoteConnection.this.onRtpFailure("Maximum call duration reached.");
+            int elapsedTime = MgcpRemoteConnection.this.timeout;
+            MgcpRemoteConnection.this.timeout(elapsedTime);
         }
-        
+
     }
 
 }
