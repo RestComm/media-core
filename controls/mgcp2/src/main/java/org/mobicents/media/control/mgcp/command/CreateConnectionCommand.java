@@ -31,12 +31,9 @@ import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFoundException;
 import org.mobicents.media.control.mgcp.exception.MgcpException;
 import org.mobicents.media.control.mgcp.exception.UnrecognizedMgcpNamespaceException;
-import org.mobicents.media.control.mgcp.exception.UnsupportedMgcpEventException;
 import org.mobicents.media.control.mgcp.message.LocalConnectionOptions;
 import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
-import org.mobicents.media.control.mgcp.pkg.MgcpActionType;
-import org.mobicents.media.control.mgcp.pkg.MgcpRequestedEvent;
 import org.mobicents.media.control.mgcp.util.collections.Parameters;
 import org.mobicents.media.server.spi.ConnectionMode;
 
@@ -241,12 +238,6 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
             
             // Update context with identifiers of newly created connection
             context.setConnectionId(connection.getIdentifier());
-            
-            // XXX Register R/rto
-                MgcpRequestedEvent rtpTimeout = new MgcpRequestedEvent(999999, "R", "rto", MgcpActionType.NOTIFY, connection.getIdentifier(), "10");
-                MgcpRequestedEvent[] events = new MgcpRequestedEvent[] {rtpTimeout};
-                NotificationRequest rqnt = new NotificationRequest(9999, "123", null, events);
-                endpoint1.requestNotification(rqnt);
         } else {
             // Create two local connections between both endpoints
             MgcpConnection connection1 = createLocalConnection(context.getCallId(), endpoint1);

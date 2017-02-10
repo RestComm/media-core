@@ -65,6 +65,7 @@ public class RtpTimeoutEvent extends GenericMgcpEvent {
     public String toString() {
         this.builder.setLength(0);
         this.builder.append(this.pkg).append("/").append(this.symbol);
+        this.builder.append("@").append(Integer.toHexString(this.connectionId));
         this.builder.append("(").append(getTimeout()).append(")");
         return builder.toString();
     }
