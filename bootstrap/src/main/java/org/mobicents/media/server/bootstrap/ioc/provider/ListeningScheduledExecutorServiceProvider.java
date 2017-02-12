@@ -22,7 +22,7 @@
 package org.mobicents.media.server.bootstrap.ioc.provider;
 
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
@@ -51,7 +51,8 @@ public class ListeningScheduledExecutorServiceProvider implements Provider<Liste
         // Executors.newScheduledThreadPool(POOL_SIZE, threadFactory);
         // return MoreExecutors.listeningDecorator(executor);
 
-        ScheduledExecutorService executor = Executors.newScheduledThreadPool(POOL_SIZE, threadFactory);
+        ScheduledThreadPoolExecutor executor = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(POOL_SIZE, threadFactory);
+        executor.setRemoveOnCancelPolicy(true);
         return MoreExecutors.listeningDecorator(executor);
     }
 
