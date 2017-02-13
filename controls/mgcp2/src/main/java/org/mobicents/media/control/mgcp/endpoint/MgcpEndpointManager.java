@@ -22,10 +22,9 @@
 package org.mobicents.media.control.mgcp.endpoint;
 
 import java.net.InetSocketAddress;
-import java.util.Collection;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.endpoint.provider.MgcpEndpointProvider;
@@ -35,6 +34,8 @@ import org.mobicents.media.control.mgcp.message.MessageDirection;
 import org.mobicents.media.control.mgcp.message.MgcpMessage;
 import org.mobicents.media.control.mgcp.message.MgcpMessageObserver;
 import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
+
+import com.google.common.collect.Sets;
 
 /**
  * Manages the collection of endpoints registered system-wide.
@@ -51,7 +52,7 @@ public class MgcpEndpointManager implements MgcpEndpointObserver, MgcpMessageObs
     private final ConcurrentHashMap<String, MgcpEndpoint> endpoints;
 
     // Message Passing
-    private final Collection<MgcpMessageObserver> observers;
+    private final Set<MgcpMessageObserver> observers;
 
     public MgcpEndpointManager() {
         // Endpoint Management
@@ -59,7 +60,7 @@ public class MgcpEndpointManager implements MgcpEndpointObserver, MgcpMessageObs
         this.providers = new ConcurrentHashMap<>(5);
 
         // Message Passing
-        this.observers = new CopyOnWriteArrayList<>();
+        this.observers = Sets.newConcurrentHashSet();
     }
 
     public void installProvider(MgcpEndpointProvider<?> provider) throws IllegalArgumentException {

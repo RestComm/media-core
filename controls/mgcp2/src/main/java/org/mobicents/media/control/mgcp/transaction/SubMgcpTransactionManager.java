@@ -22,10 +22,9 @@
 package org.mobicents.media.control.mgcp.transaction;
 
 import java.net.InetSocketAddress;
-import java.util.Collection;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.command.MgcpCommand;
@@ -42,6 +41,7 @@ import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
 import org.mobicents.media.control.mgcp.util.collections.Parameters;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -74,7 +74,7 @@ public class SubMgcpTransactionManager implements MgcpTransactionManager {
      */
 
     // Observers
-    private final Collection<MgcpMessageObserver> observers;
+    private final Set<MgcpMessageObserver> observers;
 
     public SubMgcpTransactionManager(MgcpTransactionNumberspace numberspace, ListeningExecutorService executor) {
         // Concurrency Components
@@ -87,7 +87,7 @@ public class SubMgcpTransactionManager implements MgcpTransactionManager {
         this.transactions = new ConcurrentHashMap<>(500);
 
         // Observers
-        this.observers = new CopyOnWriteArraySet<>();
+        this.observers = Sets.newConcurrentHashSet();
     }
 
     private MgcpTransaction createTransaction(MgcpRequest request) throws DuplicateMgcpTransactionException {

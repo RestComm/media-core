@@ -29,7 +29,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.log4j.Logger;
@@ -56,6 +55,7 @@ import org.mobicents.media.control.mgcp.pkg.SignalType;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
+import com.google.common.collect.Sets;
 
 /**
  * Abstract representation of an MGCP Endpoint that groups connections by calls.
@@ -88,8 +88,8 @@ public class GenericMgcpEndpoint implements MgcpEndpoint {
     private final Multimap<Integer, MgcpRequestedEvent> requestedConnectionEvents;
 
     // Observers
-    private final Collection<MgcpEndpointObserver> endpointObservers;
-    private final Collection<MgcpMessageObserver> messageObservers;
+    private final Set<MgcpEndpointObserver> endpointObservers;
+    private final Set<MgcpMessageObserver> messageObservers;
 
     public GenericMgcpEndpoint(EndpointIdentifier endpointId, MgcpConnectionProvider connectionProvider, MediaGroup mediaGroup) {
         // MGCP Components
@@ -112,8 +112,8 @@ public class GenericMgcpEndpoint implements MgcpEndpoint {
         this.requestedConnectionEvents = Multimaps.synchronizedSetMultimap(HashMultimap.<Integer, MgcpRequestedEvent>create());
 
         // Observers
-        this.endpointObservers = new CopyOnWriteArrayList<>();
-        this.messageObservers = new CopyOnWriteArrayList<>();
+        this.endpointObservers = Sets.newConcurrentHashSet();
+        this.messageObservers = Sets.newConcurrentHashSet();
     }
 
     @Override

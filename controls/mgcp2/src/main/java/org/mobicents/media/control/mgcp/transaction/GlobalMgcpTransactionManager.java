@@ -25,7 +25,6 @@ import java.net.InetSocketAddress;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.command.MgcpCommand;
@@ -36,6 +35,8 @@ import org.mobicents.media.control.mgcp.message.MgcpMessage;
 import org.mobicents.media.control.mgcp.message.MgcpMessageObserver;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
+
+import com.google.common.collect.Sets;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -52,7 +53,7 @@ public class GlobalMgcpTransactionManager implements MgcpTransactionManager, Mgc
     public GlobalMgcpTransactionManager(MgcpTransactionManagerProvider provider) {
         this.provider = provider;
         this.managers = new ConcurrentHashMap<>();
-        this.observers = new CopyOnWriteArraySet<>();
+        this.observers = Sets.newConcurrentHashSet();
     }
 
     @Override

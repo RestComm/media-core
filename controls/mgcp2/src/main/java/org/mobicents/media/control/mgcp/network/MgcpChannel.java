@@ -23,9 +23,8 @@ package org.mobicents.media.control.mgcp.network;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.Collection;
 import java.util.Iterator;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.message.MessageDirection;
@@ -34,6 +33,8 @@ import org.mobicents.media.control.mgcp.message.MgcpMessageObserver;
 import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
 import org.mobicents.media.server.io.network.channel.MultiplexedNetworkChannel;
 import org.mobicents.media.server.io.network.channel.NetworkGuard;
+
+import com.google.common.collect.Sets;
 
 /**
  * UDP channel that handles MGCP traffic.
@@ -49,7 +50,7 @@ public class MgcpChannel extends MultiplexedNetworkChannel implements MgcpMessag
     private final MgcpPacketHandler mgcpHandler;
 
     // Message Observers
-    private final Collection<MgcpMessageObserver> observers;
+    private final Set<MgcpMessageObserver> observers;
 
     public MgcpChannel(NetworkGuard networkGuard, MgcpPacketHandler packetHandler) {
         super(networkGuard, packetHandler);
@@ -59,7 +60,7 @@ public class MgcpChannel extends MultiplexedNetworkChannel implements MgcpMessag
         this.mgcpHandler.observe(this);
 
         // Observers
-        this.observers = new CopyOnWriteArrayList<>();
+        this.observers = Sets.newConcurrentHashSet();
     }
 
     @Override
