@@ -372,6 +372,10 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
                 case OPEN:
                     // Deactivate connection
                     setMode(ConnectionMode.INACTIVE);
+                    
+                    if(this.timerFuture != null && !this.timerFuture.isDone()) {
+                        this.timerFuture.cancel(false);
+                    }
 
                     // Update connection state
                     this.state = MgcpConnectionState.CLOSED;
@@ -459,27 +463,13 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
         }
     }
     
-    protected void timeout(int elapsedTime) {
-        // Close connection if open
-        if(!MgcpConnectionState.CLOSED.equals(this.state)) {
-            try {
-                close();
-            } catch (MgcpConnectionException e) {
-                log.warn("Could not close connection " + this.getHexIdentifier() + " in elegant manner after timeout.");
-            }
-        }
-
-        // Raise RTP Timeout event
-        notify(this, new RtpTimeoutEvent(getIdentifier(), elapsedTime));
-    }
-    
     private void expireIn(int timeout) {
         if(this.timerFuture != null && !this.timerFuture.isCancelled()) {
             this.timerFuture.cancel(false);
         }
         
         this.timerFuture = this.executor.schedule(new MgcpRemoteConnectionTimer(timeout), timeout, TimeUnit.SECONDS);
-        Futures.addCallback(this.timerFuture, new MgcpRemoteConnectionTimerCallback());
+        Futures.addCallback(this.timerFuture, new MgcpRemoteConnectionTimerCallback(), this.executor);
         
         if (log.isDebugEnabled()) {
             log.debug("Connection " + getHexIdentifier() + " set to expire in " + timeout + " seconds");
@@ -528,12 +518,12 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
 
         @Override
         public Integer call() {
-            MgcpRemoteConnection.this.timeout(this.timeout);
-            return this.timeout;
+            MgcpRemoteConnection.this.notify(MgcpRemoteConnection.this, new RtpTimeoutEvent(getIdentifier(), this.timeout));
+            return timeout;
         }
 
     }
-    
+
     final class MgcpRemoteConnectionTimerCallback implements FutureCallback<Integer> {
 
         @Override
@@ -541,13 +531,22 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
             if (log.isInfoEnabled()) {
                 log.info("Connection " + getHexIdentifier() + " timed out after " + result + " seconds");
             }
+
+            // Close connection if open
+            if (!MgcpConnectionState.CLOSED.equals(state)) {
+                try {
+                    close();
+                } catch (MgcpConnectionException e) {
+                    log.warn("Could not close connection " + getHexIdentifier() + " in elegant manner after timeout.");
+                }
+            }
         }
 
         @Override
         public void onFailure(Throwable t) {
             log.warn("An error occurred while timing out connection " + getCallIdentifierHex(), t);
         }
-        
+
     }
 
 }
