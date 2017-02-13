@@ -544,7 +544,9 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
 
         @Override
         public void onFailure(Throwable t) {
-            log.warn("An error occurred while timing out connection " + getCallIdentifierHex(), t);
+            if(log.isInfoEnabled()) {
+                log.info("Connection " + getCallIdentifierHex() +" RTP timer was canceled or failed.");
+            }
         }
 
     }

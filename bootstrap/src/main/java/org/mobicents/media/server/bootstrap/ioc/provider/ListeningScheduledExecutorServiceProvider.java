@@ -45,6 +45,8 @@ public class ListeningScheduledExecutorServiceProvider implements Provider<Liste
     @Override
     public ListeningScheduledExecutorService get() {
         ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("mgcp-%d").build();
+        // TODO set uncaught exception handler
+        
         // ThreadPoolExecutor executor = new ThreadPoolExecutor(POOL_SIZE, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new
         // SynchronousQueue<Runnable>(), threadFactory);
         // executor.allowCoreThreadTimeOut(false);
@@ -52,6 +54,7 @@ public class ListeningScheduledExecutorServiceProvider implements Provider<Liste
         // return MoreExecutors.listeningDecorator(executor);
 
         ScheduledThreadPoolExecutor executor = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(POOL_SIZE, threadFactory);
+        executor.prestartAllCoreThreads();
         executor.setRemoveOnCancelPolicy(true);
         return MoreExecutors.listeningDecorator(executor);
     }

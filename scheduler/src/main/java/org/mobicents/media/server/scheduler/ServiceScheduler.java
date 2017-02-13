@@ -107,6 +107,7 @@ public class ServiceScheduler implements Scheduler {
             this.started = true;
             this.executor = Executors.newScheduledThreadPool(POOL_SIZE, threadFactory);
             ((ScheduledThreadPoolExecutor) this.executor).setRemoveOnCancelPolicy(true);
+            ((ScheduledThreadPoolExecutor) this.executor).prestartAllCoreThreads();
             LOGGER.info("Started scheduler!");
         }
     }
