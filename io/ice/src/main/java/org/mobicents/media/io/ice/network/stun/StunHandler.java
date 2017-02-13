@@ -107,7 +107,7 @@ public class StunHandler implements PacketHandler {
 		return priorityAttr.getPriority();
 	}
 	
-	private byte[] processRequest(StunRequest request, InetSocketAddress localPeer, InetSocketAddress remotePeer) throws IOException, StunException {
+	private byte[] processRequest(StunRequest request, InetSocketAddress localPeer, InetSocketAddress remotePeer) throws IOException {
 		/*
 		 * The agent MUST use a short-term credential to authenticate the
 		 * request and perform a message integrity check.
