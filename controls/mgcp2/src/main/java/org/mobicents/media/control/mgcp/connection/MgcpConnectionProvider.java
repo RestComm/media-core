@@ -56,7 +56,7 @@ public class MgcpConnectionProvider {
     }
     
     public MgcpLocalConnection provideLocal(int callId) {
-        return new MgcpLocalConnection(this.idGenerator.incrementAndGet(), callId, eventProvider, this.channelsManager);
+        return new MgcpLocalConnection(this.idGenerator.incrementAndGet(), callId, this.timeout, eventProvider, channelsManager, executor);
     }
 
 }

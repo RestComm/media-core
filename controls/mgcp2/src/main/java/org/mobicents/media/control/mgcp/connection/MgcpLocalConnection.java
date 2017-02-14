@@ -37,6 +37,8 @@ import org.mobicents.media.server.impl.rtp.LocalDataChannel;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
 
+import com.google.common.util.concurrent.ListeningScheduledExecutorService;
+
 /**
  * Type of connection that connects two endpoints locally.
  * 
@@ -49,9 +51,17 @@ public class MgcpLocalConnection extends AbstractMgcpConnection {
 
     private final LocalDataChannel audioChannel;
 
-    public MgcpLocalConnection(int identifier, int callId, MgcpEventProvider eventProvider, ChannelsManager channelProvider) {
-        super(identifier, callId, eventProvider);
+    public MgcpLocalConnection(int identifier, int callId, int halfOpenTimeout, int openTimeout, MgcpEventProvider eventProvider, ChannelsManager channelProvider, ListeningScheduledExecutorService executor) {
+        super(identifier, callId, halfOpenTimeout, openTimeout, eventProvider, executor);
         this.audioChannel = channelProvider.getLocalChannel();
+    }
+    
+    public MgcpLocalConnection(int identifier, int callId, int timeout, MgcpEventProvider eventProvider, ChannelsManager channelProvider, ListeningScheduledExecutorService executor) {
+        this(identifier, callId, HALF_OPEN_TIMER, timeout, eventProvider, channelProvider, executor);
+    }
+
+    public MgcpLocalConnection(int identifier, int callId, MgcpEventProvider eventProvider, ChannelsManager channelProvider, ListeningScheduledExecutorService executor) {
+        this(identifier, callId, HALF_OPEN_TIMER, 0, eventProvider, channelProvider, executor);
     }
 
     @Override

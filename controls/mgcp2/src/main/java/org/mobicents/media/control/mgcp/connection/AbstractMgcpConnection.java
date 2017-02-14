@@ -23,9 +23,12 @@ package org.mobicents.media.control.mgcp.connection;
 
 import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.exception.MalformedMgcpEventRequestException;
+import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
 import org.mobicents.media.control.mgcp.exception.MgcpEventNotFoundException;
 import org.mobicents.media.control.mgcp.exception.MgcpPackageNotFoundException;
 import org.mobicents.media.control.mgcp.exception.UnsupportedMgcpEventException;
@@ -33,11 +36,16 @@ import org.mobicents.media.control.mgcp.pkg.MgcpEvent;
 import org.mobicents.media.control.mgcp.pkg.MgcpEventObserver;
 import org.mobicents.media.control.mgcp.pkg.MgcpEventProvider;
 import org.mobicents.media.control.mgcp.pkg.MgcpRequestedEvent;
+import org.mobicents.media.control.mgcp.pkg.r.rto.RtpTimeoutEvent;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.spi.ConnectionMode;
 
 import com.google.common.collect.Sets;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 
 /**
  * Base implementation for any MGCP connection.
@@ -57,8 +65,16 @@ public abstract class AbstractMgcpConnection implements MgcpConnection {
     // Events
     private final MgcpEventProvider eventProvider;
     protected final Set<MgcpEventObserver> observers;
+    
+    // Timers
+    protected final ListeningScheduledExecutorService executor;
 
-    public AbstractMgcpConnection(int identifier, int callId, MgcpEventProvider eventProvider) {
+    protected static final int HALF_OPEN_TIMER = 30;
+    protected ListenableFuture<Integer> timerFuture;
+    protected final int timeout;
+    protected final int halfOpenTimeout;
+
+    public AbstractMgcpConnection(int identifier, int callId,  int halfOpenTimeout, int openTimeout, MgcpEventProvider eventProvider, ListeningScheduledExecutorService executor) {
         // Connection State
         this.identifier = identifier;
         this.callIdentifier = callId;
@@ -69,6 +85,12 @@ public abstract class AbstractMgcpConnection implements MgcpConnection {
         // Events
         this.eventProvider = eventProvider;
         this.observers = Sets.newConcurrentHashSet();
+        
+        // Timers
+        this.executor = executor;
+        this.timerFuture = null;
+        this.halfOpenTimeout = halfOpenTimeout;
+        this.timeout = openTimeout;
     }
 
     @Override
@@ -110,7 +132,7 @@ public abstract class AbstractMgcpConnection implements MgcpConnection {
         }
         this.mode = mode;
     }
-    
+
     public void listen(MgcpRequestedEvent event) throws UnsupportedMgcpEventException {
         if (isEventSupported(event)) {
             try {
@@ -165,5 +187,65 @@ public abstract class AbstractMgcpConnection implements MgcpConnection {
     
     protected abstract Logger log();
     
-    // TODO implement heart beat
+    protected void expireIn(int timeout) {
+        if(this.timerFuture != null && !this.timerFuture.isCancelled()) {
+            this.timerFuture.cancel(false);
+        }
+        
+        this.timerFuture = this.executor.schedule(new MgcpConnectionTimer(timeout), timeout, TimeUnit.SECONDS);
+        Futures.addCallback(this.timerFuture, new MgcpConnectionTimerCallback(), this.executor);
+        
+        if (log().isDebugEnabled()) {
+            log().debug("Connection " + getHexIdentifier() + " set to expire in " + timeout + " seconds");
+        }
+    }
+    
+    /**
+     * Raises an RTP Timeout event when connection reaches the end of it's life
+     * 
+     * @author Henrique Rosa (henrique.rosa@telestax.com)
+     *
+     */
+    final class MgcpConnectionTimer implements Callable<Integer> {
+
+        private final int timeout;
+
+        public MgcpConnectionTimer(int timeout) {
+            this.timeout = timeout;
+        }
+
+        @Override
+        public Integer call() {
+            AbstractMgcpConnection.this.notify(AbstractMgcpConnection.this, new RtpTimeoutEvent(getIdentifier(), this.timeout));
+            return timeout;
+        }
+
+    }
+
+    final class MgcpConnectionTimerCallback implements FutureCallback<Integer> {
+
+        @Override
+        public void onSuccess(Integer result) {
+            if (log().isInfoEnabled()) {
+                log().info("Connection " + getHexIdentifier() + " timed out after " + result + " seconds");
+            }
+
+            // Close connection if open
+            if (!MgcpConnectionState.CLOSED.equals(state)) {
+                try {
+                    close();
+                } catch (MgcpConnectionException e) {
+                    log().warn("Could not close connection " + getHexIdentifier() + " in elegant manner after timeout.");
+                }
+            }
+        }
+
+        @Override
+        public void onFailure(Throwable t) {
+            if(log().isInfoEnabled()) {
+                log().info("Connection " + getCallIdentifierHex() +" RTP timer was canceled or failed.");
+            }
+        }
+
+    }
 }
