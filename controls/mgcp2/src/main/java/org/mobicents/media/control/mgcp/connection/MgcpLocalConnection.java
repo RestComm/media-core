@@ -37,6 +37,8 @@ import org.mobicents.media.server.impl.rtp.LocalDataChannel;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
 
+import com.google.common.util.concurrent.ListeningScheduledExecutorService;
+
 /**
  * Type of connection that connects two endpoints locally.
  * 
@@ -49,9 +51,17 @@ public class MgcpLocalConnection extends AbstractMgcpConnection {
 
     private final LocalDataChannel audioChannel;
 
-    public MgcpLocalConnection(int identifier, int callId, MgcpEventProvider eventProvider, ChannelsManager channelProvider) {
-        super(identifier, callId, eventProvider);
+    public MgcpLocalConnection(int identifier, int callId, int halfOpenTimeout, int openTimeout, MgcpEventProvider eventProvider, ChannelsManager channelProvider, ListeningScheduledExecutorService executor) {
+        super(identifier, callId, halfOpenTimeout, openTimeout, eventProvider, executor);
         this.audioChannel = channelProvider.getLocalChannel();
+    }
+    
+    public MgcpLocalConnection(int identifier, int callId, int timeout, MgcpEventProvider eventProvider, ChannelsManager channelProvider, ListeningScheduledExecutorService executor) {
+        this(identifier, callId, HALF_OPEN_TIMER, timeout, eventProvider, channelProvider, executor);
+    }
+
+    public MgcpLocalConnection(int identifier, int callId, MgcpEventProvider eventProvider, ChannelsManager channelProvider, ListeningScheduledExecutorService executor) {
+        this(identifier, callId, HALF_OPEN_TIMER, 0, eventProvider, channelProvider, executor);
     }
 
     @Override
@@ -65,6 +75,14 @@ public class MgcpLocalConnection extends AbstractMgcpConnection {
             switch (this.state) {
                 case CLOSED:
                     this.state = MgcpConnectionState.HALF_OPEN;
+
+                    if(log.isDebugEnabled()) {
+                        log.debug("Connection " + getHexIdentifier() + " state is " + this.state.name());
+                    }
+                    
+                    if (this.halfOpenTimeout > 0) {
+                        expireIn(this.halfOpenTimeout);
+                    }
                     break;
 
                 default:
@@ -87,6 +105,10 @@ public class MgcpLocalConnection extends AbstractMgcpConnection {
                         log.debug("Connection " + getHexIdentifier() + " state is " + this.state.name());
                     }
                     
+                    // Submit timer
+                    if (this.timeout > 0) {
+                        expireIn(this.timeout);
+                    }
                     break;
 
                 default:
@@ -122,6 +144,11 @@ public class MgcpLocalConnection extends AbstractMgcpConnection {
             switch (this.state) {
                 case HALF_OPEN:
                 case OPEN:
+                    // Cancel timer
+                    if(this.timerFuture != null && !this.timerFuture.isDone()) {
+                        this.timerFuture.cancel(false);
+                    }
+
                     // Deactivate connection
                     setMode(ConnectionMode.INACTIVE);
 
@@ -145,16 +172,12 @@ public class MgcpLocalConnection extends AbstractMgcpConnection {
 
     @Override
     public void setMode(ConnectionMode mode) throws IllegalStateException {
+        super.setMode(mode);
         try {
             this.audioChannel.updateMode(mode);
-            
-            if(log.isDebugEnabled()) {
-                log.debug("Connection " + getHexIdentifier() + " mode is " + mode.name());
-            }
         } catch (ModeNotSupportedException e) {
             log.warn("Could not update data channel mode of local connection " + this.getHexIdentifier());
         }
-        super.setMode(mode);
     }
     
     @Override
