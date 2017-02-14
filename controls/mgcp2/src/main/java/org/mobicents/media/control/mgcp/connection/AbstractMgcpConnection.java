@@ -28,7 +28,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.exception.MalformedMgcpEventRequestException;
-import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
 import org.mobicents.media.control.mgcp.exception.MgcpEventNotFoundException;
 import org.mobicents.media.control.mgcp.exception.MgcpPackageNotFoundException;
 import org.mobicents.media.control.mgcp.exception.UnsupportedMgcpEventException;
@@ -131,6 +130,10 @@ public abstract class AbstractMgcpConnection implements MgcpConnection {
             }
         }
         this.mode = mode;
+        
+        if(log().isDebugEnabled()) {
+            log().debug("Connection " + getHexIdentifier() + " mode is " + mode.name());
+        }
     }
 
     public void listen(MgcpRequestedEvent event) throws UnsupportedMgcpEventException {
@@ -234,7 +237,7 @@ public abstract class AbstractMgcpConnection implements MgcpConnection {
             if (!MgcpConnectionState.CLOSED.equals(state)) {
                 try {
                     close();
-                } catch (MgcpConnectionException e) {
+                } catch (Exception e) {
                     log().warn("Could not close connection " + getHexIdentifier() + " in elegant manner after timeout.");
                 }
             }
@@ -243,7 +246,7 @@ public abstract class AbstractMgcpConnection implements MgcpConnection {
         @Override
         public void onFailure(Throwable t) {
             if(log().isInfoEnabled()) {
-                log().info("Connection " + getCallIdentifierHex() +" RTP timer was canceled or failed.");
+                log().info("Connection " + getCallIdentifierHex() +" life timer was canceled or failed.");
             }
         }
 

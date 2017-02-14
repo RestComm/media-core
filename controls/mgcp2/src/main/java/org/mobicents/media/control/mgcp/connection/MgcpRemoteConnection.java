@@ -105,10 +105,6 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
     public void setMode(ConnectionMode mode) throws IllegalStateException {
         super.setMode(mode);
         this.audioChannel.setConnectionMode(mode);
-        
-        if(log.isDebugEnabled()) {
-            log.debug("Connection " + getHexIdentifier() + " mode is " + mode.name());
-        }
     }
 
     @Override
@@ -351,13 +347,13 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
             switch (this.state) {
                 case HALF_OPEN:
                 case OPEN:
-                    // Deactivate connection
-                    setMode(ConnectionMode.INACTIVE);
-                    
                     if(this.timerFuture != null && !this.timerFuture.isDone()) {
                         this.timerFuture.cancel(false);
                     }
 
+                    // Deactivate connection
+                    setMode(ConnectionMode.INACTIVE);
+                    
                     // Update connection state
                     this.state = MgcpConnectionState.CLOSED;
 

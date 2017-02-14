@@ -75,6 +75,10 @@ public class MgcpLocalConnection extends AbstractMgcpConnection {
             switch (this.state) {
                 case CLOSED:
                     this.state = MgcpConnectionState.HALF_OPEN;
+
+                    if(log.isDebugEnabled()) {
+                        log.debug("Connection " + getHexIdentifier() + " state is " + this.state.name());
+                    }
                     
                     if (this.halfOpenTimeout > 0) {
                         expireIn(this.halfOpenTimeout);
@@ -140,13 +144,13 @@ public class MgcpLocalConnection extends AbstractMgcpConnection {
             switch (this.state) {
                 case HALF_OPEN:
                 case OPEN:
-                    // Deactivate connection
-                    setMode(ConnectionMode.INACTIVE);
-                    
                     // Cancel timer
                     if(this.timerFuture != null && !this.timerFuture.isDone()) {
                         this.timerFuture.cancel(false);
                     }
+
+                    // Deactivate connection
+                    setMode(ConnectionMode.INACTIVE);
 
                     // Update connection state
                     this.state = MgcpConnectionState.CLOSED;
@@ -168,16 +172,12 @@ public class MgcpLocalConnection extends AbstractMgcpConnection {
 
     @Override
     public void setMode(ConnectionMode mode) throws IllegalStateException {
+        super.setMode(mode);
         try {
             this.audioChannel.updateMode(mode);
-            
-            if(log.isDebugEnabled()) {
-                log.debug("Connection " + getHexIdentifier() + " mode is " + mode.name());
-            }
         } catch (ModeNotSupportedException e) {
             log.warn("Could not update data channel mode of local connection " + this.getHexIdentifier());
         }
-        super.setMode(mode);
     }
     
     @Override
