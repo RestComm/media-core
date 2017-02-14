@@ -21,9 +21,11 @@
 
 package org.mobicents.media.control.mgcp.command;
 
+import org.mobicents.media.control.mgcp.call.MgcpCallManager;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 import org.mobicents.media.control.mgcp.message.MgcpRequestType;
+import org.mobicents.media.control.mgcp.pkg.MgcpPackageManager;
 import org.mobicents.media.control.mgcp.pkg.MgcpSignalProvider;
 import org.mobicents.media.control.mgcp.util.collections.Parameters;
 
@@ -37,11 +39,15 @@ public class MgcpCommandProvider {
 
     private final MgcpEndpointManager endpointManager;
     private final MgcpSignalProvider signalProvider;
+    private final MgcpPackageManager packageManager;
+    private final MgcpCallManager callManager;
 
-    public MgcpCommandProvider(MgcpEndpointManager endpointManager, MgcpSignalProvider signalProvider) {
+    public MgcpCommandProvider(MgcpEndpointManager endpointManager, MgcpPackageManager packageManager, MgcpSignalProvider signalProvider, MgcpCallManager callManager) {
         super();
         this.endpointManager = endpointManager;
+        this.packageManager = packageManager;
         this.signalProvider = signalProvider;
+        this.callManager = callManager;
     }
 
     public MgcpCommand provide(MgcpRequestType type, int transactionId, Parameters<MgcpParameterType> parameters) {
@@ -56,7 +62,7 @@ public class MgcpCommandProvider {
                 return new DeleteConnectionCommand(transactionId, parameters, this.endpointManager);
 
             case RQNT:
-                return new RequestNotificationCommand(transactionId, parameters, this.endpointManager, this.signalProvider);
+                return new RequestNotificationCommand(transactionId, parameters, this.endpointManager, this.packageManager, this.signalProvider);
 
             case AUCX:
                 return new AuditConnectionCommand(transactionId, parameters, this.endpointManager);

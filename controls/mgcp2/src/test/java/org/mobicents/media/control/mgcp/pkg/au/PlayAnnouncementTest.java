@@ -39,7 +39,6 @@ import java.util.Map;
 import org.junit.Test;
 import org.mobicents.media.control.mgcp.pkg.MgcpEvent;
 import org.mobicents.media.control.mgcp.pkg.MgcpEventObserver;
-import org.mobicents.media.control.mgcp.pkg.base.OperationFailure;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.server.spi.player.Player;
 import org.mobicents.media.server.spi.player.PlayerEvent;
@@ -243,7 +242,7 @@ public class PlayAnnouncementTest {
         verify(player).setInitialDelay(0);
         verify(player).setURL(parameters.get(SignalParameters.ANNOUNCEMENT.symbol()));
         verify(player).activate();
-        verify(observer).onEvent(eq(signal), any(OperationFailure.class));
+        verify(observer).onEvent(eq(signal), any(OperationFailed.class));
     }
 
 }

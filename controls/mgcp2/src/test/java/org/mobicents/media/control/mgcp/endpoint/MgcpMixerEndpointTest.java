@@ -29,7 +29,7 @@ import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.connection.MgcpRemoteConnection;
 import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
-import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFound;
+import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFoundException;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.audio.AudioMixer;
 import org.mobicents.media.server.component.oob.OOBComponent;
@@ -43,8 +43,9 @@ import org.mobicents.media.server.spi.ConnectionMode;
 public class MgcpMixerEndpointTest {
 
     @Test
-    public void testOpenCloseConnection() throws MgcpConnectionException, MgcpCallNotFoundException, MgcpConnectionNotFound {
+    public void testOpenCloseConnection() throws MgcpConnectionException, MgcpCallNotFoundException, MgcpConnectionNotFoundException {
         // given
+        final int callId = 1;
         final MgcpRemoteConnection connection = mock(MgcpRemoteConnection.class);
         final AudioMixer inbandMixer = mock(AudioMixer.class);
         final OOBMixer outbandMixer = mock(OOBMixer.class);
@@ -54,11 +55,12 @@ public class MgcpMixerEndpointTest {
         final MgcpMixerEndpoint endpoint = new MgcpMixerEndpoint(endpointId, inbandMixer, outbandMixer, connections, mediaGroup);
 
         // when - half open connection
-        when(connections.provideRemote()).thenReturn(connection);
+        when(connections.provideRemote(callId)).thenReturn(connection);
         when(connection.getIdentifier()).thenReturn(1);
+        when(connection.getCallIdentifier()).thenReturn(callId);
         when(connection.getMode()).thenReturn(ConnectionMode.SEND_RECV);
 
-        endpoint.createConnection(1, false);
+        endpoint.createConnection(callId, false);
 
         // then
         // 2 components are registered: one for the connection, another for the media group of the endpoint upon activation
@@ -66,7 +68,7 @@ public class MgcpMixerEndpointTest {
         verify(outbandMixer, times(2)).addComponent(any(OOBComponent.class));
 
         // when - close connection
-        endpoint.deleteConnection(1, connection.getIdentifier());
+        endpoint.deleteConnection(callId, connection.getIdentifier());
 
         // then
         verify(inbandMixer, times(2)).release(any(AudioComponent.class));

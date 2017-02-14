@@ -26,6 +26,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -105,6 +106,8 @@ public class ServiceScheduler implements Scheduler {
         if (!this.started) {
             this.started = true;
             this.executor = Executors.newScheduledThreadPool(POOL_SIZE, threadFactory);
+            ((ScheduledThreadPoolExecutor) this.executor).setRemoveOnCancelPolicy(true);
+            ((ScheduledThreadPoolExecutor) this.executor).prestartAllCoreThreads();
             LOGGER.info("Started scheduler!");
         }
     }

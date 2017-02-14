@@ -19,18 +19,34 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.listener;
-
-import org.mobicents.media.control.mgcp.connection.MgcpCall;
+package org.mobicents.media.control.mgcp.pkg;
 
 /**
- * Listens to events related to an MGCP Call.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpCallListener {
+public interface MgcpPackageManager {
 
-    void onCallTerminated(MgcpCall call);
+    /**
+     * Registers an MGCP Package.
+     * 
+     * @param pkg The package to be registered.
+     */
+    void registerPackage(MgcpPackage pkg);
+
+    /**
+     * Unregisters an MGCP Package
+     * 
+     * @param pkg The package to be unregistered.
+     */
+    void unregisterPackage(MgcpPackage pkg);
+
+    /**
+     * Gets a package by name.
+     * 
+     * @param name The name of the package
+     * @return The MGPC Package, if registered. Otherwise returns null.
+     */
+    MgcpPackage getPackage(String name);
 
 }

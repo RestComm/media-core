@@ -22,7 +22,10 @@
 package org.mobicents.media.control.mgcp.connection;
 
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
+import org.mobicents.media.control.mgcp.exception.UnsupportedMgcpEventException;
 import org.mobicents.media.control.mgcp.message.LocalConnectionOptions;
+import org.mobicents.media.control.mgcp.pkg.MgcpEventSubject;
+import org.mobicents.media.control.mgcp.pkg.MgcpRequestedEvent;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
@@ -38,21 +41,35 @@ import org.mobicents.media.server.component.oob.OOBComponent;
  *
  * @see <a href=""https://tools.ietf.org/html/rfc3435#section-2.1.3>RFC3435 - Section 2.1.3</a>
  */
-public interface MgcpConnection {
+public interface MgcpConnection extends MgcpEventSubject {
 
     /**
-     * Gets the connection identifier
+     * Gets the connection identifier.
      * 
-     * @return The connection identifier
+     * @return The connection identifier, in base 10
      */
     int getIdentifier();
 
     /**
-     * Gets the connection identifier in hexadecimal base.
+     * Gets the connection identifier.
      * 
-     * @return The connection identifier
+     * @return The connection identifier, in base 16.
      */
     String getHexIdentifier();
+
+    /**
+     * Gets the call identifier.
+     * 
+     * @return The call identifier, in base 10
+     */
+    int getCallIdentifier();
+
+    /**
+     * Gets the call identifier.
+     * 
+     * @return The connection identifier, in base 16
+     */
+    String getCallIdentifierHex();
 
     /**
      * Gets whether the connection is local or remote.
@@ -126,6 +143,14 @@ public interface MgcpConnection {
      * @throws MgcpConnectionException If connection state is not half-open nor open.
      */
     void close() throws MgcpConnectionException;
+
+    /**
+     * Requests the connection to send notifications about a certain event.
+     * 
+     * @param event The event to liste to.
+     * @throws UnsupportedMgcpEventException If the connection does not support the event.
+     */
+    void listen(MgcpRequestedEvent event) throws UnsupportedMgcpEventException;
 
     /**
      * Gets the in-band audio component of the connection.

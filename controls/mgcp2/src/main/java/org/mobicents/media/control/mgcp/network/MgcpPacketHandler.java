@@ -22,9 +22,8 @@
 package org.mobicents.media.control.mgcp.network;
 
 import java.net.InetSocketAddress;
-import java.util.Collection;
 import java.util.Iterator;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.exception.MgcpParseException;
@@ -38,6 +37,8 @@ import org.mobicents.media.control.mgcp.message.MgcpResponse;
 import org.mobicents.media.server.io.network.channel.PacketHandler;
 import org.mobicents.media.server.io.network.channel.PacketHandlerException;
 
+import com.google.common.collect.Sets;
+
 /**
  * Handler to decode and process incoming MGCP packets.
  * 
@@ -49,11 +50,11 @@ public class MgcpPacketHandler implements PacketHandler, MgcpMessageSubject {
     private static final Logger log = Logger.getLogger(MgcpPacketHandler.class);
 
     private final MgcpMessageParser parser;
-    private final Collection<MgcpMessageObserver> observers;
+    private final Set<MgcpMessageObserver> observers;
 
     public MgcpPacketHandler(MgcpMessageParser parser) {
         this.parser = parser;
-        this.observers = new CopyOnWriteArrayList<>();
+        this.observers = Sets.newConcurrentHashSet();
     }
 
     @Override

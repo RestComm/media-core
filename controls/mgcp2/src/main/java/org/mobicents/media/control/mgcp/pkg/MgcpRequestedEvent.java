@@ -29,14 +29,30 @@ package org.mobicents.media.control.mgcp.pkg;
  */
 public class MgcpRequestedEvent {
 
+    private static final String[] EMPTY_PARAMS = new String[0];
+
+    private final int requestId;
     private final String packageName;
     private final String eventType;
     private final MgcpActionType action;
+    private final int connectionId;
+    private final String[] parameters;
 
-    public MgcpRequestedEvent(String packageName, String eventType, MgcpActionType action) {
+    public MgcpRequestedEvent(int requestId, String packageName, String eventType, MgcpActionType action, int connectionId, String... parameters) {
+        this.requestId = requestId;
         this.packageName = packageName;
         this.eventType = eventType;
         this.action = action;
+        this.connectionId = connectionId;
+        this.parameters = (parameters == null) ? EMPTY_PARAMS : parameters;
+    }
+
+    public MgcpRequestedEvent(int requestId, String packageName, String eventType, MgcpActionType action) {
+        this(requestId, packageName, eventType, action, 0, EMPTY_PARAMS);
+    }
+
+    public int getRequestId() {
+        return requestId;
     }
 
     public String getPackageName() {
@@ -46,7 +62,7 @@ public class MgcpRequestedEvent {
     public String getEventType() {
         return eventType;
     }
-    
+
     public String getQualifiedName() {
         return this.packageName + "/" + this.eventType;
     }
@@ -55,9 +71,32 @@ public class MgcpRequestedEvent {
         return action;
     }
 
+    public int getConnectionId() {
+        return connectionId;
+    }
+
+    public String[] getParameters() {
+        return parameters;
+    }
+
     @Override
     public String toString() {
-        return this.packageName + "/" + this.eventType + "(" + this.action + ")";
+        StringBuilder builder = new StringBuilder(this.packageName).append("/").append(this.eventType);
+        if (this.connectionId > 0) {
+            builder.append("@").append(Integer.toHexString(this.connectionId));
+        }
+        builder.append("(").append(this.action).append(")");
+        if (this.parameters.length > 0) {
+            builder.append("(");
+            for (int i = 0; i < parameters.length; i++) {
+                builder.append(this.parameters[i]);
+                if (i < parameters.length - 1) {
+                    builder.append(",");
+                }
+            }
+            builder.append(")");
+        }
+        return builder.toString();
     }
 
 }

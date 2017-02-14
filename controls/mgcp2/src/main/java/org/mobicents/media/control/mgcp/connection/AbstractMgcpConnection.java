@@ -21,9 +21,23 @@
 
 package org.mobicents.media.control.mgcp.connection;
 
+import java.util.Iterator;
+import java.util.Set;
+
+import org.apache.log4j.Logger;
+import org.mobicents.media.control.mgcp.exception.MalformedMgcpEventRequestException;
+import org.mobicents.media.control.mgcp.exception.MgcpEventNotFoundException;
+import org.mobicents.media.control.mgcp.exception.MgcpPackageNotFoundException;
+import org.mobicents.media.control.mgcp.exception.UnsupportedMgcpEventException;
+import org.mobicents.media.control.mgcp.pkg.MgcpEvent;
+import org.mobicents.media.control.mgcp.pkg.MgcpEventObserver;
+import org.mobicents.media.control.mgcp.pkg.MgcpEventProvider;
+import org.mobicents.media.control.mgcp.pkg.MgcpRequestedEvent;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.spi.ConnectionMode;
+
+import com.google.common.collect.Sets;
 
 /**
  * Base implementation for any MGCP connection.
@@ -35,18 +49,26 @@ public abstract class AbstractMgcpConnection implements MgcpConnection {
 
     // Connection State
     private final int identifier;
-    private final String hexIdentifier;
+    private final int callIdentifier;
     private ConnectionMode mode;
     protected volatile MgcpConnectionState state;
     protected final Object stateLock;
+    
+    // Events
+    private final MgcpEventProvider eventProvider;
+    protected final Set<MgcpEventObserver> observers;
 
-    public AbstractMgcpConnection(int identifier) {
+    public AbstractMgcpConnection(int identifier, int callId, MgcpEventProvider eventProvider) {
         // Connection State
         this.identifier = identifier;
-        this.hexIdentifier = Integer.toHexString(identifier);
+        this.callIdentifier = callId;
         this.mode = ConnectionMode.INACTIVE;
         this.state = MgcpConnectionState.CLOSED;
         this.stateLock = new Object();
+        
+        // Events
+        this.eventProvider = eventProvider;
+        this.observers = Sets.newConcurrentHashSet();
     }
 
     @Override
@@ -56,7 +78,17 @@ public abstract class AbstractMgcpConnection implements MgcpConnection {
 
     @Override
     public String getHexIdentifier() {
-        return this.hexIdentifier;
+        return Integer.toHexString(identifier).toUpperCase();
+    }
+
+    @Override
+    public int getCallIdentifier() {
+        return this.callIdentifier;
+    }
+    
+    @Override
+    public String getCallIdentifierHex() {
+        return Integer.toHexString(this.callIdentifier).toUpperCase();
     }
 
     @Override
@@ -78,10 +110,60 @@ public abstract class AbstractMgcpConnection implements MgcpConnection {
         }
         this.mode = mode;
     }
+    
+    public void listen(MgcpRequestedEvent event) throws UnsupportedMgcpEventException {
+        if (isEventSupported(event)) {
+            try {
+                // Parse event request
+                MgcpEvent mgcpEvent = this.eventProvider.provide(event);
 
+                // Listen for event
+                listen(mgcpEvent);
+            } catch (MgcpPackageNotFoundException | MgcpEventNotFoundException | MalformedMgcpEventRequestException e) {
+                throw new UnsupportedMgcpEventException("MGCP Event " + event.toString() + " is not supported.", e);
+            }
+        } else {
+            // Event not supported
+            throw new UnsupportedMgcpEventException("Connection " + getCallIdentifierHex() + " does not support event " + event.getQualifiedName());
+        }
+    }
+
+    protected abstract boolean isEventSupported(MgcpRequestedEvent event);
+    
+    protected abstract void listen(MgcpEvent event) throws UnsupportedMgcpEventException;
+    
     public abstract AudioComponent getAudioComponent();
 
     public abstract OOBComponent getOutOfBandComponent();
+
+    @Override
+    public void observe(MgcpEventObserver observer) {
+        boolean added = this.observers.add(observer);
+        if (added && log().isTraceEnabled()) {
+            log().trace("Connection " + getHexIdentifier() + " registered MgcpEventObserver@" + observer.hashCode() + ". Count: " + this.observers.size());
+        }
+    }
+
+    @Override
+    public void forget(MgcpEventObserver observer) {
+        boolean removed = this.observers.remove(observer);
+        if (removed && log().isTraceEnabled()) {
+            log().trace("Connection " + getHexIdentifier() + " unregistered MgcpEventObserver@" + observer.hashCode() + ". Count: " + this.observers.size());
+        }
+    }
+
+    @Override
+    public void notify(Object originator, MgcpEvent event) {
+        Iterator<MgcpEventObserver> iterator = this.observers.iterator();
+        while (iterator.hasNext()) {
+            MgcpEventObserver observer = (MgcpEventObserver) iterator.next();
+            if(observer != originator) {
+                observer.onEvent(originator, event);
+            }
+        }
+    }
+    
+    protected abstract Logger log();
     
     // TODO implement heart beat
 }

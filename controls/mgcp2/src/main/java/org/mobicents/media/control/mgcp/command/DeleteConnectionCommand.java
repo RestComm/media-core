@@ -26,7 +26,7 @@ import org.mobicents.media.control.mgcp.connection.MgcpConnection;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
-import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFound;
+import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFoundException;
 import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
 import org.mobicents.media.control.mgcp.util.collections.Parameters;
@@ -77,7 +77,7 @@ public class DeleteConnectionCommand extends AbstractMgcpCommand {
         }
     }
 
-    private void executeCommand(DlcxContext context) throws MgcpCommandException, MgcpCallNotFoundException, MgcpConnectionNotFound {
+    private void executeCommand(DlcxContext context) throws MgcpCommandException, MgcpCallNotFoundException, MgcpConnectionNotFoundException {
         // Retrieve endpoint
         String endpointId = context.endpointId;
         MgcpEndpoint endpoint = this.endpointManager.getEndpoint(endpointId);
@@ -154,7 +154,7 @@ public class DeleteConnectionCommand extends AbstractMgcpCommand {
             log.error("Protocol error occurred during tx=" + this.transactionId + " execution: " + e.getMessage());
             context.code = MgcpResponseCode.INCORRECT_CALL_ID.code();
             context.message = MgcpResponseCode.INCORRECT_CALL_ID.message();
-        } catch (MgcpConnectionNotFound e) {
+        } catch (MgcpConnectionNotFoundException e) {
             log.error("Protocol error occurred during tx=" + this.transactionId + " execution: " + e.getMessage());
             context.code = MgcpResponseCode.INCORRECT_CONNECTION_ID.code();
             context.message = MgcpResponseCode.INCORRECT_CONNECTION_ID.message();

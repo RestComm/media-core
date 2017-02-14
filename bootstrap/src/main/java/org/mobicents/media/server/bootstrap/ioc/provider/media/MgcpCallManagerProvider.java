@@ -19,36 +19,22 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.pkg.base;
+package org.mobicents.media.server.bootstrap.ioc.provider.media;
+
+import org.mobicents.media.control.mgcp.call.GlobalMgcpCallManager;
+import org.mobicents.media.control.mgcp.call.MgcpCallManager;
+
+import com.google.inject.Provider;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum MgcpEventType {
+public class MgcpCallManagerProvider implements Provider<MgcpCallManager> {
 
-    OPERATION_COMPLETE("oc"),
-    OPERATION_FAILURE("of");
-
-    private final String symbol;
-
-    private MgcpEventType(String symbol) {
-        this.symbol = symbol;
-    }
-
-    public String symbol() {
-        return symbol;
-    }
-
-    public static final MgcpEventType fromSymbol(String symbol) {
-        if (symbol != null && !symbol.isEmpty()) {
-            for (MgcpEventType eventType : values()) {
-                if (eventType.symbol.equalsIgnoreCase(symbol)) {
-                    return eventType;
-                }
-            }
-        }
-        return null;
+    @Override
+    public MgcpCallManager get() {
+        return new GlobalMgcpCallManager();
     }
 
 }

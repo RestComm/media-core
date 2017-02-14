@@ -19,18 +19,34 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.listener;
+package org.mobicents.media.server.bootstrap.ioc.provider.mgcp;
 
-import org.mobicents.media.control.mgcp.connection.MgcpConnection;
+import org.mobicents.media.control.mgcp.pkg.GlobalMgcpEventProvider;
+import org.mobicents.media.control.mgcp.pkg.MgcpEventProvider;
+import org.mobicents.media.control.mgcp.pkg.r.RtpEventProvider;
+import org.mobicents.media.control.mgcp.pkg.r.RtpPackage;
+
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 /**
- * Listens to events related to an MGCP connection.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpConnectionListener {
+public class GlobalMgcpEventProviderProvider implements Provider<MgcpEventProvider> {
 
-    void onConnectionFailure(MgcpConnection connection);
+    private final RtpEventProvider rtpProvider;
     
+    @Inject
+    public GlobalMgcpEventProviderProvider(RtpEventProvider rtpProvider) {
+        this.rtpProvider = rtpProvider;
+    }
+
+    @Override
+    public MgcpEventProvider get() {
+        GlobalMgcpEventProvider eventProvider = new GlobalMgcpEventProvider();
+        eventProvider.registerProvider(RtpPackage.PACKAGE_NAME, this.rtpProvider);
+        return eventProvider;
+    }
+
 }

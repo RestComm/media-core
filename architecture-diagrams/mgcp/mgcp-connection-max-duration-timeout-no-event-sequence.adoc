@@ -1,0 +1,13 @@
+[plantuml,file="mgcp-connection-max-duration-timeout-no-event-sequence.png"]
+--
+== Call Setup ==
+
+CallAgent -> MediaServer : CRCX endpoint/$
+CallAgent <-- MediaServer : 200 OK, Z:<endpointId>, I:<connectionId>
+
+== Timeout/Cleanup ==
+
+... maximum call duration reached ...
+MediaServer -> MediaServer : DLCX endpoint/<endpointId>, I:<connectionId>
+MediaServer --> MediaServer : 200 OK
+--

@@ -26,7 +26,7 @@ import java.util.List;
 import org.mobicents.media.control.mgcp.command.NotificationRequest;
 import org.mobicents.media.control.mgcp.connection.MgcpConnection;
 import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
-import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFound;
+import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFoundException;
 import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
 import org.mobicents.media.control.mgcp.pkg.MgcpEventObserver;
 
@@ -77,9 +77,9 @@ public interface MgcpEndpoint extends MgcpEndpointSubject, MgcpMessageSubject, M
      * @param callId The ID of the call where the connection is stored.
      * @param connectionId The connection ID
      * @throws MgcpCallNotFoundException When call with such ID cannot be found.
-     * @throws MgcpConnectionNotFound When call does not contain connection with such ID.
+     * @throws MgcpConnectionNotFoundException When call does not contain connection with such ID.
      */
-    MgcpConnection deleteConnection(int callId, int connectionId) throws MgcpCallNotFoundException, MgcpConnectionNotFound;
+    MgcpConnection deleteConnection(int callId, int connectionId) throws MgcpCallNotFoundException, MgcpConnectionNotFoundException;
 
     /**
      * Deletes all currently active connections.

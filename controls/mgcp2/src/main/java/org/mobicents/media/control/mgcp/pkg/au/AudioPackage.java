@@ -21,6 +21,9 @@
 
 package org.mobicents.media.control.mgcp.pkg.au;
 
+import org.mobicents.media.control.mgcp.pkg.MgcpEventType;
+import org.mobicents.media.control.mgcp.pkg.MgcpPackage;
+
 /**
  * This package defines events and signals for an ARF package for an Audio Server Media Gateway.
  * 
@@ -36,8 +39,26 @@ package org.mobicents.media.control.mgcp.pkg.au;
  *
  * @see <a href="https://tools.ietf.org/html/rfc2897">RFC2897</a>
  */
-public class AudioPackage {
-    
+public class AudioPackage implements MgcpPackage {
+
     public static final String PACKAGE_NAME = "AU";
+
+    @Override
+    public String getPackageName() {
+        return PACKAGE_NAME;
+    }
+
+    @Override
+    public boolean isEventSupported(String event) {
+        if (event == null || event.isEmpty()) {
+            return false;
+        }
+        return (getEventDetails(event) != null);
+    }
+
+    @Override
+    public MgcpEventType getEventDetails(String event) {
+        return AdvancedAudioEventType.fromSymbol(event);
+    }
 
 }

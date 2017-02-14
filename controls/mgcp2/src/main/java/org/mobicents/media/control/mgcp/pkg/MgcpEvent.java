@@ -44,9 +44,15 @@ public interface MgcpEvent {
     /**
      * Gets the name of the signal who fired the event.
      * 
-     * @return The name of the signal
+     * @return The name of the signal. Return an empty String if no signal originated this event.
      */
     String getSignal();
+    
+    /**
+     * Gets the identifier of the connection that fired the event.
+     * @return The connection identifier. Returns zero if the event was not originated by a connection.
+     */
+    int getConnectionId();
     
     /**
      * Gets a parameter from the event.

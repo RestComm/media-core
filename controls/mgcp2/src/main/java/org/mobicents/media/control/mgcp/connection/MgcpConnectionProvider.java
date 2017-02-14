@@ -23,6 +23,7 @@ package org.mobicents.media.control.mgcp.connection;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.mobicents.media.control.mgcp.pkg.MgcpEventProvider;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.impl.rtp.channels.MediaChannelProvider;
 
@@ -39,21 +40,23 @@ public class MgcpConnectionProvider {
     private final MediaChannelProvider channelProvider;
     private final ChannelsManager channelsManager;
     private final ListeningScheduledExecutorService executor;
+    private final MgcpEventProvider eventProvider;
     
-    public MgcpConnectionProvider(int timeout, MediaChannelProvider channelProvider, ChannelsManager channelsManager, ListeningScheduledExecutorService executor) {
+    public MgcpConnectionProvider(int timeout, MgcpEventProvider eventProvider, MediaChannelProvider channelProvider, ChannelsManager channelsManager, ListeningScheduledExecutorService executor) {
         this.idGenerator = new AtomicInteger(0);
         this.timeout = timeout;
+        this.eventProvider = eventProvider;
         this.channelProvider = channelProvider;
         this.channelsManager = channelsManager;
         this.executor = executor;
     }
     
-    public MgcpRemoteConnection provideRemote() {
-        return new MgcpRemoteConnection(this.idGenerator.incrementAndGet(), this.timeout, channelProvider, executor);
+    public MgcpRemoteConnection provideRemote(int callId) {
+        return new MgcpRemoteConnection(this.idGenerator.incrementAndGet(), callId, this.timeout, eventProvider, channelProvider, executor);
     }
     
-    public MgcpLocalConnection provideLocal() {
-        return new MgcpLocalConnection(this.idGenerator.incrementAndGet(), this.channelsManager);
+    public MgcpLocalConnection provideLocal(int callId) {
+        return new MgcpLocalConnection(this.idGenerator.incrementAndGet(), callId, eventProvider, this.channelsManager);
     }
 
 }
