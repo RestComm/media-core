@@ -75,6 +75,10 @@ public class MgcpLocalConnection extends AbstractMgcpConnection {
             switch (this.state) {
                 case CLOSED:
                     this.state = MgcpConnectionState.HALF_OPEN;
+                    
+                    if (this.halfOpenTimeout > 0) {
+                        expireIn(this.halfOpenTimeout);
+                    }
                     break;
 
                 default:
@@ -97,6 +101,10 @@ public class MgcpLocalConnection extends AbstractMgcpConnection {
                         log.debug("Connection " + getHexIdentifier() + " state is " + this.state.name());
                     }
                     
+                    // Submit timer
+                    if (this.timeout > 0) {
+                        expireIn(this.timeout);
+                    }
                     break;
 
                 default:
@@ -134,6 +142,11 @@ public class MgcpLocalConnection extends AbstractMgcpConnection {
                 case OPEN:
                     // Deactivate connection
                     setMode(ConnectionMode.INACTIVE);
+                    
+                    // Cancel timer
+                    if(this.timerFuture != null && !this.timerFuture.isDone()) {
+                        this.timerFuture.cancel(false);
+                    }
 
                     // Update connection state
                     this.state = MgcpConnectionState.CLOSED;
