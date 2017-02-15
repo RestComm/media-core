@@ -51,6 +51,7 @@ import org.mobicents.media.control.mgcp.pkg.MgcpEvent;
 import org.mobicents.media.control.mgcp.pkg.MgcpRequestedEvent;
 import org.mobicents.media.control.mgcp.pkg.MgcpSignal;
 import org.mobicents.media.control.mgcp.pkg.SignalType;
+import org.mobicents.media.control.mgcp.pkg.r.rto.RtpTimeoutEvent;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -581,6 +582,15 @@ public class GenericMgcpEndpoint implements MgcpEndpoint {
               notify.addParameter(MgcpParameterType.OBSERVED_EVENT, event.toString());
               notify.addParameter(MgcpParameterType.REQUEST_ID, String.valueOf(requestedEvent.getRequestId()));
               return notify;
+            }
+        } else {
+            // Special case: Connection timeout after allowed lifetime.
+            if(event instanceof RtpTimeoutEvent) {
+                try {
+                    deleteConnection(connection.getCallIdentifier(), connectionId);
+                } catch (MgcpConnectionNotFoundException | MgcpCallNotFoundException e) {
+                    log.warn("Could not delete timed out connection " + connection.getHexIdentifier(), e);
+                }
             }
         }
         return null;

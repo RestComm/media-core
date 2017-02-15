@@ -246,7 +246,7 @@ public abstract class AbstractMgcpConnection implements MgcpConnection {
         @Override
         public void onFailure(Throwable t) {
             if(log().isInfoEnabled()) {
-                log().info("Connection " + getCallIdentifierHex() +" life timer was canceled or failed.");
+                log().info("Connection " + getHexIdentifier() +" life timer was canceled or failed.");
             }
         }
 
