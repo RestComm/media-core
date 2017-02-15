@@ -23,11 +23,7 @@ package org.mobicents.media.control.mgcp.endpoint;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -51,6 +47,7 @@ import org.mobicents.media.control.mgcp.pkg.MgcpEvent;
 import org.mobicents.media.control.mgcp.pkg.MgcpRequestedEvent;
 import org.mobicents.media.control.mgcp.pkg.MgcpSignal;
 import org.mobicents.media.control.mgcp.pkg.SignalType;
+import org.mobicents.media.control.mgcp.pkg.r.rto.RtpTimeoutEvent;
 import org.mockito.ArgumentCaptor;
 
 /**
@@ -508,6 +505,51 @@ public class GenericMgcpEndpointTest {
         final MgcpMessage ntfy = eventCaptor.getValue();
         assertTrue(ntfy instanceof MgcpRequest);
         assertEquals(notifiedEntity.toString(), ntfy.getParameter(MgcpParameterType.NOTIFIED_ENTITY));
+    }
+
+    @Test
+    public void testExecuteTimeoutSignalAndDeleteConnection() {
+        // given
+        final int callId = 3;
+        final int connectionId = 5;
+
+        final MgcpMessageObserver msgObserver = mock(MgcpMessageObserver.class);
+        final MgcpEndpointObserver endpointObserver = mock(MgcpEndpointObserver.class);
+        
+        final NotifiedEntity notifiedEntity = new NotifiedEntity("call-agent", "127.0.0.1", 2727);
+        
+        final MgcpSignal signal = mock(MgcpSignal.class);
+        final MgcpEvent timeoutEvent = new RtpTimeoutEvent(1, 10);
+        final MgcpLocalConnection connection = mock(MgcpLocalConnection.class);
+        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
+        final MediaGroup mediaGroup = mock(MediaGroup.class);
+        final EndpointIdentifier endpointId = new EndpointIdentifier("mobicents/endpoint/1", "127.0.0.1");
+        final MgcpEndpoint endpoint = new GenericMgcpEndpoint(endpointId, connectionProvider, mediaGroup);
+        
+        // when
+        when(signal.getSignalType()).thenReturn(SignalType.TIME_OUT);
+        when(signal.getNotifiedEntity()).thenReturn(notifiedEntity);
+        when(signal.getName()).thenReturn("AU/pa");
+        
+        when(connectionProvider.provideLocal(callId)).thenReturn(connection);
+        when(connection.getCallIdentifier()).thenReturn(callId);
+        when(connection.getIdentifier()).thenReturn(connectionId);
+        
+        endpoint.observe(endpointObserver);
+        endpoint.observe(msgObserver);
+        final MgcpConnection createdConnection = endpoint.createConnection(callId, true);
+        
+        // then
+        assertEquals(connection, createdConnection);
+        assertEquals(connection, endpoint.getConnection(callId, connectionId));
+        
+        // when
+        endpoint.onEvent(connection, timeoutEvent);
+        
+        // then
+        assertNull(endpoint.getConnection(callId, connectionId));
+        verify(msgObserver, never()).onMessage(any(InetSocketAddress.class), any(InetSocketAddress.class), any(MgcpMessage.class), any(MessageDirection.class));
+        verify(endpointObserver, times(1)).onEndpointStateChanged(endpoint, MgcpEndpointState.INACTIVE);
     }
 
     /**
