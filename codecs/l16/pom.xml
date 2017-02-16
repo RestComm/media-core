@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.mobicents.media.codecs</groupId>
         <artifactId>codecs</artifactId>
-        <version>5.2.0-SNAPSHOT</version>
+        <version>6.0.0.13</version>
     </parent>
 
     <artifactId>l16</artifactId>
