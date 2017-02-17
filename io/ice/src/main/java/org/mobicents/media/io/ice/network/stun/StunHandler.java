@@ -123,19 +123,16 @@ public class StunHandler implements PacketHandler {
 			throw new IOException("Illegal STUN Transaction ID: " + new String(transactionID), e);
 		}
 
-		UsernameAttribute remoteUnameAttribute;
-		String remoteUsername;
+		UsernameAttribute remoteUnameAttribute = (UsernameAttribute) request.getAttribute(StunAttribute.USERNAME);
+
 		// Send binding error response if username is null
-		try {
-			remoteUnameAttribute = (UsernameAttribute) request.getAttribute(StunAttribute.USERNAME);
-			remoteUsername = new String(remoteUnameAttribute.getUsername());
-		}
-		catch(NullPointerException nullPointer) {
+		if (remoteUnameAttribute.getUsername()== null)	{
 			response.setMessageType(StunMessage.BINDING_ERROR_RESPONSE);
 			response.addAttribute(StunAttributeFactory.createErrorCodeAttribute(ErrorCodeAttribute.BAD_REQUEST,
 					ErrorCodeAttribute.getDefaultReasonPhrase(ErrorCodeAttribute.BAD_REQUEST)));
 			return response.encode();
 		}
+		String remoteUsername = new String(remoteUnameAttribute.getUsername());
 		
 		/*
 		 * The agent MUST consider the username to be valid if it consists of
