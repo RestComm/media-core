@@ -167,28 +167,23 @@ public class IceHandler implements PacketHandler {
     }
 
     private byte[] processRequest(StunRequest request, InetSocketAddress localPeer, InetSocketAddress remotePeer)
-            throws IOException {
+            throws IOException, StunException {
 
-        // Produce Binding Response
-        TransportAddress transportAddress = new TransportAddress(remotePeer.getAddress(), remotePeer.getPort(), TransportProtocol.UDP);
-        StunResponse response = StunMessageFactory.createBindingResponse(request, transportAddress);
         byte[] transactionID = request.getTransactionId();
-        try {
-            response.setTransactionID(transactionID);
-        } catch (StunException e) {
-            throw new IOException("Illegal STUN Transaction ID: " + new String(transactionID), e);
-        }
 
         // The agent MUST use a short-term credential to authenticate the request and perform a message integrity check.
-        UsernameAttribute remoteUnameAttribute = (UsernameAttribute) request.getAttribute(StunAttribute.USERNAME);;
+        UsernameAttribute remoteUnameAttribute = (UsernameAttribute) request.getAttribute(StunAttribute.USERNAME);
 
         // Send binding error response if username is null
-        if (remoteUnameAttribute.getUsername()==null) {
-            response.setMessageType(StunMessage.BINDING_ERROR_RESPONSE);
-            response.addAttribute(StunAttributeFactory.createErrorCodeAttribute(ErrorCodeAttribute.BAD_REQUEST,
-                    ErrorCodeAttribute.getDefaultReasonPhrase(ErrorCodeAttribute.BAD_REQUEST)));
-            return response.encode();
+        if(remoteUnameAttribute == null) {
+            StunResponse errorResponse = new StunResponse();
+            errorResponse.setTransactionID(transactionID);
+            errorResponse.setMessageType(StunMessage.BINDING_ERROR_RESPONSE);
+            errorResponse.addAttribute(StunAttributeFactory.createErrorCodeAttribute(ErrorCodeAttribute.BAD_REQUEST,
+                ErrorCodeAttribute.getDefaultReasonPhrase(ErrorCodeAttribute.BAD_REQUEST)));
+            return errorResponse.encode();
         }
+
         String remoteUsername = new String(remoteUnameAttribute.getUsername());
 
         // The agent MUST consider the username to be valid if it consists of two values separated by a colon, where the first
@@ -203,6 +198,15 @@ public class IceHandler implements PacketHandler {
         int colon = remoteUsername.indexOf(":");
         String localUFrag = remoteUsername.substring(0, colon);
         String remoteUfrag = remoteUsername.substring(colon + 1);
+
+        // Produce Binding Response
+        TransportAddress transportAddress = new TransportAddress(remotePeer.getAddress(), remotePeer.getPort(), TransportProtocol.UDP);
+        StunResponse response = StunMessageFactory.createBindingResponse(request, transportAddress);
+        try {
+            response.setTransactionID(transactionID);
+        } catch (StunException e) {
+            throw new IOException("Illegal STUN Transaction ID: " + new String(transactionID), e);
+        }
 
         // Add USERNAME and MESSAGE-INTEGRITY attribute in the response.
         // The responses utilize the same usernames and passwords as the requests.

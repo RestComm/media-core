@@ -775,7 +775,6 @@ public class StunMessage {
 		// Message Length
 		binMsg[messageLengthOffset] = (byte) (dataLength >> 8);
 		binMsg[messageLengthOffset + 1] = (byte) (dataLength & 0xFF);
-
 		return binMsg;
 	}
 
@@ -848,7 +847,6 @@ public class StunMessage {
 			message = new StunIndication();
 		}
 		message.setMessageType(messageType);
-
 		int length = (char) ((binMessage[offset++] << 8) | (binMessage[offset++] & 0xFF));
 
 		/* copy the cookie */
