@@ -108,7 +108,7 @@ public class MultiplexedChannelTest {
 		buffer.flip();
 		int sent = remoteChannel.send(buffer, localChannel.getLocalAddress());
 		channel.receive();
-
+		
 		// then
 		Assert.assertEquals(data.length, sent);
 		Assert.assertTrue(channel.hasPendingData());
