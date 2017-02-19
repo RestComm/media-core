@@ -280,7 +280,6 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
 
         double mean = mean(correllation);
         if(mean > SILENCE_LEVEL) {
-            System.out.println("NOISE IDENTIFIED!!!!!!!!!! MEAN IS " + mean);
             return false;
         }
         return true;
