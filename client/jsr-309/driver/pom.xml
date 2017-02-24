@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.mobicents.media.client</groupId>
         <artifactId>jsr-309</artifactId>
-        <version>6.0.0-SNAPSHOT</version>
+        <version>6.0.0.16</version>
     </parent>
 
 	<artifactId>jsr-309-driver</artifactId>
