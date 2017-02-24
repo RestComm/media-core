@@ -103,7 +103,7 @@ public class PriorityQueueScheduler  {
     	criticalThread = new CriticalThread("scheduler-critical");
     	
         workerThreads=new WorkerThread[Runtime.getRuntime().availableProcessors()*2];
-        criticalWorkerThreads=new CriticalWorkerThread[Runtime.getRuntime().availableProcessors()*2];
+        criticalWorkerThreads=new CriticalWorkerThread[Runtime.getRuntime().availableProcessors() / 2];
         for(int i=0;i<workerThreads.length;i++) {
             workerThreads[i] = new WorkerThread("scheduler-worker-" + i);
         }

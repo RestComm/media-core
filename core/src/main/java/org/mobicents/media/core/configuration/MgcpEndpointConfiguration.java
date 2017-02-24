@@ -21,6 +21,8 @@
 
 package org.mobicents.media.core.configuration;
 
+import org.mobicents.media.server.spi.RelayType;
+
 /**
  * Configuration parameters of an MGCP Endpoint.
  * 
@@ -30,15 +32,19 @@ package org.mobicents.media.core.configuration;
 public class MgcpEndpointConfiguration {
     
     public static int POOL_SIZE = 0;
+    public static String DEFAULT_RELAY_TYPE = RelayType.MIXER.name();
 
     private String name;
+    @Deprecated
     private String className;
+    private RelayType relayType;
     private int poolSize;
 
     public MgcpEndpointConfiguration() {
         this.name = "";
         this.className = "";
         this.poolSize = POOL_SIZE;
+        this.relayType = RelayType.MIXER;
     }
 
     public String getName() {
@@ -52,15 +58,28 @@ public class MgcpEndpointConfiguration {
         this.name = name.toLowerCase();
     }
     
+    @Deprecated
     public String getClassName() {
         return className;
     }
     
+    @Deprecated
     public void setClassName(String className) {
         if(className == null || className.isEmpty()) {
             throw new IllegalArgumentException("Endpoint class name cannot be empty.");
         }
         this.className = className;
+    }
+    
+    public void setRelayType(String relayType) {
+        if(relayType == null) {
+            throw new IllegalArgumentException("Relay Type cannot be undefined.");
+        }
+        this.relayType = RelayType.fromName(relayType);
+    }
+    
+    public RelayType getRelayType() {
+        return relayType;
     }
 
     public int getPoolSize() {

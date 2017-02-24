@@ -164,7 +164,8 @@ The media configuration contains definitions that have an impact on the media ch
 [source,xml]
 ----
 <media>
-	<timeout>0</timeout>
+	<timeout>30</timeout>
+	<maxDuration>14400</maxDuration>
 	<lowPort>34534</lowPort>
 	<highPort>65534</highPort>
 	<jitterBuffer size="50" />
@@ -184,6 +185,8 @@ The media configuration contains definitions that have an impact on the media ch
 The *LowPort* and *HighPort* define the port range reserved for RTP channels.
 These values should be an even number, since odd ports are reserved for RTCP channels.
 
+The *MaxDuration* value defines the maximum duration an RTP channel can remain open, thus limiting the lifetime of calls. If set to zero, the connection will stay open forever.
+
 The *JitterBuffer* size parameter sets the maximum capacity of the jitter buffer, in milliseconds.
 Jitter Buffers are commonly configured to hold up to 50-60ms of audio.
 
@@ -191,9 +194,9 @@ Jitter Buffers are commonly configured to hold up to 50-60ms of audio.
 
 Most SIP UA do not support any type of keep-alive between 200 OK and BYE.
 Therefore, in case the network goes down while a call is established, the call may hang forever.
-That is why RTP streaming should not be interrupted (exception to rule being _recvonly_ and _inactive_ modes). With the this in mind, the Media Server features the *RtpTimeout* parameter. 
+That is why RTP streaming should not be interrupted (exception to rule being _recvonly_ and _inactive_ modes). With the this in mind, the Media Server features the *timeout* parameter. 
 
-When *RtpTimeout* is set to greater than 0, the Media Server will monitor RTP traffic and if it finds period equal or greater then the RTP timeout (in seconds) it will delete the connection and notify the server that a connection was removed (by sending DLCX MGCP command). Consequently, any border server will receive a reliable notification that the call is still alive even when the communication network is no longer available. 
+When *timeout* is set to greater than 0, the Media Server will monitor RTP traffic and if it finds period equal or greater then the RTP timeout (in seconds) it will delete the connection and notify the server that a connection was removed (by sending DLCX MGCP command). Consequently, any border server will receive a reliable notification that the call is still alive even when the communication network is no longer available. 
 
 NOTE: When enabling RTP timeout, it is recommended that you do not set the mode to _inactive_ or _sendonly_ when you expect to receive data (after 180 or 200 OK) depending on your application 
 

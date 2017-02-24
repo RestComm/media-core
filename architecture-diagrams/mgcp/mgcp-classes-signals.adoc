@@ -1,0 +1,107 @@
+[plantuml,file="mgcp-classes-signals.png"]
+--
+class MgcpController {
+    - UdpManager networkManager;
+    - MgcpChannel channel;
+    - MgcpTransactionManager transactions;
+    - MgcpEndpointManager endpoints;
+    - MgcpCommandProvider commands;
+    - String address;
+    - int port;
+    - boolean active;
+}
+
+interface MgcpCommand {
+    + MgcpCommandResult call()
+}
+
+class RequestNotificationCommand {
+    
+}
+
+class MgcpEndpointManager {
+    - Map<String, MgcpEndpoint> endpoints
+    - Map<String, MgcpEndpointProvider> providers
+    + MgcpEndpoint registerEndpoint(String)
+    + MgcpEndpoint getEndpoint(String)
+    + unregisterEndpoint(String)
+}
+
+interface MgcpEndpoint {
+    + String getEndpointId()
+    + MgcpConnection getConnection(int callId, int connectionId)
+    + addConnection(int callId, MgcpConnection connection)
+    + deleteConnection(int connectionId)
+    + deleteConnections(int callId)
+    + deleteConnections()
+}
+
+interface MgcpEventSubject {
+    + observe(MgcpEventObserver observer);
+    + forget(MgcpEventObserver observer);
+    + notify(Object originator, MgcpEvent event);
+}
+
+interface MgcpEventObserver {
+    + onEvent(Object, MgcpEvent);
+}
+
+interface MgcpSignal {
+    + String getName()
+    + int getRequestId()
+    + NotifiedEntity getNotifiedEntity()
+    + SignalType getSignalType()
+    + execute()
+    + cancel()
+}
+
+class AbstractMgcpSignal {
+    + int requestId
+    + String packageName
+    + String symbol
+    + SignalType type
+    + NotifiedEntity notifiedEntity
+    + Map<String, String> parameters
+    + Set<MgcpEventObserver> observers
+    + AtomicBoolean executing
+}
+
+interface MgcpEvent {
+    + String getPackage()
+    + String getSymbol()
+    + String getSignal()
+    + String getParameter(String)
+}
+
+class GenericMgcpEvent {
+    - String pkg;
+    - String symbol;
+    - String signal;
+    - Map<String, String> parameters;
+}
+
+MgcpCommand <|-- RequestNotificationCommand
+RequestNotificationCommand -> MgcpEndpoint : > request notification
+(RequestNotificationCommand,MgcpEndpoint) .. MgcpSignal
+MgcpEventSubject <|-right- MgcpSignal
+MgcpEventObserver <|-- MgcpEndpoint
+MgcpEndpoint *--> MgcpSignal : > execute
+
+MgcpSignal <|-- AbstractMgcpSignal
+AbstractMgcpSignal <|-- PlayAnnouncement
+AbstractMgcpSignal <|-- PlayCollect
+AbstractMgcpSignal <|-- PlayRecord
+AbstractMgcpSignal <|-- EndSignal
+
+MgcpEvent <|-- GenericMgcpEvent
+GenericMgcpEvent <|-- OperationComplete
+GenericMgcpEvent <|-- OperationFailed
+
+MgcpEndpoint <-- AbstractMgcpSignal : < on event
+(MgcpEndpoint,AbstractMgcpSignal) .. MgcpEvent
+MgcpEndpoint <- MgcpEndpointManager : < observe
+MgcpEndpoint -> MgcpEndpointManager : > on event (NTFY)
+
+MgcpController --> MgcpEndpointManager : > observe
+MgcpController <-- MgcpEndpointManager : < on message (NTFY)
+--

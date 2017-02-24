@@ -1,0 +1,186 @@
+[plantuml,file="mgcp-classes-endpoints.png"]
+--
+interface ServerManager {
+    + activate()
+    + deactivate()
+}
+
+class MgcpController {
+    - UdpManager networkManager;
+    - MgcpChannel channel;
+    - MgcpTransactionManager transactions;
+    - MgcpEndpointManager endpoints;
+    - MgcpCommandProvider commands;
+    - String address;
+    - int port;
+    - boolean active;
+}
+
+interface MgcpEndpointObserver {
+    +onEndpointStateChanged(MgcpEndpoint, MgcpEndpointState)
+}
+
+interface MgcpEndpointSubject {
+    + observe(MgcpEndpointObserver);
+    + forget(MgcpEndpointObserver);
+    + notify(MgcpEndpoint, MgcpEndpointState);
+}
+
+class MgcpEndpointProvider {
+    - String namespace
+    + String getNamespace()
+    + MgcpEndpoint provide()
+}
+
+class MgcpEndpointManager {
+    - Map<String, MgcpEndpoint> endpoints
+    - Map<String, MgcpEndpointProvider> providers
+    + MgcpEndpoint registerEndpoint(String)
+    + MgcpEndpoint getEndpoint(String)
+    + unregisterEndpoint(String)
+}
+
+interface MgcpEndpoint {
+    + String getEndpointId()
+    + MgcpConnection getConnection(int callId, int connectionId)
+    + addConnection(int callId, MgcpConnection connection)
+    + deleteConnection(int connectionId)
+    + deleteConnections(int callId)
+    + deleteConnections()
+}
+
+abstract class GenericMgcpEndpoint {
+    - int endpointEndpointId
+    - Map<Integer, MgcpCall> calls
+    - MgcpConnectionProvider connectionProvider
+    - MediaGroup mediaGroup
+    - NotifiedEntity notifiedEntity
+    - Map<String, MgcpSignal> signals
+    - MgcpRequestedEvent[] requestedEvents
+    - Set<MgcpEndpointObserver> endpointObservers
+    - Set<MgcpMessageObserver> messageObservers
+    - boolean active
+    - activate()
+    - deactivate()
+    # onActivated()
+    # onDeactivated()
+    # onConnectionCreated(MgcpConnection)
+    # onConnectionDeleted(MgcpConnection)
+}
+
+class MgcpMixerEndpoint {
+    - AudioMixer inbandMixer
+    - OOBMixer outbandMixer
+}
+
+class MgcpSplitterEndpoint {
+    - AudioSplitter inbandSplitter
+    - OOBSplitter outbandSplitter
+}
+
+interface MediaGroup {
+    + Player getPlayer();
+    + Recorder getRecorder();
+    + DtmfDetector getDetector();
+    + DtmfGenerator getGenerator();
+}
+
+ServerManager <|-- MgcpController
+MgcpController --> MgcpEndpointManager : > observe
+MgcpController <-- MgcpEndpointManager : > notify
+
+MgcpEndpointObserver <|-- MgcpEndpointManager
+MgcpEndpointProvider <-* MgcpEndpointManager : < provide
+(MgcpEndpointProvider,MgcpEndpointManager) .. MgcpEndpoint
+
+MgcpEndpointSubject <|-- MgcpEndpoint
+MgcpEndpoint <|-- GenericMgcpEndpoint
+GenericMgcpEndpoint <|-- MgcpMixerEndpoint
+GenericMgcpEndpoint <|-- MgcpSplitterEndpoint
+
+MgcpEndpointManager *--> MgcpEndpoint : > observe
+MgcpEndpointManager <-- GenericMgcpEndpoint  : < state changed
+GenericMgcpEndpoint -left-> MediaGroup : > get resource
+
+
+class MgcpConnectionProvider {
+    - ChannelsManager channelsManager
+    + MgcpRemoteConnection provideRemote()
+    + MgcpLocalConnection provideLocal()
+}
+
+class MediaChannelProvider {
+    - ChannelsManager channelsManager
+    - DspFactory dspFactory
+    + AudioChannel provideAudioChannel()
+}
+
+interface MgcpCallListener {
+    + onCallTerminated(MgcpCall)
+}
+
+interface MgcpConnectionListener {
+    + onConnectionFailure(MgcpConnection)
+}
+
+class MgcpCall {
+    - int callId
+    - Map<String, MgcpConnection> connections
+    + addConnection(MgcpConnection)
+    + MgcpConnection(String)
+    + MgcpConnection removeConnection(String)
+}
+
+interface MgcpConnectionListener {
+    + onConnectionFailure(MgcpConnection)
+}
+
+interface MgcpConnection {
+    + int getId()
+    + String getHexId()
+    + boolean isLocal()
+    + ConnectionState getState()
+    + ConnectionMode getMode()
+    + String halfOpen()
+    + String open(String)
+    + close()
+}
+
+abstract class AbstractMgcpConnection {
+    - int identifier
+    - String hexIdentifier
+    - ConnectionMode mode
+    - ConnectionState state
+    + AudioComponent getAudioComponent()
+    + OOBComponent getOutbandComponent()
+}
+
+class MgcpLocalConnection {
+    - LocalDataChannel audioChannel
+    + join(MgcpLocalConnection)
+}
+
+class MgcpRemoteConnection {
+    - String localAddress
+    - String externalAddress
+    - String cname
+    - boolean outbound
+    - boolean webrtc
+    - SessionDescription localSdp
+    - SessionDescription remoteSdp
+}
+
+MgcpConnectionListener <|-- GenericMgcpEndpoint
+MgcpCallListener <|-- GenericMgcpEndpoint
+GenericMgcpEndpoint *-> MgcpCall : > manage connections
+GenericMgcpEndpoint <- MgcpCall : < state changed
+
+MgcpCall -> MgcpConnectionProvider : > provide
+MgcpConnectionProvider --> MediaChannelProvider: > provide
+(MgcpCall,MgcpConnectionProvider) .. MgcpConnection
+MgcpCall *--> MgcpConnection : > active
+MgcpConnection <|-- AbstractMgcpConnection
+AbstractMgcpConnection *--> GenericMgcpEndpoint : > notify
+AbstractMgcpConnection <|-- MgcpLocalConnection
+AbstractMgcpConnection <|-- MgcpRemoteConnection
+--

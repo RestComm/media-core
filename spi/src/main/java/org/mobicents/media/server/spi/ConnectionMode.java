@@ -22,77 +22,42 @@
 
 package org.mobicents.media.server.spi;
 
-import org.mobicents.media.server.utils.Text;
-
-
-
 /**
- * This enum represent connection mode:
- * <ul>
- * <li>INACTIVE - This is default mode where there is not tx or rx of media</li>
- * <li>SEND_ONLY - only send</li>
- * <li>RECV_ONLY - only receive</li>
- * <li>SEND_RECV - send and receive</li>
- * <ul>
+ * Enumeration of possible modes for an MGCP connection.
  * 
- * @author baranowb
- * @author amit bhayani
- * @kulikov
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
+ *
  */
-public enum ConnectionMode {	
+public enum ConnectionMode {
     
-		INACTIVE(new Text("inactive")), 
-        SEND_ONLY(new Text("sendonly")),
-        RECV_ONLY(new Text("recvonly")),
-        SEND_RECV(new Text("sendrecv")),
-        CONFERENCE(new Text("confrnce")),
-        NETWORK_LOOPBACK(new Text("netwloop")),
-        LOOPBACK(new Text("loopback")),
-        CONTINUITY_TEST(new Text("conttest")),
-        NETWORK_CONTINUITY_TEST(new Text("netwtest"));
-		
-		private Text description;
-		
-		private ConnectionMode(Text value) {
-			this.description = value;
-		}
-		
-		public Text getDescription() {
-			return description;
-		}
-
-        public static ConnectionMode valueOf(Text v) {
-            if (v.equals(inactive)) {
-                return INACTIVE;
-            } else if (v.equals(send_only)) {
-                return SEND_ONLY;
-            } else if (v.equals(recv_only)) {
-                return RECV_ONLY;
-            } else if (v.equals(send_recv)) {
-                return SEND_RECV;
-            } else if (v.equals(network_loopback)) {
-                return NETWORK_LOOPBACK;
-            } else if (v.equals(loopback)) {
-                return LOOPBACK;
-            } else if (v.equals(conference)) {
-                return CONFERENCE;
-            } else if (v.equals(continuity_test)) {
-                return CONTINUITY_TEST;
-            } else if (v.equals(network_continuity_test)) {
-                return NETWORK_CONTINUITY_TEST;
+    INACTIVE("inactive"), 
+    SEND_ONLY("sendonly"),
+    RECV_ONLY("recvonly"),
+    SEND_RECV("sendrecv"),
+    CONFERENCE("confrnce"),
+    NETWORK_LOOPBACK("netwloop"),
+    LOOPBACK("loopback"),
+    CONTINUITY_TEST("conttest"),
+    NETWORK_CONTINUITY_TEST("netwtest");
+    
+    private final String description;
+    
+    private ConnectionMode(String description) {
+        this.description = description;
+    }
+    
+    public String description() {
+        return this.description;
+    }
+    
+    public static final ConnectionMode fromDescription(String description) {
+        if(description != null && !description.isEmpty()) {
+            for (ConnectionMode mode : values()) {
+                if(mode.description.equalsIgnoreCase(description)) {
+                    return mode;
+                }
             }
-            
-            return null;
         }
-        
-    private final static Text inactive = new Text("inactive");
-    private final static Text send_only = new Text("sendonly");
-    private final static Text recv_only = new Text("recvonly");
-    private final static Text send_recv= new Text("sendrecv");
-    private final static Text network_loopback = new Text("netwloop");
-    private final static Text loopback = new Text("loopback");
-    private final static Text conference  = new Text("confrnce");
-    private final static Text continuity_test  = new Text("conttest");
-    private final static Text network_continuity_test  = new Text("netwtest");
-        
+        throw new IllegalArgumentException("Unknown connection mode: " + description);
+    }
 }

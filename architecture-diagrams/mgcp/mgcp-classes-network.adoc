@@ -1,0 +1,92 @@
+[plantuml,file="mgcp-classes-network.png"]
+--
+interface ServerManager {
+    + activate()
+    + deactivate()
+}
+
+class MgcpController {
+    - UdpManager networkManager;
+    - MgcpChannel channel;
+    - MgcpTransactionManager transactions;
+    - MgcpEndpointManager endpoints;
+    - MgcpCommandProvider commands;
+    - String address;
+    - int port;
+    - boolean active;
+}
+
+interface MgcpMessageObserver {
+    + onMessage(MgcpMessage, MessageDirection)
+}
+
+interface NetworkChannel {
+    + send(byte[])
+    + receive()
+}
+
+interface NetworkGuard {
+    + isSecure(NetworkChannel, InetSocketAddress)
+}
+
+class MgcpChannel {
+    - MgcpPacketHandler mgcpHandler
+    - Set<MgcpMessageObserver> observers
+}
+
+interface PacketHandler{
+    + handle(byte[])
+}
+
+class MgcpPacketHandler {
+    - MgcpMessageParser parser;
+    - Set<MgcpMessageObserver> observers;
+}
+
+interface MgcpMessageSubject {
+    + observe(MgcpMessageObserver);
+    + forget(MgcpMessageObserver);
+    + notify(Object, MgcpMessage, MessageDirection);
+}
+
+class MgcpMessageParser {
+    + MgcpMessage parse(byte[])
+}
+
+abstract class MgcpMessage {
+    - int transactionId
+    - List<Parameter> parameters
+    - byte[] data
+}
+
+class MgcpRequest {
+    - MgcpActionType actionType
+}
+
+class MgcpResponse {
+    - int code
+    - String message
+}
+
+PacketHandler <|-- MgcpPacketHandler
+MgcpMessageSubject <|-- MgcpPacketHandler
+MgcpPacketHandler -> MgcpMessageParser : > parse incoming msg
+(MgcpPacketHandler,MgcpMessageParser) .. MgcpMessage
+
+MgcpMessage <|-- MgcpRequest
+MgcpMessage <|-- MgcpResponse
+
+NetworkChannel <|-- MgcpChannel
+MgcpMessageObserver <|-- MgcpChannel
+MgcpMessageSubject <|-- MgcpChannel
+NetworkGuard <-down- MgcpChannel : < filter incoming msg
+
+MgcpChannel -> MgcpPacketHandler : > observe
+MgcpChannel <- MgcpPacketHandler : < incoming msg
+
+ServerManager <|-- MgcpController
+MgcpMessageObserver <|-- MgcpController
+MgcpController -> MgcpChannel : > observe, outgoing msg
+MgcpController <- MgcpChannel : < incoming msg
+
+--

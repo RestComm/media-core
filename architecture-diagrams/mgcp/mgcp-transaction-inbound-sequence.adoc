@@ -1,0 +1,65 @@
+[plantuml,file="mgcp-transaction-inbound-sequence.png"]
+--
+[-> MgcpChannel : bytes
+activate MgcpChannel
+
+MgcpChannel -> MgcpController : notify(request, IN)
+deactivate MgcpChannel
+activate MgcpController
+
+MgcpController -> MgcpCommandProvider : provider(request.type)
+activate MgcpCommandProvider
+create MgcpCommand
+MgcpCommandProvider -> MgcpCommand : <<create>>
+MgcpCommandProvider --> MgcpController : command
+deactivate MgcpCommandProvider
+
+MgcpController -> MgcpTransactionManager : process(request,command)
+deactivate MgcpController
+activate MgcpTransactionManager
+
+create MgcpTransaction
+MgcpTransactionManager -> MgcpTransaction : <<create>>
+MgcpTransactionManager -> MgcpTransactionManager : register(tx)
+
+MgcpTransactionManager -> ServiceExecutor : submit(command)
+activate ServiceExecutor
+
+ServiceExecutor -> MgcpCommand : call()
+activate MgcpCommand
+
+ServiceExecutor --> MgcpTransactionManager : ListenableFuture
+deactivate ServiceExecutor
+
+create FutureCallback
+MgcpTransactionManager -> FutureCallback : <<create>>
+MgcpTransactionManager -> Futures : addCallback(ListenableFuture,FutureCallback)
+deactivate MgcpTransactionManager
+
+|||
+... executing command ...
+|||
+
+MgcpCommand --> FutureCallback : MgcpResponse
+deactivate MgcpCommand
+activate FutureCallback
+
+FutureCallback -> MgcpTransactionManager : onSuccess(MgcpResponse)
+destroy MgcpCommand
+deactivate FutureCallback
+activate MgcpTransactionManager
+
+MgcpTransactionManager -> MgcpTransactionManager : deregister(tx)
+destroy MgcpTransaction
+
+MgcpTransactionManager -> MgcpController : notify(MgcpResponse, OUT)
+deactivate MgcpTransactionManager
+activate MgcpController
+
+MgcpController -> MgcpChannel : send(MgcpResponse)
+deactivate MgcpController
+activate MgcpChannel
+
+[<- MgcpChannel : bytes
+deactivate MgcpChannel
+--

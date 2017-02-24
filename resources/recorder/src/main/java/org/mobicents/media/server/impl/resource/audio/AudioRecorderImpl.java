@@ -237,6 +237,9 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
             // detecting silence
             if (!this.checkForSilence(data, offset, len)) {
                 this.lastPacketData = scheduler.getClock().getTime();
+                if(!this.speechDetected) {
+                    fireEvent(new RecorderEventImpl(RecorderEvent.SPEECH_DETECTED, this));
+                }
                 this.speechDetected = true;
             }
         } else {
@@ -270,13 +273,24 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
      * @return true if silence detected
      */
     private boolean checkForSilence(byte[] data, int offset, int len) {
+        int[] correllation = new int[len];
         for (int i = offset; i < len - 1; i += 2) {
-            int s = (data[i] & 0xff) | (data[i + 1] << 8);
-            if (s > SILENCE_LEVEL) {
-                return false;
-            }
+            correllation[i] = (data[i] & 0xff) | (data[i + 1] << 8);
+        }
+
+        double mean = mean(correllation);
+        if(mean > SILENCE_LEVEL) {
+            return false;
         }
         return true;
+    }
+    
+    public double mean(int[] m) {
+        double sum = 0;
+        for (int i = 0; i < m.length; i++) {
+            sum += m[i];
+        }
+        return sum / m.length;
     }
 
     @Override
@@ -374,23 +388,26 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
 
         @Override
         public long perform() {
-            long currTime = scheduler.getClock().getTime();
+            final long currentTime = scheduler.getClock().getTime();
+            final long idleTime = currentTime - lastPacketData;
 
-            if (preSpeechTimer > 0 && !speechDetected && currTime - lastPacketData > preSpeechTimer) {
+            // Abort recording operation if user did not speak during initial detection period
+            if (preSpeechTimer > 0 && !speechDetected && idleTime > preSpeechTimer) {
                 qualifier = RecorderEvent.NO_SPEECH;
                 scheduler.submit(killRecording, PriorityQueueScheduler.INPUT_QUEUE);
                 return 0;
             }
 
-            if (postSpeechTimer > 0 && speechDetected && currTime - lastPacketData > postSpeechTimer) {
-                qualifier = RecorderEvent.NO_SPEECH;
+            // Abort recording operation if user did not speak for a while
+            if (postSpeechTimer > 0 && speechDetected && idleTime > postSpeechTimer) {
+                qualifier = RecorderEvent.SUCCESS;
                 scheduler.submit(killRecording, PriorityQueueScheduler.INPUT_QUEUE);
                 return 0;
             }
 
-            // check max time and stop recording if exeeds limit
-            if (maxRecordTime > 0 && currTime - startTime >= maxRecordTime) {
-                // set qualifier
+            // Abort recording if maximum time limit is reached
+            final long duration = currentTime - startTime;
+            if (maxRecordTime > 0 && duration >= maxRecordTime) {
                 qualifier = RecorderEvent.MAX_DURATION_EXCEEDED;
                 scheduler.submit(killRecording, PriorityQueueScheduler.INPUT_QUEUE);
                 return 0;

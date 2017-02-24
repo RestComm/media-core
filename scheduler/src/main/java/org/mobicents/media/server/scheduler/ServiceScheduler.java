@@ -26,6 +26,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -46,7 +47,7 @@ public class ServiceScheduler implements Scheduler {
     
     private static final Logger LOGGER = Logger.getLogger(ServiceScheduler.class);
 
-    public static final int POOL_SIZE = Runtime.getRuntime().availableProcessors() * 2;
+    public static final int POOL_SIZE = Runtime.getRuntime().availableProcessors();
 
     private volatile boolean started;
     private final Clock wallClock;
@@ -82,7 +83,7 @@ public class ServiceScheduler implements Scheduler {
         }
         return this.executor.submit(task);
     }
-
+    
     @Override
     public ScheduledFuture<?> schedule(Runnable task, long delay, TimeUnit unit) throws RejectedExecutionException {
         if (!this.started) {
@@ -105,6 +106,8 @@ public class ServiceScheduler implements Scheduler {
         if (!this.started) {
             this.started = true;
             this.executor = Executors.newScheduledThreadPool(POOL_SIZE, threadFactory);
+            ((ScheduledThreadPoolExecutor) this.executor).setRemoveOnCancelPolicy(true);
+            ((ScheduledThreadPoolExecutor) this.executor).prestartAllCoreThreads();
             LOGGER.info("Started scheduler!");
         }
     }

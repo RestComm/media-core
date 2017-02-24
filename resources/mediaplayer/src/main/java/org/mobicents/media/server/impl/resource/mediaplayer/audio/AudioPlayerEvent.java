@@ -32,10 +32,10 @@ import org.mobicents.media.server.spi.player.PlayerEvent;
 public class AudioPlayerEvent implements PlayerEvent {
 
     private int eventID;
-    private AudioPlayerImpl player;
+    private Player player;
     private int qualifier = 0;
     
-    public AudioPlayerEvent(AudioPlayerImpl player, int eventID) {
+    public AudioPlayerEvent(Player player, int eventID) {
         this.eventID = eventID;
         this.player = player;
     }
@@ -45,22 +45,19 @@ public class AudioPlayerEvent implements PlayerEvent {
         return eventID;
     }
 
+    @Override
     public int getID() {
         return eventID;
     }
 
+    @Override
     public Player getSource() {
         return player;
     }
 
-    /**
-     * (Non Java-doc.)
-     * 
-     * @see org.mobicents.media.server.spi.player.PlayerEvent#getQualifier() 
-     */
+    @Override
     public int getQualifier() {
         return qualifier;
     }
-
 
 }

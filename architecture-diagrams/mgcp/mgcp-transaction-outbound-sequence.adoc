@@ -1,0 +1,39 @@
+[plantuml,file="mgcp-transaction-outbound-sequence.png"]
+--
+MgcpEndpoint -> MgcpController : notify(request, OUT)
+activate MgcpController
+
+MgcpController -> MgcpTransactionManager : process(request)
+activate MgcpTransactionManager
+
+create MgcpTransaction
+MgcpTransactionManager -> MgcpTransaction : create
+MgcpTransactionManager -> MgcpTransactionManager : register(request.transactionId)
+
+deactivate MgcpTransactionManager
+MgcpController -> MgcpChannel : send(request)
+deactivate MgcpController
+
+activate MgcpChannel
+MgcpChannel ->] : bytes
+deactivate MgcpChannel
+
+
+|||
+... waiting for call agent to reply ...
+|||
+
+MgcpChannel <-] : bytes
+activate MgcpChannel
+MgcpChannel -> MgcpController : notify(response, IN)
+deactivate MgcpChannel
+
+activate MgcpController
+MgcpController -> MgcpTransactionManager : process(response)
+deactivate MgcpController
+
+activate MgcpTransactionManager
+MgcpTransactionManager -> MgcpTransactionManager : deregister(response.transactionId)
+deactivate MgcpTransactionManager
+destroy MgcpTransaction
+--

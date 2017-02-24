@@ -1,0 +1,45 @@
+[plantuml,file="mgcp-pkg-au-playcollect-state.png"]
+--
+[*] --> Prompting
+Prompting : player.play(initialPrompt.next())
+
+Prompting --> Collecting : PlayerEvent.STOP
+Collecting : DtmfDetector.activate()
+
+Collecting -left-> Reprompting : (timeout OR endInputKey) AND digits.length = 0
+Reprompting -right-> Collecting : PlayerEvent.STOP
+Reprompting : detector.deactivate
+Reprompting : digits.clear()
+Reprompting : attempt++
+Reprompting : play(reprompt.next())
+
+Collecting -right-> NoDigitsReprompting : (timeout OR endInputKey) AND digits.length > 0
+NoDigitsReprompting -left-> Collecting : PlayerEvent.STOP
+NoDigitsReprompting : detector.deactivate
+NoDigitsReprompting : digits.clear()
+NoDigitsReprompting : attempt++
+NoDigitsReprompting : play(noDigitsReprompt.next())
+
+Collecting -down-> AnnouncingSuccess : success AND attempt < maxAttempts
+AnnouncingSuccess : detector.deactivate()
+AnnouncingSuccess : player.play(successAnnouncement.next())
+
+Collecting -down-> Stopping : success OR failure
+
+Collecting -down-> AnnouncingFailure : failure AND attempt == maxAttempts
+AnnouncingFailure : detector.deactivate()
+AnnouncingFailure : player.play(failureAnnouncement.next())
+
+AnnouncingSuccess -down-> Stopping : PlayerEvent.STOP OR PlayerEvent.FAILURE
+AnnouncingFailure -down-> Stopping : PlayerEvent.STOP OR PlayerEvent.FAILURE
+Reprompting -down-> Stopping : PlayerEvent.FAILURE
+NoDigitsReprompting -down-> Stopping : PlayerEvent.FAILURE
+Prompting -down-> Stopping : PlayerEvent.FAILURE
+Stopping : detector.deactivate()
+Stopping : executing.set(false)
+Stopping : fire(int returnCode, String attempts, String digits)
+Stopping -down-> [*]
+--
+
+
+

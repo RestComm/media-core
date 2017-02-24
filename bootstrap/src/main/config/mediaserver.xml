@@ -22,9 +22,9 @@
 		<address>127.0.0.1</address>
 		<port>2427</port>
 		<endpoints>
-			<endpoint name="mobicents/bridge/" class="org.mobicents.media.server.mgcp.endpoint.BridgeEndpoint" poolSize="50" />
-			<endpoint name="mobicents/ivr/" class="org.mobicents.media.server.mgcp.endpoint.IvrEndpoint" poolSize="50" />
-			<endpoint name="mobicents/cnf/" class="org.mobicents.media.server.mgcp.endpoint.ConferenceEndpoint" poolSize="50" />
+			<endpoint name="mobicents/bridge/" class="org.mobicents.media.server.mgcp.endpoint.BridgeEndpoint" relay="splitter" poolSize="50" />
+			<endpoint name="mobicents/ivr/" class="org.mobicents.media.server.mgcp.endpoint.IvrEndpoint" relay="mixer" poolSize="50" />
+			<endpoint name="mobicents/cnf/" class="org.mobicents.media.server.mgcp.endpoint.ConferenceEndpoint" relay="mixer" poolSize="50" />
 		</endpoints>
 		<configuration>mgcp-conf.xml</configuration>
 		<poolSize>25</poolSize>
@@ -32,6 +32,7 @@
 
 	<media>
 		<timeout>0</timeout>
+		<maxDuration>14400</maxDuration>
 		<lowPort>34534</lowPort>
 		<highPort>65534</highPort>
 		<jitterBuffer size="50" />

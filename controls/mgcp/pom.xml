@@ -11,50 +11,50 @@
 
     <artifactId>mgcp</artifactId>
     <name>MGCP</name>
-    
-    <dependencies>
-    	<dependency>
-            <groupId>org.mobicents.media</groupId>
-            <artifactId>concurrent</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mobicents.media</groupId>
-            <artifactId>spi</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mobicents.media</groupId>
-            <artifactId>components</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-	<dependency>
-            <groupId>org.mobicents.media</groupId>
-            <artifactId>core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mobicents.media.resources</groupId>
-            <artifactId>tones</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-	<dependency>
-            <groupId>org.mobicents.media.client</groupId>
-            <artifactId>mgcp-driver</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>jain</groupId>
-            <artifactId>jain-mgcp-ri</artifactId>
-            <version>1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mobicents.media.io</groupId>
-            <artifactId>network</artifactId>
-            <version>${project.version}</version>
-            <type>jar</type>
-        </dependency>
-    </dependencies>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.mobicents.media</groupId>
+			<artifactId>concurrent</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mobicents.media</groupId>
+			<artifactId>spi</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mobicents.media</groupId>
+			<artifactId>components</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mobicents.media</groupId>
+			<artifactId>core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mobicents.media.resources</groupId>
+			<artifactId>tones</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mobicents.media.client</groupId>
+			<artifactId>mgcp-driver</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>jain</groupId>
+			<artifactId>jain-mgcp-ri</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mobicents.media.io</groupId>
+			<artifactId>network</artifactId>
+			<version>${project.version}</version>
+			<type>jar</type>
+		</dependency>
+	</dependencies>
 
     <build>
         <plugins>

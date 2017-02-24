@@ -1,0 +1,50 @@
+[plantuml,file="mgcp-playrecord-state.png"]
+--
+state CollectRecord {
+[*] --> Collecting
+Collecting --> Collected : end_collect
+Collected --> [*]
+||
+[*] --> Recording
+Recording --> Recorded : end_record
+Recorded --> [*]
+}
+
+[*] --> LoadingPlaylist
+LoadingPlaylist --> Prompting : prompt
+LoadingPlaylist --> Reprompting : reprompt
+LoadingPlaylist --> NoSpeechReprompting : no_speech
+LoadingPlaylist --> CollectRecord : no_prompt
+
+Prompting --> CollectRecord : end_prompt
+Prompting --> Prompting : next_track
+Reprompting --> CollectRecord : end_prompt
+Reprompting --> Reprompting : next_track
+NoSpeechReprompting --> CollectRecord : end_prompt
+NoSpeechReprompting --> NoSpeechReprompting : next_track
+
+CollectRecord -left-> Succeeding : record_success
+CollectRecord -down-> Canceled : cancel
+CollectRecord -right-> Failing : reinput/restart/max_duration_exceeded/no_speech
+
+Succeeding -down-> PlayingSuccess : play_success
+Succeeding -down-> Succeeded : no_prompt/cancel
+PlayingSuccess -down-> PlayingSuccess : next_track
+PlayingSuccess -down-> Succeeded : end_prompt/cancel
+Succeeded --> [*]
+
+Failing --up> LoadingPlaylist : reinput/restart/max_duration_exceeded/no_speech
+Failing -down-> PlayingFailure : play_failure
+Failing -down-> Failed : no_prompt/cancel
+PlayingFailure -down-> PlayingFailure : next_track 
+PlayingFailure -down-> Failed : end_prompt/cancel
+Failed --> [*]
+
+Canceled -left-> Succeeded : succeed
+Canceled -right-> Failed : fail
+
+LoadingPlaylist --> Failed : cancel
+Prompting --> Failed : cancel
+Reprompting --> Failed : cancel
+NoSpeechReprompting --> Failed : cancel
+--

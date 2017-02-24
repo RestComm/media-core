@@ -32,7 +32,7 @@
 		<priority value="INFO" />
 	</category>
 
-	<category name="org.mobicents.media.server.mgcp">
+	<category name="org.mobicents.media.control.mgcp">
 		<priority value="INFO" />
 	</category>
 
