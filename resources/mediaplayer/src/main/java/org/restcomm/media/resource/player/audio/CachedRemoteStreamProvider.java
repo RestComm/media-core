@@ -72,7 +72,14 @@ public class CachedRemoteStreamProvider implements RemoteStreamProvider {
         }
         try {
             byte[] bytes = stream.download(uri);
-            cache.putIfAbsent(key, bytes);
+            if (bytes != null) {
+                cache.putIfAbsent(key, bytes);
+            } else {
+                bytes = cache.get(key);
+            }
+            if (bytes == null) {
+                throw new IOException("No data for " + uri);
+            }
             return bytes;
         } finally {
             inProgress.remove(key);
@@ -83,21 +90,24 @@ public class CachedRemoteStreamProvider implements RemoteStreamProvider {
 
         private Lock lock = new ReentrantLock();
 
-        volatile byte[] bytes;
+        volatile boolean downloaded;
 
         public byte[] download(final URL uri) throws IOException {
-            if (bytes == null) {
-                lock.lock();
-                try {
-                    //need to check twice
-                    if (bytes == null) {
-                        bytes = IOUtils.toByteArray(uri.openStream());
-                    }
-                } finally {
-                    lock.unlock();
-                }
+            if (downloaded) {
+                return null;
             }
-            return bytes;
+            lock.lock();
+            try {
+                //need to check twice
+                if (downloaded) {
+                    return null;
+                }
+                byte[] bytes = IOUtils.toByteArray(uri.openStream());
+                downloaded = bytes != null;
+                return bytes;
+            } finally {
+                lock.unlock();
+            }
         }
     }
 }
