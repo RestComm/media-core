@@ -31,7 +31,7 @@ import org.mockito.stubbing.Answer;
  */
 public class WavTrackCacheTest {
 
-    private long expectedDuration = 3854625000L;
+    private long expectedDuration = 3854125000L;
     private Format expectedFormat = new Format(new EncodingName("linear"));
 
     URLStreamHandler handler;
