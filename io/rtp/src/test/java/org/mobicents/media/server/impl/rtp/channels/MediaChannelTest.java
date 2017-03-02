@@ -123,7 +123,7 @@ public class MediaChannelTest {
 		String localAddress = localChannel.rtpChannel.getLocalHost();
 		int localRtpPort = localChannel.rtpChannel.getLocalPort();
 		int localRtcpPort = localChannel.rtcpChannel.getLocalPort(); 
-		MediaDescriptionField audioOffer = SdpFactory.buildMediaDescription(localChannel, true);
+		MediaDescriptionField audioOffer = SdpFactory.buildMediaDescription(localChannel, true, localAddress);
 		
 		// activate "remote" channel and bind it to local address
 		// there will be two underlying channels for RTP and RTCP
@@ -133,7 +133,7 @@ public class MediaChannelTest {
 		String remoteAddress = remoteChannel.rtpChannel.getLocalHost();
 		int remoteRtpPort = remoteChannel.rtpChannel.getLocalPort();
 		int remoteRtcpPort = remoteChannel.rtcpChannel.getLocalPort();
-		MediaDescriptionField audioAnswer = SdpFactory.buildMediaDescription(remoteChannel, false);
+		MediaDescriptionField audioAnswer = SdpFactory.buildMediaDescription(remoteChannel, false, localAddress);
 		
 		// ... remote peer receives SDP offer from local peer
 		// negotiate codecs with local peer
@@ -182,7 +182,7 @@ public class MediaChannelTest {
 		
 		String localAddress = localChannel.rtpChannel.getLocalHost();
 		int localPort = localChannel.rtpChannel.getLocalPort();
-		MediaDescriptionField audioOffer = SdpFactory.buildMediaDescription(localChannel, true);
+		MediaDescriptionField audioOffer = SdpFactory.buildMediaDescription(localChannel, true, localAddress);
 		
 		// activate "remote" channel and bind it to local address
 		// there will be two underlying channels for RTP and RTCP
@@ -191,7 +191,7 @@ public class MediaChannelTest {
 		
 		String remoteAddress = remoteChannel.rtpChannel.getLocalHost();
 		int remotePort = remoteChannel.rtpChannel.getLocalPort();
-		MediaDescriptionField audioAnswer = SdpFactory.buildMediaDescription(remoteChannel, false);
+		MediaDescriptionField audioAnswer = SdpFactory.buildMediaDescription(remoteChannel, false, localAddress);
 		
 		// ... remote peer receives SDP offer from local peer
 		// negotiate codecs with local peer

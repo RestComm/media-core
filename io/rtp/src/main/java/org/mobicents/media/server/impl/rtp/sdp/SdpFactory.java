@@ -78,7 +78,7 @@ public class SdpFactory {
 		// Media Descriptions
 		boolean ice = false;
 		for (MediaChannel channel : channels) {
-			MediaDescriptionField md = buildMediaDescription(channel, offer);
+			MediaDescriptionField md = buildMediaDescription(channel, offer, originAddress);
 			md.setSession(sd);
 			sd.addMediaDescription(md);
 			
@@ -122,17 +122,16 @@ public class SdpFactory {
 	 *            The channel to read information from
 	 * @return The SDP media description
 	 */
-	public static MediaDescriptionField buildMediaDescription(MediaChannel channel, boolean offer) {
+	public static MediaDescriptionField buildMediaDescription(MediaChannel channel, boolean offer, String originAddress) {
 		MediaDescriptionField md = new MediaDescriptionField();
 		
 		md.setMedia(channel.getMediaType());
 		md.setPort(channel.getRtpPort());
 		MediaProfile profile = channel.isDtlsEnabled() ? MediaProfile.RTP_SAVPF : MediaProfile.RTP_AVP;
 		md.setProtocol(profile.getProfile());
-        final String externalAddress = channel.getExternalAddress() == null || channel.getExternalAddress().isEmpty() ? null : channel.getExternalAddress();
-        md.setConnection(new ConnectionField("IN", "IP4", externalAddress != null ? externalAddress : channel.getRtpAddress()));
+        md.setConnection(new ConnectionField("IN", "IP4", originAddress));
 		md.setPtime(new PacketTimeAttribute(20));
-        md.setRtcp(new RtcpAttribute(channel.getRtcpPort(), "IN", "IP4", externalAddress != null ? externalAddress : channel.getRtcpAddress()));
+        md.setRtcp(new RtcpAttribute(channel.getRtcpPort(), "IN", "IP4", originAddress));
 		if (channel.isRtcpMux()) {
 			md.setRtcpMux(new RtcpMuxAttribute());
 		}
@@ -143,12 +142,12 @@ public class SdpFactory {
 			md.setIcePwd(new IcePwdAttribute(channel.getIcePwd()));
 			
 			// Fix connection address based on default (only) candidate
-            md.getConnection().setAddress(externalAddress != null ? externalAddress : channel.getRtpAddress());
+            md.getConnection().setAddress(originAddress);
 			md.setPort(channel.getRtpPort());
 			
 			// Fix RTCP if rtcp-mux is used
 			if(channel.isRtcpMux()) {
-                md.getRtcp().setAddress(externalAddress != null ? externalAddress : channel.getRtpAddress());
+                md.getRtcp().setAddress(originAddress);
 			    md.getRtcp().setPort(channel.getRtpPort());
 			}
 			
@@ -157,13 +156,13 @@ public class SdpFactory {
 			if(!channel.isRtcpMux()) {
 			    md.addCandidate(processHostCandidate(channel, IceComponent.RTCP_ID));
 			}
-			
-			if(channel.getExternalAddress() != null && !channel.getExternalAddress().isEmpty()) {
-			    // Add SRFLX candidate
-			    md.addCandidate(processSrflxCandidate(channel, IceComponent.RTP_ID));
-			    if(!channel.isRtcpMux()) {
-			        md.addCandidate(processSrflxCandidate(channel, IceComponent.RTCP_ID));
-			    }
+
+			if(channel.getWebRTCAddress() != null && !channel.getWebRTCAddress().isEmpty()) {
+				// Add SRFLX candidate from WebRTC address
+				md.addCandidate(processSrflxCandidate(channel, IceComponent.RTP_ID));
+				if(!channel.isRtcpMux()) {
+					md.addCandidate(processSrflxCandidate(channel, IceComponent.RTCP_ID));
+				}
 			}
 			
 //			List<LocalCandidateWrapper> rtpCandidates = channel.getRtpCandidates();
@@ -300,7 +299,7 @@ public class SdpFactory {
 	private static CandidateAttribute processSrflxCandidate(MediaChannel candidate, short componentId) {
 	    CandidateAttribute candidateSdp = processHostCandidate(candidate, componentId);
 	    candidateSdp.setCandidateType(CandidateAttribute.TYP_SRFLX);
-        candidateSdp.setAddress(candidate.getExternalAddress());
+        candidateSdp.setAddress(candidate.getWebRTCAddress());
         
         switch (componentId) {
             case IceComponent.RTP_ID:

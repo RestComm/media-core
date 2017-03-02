@@ -31,12 +31,14 @@ public class NetworkConfiguration {
     
     public static final String BIND_ADDRESS = "127.0.0.1";
     public static final String EXTERNAL_ADDRESS = "";
+    public static final String WEB_RTC_ADDRESS = "";
     public static final String NETWORK = "127.0.0.1";
     public static final String SUBNET = "255.255.255.255";
     public static final boolean SBC = false;
 
     private String bindAddress;
     private String externalAddress;
+    private String webRTCAddress;
     private String network;
     private String subnet;
     private boolean sbc;
@@ -98,4 +100,11 @@ public class NetworkConfiguration {
         this.sbc = sbc;
     }
 
+    public String getWebRTCAddress() {
+        return webRTCAddress;
+    }
+
+    public void setWebRTCAddress(String webRTCAddress) {
+        this.webRTCAddress = webRTCAddress;
+    }
 }

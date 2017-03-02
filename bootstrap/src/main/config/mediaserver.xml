@@ -11,14 +11,19 @@
 	MA 02110-1301 USA, or see the FSF site: http://www.fsf.org. -->
 <mediaserver>
 	<network>
+		<!-- address where the server will be bound to for (S)RTP/WebRTC traffic-->
 		<bindAddress>127.0.0.1</bindAddress>
+		<!-- Address used for SDP oferrs. If this field is empty, then bind Address is used instead. Note server will not bind to this address-->
 		<externalAddress>127.0.0.1</externalAddress>
+		<!-- Address used for WebRTC - only sessions in SDP. Note that server will not bind to this address. If this is not set, then bindAddress is used instead -->
+		<webRtcAddress>127.0.0.1</webRtcAddress>
 		<network>127.0.0.1</network>
 		<subnet>255.255.255.255</subnet>
 		<sbc>false</sbc>
 	</network>
 
 	<controller protocol="mgcp">
+		<!-- Address where the MGCP stack will be bound to-->
 		<address>127.0.0.1</address>
 		<port>2427</port>
 		<endpoints>

@@ -155,7 +155,7 @@ public class NotificationRequestCmd extends Action {
                 } catch (UnknownPackageException e) {
                 	throw new MgcpCommandException(MgcpResponseCode.CAN_NOT_DETECT_EVENT, new Text(e.getMessage()));
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.error("Unexpected Exception while performing notification request CMD: " + request.toString(), e);
                     throw new MgcpCommandException(MgcpResponseCode.TRANSIENT_ERROR, new Text(e.getMessage()));
                 }
                 

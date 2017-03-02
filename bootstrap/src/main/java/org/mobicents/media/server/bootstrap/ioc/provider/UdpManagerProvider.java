@@ -49,6 +49,7 @@ public class UdpManagerProvider implements Provider<UdpManager> {
         udpManager.setBindAddress(config.getNetworkConfiguration().getBindAddress());
         udpManager.setLocalBindAddress(config.getControllerConfiguration().getAddress());
         udpManager.setExternalAddress(config.getNetworkConfiguration().getExternalAddress());
+        udpManager.setWebRTCAddress(config.getNetworkConfiguration().getWebRTCAddress());
         udpManager.setLocalNetwork(config.getNetworkConfiguration().getNetwork());
         udpManager.setLocalSubnet(config.getNetworkConfiguration().getSubnet());
         udpManager.setUseSbc(config.getNetworkConfiguration().isSbc());
