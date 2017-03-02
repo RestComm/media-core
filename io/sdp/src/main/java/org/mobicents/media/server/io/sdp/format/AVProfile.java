@@ -66,7 +66,7 @@ public class AVProfile {
         audio.add(l16);
         audio.add(ilbc);
         audio.add(dtmf);
-        audio.add(dtmf126);
+       // audio.add(dtmf126);
     }
 
     static {
@@ -79,6 +79,12 @@ public class AVProfile {
         RTPFormat res = audio.find(p);
         return res == null ? video.find(p) : res;
     }    
+    
+    public static RTPFormat getFormat(String name) {    	
+        RTPFormat res = audio.find(name);
+        return res == null ? video.find(name) : res;
+    }    
+    
     
     public static RTPFormat getFormat(int p,Text mediaType) {
     	RTPFormat res=null;

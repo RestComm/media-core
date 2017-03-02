@@ -66,6 +66,7 @@ import org.mobicents.media.server.io.sdp.fields.AttributeField;
  */
 public class RtpMapAttribute extends AttributeField {
 	
+	private static final String NEWLINE = "\n";
 	public static final String ATTRIBUTE_TYPE = "rtpmap";
 	public static final short DEFAULT_CODEC_PARAMS = 1;
 	
@@ -140,6 +141,8 @@ public class RtpMapAttribute extends AttributeField {
 		if (this.codecParams != DEFAULT_CODEC_PARAMS) {
 			super.builder.append("/").append(this.codecParams);
 		}
+		if (this.parameters!=null)
+			super.builder.append(NEWLINE).append(this.parameters.toString());
 		return builder.toString();
 	}
 
