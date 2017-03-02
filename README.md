@@ -8,6 +8,8 @@ RMS is lead by [http://www.telestax.com TeleStax, Inc.] and developed collaborat
 
 WebRTC Demo
 ========
+
+[![Join the chat at https://gitter.im/RestComm/mediaserver](https://badges.gitter.im/RestComm/mediaserver.svg)](https://gitter.im/RestComm/mediaserver?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [RestComm](https://github.com/RestComm/RestComm-Core) which uses RestComm Media Server allows you to make video calls from/to any Web Browser supporting [WebRTC](http://webrtc.org), (only Google Chrome, Firefox and Opera supports it so far but some plugins exists to enable it on IE and Safari).
 
 ![](http://telestax.wpengine.netdna-cdn.com/wp-content/uploads/2014/06/alice_and_bob_video_call.jpg)
