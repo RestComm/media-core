@@ -117,7 +117,16 @@
 
 		<copy overwrite="true" file="${ant.file.media.server.release}/../release-standalone-README.txt" tofile="${release.dir.standalone}/README.txt" />
 
-		<zip destfile="${ant.file.media.server.release}/../${zip.filename}" basedir="${release.dir.standalone}" />
+		<zip destfile="${ant.file.media.server.release}/../${zip.filename}">
+            <zipfileset filemode="755" dir="${release.dir.standalone}">
+                <include name="*.sh"/>
+                <include name="**/*.sh"/>
+            </zipfileset>
+            <zipfileset dir="${release.dir.standalone}">
+                <exclude name="*.sh"/>
+                <exclude name="**/*.sh"/>
+            </zipfileset>
+        </zip>
 	</target>
 
 
