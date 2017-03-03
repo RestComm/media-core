@@ -24,7 +24,7 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.mobicents.media.io</groupId>
+			<groupId>org.mobicents.media</groupId>
 			<artifactId>stun</artifactId>
 			<version>${project.version}</version>
 		</dependency>

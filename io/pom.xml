@@ -16,7 +16,6 @@
     <modules>
         <module>rtp</module>
         <module>network</module>
-      	<module>stun</module>
     </modules>
 	
 
