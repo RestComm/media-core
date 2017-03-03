@@ -14,7 +14,7 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>org.mobicents.media.io</groupId>
+			<groupId>org.mobicents.media</groupId>
 			<artifactId>network</artifactId>
 			<version>${project.version}</version>
 		</dependency>

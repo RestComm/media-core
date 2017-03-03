@@ -59,6 +59,7 @@
         <module>codecs</module>
         <module>component</module>
         <module>io</module>
+        <module>network</module>
         <module>ice</module>
         <module>stun</module>
         <module>sdp</module>
