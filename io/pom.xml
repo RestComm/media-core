@@ -17,7 +17,6 @@
         <module>rtp</module>
         <module>network</module>
       	<module>stun</module>
-      	<module>ice</module>
     <module>sdp</module>
   </modules>
 	
