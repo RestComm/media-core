@@ -60,6 +60,7 @@
         <module>component</module>
         <module>io</module>
         <module>ice</module>
+        <module>sdp</module>
         <module>resources</module>
         <module>core</module>
         <module>client</module>
