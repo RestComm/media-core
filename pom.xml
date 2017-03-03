@@ -53,16 +53,15 @@
     </properties>
 
     <modules>
-	<module>hardware</module>
         <module>spi</module>
-	<module>concurrent</module>
+        <module>concurrent</module>
         <module>scheduler</module>
         <module>codecs</module>
         <module>component</module>
         <module>io</module>
         <module>resources</module>
         <module>core</module>
-	<module>client</module>
+        <module>client</module>
         <module>controls</module>
         <module>docs</module>
         <module>bootstrap</module>
@@ -94,11 +93,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>javolution</groupId>
-            <artifactId>javolution</artifactId>
-            <version>5.5.1</version>
-        </dependency>
-		<dependency>
             <groupId>org.jboss.microcontainer</groupId>
             <artifactId>jboss-dependency</artifactId>
             <version>2.0.6.GA</version>
@@ -159,7 +153,6 @@
         <profile>
             <id>maven-release</id>
 	    <modules>
-		<module>hardware</module>
 		<module>spi</module>
 		<module>concurrent</module>
 		<module>scheduler</module>

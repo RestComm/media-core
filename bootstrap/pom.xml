@@ -41,16 +41,6 @@
 			<artifactId>rtp</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<!--<dependency>
-			<groupId>org.mobicents.media.hardware</groupId>
-			<artifactId>mobicents-dahdi</artifactId> 
-			<version>${project.version}</version>
-		</dependency> -->
-		<dependency>
-			<groupId>org.mobicents.media.io</groupId>
-			<artifactId>ss7</artifactId>
-			<version>${project.version}</version>
-		</dependency>
 		<dependency>
 			<groupId>org.mobicents.media.resources</groupId>
 			<artifactId>dtmf</artifactId>
