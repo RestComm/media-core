@@ -29,11 +29,6 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.mobicents.media.io</groupId>
-			<artifactId>ss7</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>org.mobicents.media</groupId>
 			<artifactId>spi</artifactId>
 			<version>${project.version}</version>
