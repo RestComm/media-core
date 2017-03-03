@@ -58,7 +58,11 @@
         <module>scheduler</module>
         <module>codecs</module>
         <module>component</module>
-        <module>io</module>
+        <module>network</module>
+        <module>ice</module>
+        <module>stun</module>
+        <module>rtp</module>
+        <module>sdp</module>
         <module>resources</module>
         <module>core</module>
         <module>client</module>
