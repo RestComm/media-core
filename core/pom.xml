@@ -29,7 +29,7 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.mobicents.media.io</groupId>
+			<groupId>org.mobicents.media</groupId>
 			<artifactId>rtp</artifactId>
 			<version>${project.version}</version>
 		</dependency>

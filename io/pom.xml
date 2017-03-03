@@ -12,10 +12,5 @@
     <groupId>org.mobicents.media.io</groupId>
     <artifactId>io</artifactId>
     <name>IO</name>
-    
-    <modules>
-        <module>rtp</module>
-    </modules>
-	
 
 </project>
