@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.mobicents.media.client</groupId>
+        <groupId>org.restcomm.media.client</groupId>
         <artifactId>jsr-309</artifactId>
         <version>6.0.0-SNAPSHOT</version>
     </parent>
@@ -49,7 +49,7 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.mobicents.media.client</groupId>
+			<groupId>org.restcomm.media.client</groupId>
 			<artifactId>mgcp-driver</artifactId>
 			<version>${project.version}</version>
 		</dependency>
