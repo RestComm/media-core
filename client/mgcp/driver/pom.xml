@@ -2,14 +2,14 @@
 	<modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.mobicents.media.client</groupId>
+        <groupId>org.restcomm.media.client</groupId>
         <artifactId>mgcp</artifactId>
         <version>6.0.0-SNAPSHOT</version>
     </parent>
 
-        <artifactId>mgcp-driver</artifactId>
-        <name>Mobicents MGCP Impl</name>
-        <url>http://www.mobicents.org/products_media_server.html</url>
+        <groupId>org.restcomm.media.client.mgcp</groupId>
+        <artifactId>driver</artifactId>
+        <name>RestComm MGCP Driver</name>
 
 	<developers>
 		<developer>
@@ -80,7 +80,7 @@
 
 	<dependencies>
 		<dependency>
-	            <groupId>org.mobicents.media</groupId>
+	            <groupId>org.restcomm.media</groupId>
 	            <artifactId>concurrent</artifactId>
         	    <version>${project.version}</version>
 	        </dependency>

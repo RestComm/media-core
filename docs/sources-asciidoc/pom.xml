@@ -4,15 +4,14 @@
 	<modelVersion>4.0.0</modelVersion>
 	
 	<parent>
-	    <artifactId>mobicents-mms-docs</artifactId>
-	    <groupId>org.mobicents.media.docs</groupId>
-	    <version>6.0.0-SNAPSHOT</version>
-	  </parent>
+		<groupId>org.restcomm.media</groupId>
+		<artifactId>docs</artifactId>
+		<version>6.0.0-SNAPSHOT</version>
+	</parent>
 
-	  <artifactId>mobicents-mms-docs-sources-asciidoc</artifactId>
-	<name>
-	    Restcomm Media Server :: Docs :: Sources :: ${project.artifactId}
-	  </name>
+	<groupId>org.restcomm.media.docs</groupId>
+	<artifactId>asciidoc</artifactId>
+	<name>Documentation ASCII</name>
 
 	<properties>
 		<asciidoctor.maven.plugin.version>1.5.3</asciidoctor.maven.plugin.version>

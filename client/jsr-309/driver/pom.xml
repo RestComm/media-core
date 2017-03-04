@@ -2,14 +2,14 @@
 	<modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.mobicents.media.client</groupId>
+        <groupId>org.restcomm.media.client</groupId>
         <artifactId>jsr-309</artifactId>
         <version>6.0.0-SNAPSHOT</version>
     </parent>
 
-	<artifactId>jsr-309-driver</artifactId>
-	<name>Mobicents JSR-309 Impl</name>
-	<url>http://www.mobicents.org/products_media_server.html</url>
+	<groupId>org.restcomm.media.client.jsr309</groupId>
+	<artifactId>driver</artifactId>
+	<name>RestComm JSR-309 Driver</name>	
 
 	<properties>
 		<maven.test.skip>false</maven.test.skip>
@@ -49,8 +49,8 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.mobicents.media.client</groupId>
-			<artifactId>mgcp-driver</artifactId>
+			<groupId>org.restcomm.media.client.mgcp</groupId>
+			<artifactId>driver</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
