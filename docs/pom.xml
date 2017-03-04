@@ -1,62 +1,26 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-        <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
+    <parent>
+        <groupId>org.restcomm</groupId>
+        <artifactId>media</artifactId>
+        <version>6.0.0-SNAPSHOT</version>
+    </parent>
+
     <groupId>org.restcomm.media</groupId>
-    <artifactId>server</artifactId>
-    <version>6.0.0-SNAPSHOT</version>
-  </parent>
-
-        <artifactId>mobicents-mms-docs</artifactId>
-        <groupId>org.mobicents.media.docs</groupId>    
-        <packaging>pom</packaging>
-  <name>
-    Restcomm Media Server :: Docs :: Parent :: ${project.artifactId}
-  </name>
+    <artifactId>docs</artifactId>
+    <packaging>pom</packaging>
+    <name>Documentation</name>
  
-        <properties>
-                <docs.application.name>Restcomm Media Server</docs.application.name>
-                <docs.application.dirname>rms</docs.application.dirname>
-                <docs.bookid>MediaServer</docs.bookid>
-        </properties>
+    <properties>
+        <docs.application.name>Restcomm Media Server</docs.application.name>
+        <docs.application.dirname>rms</docs.application.dirname>
+        <docs.bookid>MediaServer</docs.bookid>
+    </properties>
 
-        <modules>
-                <module>sources-asciidoc</module>
-        </modules>
-
-        <profiles>
-                <!--profile>
-                        <id>mobicents</id>
-                        <activation>
-                                <activeByDefault>true</activeByDefault>
-                        </activation>
-                        <modules>
-                                <module>sources-mobicents</module>
-                                <module>jdocbook-mobicents</module>
-                        </modules>
-                </profile>
-
-		<profile>
-                        <id>telscale</id>
-                        <activation>
-                                <activeByDefault>true</activeByDefault>
-                        </activation>
-                        <modules>
-				<module>sources-telscale</module>
-                                <module>jdocbook-telscale</module>
-                        </modules>
-                </profile-->
-
-                <!--profile>
-                        <id>maven-release</id>
-                        <modules>
-                                <module>sources-mobicents</module>
-				<module>sources-telscale</module>
-                                <module>jdocbook-mobicents</module>
-				<module>jdocbook-telscale</module>
-                        </modules>
-                </profile-->
-        </profiles>
+    <modules>
+        <module>sources-asciidoc</module>
+    </modules>
 </project>
 
