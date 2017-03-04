@@ -1,9 +1,0 @@
-mvn release:prepare -P maven-release -Dmaven.test.skip=true -DdevelopmentVersion=3.2.0-SNAPSHOT -DreleaseVersion=3.0.0.FINAL -Dtag=3.0.0.FINAL
-mvn release:perform -P maven-release -Dmaven.test.skip=true -DmavenExecutorId=forked-path   //Use forked-path option otherwise the artifact signing process will hang forever
-
-Check notes:
-1. http://code.google.com/p/jain-sip/wiki/PerformRelease
-2. https://docs.sonatype.org/display/Repository/Sonatype+OSS+Maven+Repository+Usage+Guide#SonatypeOSSMavenRepositoryUsageGuide-7b.StageExistingArtifacts
-3. http://www.sonatype.com/people/2010/01/how-to-generate-pgp-signatures-with-maven/
-
-Login in https://oss.sonatype.org/index.html, click staged repositories, then click close button. after repository is closed, click release button.
