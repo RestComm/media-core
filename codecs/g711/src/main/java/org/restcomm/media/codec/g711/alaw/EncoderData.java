@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.impl.dsp.audio.g711.alaw;
+package org.restcomm.media.codec.g711.alaw;
 
 /**
  *

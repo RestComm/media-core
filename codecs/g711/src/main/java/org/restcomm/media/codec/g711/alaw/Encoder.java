@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.impl.dsp.audio.g711.ulaw;
+package org.restcomm.media.codec.g711.alaw;
 
 import org.mobicents.media.server.spi.dsp.Codec;
 import org.mobicents.media.server.spi.format.Format;
@@ -29,22 +29,32 @@ import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.memory.Memory;
 
 /**
- * Implements G.711 U-law compressor.
+ * Implements G.711 A-law compressor.
  * 
  * @author Yulian Oifa
  */
 public class Encoder implements Codec {
-    private final static Format ulaw = FormatFactory.createAudioFormat("pcmu", 8000, 8, 1);
+
+    private final static Format alaw = FormatFactory.createAudioFormat("pcma", 8000, 8, 1);
     private final static Format linear = FormatFactory.createAudioFormat("linear", 8000, 16, 1);
 
     private int i,j,count;
-    
+    /**
+     * (Non Java-doc)
+     * 
+     * @see org.mobicents.media.server.impl.jmf.dsp.Codec#getSupportedFormat().
+     */
     public Format getSupportedInputFormat() {
         return linear;
     }
 
+    /**
+     * (Non Java-doc)
+     * 
+     * @see org.mobicents.media.server.impl.jmf.dsp.Codec#getSupportedFormats().
+     */
     public Format getSupportedOutputFormat() {
-        return ulaw;
+        return alaw;
     }
 
     /**
@@ -60,16 +70,16 @@ public class Encoder implements Codec {
         byte[] resData=res.getData();
         
         for (i = 0,j = 0; i < count; i++,j++)
-        	resData[i]=EncoderData.muLawCompressTable[data[j+1] & 0xff][data[j++] & 0xff];        	
+        	resData[i]=EncoderData.aLawCompressTable[data[j+1] & 0xff][data[j++] & 0xff];        	
         
         res.setOffset(0);
         res.setLength(count);
-        res.setFormat(ulaw);
+        res.setFormat(alaw);
         res.setTimestamp(frame.getTimestamp());
         res.setDuration(frame.getDuration());
         res.setEOM(frame.isEOM());
         res.setSequenceNumber(frame.getSequenceNumber());
 
-        return res;               
-    }
+        return res;
+    }    
 }
