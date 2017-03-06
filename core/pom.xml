@@ -68,11 +68,6 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.restcomm.media.resources.telephony</groupId>
-			<artifactId>tones</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>org.bitlet</groupId>
 			<artifactId>weupnp</artifactId>
 			<version>0.1.2</version>

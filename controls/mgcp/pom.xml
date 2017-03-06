@@ -35,11 +35,6 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.restcomm.media.resources.telephony</groupId>
-			<artifactId>tones</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>org.restcomm.media.client.mgcp</groupId>
 			<artifactId>driver</artifactId>
 			<version>${project.version}</version>

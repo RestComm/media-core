@@ -113,7 +113,7 @@ public class RecordingTest {
         channelsManager = new ChannelsManager(udpManager, dtlsServerProvider);
         channelsManager.setScheduler(scheduler);
         
-        resourcesPool=new ResourcesPool(null, null, null, null, null, null, null, null);
+        resourcesPool=new ResourcesPool(null, null, null, null, null, null);
         
         server=new Server();
         server.setClock(clock);

@@ -48,14 +48,6 @@ import org.mobicents.media.server.bootstrap.ioc.provider.LocalConnectionFactoryP
 import org.mobicents.media.server.bootstrap.ioc.provider.LocalConnectionPoolProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.LocalConnectionPoolProvider.LocalConnectionPoolType;
 import org.mobicents.media.server.bootstrap.ioc.provider.MediaSchedulerProvider;
-import org.mobicents.media.server.bootstrap.ioc.provider.PhoneSignalDetectorFactoryProvider;
-import org.mobicents.media.server.bootstrap.ioc.provider.PhoneSignalDetectorFactoryProvider.PhoneSignalDetectorFactoryType;
-import org.mobicents.media.server.bootstrap.ioc.provider.PhoneSignalDetectorPoolProvider;
-import org.mobicents.media.server.bootstrap.ioc.provider.PhoneSignalDetectorPoolProvider.PhoneSignalDetectorPoolType;
-import org.mobicents.media.server.bootstrap.ioc.provider.PhoneSignalGeneratorFactoryProvider;
-import org.mobicents.media.server.bootstrap.ioc.provider.PhoneSignalGeneratorFactoryProvider.PhoneSignalGeneratorFactoryType;
-import org.mobicents.media.server.bootstrap.ioc.provider.PhoneSignalGeneratorPoolProvider;
-import org.mobicents.media.server.bootstrap.ioc.provider.PhoneSignalGeneratorPoolProvider.PhoneSignalGeneratorPoolType;
 import org.mobicents.media.server.bootstrap.ioc.provider.ResourcesPoolProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.RtpConnectionFactoryProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.RtpConnectionFactoryProvider.RtpConnectionFactoryType;
@@ -109,10 +101,6 @@ public class CoreModule extends AbstractModule {
         bind(DtmfDetectorPoolType.INSTANCE).toProvider(DtmfDetectorPoolProvider.class).in(Singleton.class);
         bind(DtmfGeneratorFactoryType.INSTANCE).toProvider(DtmfGeneratorFactoryProvider.class).in(Singleton.class);
         bind(DtmfGeneratorPoolType.INSTANCE).toProvider(DtmfGeneratorPoolProvider.class).in(Singleton.class);
-        bind(PhoneSignalDetectorFactoryType.INSTANCE).toProvider(PhoneSignalDetectorFactoryProvider.class).in(Singleton.class);
-        bind(PhoneSignalDetectorPoolType.INSTANCE).toProvider(PhoneSignalDetectorPoolProvider.class).in(Singleton.class);
-        bind(PhoneSignalGeneratorFactoryType.INSTANCE).toProvider(PhoneSignalGeneratorFactoryProvider.class).in(Singleton.class);
-        bind(PhoneSignalGeneratorPoolType.INSTANCE).toProvider(PhoneSignalGeneratorPoolProvider.class).in(Singleton.class);
         bind(ResourcesPool.class).toProvider(ResourcesPoolProvider.class).in(Singleton.class);
         bind(EndpointInstallerListType.INSTANCE).toProvider(EndpointInstallerListProvider.class).in(Singleton.class);
         bind(ServerManager.class).toProvider(Mgcp2ControllerProvider.class).in(Singleton.class);

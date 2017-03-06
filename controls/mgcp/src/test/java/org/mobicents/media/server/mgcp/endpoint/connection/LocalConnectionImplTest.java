@@ -40,13 +40,9 @@ import org.mobicents.media.server.impl.resource.dtmf.DtmfDetectorFactory;
 import org.mobicents.media.server.impl.resource.dtmf.DtmfDetectorPool;
 import org.mobicents.media.server.impl.resource.dtmf.DtmfGeneratorFactory;
 import org.mobicents.media.server.impl.resource.dtmf.DtmfGeneratorPool;
-import org.mobicents.media.server.impl.resource.mediaplayer.audio.CachedRemoteStreamProvider;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerFactory;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerPool;
-import org.mobicents.media.server.impl.resource.phone.PhoneSignalDetectorFactory;
-import org.mobicents.media.server.impl.resource.phone.PhoneSignalDetectorPool;
-import org.mobicents.media.server.impl.resource.phone.PhoneSignalGeneratorFactory;
-import org.mobicents.media.server.impl.resource.phone.PhoneSignalGeneratorPool;
+import org.mobicents.media.server.impl.resource.mediaplayer.audio.CachedRemoteStreamProvider;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.impl.rtp.crypto.AlgorithmCertificate;
 import org.mobicents.media.server.impl.rtp.crypto.CipherSuite;
@@ -94,10 +90,6 @@ public class LocalConnectionImplTest {
     private DtmfDetectorPool dtmfDetectorPool;
     private DtmfGeneratorFactory dtmfGeneratorFactory;
     private DtmfGeneratorPool dtmfGeneratorPool;
-    private PhoneSignalDetectorFactory signalDetectorFactory;
-    private PhoneSignalDetectorPool signalDetectorPool;
-    private PhoneSignalGeneratorFactory signalGeneratorFactory;
-    private PhoneSignalGeneratorPool signalGeneratorPool;
     
     //Dtls Server Provider
     protected ProtocolVersion minVersion = ProtocolVersion.DTLSv10;
@@ -138,11 +130,7 @@ public class LocalConnectionImplTest {
         this.dtmfDetectorPool = new DtmfDetectorPool(0, dtmfDetectorFactory);
         this.dtmfGeneratorFactory = new DtmfGeneratorFactory(mediaScheduler);
         this.dtmfGeneratorPool = new DtmfGeneratorPool(0, dtmfGeneratorFactory);
-        this.signalDetectorFactory = new PhoneSignalDetectorFactory(mediaScheduler);
-        this.signalDetectorPool = new PhoneSignalDetectorPool(0, signalDetectorFactory);
-        this.signalGeneratorFactory = new PhoneSignalGeneratorFactory(mediaScheduler);
-        this.signalGeneratorPool = new PhoneSignalGeneratorPool(0, signalGeneratorFactory);
-        resourcesPool=new ResourcesPool(rtpConnectionPool, localConnectionPool, playerPool, recorderPool, dtmfDetectorPool, dtmfGeneratorPool, signalDetectorPool, signalGeneratorPool);
+        resourcesPool=new ResourcesPool(rtpConnectionPool, localConnectionPool, playerPool, recorderPool, dtmfDetectorPool, dtmfGeneratorPool);
 
         //assign scheduler to the endpoint
         endpoint = new MyTestEndpoint("test");

@@ -22,22 +22,19 @@
 
 package org.mobicents.media.server.mgcp.endpoint;
 
+import java.util.concurrent.Semaphore;
+
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
-
-import org.mobicents.media.server.spi.ConnectionMode;
-import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
+import org.mobicents.media.server.impl.resource.audio.AudioRecorderImpl;
 import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
 import org.mobicents.media.server.impl.resource.dtmf.GeneratorImpl;
-import org.mobicents.media.server.impl.resource.phone.PhoneSignalGenerator;
-import org.mobicents.media.server.mgcp.resources.ResourcesPool;
-import org.mobicents.media.server.impl.resource.phone.PhoneSignalDetector;
-import org.mobicents.media.server.impl.resource.audio.AudioRecorderImpl;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerImpl;
-
-import java.util.concurrent.Semaphore;
+import org.mobicents.media.server.mgcp.resources.ResourcesPool;
+import org.mobicents.media.server.spi.ConnectionMode;
+import org.mobicents.media.server.spi.Endpoint;
 /**
  * Implements Local Components Holder for endpoint
  * Usefull for jsr 309 structure
@@ -50,8 +47,6 @@ public class MediaGroup {
 	private Component recorder;
 	private Component dtmfDetector;
 	private Component dtmfGenerator;
-	private Component signalDetector;
-	private Component signalGenerator;
 	
 	private ResourcesPool resourcesPool;
 	
@@ -367,138 +362,6 @@ public class MediaGroup {
 		return this.dtmfGenerator!=null;
 	}
 	
-	public Component getSignalDetector()
-	{
-		try
-		{
-			resourceSemaphore.acquire();
-		}
-		catch(Exception ex)
-		{
-			
-		}
-		
-		try
-		{
-			if(this.signalDetector==null)
-			{
-				this.signalDetector=resourcesPool.newAudioComponent(ComponentType.SIGNAL_DETECTOR);
-				audioComponent.addOutput(((PhoneSignalDetector)this.signalDetector).getAudioOutput());
-				writeComponents++;
-				audioComponent.updateMode(readComponents!=0,true);
-				updateEndpoint(0,1);			
-			}
-		}
-		finally
-		{
-			resourceSemaphore.release();
-		}
-		
-		return this.signalDetector;
-	}
-	
-	public void releaseSignalDetector()
-	{
-		try
-		{
-			resourceSemaphore.acquire();
-		}
-		catch(Exception ex)
-		{
-			
-		}
-		
-		try
-		{
-			if(this.signalDetector!=null)
-			{
-				audioComponent.remove(((PhoneSignalDetector)this.signalDetector).getAudioOutput());
-				writeComponents--;
-				audioComponent.updateMode(readComponents!=0,writeComponents!=0);			
-				updateEndpoint(0,-1);
-				((PhoneSignalDetector)this.signalDetector).clearAllListeners();
-				this.signalDetector.deactivate();
-				resourcesPool.releaseAudioComponent(this.signalDetector,ComponentType.SIGNAL_DETECTOR);
-				this.signalDetector.deactivate();
-				this.signalDetector=null;
-			}
-		}
-		finally
-		{
-			resourceSemaphore.release();
-		}
-	}
-	
-	public boolean hasSignalDetector()
-	{
-		return this.signalDetector!=null;
-	}
-	
-	public Component getSignalGenerator()
-	{
-		try
-		{
-			resourceSemaphore.acquire();
-		}
-		catch(Exception ex)
-		{
-			
-		}
-		
-		try
-		{
-			if(this.signalGenerator==null)
-			{
-				this.signalGenerator=resourcesPool.newAudioComponent(ComponentType.SIGNAL_GENERATOR);
-				audioComponent.addInput(((PhoneSignalGenerator)this.signalGenerator).getAudioInput());
-				readComponents++;
-				audioComponent.updateMode(true,writeComponents!=0);
-				updateEndpoint(1,0);			
-			}
-		}
-		finally
-		{
-			resourceSemaphore.release();
-		}
-		
-		return this.signalGenerator;
-	}
-	
-	public void releaseSignalGenerator()
-	{
-		try
-		{
-			resourceSemaphore.acquire();
-		}
-		catch(Exception ex)
-		{
-			
-		}
-		
-		try
-		{
-			if(this.signalGenerator!=null)
-			{
-				audioComponent.remove(((PhoneSignalGenerator)this.signalGenerator).getAudioInput());
-				readComponents--;
-				audioComponent.updateMode(readComponents!=0,writeComponents!=0);
-				updateEndpoint(-1,0);
-				this.signalGenerator.deactivate();
-				resourcesPool.releaseAudioComponent(this.signalGenerator,ComponentType.SIGNAL_GENERATOR);
-				this.signalGenerator=null;
-			}
-		}
-		finally
-		{
-			resourceSemaphore.release();
-		}
-	}
-	
-	public boolean hasSignalGenerator()
-	{
-		return this.signalGenerator!=null;
-	}
-	
 	private void updateEndpoint(int readChange,int writeChange)
 	{
 		boolean oldRead=(readComponents-readChange)!=0;
@@ -544,7 +407,5 @@ public class MediaGroup {
 		releaseRecorder();
 		releaseDtmfDetector();
 		releaseDtmfGenerator();
-		releaseSignalDetector();
-		releaseSignalGenerator();
 	}		
 }
