@@ -36,11 +36,11 @@ import org.mobicents.media.io.stun.messages.attributes.general.ErrorCodeAttribut
 import org.mobicents.media.io.stun.messages.attributes.general.MessageIntegrityAttribute;
 import org.mobicents.media.io.stun.messages.attributes.general.PriorityAttribute;
 import org.mobicents.media.io.stun.messages.attributes.general.UsernameAttribute;
-import org.mobicents.media.server.io.network.TransportAddress;
-import org.mobicents.media.server.io.network.TransportAddress.TransportProtocol;
-import org.mobicents.media.server.io.network.channel.PacketHandler;
-import org.mobicents.media.server.io.network.channel.PacketHandlerException;
 import org.restcomm.media.ice.IceAuthenticator;
+import org.restcomm.media.network.TransportAddress;
+import org.restcomm.media.network.TransportAddress.TransportProtocol;
+import org.restcomm.media.network.channel.PacketHandler;
+import org.restcomm.media.network.channel.PacketHandlerException;
 
 /**
  * Handles STUN traffic.

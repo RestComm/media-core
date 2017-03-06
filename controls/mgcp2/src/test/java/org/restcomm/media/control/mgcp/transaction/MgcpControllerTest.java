@@ -36,7 +36,6 @@ import java.net.InetSocketAddress;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.mobicents.media.server.io.network.UdpManager;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.restcomm.media.control.mgcp.command.MgcpCommand;
@@ -52,6 +51,7 @@ import org.restcomm.media.control.mgcp.message.MgcpResponse;
 import org.restcomm.media.control.mgcp.message.MgcpResponseCode;
 import org.restcomm.media.control.mgcp.network.MgcpChannel;
 import org.restcomm.media.control.mgcp.transaction.MgcpTransactionManager;
+import org.restcomm.media.network.UdpManager;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)

@@ -20,8 +20,8 @@
 
 package org.restcomm.media.ice.network.stun;
 
-import org.mobicents.media.server.io.network.server.NioServer;
 import org.restcomm.media.ice.IceAgent;
+import org.restcomm.media.network.server.NioServer;
 
 /**
  * Non-blocking server to listen to STUN connectivity checks that happen as part

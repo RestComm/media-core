@@ -35,7 +35,6 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mobicents.media.server.io.network.PortManager;
 import org.restcomm.media.ice.FoundationsRegistry;
 import org.restcomm.media.ice.IceCandidate;
 import org.restcomm.media.ice.IceComponent;
@@ -45,6 +44,7 @@ import org.restcomm.media.ice.harvest.HarvestException;
 import org.restcomm.media.ice.harvest.HostCandidateHarvester;
 import org.restcomm.media.ice.harvest.NoCandidatesGatheredException;
 import org.restcomm.media.ice.lite.LiteFoundationsRegistry;
+import org.restcomm.media.network.PortManager;
 
 /**
  * 

@@ -41,7 +41,7 @@ import org.mobicents.media.io.stun.messages.attributes.general.SoftwareAttribute
 import org.mobicents.media.io.stun.messages.attributes.general.UnknownAttributesAttribute;
 import org.mobicents.media.io.stun.messages.attributes.general.UseCandidateAttribute;
 import org.mobicents.media.io.stun.messages.attributes.general.UsernameAttribute;
-import org.mobicents.media.server.io.network.TransportAddress;
+import org.restcomm.media.network.TransportAddress;
 
 /**
  * Factory that provides STUN/TURN/ICE attributes.

@@ -28,13 +28,13 @@ import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.impl.rtp.crypto.AlgorithmCertificate;
 import org.mobicents.media.server.impl.rtp.crypto.CipherSuite;
 import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServerProvider;
-import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.ServiceScheduler;
 import org.mobicents.media.server.scheduler.WallClock;
 import org.restcomm.media.core.configuration.DtlsConfiguration;
+import org.restcomm.media.network.UdpManager;
 import org.restcomm.media.server.component.dsp.DspFactoryImpl;
 
 /**

@@ -32,9 +32,9 @@ import org.apache.log4j.Logger;
 import org.mobicents.media.server.impl.rtp.RtpPacket;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 import org.mobicents.media.server.impl.srtp.DtlsHandler;
-import org.mobicents.media.server.io.network.channel.PacketHandler;
-import org.mobicents.media.server.io.network.channel.PacketHandlerException;
 import org.mobicents.media.server.scheduler.Scheduler;
+import org.restcomm.media.network.channel.PacketHandler;
+import org.restcomm.media.network.channel.PacketHandlerException;
 
 /**
  * 

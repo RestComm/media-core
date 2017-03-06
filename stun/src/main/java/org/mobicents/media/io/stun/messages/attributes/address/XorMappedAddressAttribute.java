@@ -12,8 +12,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import org.mobicents.media.io.stun.messages.StunMessage;
-import org.mobicents.media.server.io.network.TransportAddress;
-import org.mobicents.media.server.io.network.TransportAddress.TransportProtocol;
+import org.restcomm.media.network.TransportAddress;
+import org.restcomm.media.network.TransportAddress.TransportProtocol;
 
 /**
  * The XOR-MAPPED-ADDRESS attribute is only present in Binding

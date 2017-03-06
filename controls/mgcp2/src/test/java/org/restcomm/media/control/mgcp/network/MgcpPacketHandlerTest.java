@@ -29,7 +29,6 @@ import static org.mockito.Mockito.when;
 import java.net.InetSocketAddress;
 
 import org.junit.Test;
-import org.mobicents.media.server.io.network.channel.PacketHandlerException;
 import org.restcomm.media.control.mgcp.exception.MgcpParseException;
 import org.restcomm.media.control.mgcp.message.MessageDirection;
 import org.restcomm.media.control.mgcp.message.MgcpMessageObserver;
@@ -37,6 +36,7 @@ import org.restcomm.media.control.mgcp.message.MgcpMessageParser;
 import org.restcomm.media.control.mgcp.message.MgcpRequest;
 import org.restcomm.media.control.mgcp.message.MgcpResponse;
 import org.restcomm.media.control.mgcp.network.MgcpPacketHandler;
+import org.restcomm.media.network.channel.PacketHandlerException;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)

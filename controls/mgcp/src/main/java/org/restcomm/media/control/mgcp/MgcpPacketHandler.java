@@ -24,8 +24,8 @@ package org.restcomm.media.control.mgcp;
 import java.net.InetSocketAddress;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.io.network.channel.PacketHandler;
-import org.mobicents.media.server.io.network.channel.PacketHandlerException;
+import org.restcomm.media.network.channel.PacketHandler;
+import org.restcomm.media.network.channel.PacketHandlerException;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)

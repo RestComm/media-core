@@ -29,6 +29,7 @@ package org.mobicents.media.server.impl.rtp;
 
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.format.Formats;
+import org.restcomm.media.network.UdpManager;
 import org.restcomm.media.server.component.audio.AudioComponent;
 import org.restcomm.media.server.component.audio.AudioMixer;
 import org.restcomm.media.server.component.audio.Sine;
@@ -42,7 +43,6 @@ import java.net.InetSocketAddress;
 import org.mobicents.media.server.scheduler.WallClock;
 import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServer;
 import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServerProvider;
-import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.io.sdp.format.AVProfile;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Clock;

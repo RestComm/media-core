@@ -21,11 +21,11 @@
 
 package org.restcomm.media.server.bootstrap.ioc.provider.mgcp;
 
-import org.mobicents.media.server.io.network.UdpManager;
-import org.mobicents.media.server.io.network.channel.NetworkGuard;
-import org.mobicents.media.server.io.network.channel.RestrictedNetworkGuard;
 import org.restcomm.media.control.mgcp.network.MgcpChannel;
 import org.restcomm.media.control.mgcp.network.MgcpPacketHandler;
+import org.restcomm.media.network.UdpManager;
+import org.restcomm.media.network.channel.NetworkGuard;
+import org.restcomm.media.network.channel.RestrictedNetworkGuard;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;

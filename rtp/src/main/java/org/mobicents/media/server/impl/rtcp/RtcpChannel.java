@@ -32,14 +32,14 @@ import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServerProvider;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 import org.mobicents.media.server.impl.srtp.DtlsHandler;
 import org.mobicents.media.server.impl.srtp.DtlsListener;
-import org.mobicents.media.server.io.network.UdpManager;
-import org.mobicents.media.server.io.network.channel.MultiplexedChannel;
 import org.mobicents.media.server.utils.Text;
 import org.restcomm.media.ice.IceAuthenticator;
 import org.restcomm.media.ice.IceComponent;
 import org.restcomm.media.ice.IceHandler;
 import org.restcomm.media.ice.events.IceEventListener;
 import org.restcomm.media.ice.events.SelectedCandidatesEvent;
+import org.restcomm.media.network.UdpManager;
+import org.restcomm.media.network.channel.MultiplexedChannel;
 
 /**
  * Channel for exchanging RTCP traffic

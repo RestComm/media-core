@@ -22,7 +22,7 @@ package org.restcomm.media.ice;
 
 import java.net.InetAddress;
 
-import org.mobicents.media.server.io.network.TransportAddress;
+import org.restcomm.media.network.TransportAddress;
 
 /**
  * A Candidate is a transport address that is a potential point of contact for

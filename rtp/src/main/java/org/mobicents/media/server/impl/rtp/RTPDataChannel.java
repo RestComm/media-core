@@ -31,8 +31,6 @@ import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServerProvider;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfInput;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfOutput;
 import org.mobicents.media.server.impl.srtp.DtlsHandler;
-import org.mobicents.media.server.io.network.ProtocolHandler;
-import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.io.sdp.format.AVProfile;
 import org.mobicents.media.server.io.sdp.format.RTPFormat;
 import org.mobicents.media.server.io.sdp.format.RTPFormats;
@@ -46,6 +44,8 @@ import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.utils.Text;
+import org.restcomm.media.network.ProtocolHandler;
+import org.restcomm.media.network.UdpManager;
 import org.restcomm.media.server.component.audio.AudioComponent;
 import org.restcomm.media.server.component.oob.OOBComponent;
 
@@ -496,7 +496,7 @@ public class RTPDataChannel {
 		/**
 		 * (Non Java-doc.)
 		 * 
-		 * @see org.mobicents.media.server.io.network.ProtocolHandler#receive(java.nio.channels.DatagramChannel)
+		 * @see org.restcomm.media.network.ProtocolHandler#receive(java.nio.channels.DatagramChannel)
 		 */
 		public void receive(DatagramChannel channel) {
 			RTPDataChannel.this.count++;
@@ -525,7 +525,7 @@ public class RTPDataChannel {
 		/**
 		 * (Non Java-doc.)
 		 * 
-		 * @see org.mobicents.media.server.io.network.ProtocolHandler#send(java.nio.channels.DatagramChannel)
+		 * @see org.restcomm.media.network.ProtocolHandler#send(java.nio.channels.DatagramChannel)
 		 */
 		public void send(DatagramChannel channel) {
 		}

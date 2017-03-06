@@ -22,9 +22,9 @@ package org.restcomm.media.ice.harvest;
 
 import java.nio.channels.Selector;
 
-import org.mobicents.media.server.io.network.PortManager;
 import org.restcomm.media.ice.CandidateType;
 import org.restcomm.media.ice.IceMediaStream;
+import org.restcomm.media.network.PortManager;
 
 /**
  * 

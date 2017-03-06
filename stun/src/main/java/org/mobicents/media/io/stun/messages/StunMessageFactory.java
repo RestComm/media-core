@@ -10,7 +10,7 @@ package org.mobicents.media.io.stun.messages;
 
 import org.mobicents.media.io.stun.messages.attributes.StunAttributeFactory;
 import org.mobicents.media.io.stun.messages.attributes.address.XorMappedAddressAttribute;
-import org.mobicents.media.server.io.network.TransportAddress;
+import org.restcomm.media.network.TransportAddress;
 
 /**
  * Factory that provides STUN Messages.

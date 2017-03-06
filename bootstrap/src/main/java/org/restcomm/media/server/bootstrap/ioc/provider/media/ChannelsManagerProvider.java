@@ -25,13 +25,13 @@ import java.util.Iterator;
 
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServerProvider;
-import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.io.sdp.format.AVProfile;
 import org.mobicents.media.server.io.sdp.format.RTPFormat;
 import org.mobicents.media.server.io.sdp.format.RTPFormats;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.core.configuration.CodecType;
 import org.restcomm.media.core.configuration.MediaServerConfiguration;
+import org.restcomm.media.network.UdpManager;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;

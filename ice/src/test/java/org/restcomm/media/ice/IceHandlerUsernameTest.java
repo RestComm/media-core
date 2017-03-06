@@ -7,10 +7,10 @@ import org.mobicents.media.io.stun.messages.StunMessage;
 import org.mobicents.media.io.stun.messages.StunRequest;
 import org.mobicents.media.io.stun.messages.StunResponse;
 import org.mobicents.media.io.stun.messages.attributes.general.ErrorCodeAttribute;
-import org.mobicents.media.server.io.network.channel.PacketHandlerException;
 import org.restcomm.media.ice.IceComponent;
 import org.restcomm.media.ice.IceHandler;
 import org.restcomm.media.ice.events.IceEventListener;
+import org.restcomm.media.network.channel.PacketHandlerException;
 
 import java.net.InetSocketAddress;
 

@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.io.network.PortManager;
 import org.restcomm.media.ice.events.IceEventListener;
 import org.restcomm.media.ice.events.SelectedCandidatesEvent;
 import org.restcomm.media.ice.harvest.ExternalCandidateHarvester;
@@ -41,6 +40,7 @@ import org.restcomm.media.ice.harvest.HarvestException;
 import org.restcomm.media.ice.harvest.HarvestManager;
 import org.restcomm.media.ice.harvest.NoCandidatesGatheredException;
 import org.restcomm.media.ice.network.stun.ConnectivityCheckServer;
+import org.restcomm.media.network.PortManager;
 
 /**
  * Agent responsible for ICE negotiation.

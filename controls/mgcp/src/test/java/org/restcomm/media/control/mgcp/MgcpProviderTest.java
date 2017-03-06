@@ -41,10 +41,10 @@ import org.restcomm.media.control.mgcp.MgcpProvider;
 import org.restcomm.media.control.mgcp.message.MgcpRequest;
 import org.restcomm.media.control.mgcp.message.MgcpResponse;
 import org.restcomm.media.control.mgcp.message.Parameter;
+import org.restcomm.media.network.UdpManager;
 
 import java.io.IOException;
 
-import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.junit.After;
 import org.junit.AfterClass;

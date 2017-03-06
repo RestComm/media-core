@@ -25,11 +25,11 @@ import java.nio.channels.Selector;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.mobicents.media.server.io.network.PortManager;
 import org.restcomm.media.ice.CandidateType;
 import org.restcomm.media.ice.FoundationsRegistry;
 import org.restcomm.media.ice.IceMediaStream;
 import org.restcomm.media.ice.lite.LiteFoundationsRegistry;
+import org.restcomm.media.network.PortManager;
 
 /**
  * Manages the candidate harvesting process

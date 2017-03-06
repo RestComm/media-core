@@ -36,13 +36,13 @@ import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 
 import org.junit.Test;
-import org.mobicents.media.server.io.network.UdpManager;
-import org.mobicents.media.server.io.network.channel.NetworkGuard;
 import org.restcomm.media.control.mgcp.message.MessageDirection;
 import org.restcomm.media.control.mgcp.message.MgcpMessage;
 import org.restcomm.media.control.mgcp.message.MgcpMessageObserver;
 import org.restcomm.media.control.mgcp.network.MgcpChannel;
 import org.restcomm.media.control.mgcp.network.MgcpPacketHandler;
+import org.restcomm.media.network.UdpManager;
+import org.restcomm.media.network.channel.NetworkGuard;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)

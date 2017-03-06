@@ -10,8 +10,8 @@ package org.mobicents.media.io.stun.messages.attributes.address;
 
 import org.mobicents.media.io.stun.StunException;
 import org.mobicents.media.io.stun.messages.attributes.StunAttribute;
-import org.mobicents.media.server.io.network.TransportAddress;
-import org.mobicents.media.server.io.network.TransportAddress.TransportProtocol;
+import org.restcomm.media.network.TransportAddress;
+import org.restcomm.media.network.TransportAddress.TransportProtocol;
 
 /**
  * This class is used to represent Stun attributes that contain an address. Such

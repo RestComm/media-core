@@ -27,12 +27,12 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.io.network.channel.MultiplexedNetworkChannel;
-import org.mobicents.media.server.io.network.channel.NetworkGuard;
 import org.restcomm.media.control.mgcp.message.MessageDirection;
 import org.restcomm.media.control.mgcp.message.MgcpMessage;
 import org.restcomm.media.control.mgcp.message.MgcpMessageObserver;
 import org.restcomm.media.control.mgcp.message.MgcpMessageSubject;
+import org.restcomm.media.network.channel.MultiplexedNetworkChannel;
+import org.restcomm.media.network.channel.NetworkGuard;
 
 import com.google.common.collect.Sets;
 

@@ -34,13 +34,13 @@ import java.util.Enumeration;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.io.network.PortManager;
 import org.restcomm.media.ice.CandidateType;
 import org.restcomm.media.ice.FoundationsRegistry;
 import org.restcomm.media.ice.HostCandidate;
 import org.restcomm.media.ice.IceComponent;
 import org.restcomm.media.ice.IceMediaStream;
 import org.restcomm.media.ice.LocalCandidateWrapper;
+import org.restcomm.media.network.PortManager;
 
 /**
  * Harvester that gathers Host candidates, ie transport addresses obtained
