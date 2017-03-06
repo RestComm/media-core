@@ -21,15 +21,17 @@
 
 package org.mobicents.media.server.bootstrap.configuration.main;
 
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import org.junit.After;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
+import org.mobicents.media.control.mgcp.controller.MgcpController;
 import org.mobicents.media.server.bootstrap.main.RestCommMediaServer;
 import org.mobicents.media.server.io.network.UdpManager;
-import org.mobicents.media.server.mgcp.controller.Controller;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.ServiceScheduler;
@@ -57,7 +59,7 @@ public class RestCommMediaServerTest {
         PriorityQueueScheduler mediaScheduler = mock(PriorityQueueScheduler.class);
         Scheduler taskScheduler = mock(ServiceScheduler.class);
         UdpManager udpManager = mock(UdpManager.class);
-        ServerManager controller = mock(Controller.class);
+        ServerManager controller = mock(MgcpController.class);
         mediaServer = new RestCommMediaServer(mediaScheduler, taskScheduler, udpManager, controller);
 
         // when
