@@ -23,9 +23,9 @@ package org.restcomm.media.control.mgcp.connection;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.mobicents.media.server.impl.rtp.ChannelsManager;
-import org.mobicents.media.server.impl.rtp.channels.MediaChannelProvider;
 import org.restcomm.media.control.mgcp.pkg.MgcpEventProvider;
+import org.restcomm.media.rtp.ChannelsManager;
+import org.restcomm.media.rtp.channels.MediaChannelProvider;
 
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 

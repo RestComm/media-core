@@ -21,11 +21,11 @@
 
 package org.restcomm.media.server.bootstrap.ioc.provider.mgcp;
 
-import org.mobicents.media.server.impl.rtp.ChannelsManager;
-import org.mobicents.media.server.impl.rtp.channels.MediaChannelProvider;
 import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.restcomm.media.control.mgcp.pkg.MgcpEventProvider;
 import org.restcomm.media.core.configuration.MediaServerConfiguration;
+import org.restcomm.media.rtp.ChannelsManager;
+import org.restcomm.media.rtp.channels.MediaChannelProvider;
 
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 import com.google.inject.Inject;

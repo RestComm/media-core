@@ -21,12 +21,12 @@
 
 package org.restcomm.media.server.bootstrap.ioc;
 
-import org.mobicents.media.server.impl.rtp.ChannelsManager;
-import org.mobicents.media.server.impl.rtp.channels.MediaChannelProvider;
 import org.mobicents.media.server.spi.dsp.DspFactory;
 import org.mobicents.media.server.spi.dtmf.DtmfDetectorProvider;
 import org.mobicents.media.server.spi.player.PlayerProvider;
 import org.mobicents.media.server.spi.recorder.RecorderProvider;
+import org.restcomm.media.rtp.ChannelsManager;
+import org.restcomm.media.rtp.channels.MediaChannelProvider;
 import org.restcomm.media.server.bootstrap.ioc.provider.DspProvider;
 import org.restcomm.media.server.bootstrap.ioc.provider.media.AudioPlayerProviderProvider;
 import org.restcomm.media.server.bootstrap.ioc.provider.media.AudioRecorderProviderProvider;

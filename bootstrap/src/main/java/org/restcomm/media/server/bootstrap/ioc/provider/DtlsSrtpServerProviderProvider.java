@@ -21,8 +21,8 @@
 
 package org.restcomm.media.server.bootstrap.ioc.provider;
 
-import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServerProvider;
 import org.restcomm.media.core.configuration.MediaServerConfiguration;
+import org.restcomm.media.rtp.crypto.DtlsSrtpServerProvider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;

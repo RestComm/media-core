@@ -24,11 +24,6 @@ package org.restcomm.media.control.mgcp.connection;
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.impl.rtp.CnameGenerator;
-import org.mobicents.media.server.impl.rtp.RtpListener;
-import org.mobicents.media.server.impl.rtp.channels.AudioChannel;
-import org.mobicents.media.server.impl.rtp.channels.MediaChannelProvider;
-import org.mobicents.media.server.impl.rtp.sdp.SdpFactory;
 import org.mobicents.media.server.io.sdp.SdpException;
 import org.mobicents.media.server.io.sdp.SessionDescription;
 import org.mobicents.media.server.io.sdp.SessionDescriptionParser;
@@ -44,6 +39,11 @@ import org.restcomm.media.control.mgcp.pkg.MgcpEventProvider;
 import org.restcomm.media.control.mgcp.pkg.MgcpRequestedEvent;
 import org.restcomm.media.control.mgcp.pkg.r.RtpPackage;
 import org.restcomm.media.control.mgcp.pkg.r.rto.RtpTimeoutEvent;
+import org.restcomm.media.rtp.CnameGenerator;
+import org.restcomm.media.rtp.RtpListener;
+import org.restcomm.media.rtp.channels.AudioChannel;
+import org.restcomm.media.rtp.channels.MediaChannelProvider;
+import org.restcomm.media.rtp.sdp.SdpFactory;
 import org.restcomm.media.server.component.audio.AudioComponent;
 import org.restcomm.media.server.component.oob.OOBComponent;
 

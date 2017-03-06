@@ -30,7 +30,6 @@ import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.configuration2.ex.ConfigurationRuntimeException;
 import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.impl.rtp.crypto.CipherSuite;
 import org.restcomm.media.core.configuration.DtlsConfiguration;
 import org.restcomm.media.core.configuration.MediaConfiguration;
 import org.restcomm.media.core.configuration.MediaServerConfiguration;
@@ -38,6 +37,7 @@ import org.restcomm.media.core.configuration.MgcpControllerConfiguration;
 import org.restcomm.media.core.configuration.MgcpEndpointConfiguration;
 import org.restcomm.media.core.configuration.NetworkConfiguration;
 import org.restcomm.media.core.configuration.ResourcesConfiguration;
+import org.restcomm.media.rtp.crypto.CipherSuite;
 
 /**
  * Loads Media Server configurations from an XML file.

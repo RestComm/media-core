@@ -26,11 +26,6 @@ import java.io.IOException;
 import java.net.SocketException;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.impl.rtp.ChannelsManager;
-import org.mobicents.media.server.impl.rtp.CnameGenerator;
-import org.mobicents.media.server.impl.rtp.RtpListener;
-import org.mobicents.media.server.impl.rtp.channels.AudioChannel;
-import org.mobicents.media.server.impl.rtp.sdp.SdpFactory;
 import org.mobicents.media.server.io.sdp.SdpException;
 import org.mobicents.media.server.io.sdp.SessionDescription;
 import org.mobicents.media.server.io.sdp.SessionDescriptionParser;
@@ -46,6 +41,11 @@ import org.mobicents.media.server.spi.ModeNotSupportedException;
 import org.mobicents.media.server.spi.dsp.DspFactory;
 import org.mobicents.media.server.spi.pooling.PooledObject;
 import org.mobicents.media.server.utils.Text;
+import org.restcomm.media.rtp.ChannelsManager;
+import org.restcomm.media.rtp.CnameGenerator;
+import org.restcomm.media.rtp.RtpListener;
+import org.restcomm.media.rtp.channels.AudioChannel;
+import org.restcomm.media.rtp.sdp.SdpFactory;
 import org.restcomm.media.server.component.audio.AudioComponent;
 import org.restcomm.media.server.component.oob.OOBComponent;
 

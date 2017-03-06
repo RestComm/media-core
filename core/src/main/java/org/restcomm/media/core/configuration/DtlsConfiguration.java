@@ -22,8 +22,8 @@
 package org.restcomm.media.core.configuration;
 
 import org.bouncycastle.crypto.tls.ProtocolVersion;
-import org.mobicents.media.server.impl.rtp.crypto.AlgorithmCertificate;
-import org.mobicents.media.server.impl.rtp.crypto.CipherSuite;
+import org.restcomm.media.rtp.crypto.AlgorithmCertificate;
+import org.restcomm.media.rtp.crypto.CipherSuite;
 
 /**
  * @author guilherme.jansen@telestax.com

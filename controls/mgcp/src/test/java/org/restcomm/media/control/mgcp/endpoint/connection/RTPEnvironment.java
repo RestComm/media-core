@@ -24,10 +24,6 @@ package org.restcomm.media.control.mgcp.endpoint.connection;
 import java.io.IOException;
 
 import org.bouncycastle.crypto.tls.ProtocolVersion;
-import org.mobicents.media.server.impl.rtp.ChannelsManager;
-import org.mobicents.media.server.impl.rtp.crypto.AlgorithmCertificate;
-import org.mobicents.media.server.impl.rtp.crypto.CipherSuite;
-import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServerProvider;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Scheduler;
@@ -35,6 +31,10 @@ import org.mobicents.media.server.scheduler.ServiceScheduler;
 import org.mobicents.media.server.scheduler.WallClock;
 import org.restcomm.media.core.configuration.DtlsConfiguration;
 import org.restcomm.media.network.UdpManager;
+import org.restcomm.media.rtp.ChannelsManager;
+import org.restcomm.media.rtp.crypto.AlgorithmCertificate;
+import org.restcomm.media.rtp.crypto.CipherSuite;
+import org.restcomm.media.rtp.crypto.DtlsSrtpServerProvider;
 import org.restcomm.media.server.component.dsp.DspFactoryImpl;
 
 /**

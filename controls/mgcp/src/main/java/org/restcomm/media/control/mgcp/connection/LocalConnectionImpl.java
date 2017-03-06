@@ -24,8 +24,6 @@ package org.restcomm.media.control.mgcp.connection;
 
 import java.io.IOException;
 
-import org.mobicents.media.server.impl.rtp.ChannelsManager;
-import org.mobicents.media.server.impl.rtp.LocalDataChannel;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionFailureListener;
 import org.mobicents.media.server.spi.ConnectionMode;
@@ -33,6 +31,8 @@ import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
 import org.mobicents.media.server.spi.pooling.PooledObject;
 import org.mobicents.media.server.utils.Text;
+import org.restcomm.media.rtp.ChannelsManager;
+import org.restcomm.media.rtp.LocalDataChannel;
 import org.restcomm.media.server.component.audio.AudioComponent;
 import org.restcomm.media.server.component.oob.OOBComponent;
 

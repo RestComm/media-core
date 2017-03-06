@@ -21,9 +21,9 @@
 
 package org.restcomm.media.server.bootstrap.ioc.provider.media;
 
-import org.mobicents.media.server.impl.rtp.ChannelsManager;
-import org.mobicents.media.server.impl.rtp.channels.MediaChannelProvider;
 import org.mobicents.media.server.spi.dsp.DspFactory;
+import org.restcomm.media.rtp.ChannelsManager;
+import org.restcomm.media.rtp.channels.MediaChannelProvider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
