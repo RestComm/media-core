@@ -38,8 +38,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerEvent;
-import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerImpl;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.server.spi.dtmf.DtmfDetector;
 import org.mobicents.media.server.spi.player.Player;
@@ -49,6 +47,8 @@ import org.restcomm.media.control.mgcp.pkg.MgcpEvent;
 import org.restcomm.media.control.mgcp.pkg.MgcpEventObserver;
 import org.restcomm.media.control.mgcp.pkg.au.ReturnCode;
 import org.restcomm.media.control.mgcp.pkg.au.pc.PlayCollect;
+import org.restcomm.media.resource.player.audio.AudioPlayerEvent;
+import org.restcomm.media.resource.player.audio.AudioPlayerImpl;
 import org.restcomm.media.resources.dtmf.DtmfEventImpl;
 
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;

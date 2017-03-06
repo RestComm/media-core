@@ -8,17 +8,17 @@ import com.google.inject.Provider;
 /**
  * Created by achikin on 6/3/16.
  */
-public class CachedRemoteStreamProvider implements Provider<org.mobicents.media.server.impl.resource.mediaplayer.audio.CachedRemoteStreamProvider> {
+public class CachedRemoteStreamProvider implements Provider<org.restcomm.media.resource.player.audio.CachedRemoteStreamProvider> {
 
-    private static org.mobicents.media.server.impl.resource.mediaplayer.audio.CachedRemoteStreamProvider instance;
+    private static org.restcomm.media.resource.player.audio.CachedRemoteStreamProvider instance;
 
     @Inject
     public CachedRemoteStreamProvider(MediaServerConfiguration config) {
-        instance = new org.mobicents.media.server.impl.resource.mediaplayer.audio.CachedRemoteStreamProvider(config.getResourcesConfiguration().getPlayerCacheSize());
+        instance = new org.restcomm.media.resource.player.audio.CachedRemoteStreamProvider(config.getResourcesConfiguration().getPlayerCacheSize());
     }
 
     @Override
-    public org.mobicents.media.server.impl.resource.mediaplayer.audio.CachedRemoteStreamProvider get() {
+    public org.restcomm.media.resource.player.audio.CachedRemoteStreamProvider get() {
         return instance;
     }
 }

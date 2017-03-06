@@ -5,16 +5,16 @@ import com.google.inject.Provider;
 /**
  * Created by achikin on 6/7/16.
  */
-public class DirectRemoteStreamProvider implements Provider<org.mobicents.media.server.impl.resource.mediaplayer.audio.DirectRemoteStreamProvider> {
+public class DirectRemoteStreamProvider implements Provider<org.restcomm.media.resource.player.audio.DirectRemoteStreamProvider> {
 
-    private org.mobicents.media.server.impl.resource.mediaplayer.audio.DirectRemoteStreamProvider instance;
+    private org.restcomm.media.resource.player.audio.DirectRemoteStreamProvider instance;
 
     public DirectRemoteStreamProvider() {
-        instance = new org.mobicents.media.server.impl.resource.mediaplayer.audio.DirectRemoteStreamProvider();
+        instance = new org.restcomm.media.resource.player.audio.DirectRemoteStreamProvider();
     }
 
     @Override
-    public org.mobicents.media.server.impl.resource.mediaplayer.audio.DirectRemoteStreamProvider get() {
+    public org.restcomm.media.resource.player.audio.DirectRemoteStreamProvider get() {
         return instance;
     }
 }

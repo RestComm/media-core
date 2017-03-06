@@ -27,11 +27,11 @@ import org.mobicents.media.Component;
 import org.mobicents.media.ComponentFactory;
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.impl.resource.audio.AudioRecorderImpl;
-import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerImpl;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.pooling.ResourcePool;
 import org.restcomm.media.control.mgcp.connection.LocalConnectionImpl;
 import org.restcomm.media.control.mgcp.connection.RtpConnectionImpl;
+import org.restcomm.media.resource.player.audio.AudioPlayerImpl;
 import org.restcomm.media.resources.dtmf.DetectorImpl;
 import org.restcomm.media.resources.dtmf.GeneratorImpl;
 
