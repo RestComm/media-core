@@ -26,8 +26,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
-import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.mgcp.MgcpEvent;
 import org.mobicents.media.server.mgcp.MgcpListener;
 import org.mobicents.media.server.mgcp.MgcpProvider;
@@ -38,6 +36,8 @@ import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.server.spi.TooManyConnectionsException;
 import org.mobicents.media.server.utils.Text;
+import org.restcomm.media.server.concurrent.ConcurrentCyclicFIFO;
+import org.restcomm.media.server.concurrent.ConcurrentMap;
 
 /**
  * Represents media endpoint on MGCP controller side.

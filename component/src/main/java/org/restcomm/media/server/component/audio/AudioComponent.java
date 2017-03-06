@@ -25,11 +25,11 @@ package org.restcomm.media.server.component.audio;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.memory.Memory;
+import org.restcomm.media.server.concurrent.ConcurrentMap;
 
 /**
  * Implements compound components used by mixer and splitter.

@@ -21,7 +21,7 @@
  */
 package org.mobicents.media.server.mgcp.controller;
 
-import org.mobicents.media.server.concurrent.ConcurrentMap;
+import org.restcomm.media.server.concurrent.ConcurrentMap;
 
 /**
  * Maintains MGCP calls.

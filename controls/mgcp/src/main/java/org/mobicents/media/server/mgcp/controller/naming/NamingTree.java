@@ -24,8 +24,7 @@ package org.mobicents.media.server.mgcp.controller.naming;
 import org.mobicents.media.server.mgcp.controller.MgcpEndpoint;
 import org.mobicents.media.server.spi.EndpointInstaller;
 import org.mobicents.media.server.utils.Text;
-
-import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
+import org.restcomm.media.server.concurrent.ConcurrentCyclicFIFO;
 
 /**
  * Naming tree for MGCP endpoints.

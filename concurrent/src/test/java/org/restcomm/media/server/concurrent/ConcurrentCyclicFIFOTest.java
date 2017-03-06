@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.concurrent;
+package org.restcomm.media.server.concurrent;
 
 import static org.junit.Assert.assertTrue;
 
@@ -32,6 +32,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.restcomm.media.server.concurrent.ConcurrentCyclicFIFO;
 
 public class ConcurrentCyclicFIFOTest 
 {

@@ -21,9 +21,9 @@
  */
 package org.mobicents.media.server.mgcp.controller;
 
-import org.mobicents.media.server.concurrent.ConcurrentMap;
-
 import java.util.Iterator;
+
+import org.restcomm.media.server.concurrent.ConcurrentMap;
 
 /**
  * MGCP call.

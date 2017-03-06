@@ -24,7 +24,7 @@ package org.mobicents.media.server.impl.resource.dtmf;
 
 import java.io.Serializable;
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
+import org.restcomm.media.server.concurrent.ConcurrentCyclicFIFO;
 
 /**
  * Implements digit buffer.

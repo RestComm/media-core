@@ -24,11 +24,11 @@ package org.mobicents.media.server.mgcp.controller.naming;
 import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 import org.mobicents.media.server.mgcp.controller.MgcpEndpoint;
 import org.mobicents.media.server.mgcp.controller.MgcpEndpointStateListener;
 import org.mobicents.media.server.spi.EndpointInstaller;
 import org.mobicents.media.server.utils.Text;
+import org.restcomm.media.server.concurrent.ConcurrentCyclicFIFO;
 
 
 /**

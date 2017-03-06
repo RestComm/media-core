@@ -23,8 +23,8 @@ package org.mobicents.media.server.mgcp.pkg.sl;
 
 import java.util.concurrent.ArrayBlockingQueue;
 
-import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 import org.mobicents.media.server.utils.Text;
+import org.restcomm.media.server.concurrent.ConcurrentCyclicFIFO;
 
 /**
  * @author quintana.thomas@gmail.com (Thomas Quintana)

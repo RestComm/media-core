@@ -24,10 +24,10 @@ package org.restcomm.media.server.component.audio;
 
 import java.io.IOException;
 
-import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.memory.Memory;
 import org.restcomm.media.server.component.AbstractSink;
+import org.restcomm.media.server.concurrent.ConcurrentCyclicFIFO;
 
 /**
  * Implements input for compound components

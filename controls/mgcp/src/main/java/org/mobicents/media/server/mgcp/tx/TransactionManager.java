@@ -28,13 +28,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
-import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.mgcp.MgcpProvider;
 import org.mobicents.media.server.mgcp.controller.CallManager;
 import org.mobicents.media.server.mgcp.controller.naming.NamingTree;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.Scheduler;
+import org.restcomm.media.server.concurrent.ConcurrentCyclicFIFO;
+import org.restcomm.media.server.concurrent.ConcurrentMap;
 
 /**
  * Implements pool of transactions.

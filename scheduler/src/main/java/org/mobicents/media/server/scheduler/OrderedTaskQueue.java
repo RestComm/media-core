@@ -22,7 +22,7 @@
 
 package org.mobicents.media.server.scheduler;
 
-import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
+import org.restcomm.media.server.concurrent.ConcurrentCyclicFIFO;
 
 /**
  * Implements queue of tasks.

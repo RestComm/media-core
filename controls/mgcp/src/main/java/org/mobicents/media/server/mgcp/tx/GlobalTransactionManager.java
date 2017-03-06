@@ -24,12 +24,12 @@ package org.mobicents.media.server.mgcp.tx;
 
 import java.net.InetSocketAddress;
 
-import org.mobicents.media.server.concurrent.Lock;
 import org.mobicents.media.server.mgcp.MgcpProvider;
 import org.mobicents.media.server.mgcp.controller.CallManager;
 import org.mobicents.media.server.mgcp.controller.naming.NamingTree;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.Scheduler;
+import org.restcomm.media.server.concurrent.Lock;
 
 /**
  * Implements pool of transactions.

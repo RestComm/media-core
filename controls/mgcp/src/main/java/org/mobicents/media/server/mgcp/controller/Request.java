@@ -26,7 +26,6 @@ import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 import org.mobicents.media.server.mgcp.MgcpEvent;
 import org.mobicents.media.server.mgcp.controller.signal.MgcpPackage;
 import org.mobicents.media.server.mgcp.controller.signal.Signal;
@@ -35,6 +34,7 @@ import org.mobicents.media.server.mgcp.message.Parameter;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.utils.Text;
+import org.restcomm.media.server.concurrent.ConcurrentCyclicFIFO;
 /**
  *
  * @author kulikov
