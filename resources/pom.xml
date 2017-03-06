@@ -14,7 +14,7 @@
     <name>Resources</name>
     
     <modules>
-        <module>telephony</module>
+        <module>dtmf</module>
         <module>mediaplayer</module>
         <module>recorder</module>
     </modules>

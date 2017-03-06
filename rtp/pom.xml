@@ -40,7 +40,7 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.restcomm.media.resources.telephony</groupId>
+			<groupId>org.restcomm.media.resources</groupId>
 			<artifactId>dtmf</artifactId>
 			<version>${project.version}</version>
 		</dependency>
