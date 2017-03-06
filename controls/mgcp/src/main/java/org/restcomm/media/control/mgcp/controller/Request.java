@@ -26,12 +26,12 @@ import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.restcomm.media.concurrent.ConcurrentCyclicFIFO;
 import org.restcomm.media.control.mgcp.MgcpEvent;
 import org.restcomm.media.control.mgcp.controller.signal.MgcpPackage;
 import org.restcomm.media.control.mgcp.controller.signal.Signal;
 import org.restcomm.media.control.mgcp.message.MgcpRequest;
 import org.restcomm.media.control.mgcp.message.Parameter;
-import org.restcomm.media.server.concurrent.ConcurrentCyclicFIFO;
 import org.restcomm.media.spi.Connection;
 import org.restcomm.media.spi.Endpoint;
 import org.restcomm.media.spi.utils.Text;

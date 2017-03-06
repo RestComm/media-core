@@ -26,9 +26,9 @@ import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.restcomm.media.concurrent.ConcurrentMap;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.Task;
-import org.restcomm.media.server.concurrent.ConcurrentMap;
 import org.restcomm.media.spi.memory.Frame;
 
 /**

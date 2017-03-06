@@ -20,26 +20,26 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.server.concurrent;
-
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.Iterator;
+package org.restcomm.media.concurrent;
 
 /**
- * 
+ *
  * @author oifa yulian
  */
-public class ConcurrentMap<E> extends ConcurrentHashMap<Integer, E> {
-	
-	private static final long serialVersionUID = 8270100031373807057L;
 
-	@SuppressWarnings("unchecked")
-	public Iterator<Integer> keysIterator() {
-		return (Iterator<Integer>) keys();
-	}
-
-	@SuppressWarnings("unchecked")
-	public Iterator<E> valuesIterator() {
-		return (Iterator<E>) elements();
-	}
+public class Lock {
+    protected boolean locked;
+    public Lock() {
+        locked=false;
+    }
+    
+    public synchronized void lock() throws InterruptedException {
+        while (locked) wait();
+        locked=true;
+    }
+    
+    public synchronized void unlock() {
+        locked=false;
+        notify();
+    }
 }

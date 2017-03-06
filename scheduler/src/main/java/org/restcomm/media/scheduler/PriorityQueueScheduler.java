@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.LockSupport;
 
 import org.apache.log4j.Logger;
-import org.restcomm.media.server.concurrent.ConcurrentCyclicFIFO;
+import org.restcomm.media.concurrent.ConcurrentCyclicFIFO;
 
 /**
  * Implements scheduler with multi-level priority queue.

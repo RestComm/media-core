@@ -26,12 +26,12 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.restcomm.media.concurrent.ConcurrentCyclicFIFO;
+import org.restcomm.media.concurrent.ConcurrentMap;
 import org.restcomm.media.control.mgcp.MgcpEvent;
 import org.restcomm.media.control.mgcp.MgcpListener;
 import org.restcomm.media.control.mgcp.MgcpProvider;
 import org.restcomm.media.control.mgcp.controller.signal.MgcpPackage;
-import org.restcomm.media.server.concurrent.ConcurrentCyclicFIFO;
-import org.restcomm.media.server.concurrent.ConcurrentMap;
 import org.restcomm.media.spi.Connection;
 import org.restcomm.media.spi.ConnectionType;
 import org.restcomm.media.spi.Endpoint;

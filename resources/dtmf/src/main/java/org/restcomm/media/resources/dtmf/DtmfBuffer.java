@@ -24,7 +24,7 @@ package org.restcomm.media.resources.dtmf;
 
 import java.io.Serializable;
 import org.apache.log4j.Logger;
-import org.restcomm.media.server.concurrent.ConcurrentCyclicFIFO;
+import org.restcomm.media.concurrent.ConcurrentCyclicFIFO;
 
 /**
  * Implements digit buffer.

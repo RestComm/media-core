@@ -25,7 +25,7 @@ package org.restcomm.media.component.audio;
 import java.io.IOException;
 
 import org.restcomm.media.component.AbstractSink;
-import org.restcomm.media.server.concurrent.ConcurrentCyclicFIFO;
+import org.restcomm.media.concurrent.ConcurrentCyclicFIFO;
 import org.restcomm.media.spi.memory.Frame;
 import org.restcomm.media.spi.memory.Memory;
 

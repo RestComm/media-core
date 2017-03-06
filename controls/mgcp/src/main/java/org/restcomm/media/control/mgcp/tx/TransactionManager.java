@@ -28,13 +28,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
+import org.restcomm.media.concurrent.ConcurrentCyclicFIFO;
+import org.restcomm.media.concurrent.ConcurrentMap;
 import org.restcomm.media.control.mgcp.MgcpProvider;
 import org.restcomm.media.control.mgcp.controller.CallManager;
 import org.restcomm.media.control.mgcp.controller.naming.NamingTree;
 import org.restcomm.media.scheduler.Clock;
 import org.restcomm.media.scheduler.Scheduler;
-import org.restcomm.media.server.concurrent.ConcurrentCyclicFIFO;
-import org.restcomm.media.server.concurrent.ConcurrentMap;
 
 /**
  * Implements pool of transactions.

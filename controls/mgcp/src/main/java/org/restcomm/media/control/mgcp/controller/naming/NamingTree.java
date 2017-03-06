@@ -21,8 +21,8 @@
  */
 package org.restcomm.media.control.mgcp.controller.naming;
 
+import org.restcomm.media.concurrent.ConcurrentCyclicFIFO;
 import org.restcomm.media.control.mgcp.controller.MgcpEndpoint;
-import org.restcomm.media.server.concurrent.ConcurrentCyclicFIFO;
 import org.restcomm.media.spi.EndpointInstaller;
 import org.restcomm.media.spi.utils.Text;
 

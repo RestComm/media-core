@@ -23,7 +23,7 @@ package org.restcomm.media.control.mgcp.controller;
 
 import java.util.Iterator;
 
-import org.restcomm.media.server.concurrent.ConcurrentMap;
+import org.restcomm.media.concurrent.ConcurrentMap;
 
 /**
  * MGCP call.

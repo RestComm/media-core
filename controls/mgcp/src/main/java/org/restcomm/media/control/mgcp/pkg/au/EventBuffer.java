@@ -24,7 +24,7 @@ package org.restcomm.media.control.mgcp.pkg.au;
 
 import java.util.Collection;
 import org.apache.log4j.Logger;
-import org.restcomm.media.server.concurrent.ConcurrentCyclicFIFO;
+import org.restcomm.media.concurrent.ConcurrentCyclicFIFO;
 import org.restcomm.media.spi.dtmf.DtmfDetectorListener;
 import org.restcomm.media.spi.dtmf.DtmfEvent;
 import org.restcomm.media.spi.utils.Text;

@@ -24,12 +24,12 @@ package org.restcomm.media.control.mgcp.tx;
 
 import java.net.InetSocketAddress;
 
+import org.restcomm.media.concurrent.Lock;
 import org.restcomm.media.control.mgcp.MgcpProvider;
 import org.restcomm.media.control.mgcp.controller.CallManager;
 import org.restcomm.media.control.mgcp.controller.naming.NamingTree;
 import org.restcomm.media.scheduler.Clock;
 import org.restcomm.media.scheduler.Scheduler;
-import org.restcomm.media.server.concurrent.Lock;
 
 /**
  * Implements pool of transactions.
