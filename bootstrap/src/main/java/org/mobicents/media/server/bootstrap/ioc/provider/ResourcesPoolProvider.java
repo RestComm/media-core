@@ -25,8 +25,6 @@ import org.mobicents.media.server.impl.resource.audio.AudioRecorderImpl;
 import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
 import org.mobicents.media.server.impl.resource.dtmf.GeneratorImpl;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerImpl;
-import org.mobicents.media.server.impl.resource.phone.PhoneSignalDetector;
-import org.mobicents.media.server.impl.resource.phone.PhoneSignalGenerator;
 import org.mobicents.media.server.mgcp.connection.LocalConnectionImpl;
 import org.mobicents.media.server.mgcp.connection.RtpConnectionImpl;
 import org.mobicents.media.server.mgcp.resources.ResourcesPool;
@@ -47,29 +45,23 @@ public class ResourcesPoolProvider implements Provider<ResourcesPool> {
     private final ResourcePool<AudioRecorderImpl> recorders;
     private final ResourcePool<DetectorImpl> dtmfDetectors;
     private final ResourcePool<GeneratorImpl> dtmfGenerators;
-    private final ResourcePool<PhoneSignalDetector> signalDetectors;
-    private final ResourcePool<PhoneSignalGenerator> signalGenerators;
 
     @Inject
     public ResourcesPoolProvider(ResourcePool<RtpConnectionImpl> rtpConnections,
             ResourcePool<LocalConnectionImpl> localConnections, ResourcePool<AudioPlayerImpl> players,
             ResourcePool<AudioRecorderImpl> recorders, ResourcePool<DetectorImpl> dtmfDetectors,
-            ResourcePool<GeneratorImpl> dtmfGenerators, ResourcePool<PhoneSignalDetector> signalDetectors,
-            ResourcePool<PhoneSignalGenerator> signalGenerators) {
+            ResourcePool<GeneratorImpl> dtmfGenerators) {
         this.players = players;
         this.recorders = recorders;
         this.dtmfDetectors = dtmfDetectors;
         this.dtmfGenerators = dtmfGenerators;
-        this.signalDetectors = signalDetectors;
-        this.signalGenerators = signalGenerators;
         this.localConnections = localConnections;
         this.remoteConnections = rtpConnections;
     }
 
     @Override
     public ResourcesPool get() {
-        return new ResourcesPool(remoteConnections, localConnections, players, recorders, dtmfDetectors, dtmfGenerators,
-                signalDetectors, signalGenerators);
+        return new ResourcesPool(remoteConnections, localConnections, players, recorders, dtmfDetectors, dtmfGenerators);
     }
 
 }

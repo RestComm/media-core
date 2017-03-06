@@ -30,8 +30,6 @@ import org.mobicents.media.server.impl.resource.audio.AudioRecorderImpl;
 import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
 import org.mobicents.media.server.impl.resource.dtmf.GeneratorImpl;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerImpl;
-import org.mobicents.media.server.impl.resource.phone.PhoneSignalDetector;
-import org.mobicents.media.server.impl.resource.phone.PhoneSignalGenerator;
 import org.mobicents.media.server.mgcp.connection.LocalConnectionImpl;
 import org.mobicents.media.server.mgcp.connection.RtpConnectionImpl;
 import org.mobicents.media.server.spi.Connection;
@@ -52,8 +50,6 @@ public class ResourcesPool implements ComponentFactory {
 	private final ResourcePool<AudioRecorderImpl> recorders;
 	private final ResourcePool<DetectorImpl> dtmfDetectors;
 	private final ResourcePool<GeneratorImpl> dtmfGenerators;
-	private final ResourcePool<PhoneSignalDetector> signalDetectors;
-	private final ResourcePool<PhoneSignalGenerator> signalGenerators;
 
 	// Connections
 	private final ResourcePool<LocalConnectionImpl> localConnections;
@@ -61,15 +57,12 @@ public class ResourcesPool implements ComponentFactory {
 
     public ResourcesPool(ResourcePool<RtpConnectionImpl> rtpConnections, ResourcePool<LocalConnectionImpl> localConnections,
             ResourcePool<AudioPlayerImpl> players, ResourcePool<AudioRecorderImpl> recorders,
-            ResourcePool<DetectorImpl> dtmfDetectors, ResourcePool<GeneratorImpl> dtmfGenerators,
-            ResourcePool<PhoneSignalDetector> signalDetectors, ResourcePool<PhoneSignalGenerator> signalGenerators) {
+            ResourcePool<DetectorImpl> dtmfDetectors, ResourcePool<GeneratorImpl> dtmfGenerators) {
         // Media Resources
         this.players = players;
         this.recorders = recorders;
         this.dtmfDetectors = dtmfDetectors;
         this.dtmfGenerators = dtmfGenerators;
-        this.signalDetectors = signalDetectors;
-        this.signalGenerators = signalGenerators;
 
         // Connections
         this.localConnections = localConnections;
@@ -109,20 +102,6 @@ public class ResourcesPool implements ComponentFactory {
 			}
 			break;
 
-		case SIGNAL_DETECTOR:
-			result = this.signalDetectors.poll();
-			if (logger.isDebugEnabled()) {
-				logger.debug("Allocated Signal Detector [pool size:" + signalDetectors.size() + ", free:" + signalDetectors.count() + "]");
-			}
-			break;
-
-		case SIGNAL_GENERATOR:
-			result = this.signalGenerators.poll();
-			if (logger.isDebugEnabled()) {
-				logger.debug("Allocated Signal Generator [pool size:" + signalGenerators.size() + ", free:" + signalGenerators.count()+"]");
-			}
-			break;
-			
 		default:
 			break;
 		}
@@ -162,20 +141,6 @@ public class ResourcesPool implements ComponentFactory {
 			}
 			break;
 
-		case SIGNAL_DETECTOR:
-			this.signalDetectors.offer((PhoneSignalDetector) component);
-			if (logger.isDebugEnabled()) {
-				logger.debug("Released Signal Detector [pool size:" + signalDetectors.size() + ", free:" + signalDetectors.count() + "]");
-			}
-			break;
-
-		case SIGNAL_GENERATOR:
-			this.signalGenerators.offer((PhoneSignalGenerator) component);
-			if (logger.isDebugEnabled()) {
-				logger.debug("Released Signal Generator [pool size:" + signalGenerators.size() + ", free:" + signalGenerators.count()+"]");
-			}
-			break;
-			
 		default:
 			break;
 		}

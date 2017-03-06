@@ -217,10 +217,6 @@ public abstract class BaseEndpointImpl implements Endpoint {
 				return mediaGroup.getDtmfDetector();
 			case DTMF_GENERATOR:
 				return mediaGroup.getDtmfGenerator();
-			case SIGNAL_DETECTOR:
-				return mediaGroup.getSignalDetector();
-			case SIGNAL_GENERATOR:
-				return mediaGroup.getSignalGenerator();
 			default:
 				break;
 			}
@@ -244,10 +240,6 @@ public abstract class BaseEndpointImpl implements Endpoint {
 				return mediaGroup.hasDtmfDetector();
 			case DTMF_GENERATOR:
 				return mediaGroup.hasDtmfGenerator();
-			case SIGNAL_DETECTOR:
-				return mediaGroup.hasSignalDetector();
-			case SIGNAL_GENERATOR:
-				return mediaGroup.hasSignalGenerator();
 			default:
 				break;
 			}
@@ -271,10 +263,6 @@ public abstract class BaseEndpointImpl implements Endpoint {
 				mediaGroup.releaseDtmfDetector();
 			case DTMF_GENERATOR:
 				mediaGroup.releaseDtmfGenerator();
-			case SIGNAL_DETECTOR:
-				mediaGroup.releaseSignalDetector();
-			case SIGNAL_GENERATOR:
-				mediaGroup.releaseSignalGenerator();
 			default:
 				break;
 			}
