@@ -19,7 +19,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
         
-package org.mobicents.media.core.configuration;
+package org.restcomm.media.core.configuration;
 
 /**
  * Enumerates supported codecs as well as their assigned Encoders and Decoders.

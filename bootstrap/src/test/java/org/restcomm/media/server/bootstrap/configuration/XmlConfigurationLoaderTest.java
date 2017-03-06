@@ -26,14 +26,14 @@ import org.bouncycastle.crypto.tls.ProtocolVersion;
 import org.bouncycastle.crypto.tls.SignatureAlgorithm;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mobicents.media.core.configuration.DtlsConfiguration;
-import org.mobicents.media.core.configuration.MediaConfiguration;
-import org.mobicents.media.core.configuration.MediaServerConfiguration;
-import org.mobicents.media.core.configuration.MgcpControllerConfiguration;
-import org.mobicents.media.core.configuration.MgcpEndpointConfiguration;
-import org.mobicents.media.core.configuration.NetworkConfiguration;
-import org.mobicents.media.core.configuration.ResourcesConfiguration;
 import org.mobicents.media.server.spi.RelayType;
+import org.restcomm.media.core.configuration.DtlsConfiguration;
+import org.restcomm.media.core.configuration.MediaConfiguration;
+import org.restcomm.media.core.configuration.MediaServerConfiguration;
+import org.restcomm.media.core.configuration.MgcpControllerConfiguration;
+import org.restcomm.media.core.configuration.MgcpEndpointConfiguration;
+import org.restcomm.media.core.configuration.NetworkConfiguration;
+import org.restcomm.media.core.configuration.ResourcesConfiguration;
 import org.restcomm.media.server.bootstrap.configuration.XmlConfigurationLoader;
 
 /**

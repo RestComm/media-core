@@ -21,7 +21,7 @@
 
 package org.restcomm.media.server.bootstrap.configuration;
 
-import org.mobicents.media.core.configuration.MediaServerConfiguration;
+import org.restcomm.media.core.configuration.MediaServerConfiguration;
 
 /**
  * Loads Media Server configuration from a specific source.

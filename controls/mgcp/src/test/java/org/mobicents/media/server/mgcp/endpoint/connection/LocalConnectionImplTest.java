@@ -32,7 +32,6 @@ import org.bouncycastle.crypto.tls.ProtocolVersion;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mobicents.media.core.configuration.DtlsConfiguration;
 import org.mobicents.media.server.impl.resource.audio.AudioRecorderFactory;
 import org.mobicents.media.server.impl.resource.audio.AudioRecorderPool;
 import org.mobicents.media.server.impl.resource.dtmf.DtmfDetectorFactory;
@@ -61,6 +60,7 @@ import org.mobicents.media.server.scheduler.WallClock;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.server.spi.TooManyConnectionsException;
+import org.restcomm.media.core.configuration.DtlsConfiguration;
 import org.restcomm.media.server.component.dsp.DspFactoryImpl;
 
 /**

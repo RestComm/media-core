@@ -19,7 +19,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.core.configuration;
+package org.restcomm.media.core.configuration;
 
 import java.util.HashSet;
 import java.util.Iterator;

@@ -23,8 +23,8 @@ package org.restcomm.media.server.bootstrap.ioc.provider;
 
 import java.util.Iterator;
 
-import org.mobicents.media.core.configuration.CodecType;
-import org.mobicents.media.core.configuration.MediaServerConfiguration;
+import org.restcomm.media.core.configuration.CodecType;
+import org.restcomm.media.core.configuration.MediaServerConfiguration;
 import org.restcomm.media.server.component.dsp.DspFactoryImpl;
 
 import com.google.inject.Inject;

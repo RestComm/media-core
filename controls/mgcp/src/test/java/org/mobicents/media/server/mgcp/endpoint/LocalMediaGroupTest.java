@@ -36,7 +36,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.core.configuration.DtlsConfiguration;
 import org.mobicents.media.server.impl.resource.audio.AudioRecorderFactory;
 import org.mobicents.media.server.impl.resource.audio.AudioRecorderPool;
 import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
@@ -70,6 +69,7 @@ import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
 import org.mobicents.media.server.spi.dtmf.DtmfEvent;
 import org.mobicents.media.server.utils.Text;
+import org.restcomm.media.core.configuration.DtlsConfiguration;
 import org.restcomm.media.server.component.dsp.DspFactoryImpl;
 
 /**

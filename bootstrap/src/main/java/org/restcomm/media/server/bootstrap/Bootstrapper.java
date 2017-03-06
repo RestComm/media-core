@@ -22,8 +22,8 @@
 package org.restcomm.media.server.bootstrap;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.core.configuration.MediaServerConfiguration;
 import org.mobicents.media.server.spi.MediaServer;
+import org.restcomm.media.core.configuration.MediaServerConfiguration;
 import org.restcomm.media.server.bootstrap.configuration.ConfigurationLoader;
 import org.restcomm.media.server.bootstrap.configuration.XmlConfigurationLoader;
 import org.restcomm.media.server.bootstrap.ioc.CoreModule;

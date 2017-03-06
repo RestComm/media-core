@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
  */
-package org.mobicents.media.core;
+package org.restcomm.media.core;
 
 /**
  * Enumeration of Media Types supported by the Media Server.<br>

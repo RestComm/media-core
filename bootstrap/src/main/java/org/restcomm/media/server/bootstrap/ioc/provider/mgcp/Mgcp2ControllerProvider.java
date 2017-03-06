@@ -26,8 +26,8 @@ import org.mobicents.media.control.mgcp.controller.MgcpController;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.network.MgcpChannel;
 import org.mobicents.media.control.mgcp.transaction.MgcpTransactionManager;
-import org.mobicents.media.core.configuration.MediaServerConfiguration;
 import org.mobicents.media.server.io.network.UdpManager;
+import org.restcomm.media.core.configuration.MediaServerConfiguration;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;

@@ -1,8 +1,9 @@
 package org.restcomm.media.server.bootstrap.ioc.provider;
 
+import org.restcomm.media.core.configuration.MediaServerConfiguration;
+
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import org.mobicents.media.core.configuration.MediaServerConfiguration;
 
 /**
  * Created by achikin on 6/3/16.

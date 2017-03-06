@@ -31,10 +31,10 @@ import org.mobicents.media.control.mgcp.endpoint.provider.MediaGroupProvider;
 import org.mobicents.media.control.mgcp.endpoint.provider.MgcpEndpointProvider;
 import org.mobicents.media.control.mgcp.endpoint.provider.MgcpMixerEndpointProvider;
 import org.mobicents.media.control.mgcp.endpoint.provider.MgcpSplitterEndpointProvider;
-import org.mobicents.media.core.configuration.MediaServerConfiguration;
-import org.mobicents.media.core.configuration.MgcpControllerConfiguration;
-import org.mobicents.media.core.configuration.MgcpEndpointConfiguration;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.core.configuration.MediaServerConfiguration;
+import org.restcomm.media.core.configuration.MgcpControllerConfiguration;
+import org.restcomm.media.core.configuration.MgcpEndpointConfiguration;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;

@@ -21,9 +21,9 @@
         
 package org.restcomm.media.server.bootstrap.ioc.provider;
 
-import org.mobicents.media.core.configuration.MediaServerConfiguration;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Scheduler;
+import org.restcomm.media.core.configuration.MediaServerConfiguration;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;

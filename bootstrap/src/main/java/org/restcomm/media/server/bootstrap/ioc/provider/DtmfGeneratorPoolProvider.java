@@ -21,11 +21,11 @@
 
 package org.restcomm.media.server.bootstrap.ioc.provider;
 
-import org.mobicents.media.core.configuration.MediaServerConfiguration;
 import org.mobicents.media.server.impl.resource.dtmf.DtmfGeneratorPool;
 import org.mobicents.media.server.impl.resource.dtmf.GeneratorImpl;
 import org.mobicents.media.server.spi.pooling.PooledObjectFactory;
 import org.mobicents.media.server.spi.pooling.ResourcePool;
+import org.restcomm.media.core.configuration.MediaServerConfiguration;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
