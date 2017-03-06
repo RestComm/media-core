@@ -15,6 +15,5 @@
     
     <modules>
         <module>dtmf</module>
-        <module>tone</module>
     </modules>
 </project>
