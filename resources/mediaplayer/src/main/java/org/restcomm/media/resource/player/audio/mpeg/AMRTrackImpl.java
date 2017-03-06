@@ -28,10 +28,10 @@ import java.net.URL;
 import org.mobicents.media.server.spi.format.Format;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.restcomm.media.resource.player.Track;
-import org.restcomm.media.resource.player.mpeg.AudioTrack;
-import org.restcomm.media.resource.player.mpeg.MpegPresentation;
-import org.restcomm.media.resource.player.mpeg.RTPLocalPacket;
-import org.restcomm.media.resource.player.mpeg.RTPSample;
+import org.restcomm.media.resource.player.video.mpeg.AudioTrack;
+import org.restcomm.media.resource.player.video.mpeg.MpegPresentation;
+import org.restcomm.media.resource.player.video.mpeg.RTPLocalPacket;
+import org.restcomm.media.resource.player.video.mpeg.RTPSample;
 
 /**
  * 

@@ -21,10 +21,10 @@
 
 package org.restcomm.media.server.bootstrap.ioc.provider;
 
-import org.mobicents.media.server.impl.resource.audio.AudioRecorderFactory;
-import org.mobicents.media.server.impl.resource.audio.AudioRecorderImpl;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.pooling.PooledObjectFactory;
+import org.restcomm.media.resource.recorder.audio.AudioRecorderFactory;
+import org.restcomm.media.resource.recorder.audio.AudioRecorderImpl;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
