@@ -19,39 +19,30 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.resources.dtmf;
+package org.restcomm.media.resource.dtmf;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.restcomm.media.scheduler.PriorityQueueScheduler;
-import org.restcomm.media.spi.dtmf.DtmfDetector;
-import org.restcomm.media.spi.dtmf.DtmfDetectorProvider;
+import org.restcomm.media.spi.pooling.AbstractConcurrentResourcePool;
+import org.restcomm.media.spi.pooling.PooledObjectFactory;
 
 /**
+ * Thread-safe pool for DTMF Detectors.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
+ * 
  */
-public class DetectorProvider implements DtmfDetectorProvider {
+public class DtmfDetectorPool extends AbstractConcurrentResourcePool<DetectorImpl> {
 
-    private final PriorityQueueScheduler scheduler;
-    private final AtomicInteger id;
-    private final int volume;
+    private final PooledObjectFactory<DetectorImpl> factory;
 
-    public DetectorProvider(PriorityQueueScheduler scheduler, int volume) {
-        this.scheduler = scheduler;
-        this.id = new AtomicInteger(0);
-        this.volume = volume;
+    public DtmfDetectorPool(int initialCapacity, PooledObjectFactory<DetectorImpl> factory) {
+        super(initialCapacity);
+        this.factory = factory;
+        populate();
     }
 
     @Override
-    public DtmfDetector provide() {
-        DetectorImpl detector = new DetectorImpl(nextId(), this.scheduler);
-        detector.setVolume(this.volume);
-        return detector;
-    }
-
-    private String nextId() {
-        return "dtmf-detector" + id.getAndIncrement();
+    protected DetectorImpl createResource() {
+        return this.factory.produce();
     }
 
 }

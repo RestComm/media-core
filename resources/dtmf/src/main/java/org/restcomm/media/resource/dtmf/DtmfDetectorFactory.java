@@ -19,43 +19,44 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.bootstrap.ioc.provider;
+package org.restcomm.media.resource.dtmf;
 
-import org.restcomm.media.resource.dtmf.DetectorImpl;
-import org.restcomm.media.resource.dtmf.DtmfDetectorFactory;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.spi.pooling.PooledObjectFactory;
 
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.google.inject.TypeLiteral;
-
 /**
+ * Factory that produces DTMF Detectors.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
  */
-public class DtmfDetectorFactoryProvider implements Provider<DtmfDetectorFactory> {
+public class DtmfDetectorFactory implements PooledObjectFactory<DetectorImpl> {
+
+    /** Global ID generator for DTMF detectors */
+    private static final AtomicInteger ID = new AtomicInteger(1);
+
+    /** Default volume for detectors **/
+    private static final int DEFAULT_DETECTOR_DBI = -35;
 
     private final PriorityQueueScheduler mediaScheduler;
+    private int volume;
 
-    @Inject
-    public DtmfDetectorFactoryProvider(PriorityQueueScheduler mediaScheduler) {
+    public DtmfDetectorFactory(PriorityQueueScheduler mediaScheduler, int volume) {
         this.mediaScheduler = mediaScheduler;
+        this.volume = volume;
+    }
+
+    public DtmfDetectorFactory(PriorityQueueScheduler mediaScheduler) {
+        this.mediaScheduler = mediaScheduler;
+        this.volume = DEFAULT_DETECTOR_DBI;
     }
 
     @Override
-    public DtmfDetectorFactory get() {
-        return new DtmfDetectorFactory(this.mediaScheduler);
-    }
-
-    public static final class DtmfDetectorFactoryType extends TypeLiteral<PooledObjectFactory<DetectorImpl>> {
-
-        public static final DtmfDetectorFactoryType INSTANCE = new DtmfDetectorFactoryType();
-
-        private DtmfDetectorFactoryType() {
-            super();
-        }
-
+    public DetectorImpl produce() {
+        DetectorImpl detector = new DetectorImpl("detector-" + ID.getAndIncrement(), mediaScheduler);
+        detector.setVolume(this.volume);
+        return detector;
     }
 
 }

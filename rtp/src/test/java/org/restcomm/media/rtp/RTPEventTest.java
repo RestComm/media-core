@@ -47,7 +47,7 @@ import org.restcomm.media.component.dsp.DspFactoryImpl;
 import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.component.oob.OOBMixer;
 import org.restcomm.media.network.UdpManager;
-import org.restcomm.media.resources.dtmf.DetectorImpl;
+import org.restcomm.media.resource.dtmf.DetectorImpl;
 import org.restcomm.media.rtp.ChannelsManager;
 import org.restcomm.media.rtp.RTPDataChannel;
 import org.restcomm.media.rtp.RtpPacket;

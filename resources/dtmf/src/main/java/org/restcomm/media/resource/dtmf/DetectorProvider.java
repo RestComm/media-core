@@ -19,44 +19,39 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.resources.dtmf;
+package org.restcomm.media.resource.dtmf;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
-import org.restcomm.media.spi.pooling.PooledObjectFactory;
+import org.restcomm.media.spi.dtmf.DtmfDetector;
+import org.restcomm.media.spi.dtmf.DtmfDetectorProvider;
 
 /**
- * Factory that produces DTMF Detectors.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
+ *
  */
-public class DtmfDetectorFactory implements PooledObjectFactory<DetectorImpl> {
+public class DetectorProvider implements DtmfDetectorProvider {
 
-    /** Global ID generator for DTMF detectors */
-    private static final AtomicInteger ID = new AtomicInteger(1);
+    private final PriorityQueueScheduler scheduler;
+    private final AtomicInteger id;
+    private final int volume;
 
-    /** Default volume for detectors **/
-    private static final int DEFAULT_DETECTOR_DBI = -35;
-
-    private final PriorityQueueScheduler mediaScheduler;
-    private int volume;
-
-    public DtmfDetectorFactory(PriorityQueueScheduler mediaScheduler, int volume) {
-        this.mediaScheduler = mediaScheduler;
+    public DetectorProvider(PriorityQueueScheduler scheduler, int volume) {
+        this.scheduler = scheduler;
+        this.id = new AtomicInteger(0);
         this.volume = volume;
     }
 
-    public DtmfDetectorFactory(PriorityQueueScheduler mediaScheduler) {
-        this.mediaScheduler = mediaScheduler;
-        this.volume = DEFAULT_DETECTOR_DBI;
-    }
-
     @Override
-    public DetectorImpl produce() {
-        DetectorImpl detector = new DetectorImpl("detector-" + ID.getAndIncrement(), mediaScheduler);
+    public DtmfDetector provide() {
+        DetectorImpl detector = new DetectorImpl(nextId(), this.scheduler);
         detector.setVolume(this.volume);
         return detector;
+    }
+
+    private String nextId() {
+        return "dtmf-detector" + id.getAndIncrement();
     }
 
 }

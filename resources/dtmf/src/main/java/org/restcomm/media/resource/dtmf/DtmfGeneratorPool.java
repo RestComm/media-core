@@ -19,29 +19,29 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.resources.dtmf;
+package org.restcomm.media.resource.dtmf;
 
 import org.restcomm.media.spi.pooling.AbstractConcurrentResourcePool;
 import org.restcomm.media.spi.pooling.PooledObjectFactory;
 
 /**
- * Thread-safe pool for DTMF Detectors.
+ * Thread-safe pool for DTMF Generators.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- * 
+ *
  */
-public class DtmfDetectorPool extends AbstractConcurrentResourcePool<DetectorImpl> {
+public class DtmfGeneratorPool extends AbstractConcurrentResourcePool<GeneratorImpl> {
 
-    private final PooledObjectFactory<DetectorImpl> factory;
+    private final PooledObjectFactory<GeneratorImpl> factory;
 
-    public DtmfDetectorPool(int initialCapacity, PooledObjectFactory<DetectorImpl> factory) {
+    public DtmfGeneratorPool(int initialCapacity, PooledObjectFactory<GeneratorImpl> factory) {
         super(initialCapacity);
         this.factory = factory;
         populate();
     }
 
     @Override
-    protected DetectorImpl createResource() {
+    protected GeneratorImpl createResource() {
         return this.factory.produce();
     }
 

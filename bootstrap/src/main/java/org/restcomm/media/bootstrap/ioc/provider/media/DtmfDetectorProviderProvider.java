@@ -22,7 +22,7 @@
 package org.restcomm.media.bootstrap.ioc.provider.media;
 
 import org.restcomm.media.core.configuration.MediaServerConfiguration;
-import org.restcomm.media.resources.dtmf.DetectorProvider;
+import org.restcomm.media.resource.dtmf.DetectorProvider;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.spi.dtmf.DtmfDetectorProvider;
 

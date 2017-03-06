@@ -42,7 +42,7 @@ import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.component.oob.OOBInput;
 import org.restcomm.media.component.oob.OOBSplitter;
 import org.restcomm.media.network.UdpManager;
-import org.restcomm.media.resources.dtmf.DetectorImpl;
+import org.restcomm.media.resource.dtmf.DetectorImpl;
 import org.restcomm.media.rtp.ChannelsManager;
 import org.restcomm.media.rtp.LocalDataChannel;
 import org.restcomm.media.rtp.crypto.DtlsSrtpServer;

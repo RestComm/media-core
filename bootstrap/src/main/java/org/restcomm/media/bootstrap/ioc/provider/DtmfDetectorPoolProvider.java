@@ -22,8 +22,8 @@
 package org.restcomm.media.bootstrap.ioc.provider;
 
 import org.restcomm.media.core.configuration.MediaServerConfiguration;
-import org.restcomm.media.resources.dtmf.DetectorImpl;
-import org.restcomm.media.resources.dtmf.DtmfDetectorPool;
+import org.restcomm.media.resource.dtmf.DetectorImpl;
+import org.restcomm.media.resource.dtmf.DtmfDetectorPool;
 import org.restcomm.media.spi.pooling.PooledObjectFactory;
 import org.restcomm.media.spi.pooling.ResourcePool;
 

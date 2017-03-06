@@ -28,10 +28,10 @@ import org.restcomm.media.ComponentFactory;
 import org.restcomm.media.ComponentType;
 import org.restcomm.media.control.mgcp.connection.LocalConnectionImpl;
 import org.restcomm.media.control.mgcp.connection.RtpConnectionImpl;
+import org.restcomm.media.resource.dtmf.DetectorImpl;
+import org.restcomm.media.resource.dtmf.GeneratorImpl;
 import org.restcomm.media.resource.player.audio.AudioPlayerImpl;
 import org.restcomm.media.resource.recorder.audio.AudioRecorderImpl;
-import org.restcomm.media.resources.dtmf.DetectorImpl;
-import org.restcomm.media.resources.dtmf.GeneratorImpl;
 import org.restcomm.media.spi.Connection;
 import org.restcomm.media.spi.pooling.ResourcePool;
 
