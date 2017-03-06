@@ -57,11 +57,6 @@
 			<artifactId>recorder</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>org.restcomm.media.controls</groupId>
-			<artifactId>mgcp</artifactId>
-			<version>${project.version}</version>
-		</dependency>
 
 		<!-- codecs -->
 		<dependency>
