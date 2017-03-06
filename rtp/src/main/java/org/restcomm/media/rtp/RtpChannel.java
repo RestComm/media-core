@@ -27,7 +27,6 @@ import java.net.SocketException;
 import java.nio.channels.DatagramChannel;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.io.sdp.format.RTPFormats;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.FormatNotSupportedException;
 import org.mobicents.media.server.spi.dsp.Processor;
@@ -49,6 +48,7 @@ import org.restcomm.media.rtp.secure.DtlsListener;
 import org.restcomm.media.rtp.statistics.RtpStatistics;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.Task;
+import org.restcomm.media.sdp.format.RTPFormats;
 import org.restcomm.media.server.component.audio.AudioComponent;
 import org.restcomm.media.server.component.oob.OOBComponent;
 

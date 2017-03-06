@@ -24,8 +24,6 @@ package org.restcomm.media.rtp;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.mobicents.media.server.io.sdp.format.AVProfile;
-import org.mobicents.media.server.io.sdp.format.RTPFormats;
 import org.restcomm.media.network.PortManager;
 import org.restcomm.media.network.UdpManager;
 import org.restcomm.media.rtcp.RtcpChannel;
@@ -35,6 +33,8 @@ import org.restcomm.media.rtp.statistics.RtpStatistics;
 import org.restcomm.media.scheduler.Clock;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.WallClock;
+import org.restcomm.media.sdp.format.AVProfile;
+import org.restcomm.media.sdp.format.RTPFormats;
 
 /**
  * Local and RTP channels storage

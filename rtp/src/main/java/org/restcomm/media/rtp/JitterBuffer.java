@@ -27,10 +27,10 @@ import java.util.ArrayList;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.io.sdp.format.RTPFormat;
-import org.mobicents.media.server.io.sdp.format.RTPFormats;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.memory.Memory;
+import org.restcomm.media.sdp.format.RTPFormat;
+import org.restcomm.media.sdp.format.RTPFormats;
 
 /**
  * Implements jitter buffer.

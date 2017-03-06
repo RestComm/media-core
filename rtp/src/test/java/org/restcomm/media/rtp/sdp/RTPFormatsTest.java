@@ -30,13 +30,13 @@ package org.restcomm.media.rtp.sdp;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.mobicents.media.server.io.sdp.format.AVProfile;
-import org.mobicents.media.server.io.sdp.format.RTPFormat;
-import org.mobicents.media.server.io.sdp.format.RTPFormats;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.EncodingName;
 import org.mobicents.media.server.spi.format.Format;
 import org.mobicents.media.server.spi.format.FormatFactory;
+import org.restcomm.media.sdp.format.AVProfile;
+import org.restcomm.media.sdp.format.RTPFormat;
+import org.restcomm.media.sdp.format.RTPFormats;
 
 /**
  *

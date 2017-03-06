@@ -27,9 +27,6 @@ import java.io.IOException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mobicents.media.server.io.sdp.fields.MediaDescriptionField;
-import org.mobicents.media.server.io.sdp.format.AVProfile;
-import org.mobicents.media.server.io.sdp.format.RTPFormats;
 import org.restcomm.media.network.UdpManager;
 import org.restcomm.media.rtcp.RtcpChannel;
 import org.restcomm.media.rtp.ChannelsManager;
@@ -45,6 +42,9 @@ import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.Scheduler;
 import org.restcomm.media.scheduler.ServiceScheduler;
 import org.restcomm.media.scheduler.WallClock;
+import org.restcomm.media.sdp.fields.MediaDescriptionField;
+import org.restcomm.media.sdp.format.AVProfile;
+import org.restcomm.media.sdp.format.RTPFormats;
 
 /**
  * 

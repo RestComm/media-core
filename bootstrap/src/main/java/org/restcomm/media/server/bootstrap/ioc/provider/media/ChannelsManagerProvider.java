@@ -23,15 +23,15 @@ package org.restcomm.media.server.bootstrap.ioc.provider.media;
 
 import java.util.Iterator;
 
-import org.mobicents.media.server.io.sdp.format.AVProfile;
-import org.mobicents.media.server.io.sdp.format.RTPFormat;
-import org.mobicents.media.server.io.sdp.format.RTPFormats;
 import org.restcomm.media.core.configuration.CodecType;
 import org.restcomm.media.core.configuration.MediaServerConfiguration;
 import org.restcomm.media.network.UdpManager;
 import org.restcomm.media.rtp.ChannelsManager;
 import org.restcomm.media.rtp.crypto.DtlsSrtpServerProvider;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.sdp.format.AVProfile;
+import org.restcomm.media.sdp.format.RTPFormat;
+import org.restcomm.media.sdp.format.RTPFormats;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;

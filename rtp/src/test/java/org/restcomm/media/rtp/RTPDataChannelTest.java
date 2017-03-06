@@ -39,6 +39,7 @@ import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.Scheduler;
 import org.restcomm.media.scheduler.ServiceScheduler;
 import org.restcomm.media.scheduler.WallClock;
+import org.restcomm.media.sdp.format.AVProfile;
 import org.restcomm.media.server.component.audio.AudioComponent;
 import org.restcomm.media.server.component.audio.AudioMixer;
 import org.restcomm.media.server.component.audio.Sine;
@@ -49,7 +50,6 @@ import org.mobicents.media.server.spi.format.AudioFormat;
 
 import java.net.InetSocketAddress;
 
-import org.mobicents.media.server.io.sdp.format.AVProfile;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;

@@ -35,7 +35,6 @@ import java.util.concurrent.Executors;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mobicents.media.server.io.sdp.format.AVProfile;
 import org.mockito.ArgumentCaptor;
 import org.restcomm.media.control.mgcp.connection.MgcpConnectionState;
 import org.restcomm.media.control.mgcp.connection.MgcpLocalConnection;
@@ -48,6 +47,7 @@ import org.restcomm.media.rtp.ChannelsManager;
 import org.restcomm.media.rtp.LocalDataChannel;
 import org.restcomm.media.rtp.channels.AudioChannel;
 import org.restcomm.media.rtp.channels.MediaChannelProvider;
+import org.restcomm.media.sdp.format.AVProfile;
 
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;

@@ -25,10 +25,6 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.io.sdp.fields.MediaDescriptionField;
-import org.mobicents.media.server.io.sdp.format.AVProfile;
-import org.mobicents.media.server.io.sdp.format.RTPFormat;
-import org.mobicents.media.server.io.sdp.format.RTPFormats;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.FormatNotSupportedException;
 import org.mobicents.media.server.spi.dsp.Codec;
@@ -44,6 +40,10 @@ import org.restcomm.media.rtp.RtpClock;
 import org.restcomm.media.rtp.SsrcGenerator;
 import org.restcomm.media.rtp.statistics.RtpStatistics;
 import org.restcomm.media.scheduler.Clock;
+import org.restcomm.media.sdp.fields.MediaDescriptionField;
+import org.restcomm.media.sdp.format.AVProfile;
+import org.restcomm.media.sdp.format.RTPFormat;
+import org.restcomm.media.sdp.format.RTPFormats;
 
 /**
  * Abstract representation of a media channel with RTP and RTCP components.

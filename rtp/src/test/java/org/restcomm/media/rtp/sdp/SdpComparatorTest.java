@@ -34,9 +34,9 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mobicents.media.server.io.sdp.format.RTPFormats;
 import org.restcomm.media.rtp.sdp.SdpComparator;
 import org.restcomm.media.rtp.sdp.SessionDescription;
+import org.restcomm.media.sdp.format.RTPFormats;
 
 import static org.junit.Assert.*;
 
