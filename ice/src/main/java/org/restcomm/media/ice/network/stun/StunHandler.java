@@ -25,22 +25,22 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.mobicents.media.io.stun.StunException;
-import org.mobicents.media.io.stun.messages.StunMessage;
-import org.mobicents.media.io.stun.messages.StunMessageFactory;
-import org.mobicents.media.io.stun.messages.StunRequest;
-import org.mobicents.media.io.stun.messages.StunResponse;
-import org.mobicents.media.io.stun.messages.attributes.StunAttribute;
-import org.mobicents.media.io.stun.messages.attributes.StunAttributeFactory;
-import org.mobicents.media.io.stun.messages.attributes.general.ErrorCodeAttribute;
-import org.mobicents.media.io.stun.messages.attributes.general.MessageIntegrityAttribute;
-import org.mobicents.media.io.stun.messages.attributes.general.PriorityAttribute;
-import org.mobicents.media.io.stun.messages.attributes.general.UsernameAttribute;
 import org.restcomm.media.ice.IceAuthenticator;
 import org.restcomm.media.network.TransportAddress;
 import org.restcomm.media.network.TransportAddress.TransportProtocol;
 import org.restcomm.media.network.channel.PacketHandler;
 import org.restcomm.media.network.channel.PacketHandlerException;
+import org.restcomm.media.stun.StunException;
+import org.restcomm.media.stun.messages.StunMessage;
+import org.restcomm.media.stun.messages.StunMessageFactory;
+import org.restcomm.media.stun.messages.StunRequest;
+import org.restcomm.media.stun.messages.StunResponse;
+import org.restcomm.media.stun.messages.attributes.StunAttribute;
+import org.restcomm.media.stun.messages.attributes.StunAttributeFactory;
+import org.restcomm.media.stun.messages.attributes.general.ErrorCodeAttribute;
+import org.restcomm.media.stun.messages.attributes.general.MessageIntegrityAttribute;
+import org.restcomm.media.stun.messages.attributes.general.PriorityAttribute;
+import org.restcomm.media.stun.messages.attributes.general.UsernameAttribute;
 
 /**
  * Handles STUN traffic.

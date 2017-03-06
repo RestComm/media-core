@@ -2,19 +2,19 @@ package org.restcomm.media.ice;
 
 import junit.framework.Assert;
 import org.junit.Test;
-import org.mobicents.media.io.stun.StunException;
-import org.mobicents.media.io.stun.messages.StunMessage;
-import org.mobicents.media.io.stun.messages.StunRequest;
-import org.mobicents.media.io.stun.messages.StunResponse;
-import org.mobicents.media.io.stun.messages.attributes.general.ErrorCodeAttribute;
 import org.restcomm.media.ice.IceComponent;
 import org.restcomm.media.ice.IceHandler;
 import org.restcomm.media.ice.events.IceEventListener;
 import org.restcomm.media.network.channel.PacketHandlerException;
+import org.restcomm.media.stun.StunException;
+import org.restcomm.media.stun.messages.StunMessage;
+import org.restcomm.media.stun.messages.StunRequest;
+import org.restcomm.media.stun.messages.StunResponse;
+import org.restcomm.media.stun.messages.attributes.general.ErrorCodeAttribute;
+
+import static org.restcomm.media.stun.messages.StunMessage.BINDING_REQUEST;
 
 import java.net.InetSocketAddress;
-
-import static org.mobicents.media.io.stun.messages.StunMessage.BINDING_REQUEST;
 
 /**
  * Created by farwaakhtar on 2/17/17.
