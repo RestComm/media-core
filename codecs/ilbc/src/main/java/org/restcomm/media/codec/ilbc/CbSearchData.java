@@ -20,38 +20,49 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.impl.dsp.audio.ilbc;
+package org.restcomm.media.codec.ilbc;
 
 /**
  * 
  * @author oifa yulian 
  */
-public class CorrData
+public class CbSearchData
 {
-	private int correlation;
-    private int energy;    
+	private int critNew;
+	private short indexNew;
+	private short critNewSh;	
 	
-	public CorrData()
+	public CbSearchData()
 	{			 		
+	}	
+	
+	public int getCritNew()
+	{
+		return this.critNew;
 	}
 	
-	public int getCorrelation()
+	public void setCritNew(int value)
 	{
-		return this.correlation;
+		this.critNew=value;
 	}
 	
-	public void setCorrelation(int value)
+	public short getIndexNew()
 	{
-		this.correlation=value;
+		return this.indexNew;
 	}
 	
-	public int getEnergy()
+	public void setIndexNew(short value)
 	{
-		return this.energy;
+		this.indexNew=value;
 	}
 	
-	public void setEnergy(int value)
+	public short getCritNewSh()
 	{
-		this.energy=value;
+		return this.critNewSh;
+	}
+	
+	public void setCritNewSh(short value)
+	{
+		this.critNewSh=value;
 	}	
 }

@@ -20,60 +20,38 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.impl.dsp.audio.ilbc;
+package org.restcomm.media.codec.ilbc;
 
 /**
  * 
  * @author oifa yulian 
  */
-public class CbUpdateIndexData
+public class CorrData
 {
-	private int critMax;
-	private short shTotMax; 
-	private short bestIndex;
-	private short bestGain;
+	private int correlation;
+    private int energy;    
 	
-	public CbUpdateIndexData()
+	public CorrData()
 	{			 		
+	}
+	
+	public int getCorrelation()
+	{
+		return this.correlation;
+	}
+	
+	public void setCorrelation(int value)
+	{
+		this.correlation=value;
+	}
+	
+	public int getEnergy()
+	{
+		return this.energy;
+	}
+	
+	public void setEnergy(int value)
+	{
+		this.energy=value;
 	}	
-	
-	public int getCritMax()
-	{
-		return this.critMax;
-	}
-	
-	public void setCritMax(int value)
-	{
-		this.critMax=value;
-	}
-	
-	public short getShTotMax()
-	{
-		return this.shTotMax;
-	}
-	
-	public void setShTotMax(short value)
-	{
-		this.shTotMax=value;
-	}
-	
-	public short getBestIndex()
-	{
-		return this.bestIndex;
-	}
-	
-	public void setBestIndex(short value)
-	{
-		this.bestIndex=value;
-	}
-	
-	public short getBestGain()
-	{
-		return this.bestGain;
-	}
-	
-	public void setBestGain(short value)
-	{
-		this.bestGain=value;
-	}
 }

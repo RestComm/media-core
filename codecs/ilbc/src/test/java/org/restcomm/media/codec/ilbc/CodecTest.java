@@ -20,20 +20,13 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.impl.dsp.audio.ilbc;
-
-import java.nio.channels.FileChannel;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
+package org.restcomm.media.codec.ilbc;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.net.URL;
 
+import org.junit.Test;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.memory.Memory;
 /**
@@ -42,25 +35,6 @@ import org.mobicents.media.server.spi.memory.Memory;
  */
 public class CodecTest {
 	
-	public CodecTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
-
-    @Before
-    public void setUp() throws Exception {        
-    }
-
-    @After
-    public void tearDown() {    	
-    }
-
     @Test
     public void testEncode() throws Exception {    	
     	//assertEquals(Short.MAX_VALUE, BasicFunctions.div((short)100,(short)100));        
