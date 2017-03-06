@@ -25,7 +25,6 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.io.ice.IceAuthenticatorImpl;
 import org.mobicents.media.server.impl.rtcp.RtcpChannel;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.impl.rtp.RtpChannel;
@@ -44,6 +43,7 @@ import org.mobicents.media.server.spi.dsp.Processor;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.format.Formats;
+import org.restcomm.media.ice.IceAuthenticatorImpl;
 
 /**
  * Abstract representation of a media channel with RTP and RTCP components.

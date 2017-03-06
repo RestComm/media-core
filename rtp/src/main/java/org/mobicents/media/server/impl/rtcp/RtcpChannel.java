@@ -27,11 +27,6 @@ import java.net.SocketException;
 import java.nio.channels.DatagramChannel;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.io.ice.IceAuthenticator;
-import org.mobicents.media.io.ice.IceComponent;
-import org.mobicents.media.io.ice.IceHandler;
-import org.mobicents.media.io.ice.events.IceEventListener;
-import org.mobicents.media.io.ice.events.SelectedCandidatesEvent;
 import org.mobicents.media.server.impl.rtp.RtpListener;
 import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServerProvider;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
@@ -40,6 +35,11 @@ import org.mobicents.media.server.impl.srtp.DtlsListener;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.io.network.channel.MultiplexedChannel;
 import org.mobicents.media.server.utils.Text;
+import org.restcomm.media.ice.IceAuthenticator;
+import org.restcomm.media.ice.IceComponent;
+import org.restcomm.media.ice.IceHandler;
+import org.restcomm.media.ice.events.IceEventListener;
+import org.restcomm.media.ice.events.SelectedCandidatesEvent;
 
 /**
  * Channel for exchanging RTCP traffic

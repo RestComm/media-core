@@ -19,8 +19,6 @@
  */
 package org.mobicents.media.server.impl.rtp.sdp;
 
-import org.mobicents.media.io.ice.IceCandidate;
-import org.mobicents.media.io.ice.IceComponent;
 import org.mobicents.media.server.impl.rtp.channels.AudioChannel;
 import org.mobicents.media.server.impl.rtp.channels.MediaChannel;
 import org.mobicents.media.server.io.sdp.MediaProfile;
@@ -47,6 +45,8 @@ import org.mobicents.media.server.io.sdp.ice.attributes.IceUfragAttribute;
 import org.mobicents.media.server.io.sdp.rtcp.attributes.RtcpAttribute;
 import org.mobicents.media.server.io.sdp.rtcp.attributes.RtcpMuxAttribute;
 import org.mobicents.media.server.spi.format.AudioFormat;
+import org.restcomm.media.ice.IceCandidate;
+import org.restcomm.media.ice.IceComponent;
 
 /**
  * Factory that produces SDP offers and answers.
