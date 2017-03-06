@@ -23,9 +23,9 @@ package org.restcomm.media.server.bootstrap.ioc.provider.mgcp;
 
 import java.util.List;
 
-import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
-import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
-import org.mobicents.media.control.mgcp.endpoint.provider.MgcpEndpointProvider;
+import org.restcomm.media.control.mgcp.endpoint.MgcpEndpoint;
+import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointManager;
+import org.restcomm.media.control.mgcp.endpoint.provider.MgcpEndpointProvider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;

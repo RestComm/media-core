@@ -23,10 +23,10 @@ package org.restcomm.media.server.bootstrap.ioc;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
-import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
-import org.mobicents.media.control.mgcp.pkg.MgcpSignalProvider;
 import org.mobicents.media.server.spi.ServerManager;
+import org.restcomm.media.control.mgcp.command.MgcpCommandProvider;
+import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
+import org.restcomm.media.control.mgcp.pkg.MgcpSignalProvider;
 import org.restcomm.media.core.configuration.MediaServerConfiguration;
 import org.restcomm.media.server.bootstrap.ioc.CoreModule;
 import org.restcomm.media.server.bootstrap.ioc.MediaModule;

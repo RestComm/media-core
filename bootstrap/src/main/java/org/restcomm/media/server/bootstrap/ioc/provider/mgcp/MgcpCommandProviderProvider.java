@@ -21,11 +21,11 @@
 
 package org.restcomm.media.server.bootstrap.ioc.provider.mgcp;
 
-import org.mobicents.media.control.mgcp.call.MgcpCallManager;
-import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
-import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
-import org.mobicents.media.control.mgcp.pkg.MgcpPackageManager;
-import org.mobicents.media.control.mgcp.pkg.MgcpSignalProvider;
+import org.restcomm.media.control.mgcp.call.MgcpCallManager;
+import org.restcomm.media.control.mgcp.command.MgcpCommandProvider;
+import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointManager;
+import org.restcomm.media.control.mgcp.pkg.MgcpPackageManager;
+import org.restcomm.media.control.mgcp.pkg.MgcpSignalProvider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;

@@ -21,12 +21,12 @@
 
 package org.restcomm.media.server.bootstrap.ioc.provider.mgcp;
 
-import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
-import org.mobicents.media.control.mgcp.controller.MgcpController;
-import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
-import org.mobicents.media.control.mgcp.network.MgcpChannel;
-import org.mobicents.media.control.mgcp.transaction.MgcpTransactionManager;
 import org.mobicents.media.server.io.network.UdpManager;
+import org.restcomm.media.control.mgcp.command.MgcpCommandProvider;
+import org.restcomm.media.control.mgcp.controller.MgcpController;
+import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointManager;
+import org.restcomm.media.control.mgcp.network.MgcpChannel;
+import org.restcomm.media.control.mgcp.transaction.MgcpTransactionManager;
 import org.restcomm.media.core.configuration.MediaServerConfiguration;
 
 import com.google.inject.Inject;

@@ -21,8 +21,8 @@
 
 package org.restcomm.media.server.bootstrap.ioc.provider.media;
 
-import org.mobicents.media.control.mgcp.call.GlobalMgcpCallManager;
-import org.mobicents.media.control.mgcp.call.MgcpCallManager;
+import org.restcomm.media.control.mgcp.call.GlobalMgcpCallManager;
+import org.restcomm.media.control.mgcp.call.MgcpCallManager;
 
 import com.google.inject.Provider;
 

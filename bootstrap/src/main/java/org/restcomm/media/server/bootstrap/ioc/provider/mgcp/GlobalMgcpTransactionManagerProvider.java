@@ -21,9 +21,9 @@
 
 package org.restcomm.media.server.bootstrap.ioc.provider.mgcp;
 
-import org.mobicents.media.control.mgcp.transaction.GlobalMgcpTransactionManager;
-import org.mobicents.media.control.mgcp.transaction.MgcpTransactionManager;
-import org.mobicents.media.control.mgcp.transaction.MgcpTransactionManagerProvider;
+import org.restcomm.media.control.mgcp.transaction.GlobalMgcpTransactionManager;
+import org.restcomm.media.control.mgcp.transaction.MgcpTransactionManager;
+import org.restcomm.media.control.mgcp.transaction.MgcpTransactionManagerProvider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;

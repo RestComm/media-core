@@ -21,10 +21,10 @@
 
 package org.restcomm.media.server.bootstrap.ioc.provider.mgcp;
 
-import org.mobicents.media.control.mgcp.pkg.GlobalMgcpEventProvider;
-import org.mobicents.media.control.mgcp.pkg.MgcpEventProvider;
-import org.mobicents.media.control.mgcp.pkg.r.RtpEventProvider;
-import org.mobicents.media.control.mgcp.pkg.r.RtpPackage;
+import org.restcomm.media.control.mgcp.pkg.GlobalMgcpEventProvider;
+import org.restcomm.media.control.mgcp.pkg.MgcpEventProvider;
+import org.restcomm.media.control.mgcp.pkg.r.RtpEventProvider;
+import org.restcomm.media.control.mgcp.pkg.r.RtpPackage;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;

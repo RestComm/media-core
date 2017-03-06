@@ -21,10 +21,10 @@
 
 package org.restcomm.media.server.bootstrap.ioc.provider.mgcp;
 
-import org.mobicents.media.control.mgcp.pkg.DynamicMgcpPackageManager;
-import org.mobicents.media.control.mgcp.pkg.MgcpPackage;
-import org.mobicents.media.control.mgcp.pkg.au.AudioPackage;
-import org.mobicents.media.control.mgcp.pkg.r.RtpPackage;
+import org.restcomm.media.control.mgcp.pkg.DynamicMgcpPackageManager;
+import org.restcomm.media.control.mgcp.pkg.MgcpPackage;
+import org.restcomm.media.control.mgcp.pkg.au.AudioPackage;
+import org.restcomm.media.control.mgcp.pkg.r.RtpPackage;
 
 import com.google.inject.Provider;
 

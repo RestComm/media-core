@@ -21,8 +21,8 @@
         
 package org.restcomm.media.server.bootstrap.ioc.provider;
 
-import org.mobicents.media.control.mgcp.message.MgcpMessageParser;
-import org.mobicents.media.control.mgcp.network.MgcpPacketHandler;
+import org.restcomm.media.control.mgcp.message.MgcpMessageParser;
+import org.restcomm.media.control.mgcp.network.MgcpPacketHandler;
 
 import com.google.inject.Provider;
 

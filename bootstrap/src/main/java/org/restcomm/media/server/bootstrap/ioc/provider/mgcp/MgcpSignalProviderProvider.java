@@ -21,7 +21,7 @@
 
 package org.restcomm.media.server.bootstrap.ioc.provider.mgcp;
 
-import org.mobicents.media.control.mgcp.pkg.MgcpSignalProvider;
+import org.restcomm.media.control.mgcp.pkg.MgcpSignalProvider;
 
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 import com.google.inject.Inject;

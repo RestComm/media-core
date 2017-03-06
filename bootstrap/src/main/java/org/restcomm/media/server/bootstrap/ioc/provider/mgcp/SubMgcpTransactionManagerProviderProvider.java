@@ -21,8 +21,8 @@
 
 package org.restcomm.media.server.bootstrap.ioc.provider.mgcp;
 
-import org.mobicents.media.control.mgcp.transaction.MgcpTransactionNumberspace;
-import org.mobicents.media.control.mgcp.transaction.SubMgcpTransactionManagerProvider;
+import org.restcomm.media.control.mgcp.transaction.MgcpTransactionNumberspace;
+import org.restcomm.media.control.mgcp.transaction.SubMgcpTransactionManagerProvider;
 
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.inject.Inject;

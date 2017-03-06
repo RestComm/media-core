@@ -29,13 +29,13 @@ import static org.mockito.Mockito.verify;
 
 import org.junit.After;
 import org.junit.Test;
-import org.mobicents.media.control.mgcp.controller.MgcpController;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.ServiceScheduler;
 import org.mobicents.media.server.spi.MediaServer;
 import org.mobicents.media.server.spi.ServerManager;
+import org.restcomm.media.control.mgcp.controller.MgcpController;
 import org.restcomm.media.server.bootstrap.main.RestCommMediaServer;
 
 /**

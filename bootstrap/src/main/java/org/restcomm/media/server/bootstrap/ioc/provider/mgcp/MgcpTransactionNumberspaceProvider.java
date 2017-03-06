@@ -21,7 +21,7 @@
         
 package org.restcomm.media.server.bootstrap.ioc.provider.mgcp;
 
-import org.mobicents.media.control.mgcp.transaction.MgcpTransactionNumberspace;
+import org.restcomm.media.control.mgcp.transaction.MgcpTransactionNumberspace;
 
 import com.google.inject.Provider;
 

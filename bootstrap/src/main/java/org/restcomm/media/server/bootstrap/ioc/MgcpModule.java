@@ -21,21 +21,21 @@
 
 package org.restcomm.media.server.bootstrap.ioc;
 
-import org.mobicents.media.control.mgcp.call.MgcpCallManager;
-import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
-import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
-import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
-import org.mobicents.media.control.mgcp.endpoint.provider.MediaGroupProvider;
-import org.mobicents.media.control.mgcp.network.MgcpChannel;
-import org.mobicents.media.control.mgcp.network.MgcpPacketHandler;
-import org.mobicents.media.control.mgcp.pkg.MgcpEventProvider;
-import org.mobicents.media.control.mgcp.pkg.MgcpPackageManager;
-import org.mobicents.media.control.mgcp.pkg.MgcpSignalProvider;
-import org.mobicents.media.control.mgcp.pkg.r.RtpEventProvider;
-import org.mobicents.media.control.mgcp.transaction.MgcpTransactionManager;
-import org.mobicents.media.control.mgcp.transaction.MgcpTransactionManagerProvider;
-import org.mobicents.media.control.mgcp.transaction.MgcpTransactionNumberspace;
 import org.mobicents.media.server.spi.ServerManager;
+import org.restcomm.media.control.mgcp.call.MgcpCallManager;
+import org.restcomm.media.control.mgcp.command.MgcpCommandProvider;
+import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
+import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointManager;
+import org.restcomm.media.control.mgcp.endpoint.provider.MediaGroupProvider;
+import org.restcomm.media.control.mgcp.network.MgcpChannel;
+import org.restcomm.media.control.mgcp.network.MgcpPacketHandler;
+import org.restcomm.media.control.mgcp.pkg.MgcpEventProvider;
+import org.restcomm.media.control.mgcp.pkg.MgcpPackageManager;
+import org.restcomm.media.control.mgcp.pkg.MgcpSignalProvider;
+import org.restcomm.media.control.mgcp.pkg.r.RtpEventProvider;
+import org.restcomm.media.control.mgcp.transaction.MgcpTransactionManager;
+import org.restcomm.media.control.mgcp.transaction.MgcpTransactionManagerProvider;
+import org.restcomm.media.control.mgcp.transaction.MgcpTransactionNumberspace;
 import org.restcomm.media.server.bootstrap.ioc.provider.ListeningScheduledExecutorServiceProvider;
 import org.restcomm.media.server.bootstrap.ioc.provider.MgcpPacketHandlerProvider;
 import org.restcomm.media.server.bootstrap.ioc.provider.media.MgcpCallManagerProvider;
