@@ -34,10 +34,6 @@ import static org.mockito.Mockito.when;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mobicents.media.server.component.audio.AudioComponent;
-import org.mobicents.media.server.component.audio.AudioMixer;
-import org.mobicents.media.server.component.audio.Sine;
-import org.mobicents.media.server.component.audio.SpectraAnalyzer;
 import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServer;
 import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServerProvider;
 import org.mobicents.media.server.io.network.UdpManager;
@@ -47,6 +43,10 @@ import org.mobicents.media.server.scheduler.ServiceScheduler;
 import org.mobicents.media.server.scheduler.WallClock;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.ConnectionMode;
+import org.restcomm.media.server.component.audio.AudioComponent;
+import org.restcomm.media.server.component.audio.AudioMixer;
+import org.restcomm.media.server.component.audio.Sine;
+import org.restcomm.media.server.component.audio.SpectraAnalyzer;
 
 /**
  *

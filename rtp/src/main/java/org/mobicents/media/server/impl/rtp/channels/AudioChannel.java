@@ -20,10 +20,10 @@
 
 package org.mobicents.media.server.impl.rtp.channels;
 
-import org.mobicents.media.server.component.audio.AudioComponent;
-import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.scheduler.Clock;
+import org.restcomm.media.server.component.audio.AudioComponent;
+import org.restcomm.media.server.component.oob.OOBComponent;
 
 /**
  * Media channel responsible for audio processing.

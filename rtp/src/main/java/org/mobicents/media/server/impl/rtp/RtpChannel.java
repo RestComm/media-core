@@ -32,8 +32,6 @@ import org.mobicents.media.io.ice.IceComponent;
 import org.mobicents.media.io.ice.IceHandler;
 import org.mobicents.media.io.ice.events.IceEventListener;
 import org.mobicents.media.io.ice.events.SelectedCandidatesEvent;
-import org.mobicents.media.server.component.audio.AudioComponent;
-import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtcp.RtcpHandler;
 import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServerProvider;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
@@ -51,6 +49,8 @@ import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.utils.Text;
+import org.restcomm.media.server.component.audio.AudioComponent;
+import org.restcomm.media.server.component.oob.OOBComponent;
 
 /**
  * 

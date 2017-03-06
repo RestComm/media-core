@@ -23,9 +23,6 @@
 package org.mobicents.media.server.impl.resource.dtmf;
 
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.component.audio.AudioInput;
-import org.mobicents.media.server.component.oob.OOBInput;
-import org.mobicents.media.server.impl.AbstractSource;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
@@ -33,6 +30,9 @@ import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.memory.Memory;
 import org.mobicents.media.server.spi.pooling.PooledObject;
+import org.restcomm.media.server.component.AbstractSource;
+import org.restcomm.media.server.component.audio.AudioInput;
+import org.restcomm.media.server.component.oob.OOBInput;
 import org.mobicents.media.server.spi.listener.Listeners;
 import org.mobicents.media.server.spi.listener.TooManyListenersException;
 import org.mobicents.media.server.spi.dtmf.DtmfGenerator;

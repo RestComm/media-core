@@ -27,8 +27,8 @@ import org.mobicents.media.control.mgcp.message.LocalConnectionOptions;
 import org.mobicents.media.control.mgcp.pkg.MgcpEventSubject;
 import org.mobicents.media.control.mgcp.pkg.MgcpRequestedEvent;
 import org.mobicents.media.server.spi.ConnectionMode;
-import org.mobicents.media.server.component.audio.AudioComponent;
-import org.mobicents.media.server.component.oob.OOBComponent;
+import org.restcomm.media.server.component.audio.AudioComponent;
+import org.restcomm.media.server.component.oob.OOBComponent;
 
 /**
  * Connections are created on each endpoint that will be involved in the call.

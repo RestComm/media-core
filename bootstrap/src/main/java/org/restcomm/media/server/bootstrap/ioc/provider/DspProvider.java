@@ -25,7 +25,7 @@ import java.util.Iterator;
 
 import org.mobicents.media.core.configuration.CodecType;
 import org.mobicents.media.core.configuration.MediaServerConfiguration;
-import org.mobicents.media.server.component.DspFactoryImpl;
+import org.restcomm.media.server.component.dsp.DspFactoryImpl;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;

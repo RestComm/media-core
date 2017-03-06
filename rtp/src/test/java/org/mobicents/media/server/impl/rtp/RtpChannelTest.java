@@ -29,12 +29,6 @@ import java.net.InetSocketAddress;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mobicents.media.server.component.Dsp;
-import org.mobicents.media.server.component.DspFactoryImpl;
-import org.mobicents.media.server.component.audio.AudioComponent;
-import org.mobicents.media.server.component.audio.AudioMixer;
-import org.mobicents.media.server.component.audio.Sine;
-import org.mobicents.media.server.component.audio.SpectraAnalyzer;
 import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServer;
 import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServerProvider;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
@@ -49,6 +43,12 @@ import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.format.Formats;
+import org.restcomm.media.server.component.audio.AudioComponent;
+import org.restcomm.media.server.component.audio.AudioMixer;
+import org.restcomm.media.server.component.audio.Sine;
+import org.restcomm.media.server.component.audio.SpectraAnalyzer;
+import org.restcomm.media.server.component.dsp.Dsp;
+import org.restcomm.media.server.component.dsp.DspFactoryImpl;
 
 /**
  * 

@@ -25,9 +25,9 @@ import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.endpoint.EndpointIdentifier;
 import org.mobicents.media.control.mgcp.endpoint.MediaGroup;
 import org.mobicents.media.control.mgcp.endpoint.MgcpMixerEndpoint;
-import org.mobicents.media.server.component.audio.AudioMixer;
-import org.mobicents.media.server.component.oob.OOBMixer;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.server.component.audio.AudioMixer;
+import org.restcomm.media.server.component.oob.OOBMixer;
 
 /**
  * Provides MGCP endpoints that rely on a Mixer to relay media.

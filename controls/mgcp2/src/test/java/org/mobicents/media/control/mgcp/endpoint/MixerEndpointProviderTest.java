@@ -29,8 +29,8 @@ import org.junit.Test;
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.endpoint.provider.MediaGroupProvider;
 import org.mobicents.media.control.mgcp.endpoint.provider.MgcpMixerEndpointProvider;
-import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.server.component.audio.AudioComponent;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)

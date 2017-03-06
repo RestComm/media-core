@@ -23,13 +23,13 @@
 package org.mobicents.media.server.impl.rtp;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.component.audio.AudioInput;
-import org.mobicents.media.server.impl.AbstractSource;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.dsp.Processor;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.memory.Frame;
+import org.restcomm.media.server.component.AbstractSource;
+import org.restcomm.media.server.component.audio.AudioInput;
 /**
  *
  * @author Oifa Yulian

@@ -24,8 +24,6 @@ package org.mobicents.media.control.mgcp.endpoint;
 import javax.sound.sampled.spi.AudioFileReader;
 
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.component.audio.AudioComponent;
-import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.resource.audio.AudioRecorderImpl;
 import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerImpl;
@@ -36,6 +34,8 @@ import org.mobicents.media.server.spi.player.Player;
 import org.mobicents.media.server.spi.player.PlayerProvider;
 import org.mobicents.media.server.spi.recorder.Recorder;
 import org.mobicents.media.server.spi.recorder.RecorderProvider;
+import org.restcomm.media.server.component.audio.AudioComponent;
+import org.restcomm.media.server.component.oob.OOBComponent;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)

@@ -23,11 +23,11 @@ package org.mobicents.media.control.mgcp.endpoint.provider;
 
 import org.mobicents.media.control.mgcp.endpoint.MediaGroup;
 import org.mobicents.media.control.mgcp.endpoint.MediaGroupImpl;
-import org.mobicents.media.server.component.audio.AudioComponent;
-import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.spi.dtmf.DtmfDetectorProvider;
 import org.mobicents.media.server.spi.player.PlayerProvider;
 import org.mobicents.media.server.spi.recorder.RecorderProvider;
+import org.restcomm.media.server.component.audio.AudioComponent;
+import org.restcomm.media.server.component.oob.OOBComponent;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)

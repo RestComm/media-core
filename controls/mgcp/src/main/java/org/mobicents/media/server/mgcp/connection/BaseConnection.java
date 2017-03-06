@@ -25,8 +25,6 @@ package org.mobicents.media.server.mgcp.connection;
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.component.audio.AudioComponent;
-import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.spi.Connection;
@@ -41,6 +39,8 @@ import org.mobicents.media.server.spi.ModeNotSupportedException;
 import org.mobicents.media.server.spi.listener.Listeners;
 import org.mobicents.media.server.spi.listener.TooManyListenersException;
 import org.mobicents.media.server.utils.Text;
+import org.restcomm.media.server.component.audio.AudioComponent;
+import org.restcomm.media.server.component.oob.OOBComponent;
 
 /**
  * Implements connection's FSM.

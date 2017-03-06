@@ -24,7 +24,6 @@ package org.mobicents.media.server.mgcp.endpoint.connection;
 import org.bouncycastle.crypto.tls.ProtocolVersion;
 import org.junit.Test;
 import org.mobicents.media.core.configuration.DtlsConfiguration;
-import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.impl.rtp.crypto.AlgorithmCertificate;
 import org.mobicents.media.server.impl.rtp.crypto.CipherSuite;
@@ -39,6 +38,7 @@ import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.ServiceScheduler;
 import org.mobicents.media.server.scheduler.WallClock;
 import org.mobicents.media.server.spi.dsp.DspFactory;
+import org.restcomm.media.server.component.dsp.DspFactoryImpl;
 
 import junit.framework.Assert;
 

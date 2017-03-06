@@ -31,7 +31,7 @@ import org.apache.log4j.Logger;
 import org.jboss.kernel.Kernel;
 import org.jboss.kernel.plugins.deployment.xml.BasicXMLDeployer;
 import org.jboss.kernel.spi.deployment.KernelDeployment;
-import org.mobicents.media.server.impl.Version;
+import org.mobicents.media.core.Version;
 
 /**
  * Simplified deployement framework designed for hot deployement of endpoints and media components.

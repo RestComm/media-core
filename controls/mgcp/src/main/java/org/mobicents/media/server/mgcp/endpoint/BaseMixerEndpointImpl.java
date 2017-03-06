@@ -24,13 +24,13 @@ package org.mobicents.media.server.mgcp.endpoint;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.mobicents.media.server.component.audio.AudioMixer;
-import org.mobicents.media.server.component.oob.OOBMixer;
 import org.mobicents.media.server.mgcp.connection.BaseConnection;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
+import org.restcomm.media.server.component.audio.AudioMixer;
+import org.restcomm.media.server.component.oob.OOBMixer;
 
 /**
  * Basic implementation of the endpoint.

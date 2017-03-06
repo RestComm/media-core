@@ -30,12 +30,12 @@ import org.mobicents.media.control.mgcp.message.LocalConnectionOptions;
 import org.mobicents.media.control.mgcp.pkg.MgcpEvent;
 import org.mobicents.media.control.mgcp.pkg.MgcpEventProvider;
 import org.mobicents.media.control.mgcp.pkg.MgcpRequestedEvent;
-import org.mobicents.media.server.component.audio.AudioComponent;
-import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.impl.rtp.LocalDataChannel;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
+import org.restcomm.media.server.component.audio.AudioComponent;
+import org.restcomm.media.server.component.oob.OOBComponent;
 
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 

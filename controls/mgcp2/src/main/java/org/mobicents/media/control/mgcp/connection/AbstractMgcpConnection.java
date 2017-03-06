@@ -36,9 +36,9 @@ import org.mobicents.media.control.mgcp.pkg.MgcpEventObserver;
 import org.mobicents.media.control.mgcp.pkg.MgcpEventProvider;
 import org.mobicents.media.control.mgcp.pkg.MgcpRequestedEvent;
 import org.mobicents.media.control.mgcp.pkg.r.rto.RtpTimeoutEvent;
-import org.mobicents.media.server.component.audio.AudioComponent;
-import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.spi.ConnectionMode;
+import org.restcomm.media.server.component.audio.AudioComponent;
+import org.restcomm.media.server.component.oob.OOBComponent;
 
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.FutureCallback;

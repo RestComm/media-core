@@ -23,8 +23,8 @@ package org.mobicents.media.control.mgcp.endpoint;
 
 import org.mobicents.media.control.mgcp.connection.MgcpConnection;
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
-import org.mobicents.media.server.component.audio.AudioMixer;
-import org.mobicents.media.server.component.oob.OOBMixer;
+import org.restcomm.media.server.component.audio.AudioMixer;
+import org.restcomm.media.server.component.oob.OOBMixer;
 
 /**
  * Implementation of an MGCP Endpoint that mixes audio frames from all sources.

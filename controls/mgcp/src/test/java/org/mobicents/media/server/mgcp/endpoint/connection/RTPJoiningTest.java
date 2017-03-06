@@ -36,7 +36,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.component.audio.SpectraAnalyzer;
 import org.mobicents.media.server.impl.resource.audio.AudioRecorderFactory;
 import org.mobicents.media.server.impl.resource.audio.AudioRecorderPool;
 import org.mobicents.media.server.impl.resource.dtmf.DtmfDetectorFactory;
@@ -59,6 +58,7 @@ import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.server.spi.TooManyConnectionsException;
 import org.mobicents.media.server.utils.Text;
+import org.restcomm.media.server.component.audio.SpectraAnalyzer;
 
 /**
  *

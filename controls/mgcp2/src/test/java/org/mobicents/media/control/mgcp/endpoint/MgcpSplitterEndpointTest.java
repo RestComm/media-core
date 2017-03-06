@@ -35,11 +35,11 @@ import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFoundException;
 import org.mobicents.media.control.mgcp.exception.MgcpException;
-import org.mobicents.media.server.component.audio.AudioComponent;
-import org.mobicents.media.server.component.audio.AudioSplitter;
-import org.mobicents.media.server.component.oob.OOBComponent;
-import org.mobicents.media.server.component.oob.OOBSplitter;
 import org.mobicents.media.server.spi.ConnectionMode;
+import org.restcomm.media.server.component.audio.AudioComponent;
+import org.restcomm.media.server.component.audio.AudioSplitter;
+import org.restcomm.media.server.component.oob.OOBComponent;
+import org.restcomm.media.server.component.oob.OOBSplitter;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)

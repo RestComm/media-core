@@ -25,9 +25,9 @@ import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.endpoint.EndpointIdentifier;
 import org.mobicents.media.control.mgcp.endpoint.MediaGroup;
 import org.mobicents.media.control.mgcp.endpoint.MgcpSplitterEndpoint;
-import org.mobicents.media.server.component.audio.AudioSplitter;
-import org.mobicents.media.server.component.oob.OOBSplitter;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.server.component.audio.AudioSplitter;
+import org.restcomm.media.server.component.oob.OOBSplitter;
 
 /**
  * Provides MGCP endpoints that rely on a Splitter to relay media.
