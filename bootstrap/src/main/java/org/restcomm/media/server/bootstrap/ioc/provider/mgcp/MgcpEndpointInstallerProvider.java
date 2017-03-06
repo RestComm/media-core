@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.restcomm.media.control.mgcp.endpoint.provider.MediaGroupProvider;
@@ -35,6 +34,7 @@ import org.restcomm.media.control.mgcp.endpoint.provider.MgcpSplitterEndpointPro
 import org.restcomm.media.core.configuration.MediaServerConfiguration;
 import org.restcomm.media.core.configuration.MgcpControllerConfiguration;
 import org.restcomm.media.core.configuration.MgcpEndpointConfiguration;
+import org.restcomm.media.scheduler.PriorityQueueScheduler;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;

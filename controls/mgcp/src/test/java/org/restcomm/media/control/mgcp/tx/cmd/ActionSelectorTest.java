@@ -13,8 +13,6 @@ import java.net.SocketAddress;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mobicents.media.server.scheduler.Scheduler;
-import org.mobicents.media.server.scheduler.ServiceScheduler;
 import org.mobicents.media.server.utils.Text;
 import org.restcomm.media.control.mgcp.MgcpEvent;
 import org.restcomm.media.control.mgcp.MgcpProvider;
@@ -27,6 +25,8 @@ import org.restcomm.media.control.mgcp.tx.cmd.ModifyConnectionCmd;
 import org.restcomm.media.control.mgcp.tx.cmd.NotificationRequestCmd;
 import org.restcomm.media.control.mgcp.tx.cmd.NotifyCmd;
 import org.restcomm.media.network.UdpManager;
+import org.restcomm.media.scheduler.Scheduler;
+import org.restcomm.media.scheduler.ServiceScheduler;
 
 /**
  *

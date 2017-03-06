@@ -23,9 +23,9 @@ package org.restcomm.media.resource.player.audio;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.player.Player;
 import org.mobicents.media.server.spi.player.PlayerProvider;
+import org.restcomm.media.scheduler.PriorityQueueScheduler;
 
 /**
  * Provides audio players.

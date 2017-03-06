@@ -25,7 +25,7 @@ package org.restcomm.media.rtp;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.scheduler.Clock;
+import org.restcomm.media.scheduler.Clock;
 
 /**
  * Provides time conversation between RTP time and media time.

@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.scheduler;
+package org.restcomm.media.scheduler;
 
 import org.restcomm.media.server.concurrent.ConcurrentCyclicFIFO;
 

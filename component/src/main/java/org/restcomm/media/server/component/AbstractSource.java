@@ -25,9 +25,9 @@ package org.restcomm.media.server.component;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.MediaSource;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
-import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.spi.memory.Frame;
+import org.restcomm.media.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.scheduler.Task;
 
 /**
  * The base implementation of the Media source.
@@ -377,7 +377,7 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
         /**
          * (Non Java-doc.)
          *
-         * @see org.mobicents.media.server.scheduler.Task#perform()
+         * @see org.restcomm.media.scheduler.Task#perform()
          */
         public long perform() {
         	if(initialDelay+initialTime>scheduler.getClock().getTime())

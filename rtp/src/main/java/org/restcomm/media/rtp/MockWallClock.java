@@ -28,7 +28,8 @@
 package org.restcomm.media.rtp;
 
 import java.util.concurrent.TimeUnit;
-import org.mobicents.media.server.scheduler.Clock;
+
+import org.restcomm.media.scheduler.Clock;
 
 /**
  *

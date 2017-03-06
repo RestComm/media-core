@@ -21,8 +21,8 @@
         
 package org.restcomm.media.server.bootstrap.ioc.provider;
 
-import org.mobicents.media.server.scheduler.Clock;
-import org.mobicents.media.server.scheduler.ServiceScheduler;
+import org.restcomm.media.scheduler.Clock;
+import org.restcomm.media.scheduler.ServiceScheduler;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;

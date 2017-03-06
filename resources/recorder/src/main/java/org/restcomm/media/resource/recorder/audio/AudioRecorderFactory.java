@@ -21,8 +21,8 @@
 
 package org.restcomm.media.resource.recorder.audio;
 
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.pooling.PooledObjectFactory;
+import org.restcomm.media.scheduler.PriorityQueueScheduler;
 
 /**
  * Factory that produces Audio Recorders.

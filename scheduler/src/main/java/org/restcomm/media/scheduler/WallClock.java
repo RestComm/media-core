@@ -20,43 +20,40 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.scheduler;
+package org.restcomm.media.scheduler;
 
 import java.util.concurrent.TimeUnit;
 
 /**
- * Media server internal clock.
+ * Clock implementation which uses the default OS clock.
  * 
  * @author kulikov
  */
-public interface Clock {
-    
-    /**
-     * Gets the elapsed time.
-     * 
-     * @return current time expressed in nanoseconds.
-     */
-    long getTime();
-    
-    /**
-     * Gets the current time.
-     * 
-     * @return An absolute time stamp in milliseconds
-     */
-    long getCurrentTime();
+public class WallClock implements Clock {
 
     /**
-     * Gets the current time.
-     *
-     * @param timeUnit the time measurement units.
-     * @return the value in specified units.
+     * The default time unit: nanoseconds.
      */
-    long getTime(TimeUnit timeUnit);
+    private TimeUnit timeUnit = TimeUnit.NANOSECONDS;
 
-    /**
-     * Gets the time measurement units.
-     *
-     * @return the time measurement units.
-     */
-    TimeUnit getTimeUnit();
+    @Override
+    public long getTime() {
+        return System.nanoTime();
+    }
+
+    @Override
+    public long getCurrentTime() {
+        return System.currentTimeMillis();
+    }
+
+    @Override
+    public TimeUnit getTimeUnit() {
+        return timeUnit;
+    }
+
+    @Override
+    public long getTime(TimeUnit timeUnit) {
+        return timeUnit.convert(System.nanoTime(), this.timeUnit);
+    }
+
 }

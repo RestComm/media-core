@@ -36,10 +36,6 @@ import org.bouncycastle.crypto.tls.ProtocolVersion;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mobicents.media.server.scheduler.Clock;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
-import org.mobicents.media.server.scheduler.ServiceScheduler;
-import org.mobicents.media.server.scheduler.WallClock;
 import org.mobicents.media.server.spi.ConnectionEvent;
 import org.mobicents.media.server.spi.ConnectionListener;
 import org.mobicents.media.server.spi.ConnectionState;
@@ -68,6 +64,10 @@ import org.restcomm.media.rtp.ChannelsManager;
 import org.restcomm.media.rtp.crypto.AlgorithmCertificate;
 import org.restcomm.media.rtp.crypto.CipherSuite;
 import org.restcomm.media.rtp.crypto.DtlsSrtpServerProvider;
+import org.restcomm.media.scheduler.Clock;
+import org.restcomm.media.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.scheduler.ServiceScheduler;
+import org.restcomm.media.scheduler.WallClock;
 import org.restcomm.media.server.component.dsp.DspFactoryImpl;
 
 /**

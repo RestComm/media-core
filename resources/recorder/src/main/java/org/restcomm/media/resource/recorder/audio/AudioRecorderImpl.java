@@ -30,8 +30,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
-import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.spi.dtmf.DtmfTonesData;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
@@ -43,6 +41,8 @@ import org.mobicents.media.server.spi.pooling.PooledObject;
 import org.mobicents.media.server.spi.recorder.Recorder;
 import org.mobicents.media.server.spi.recorder.RecorderEvent;
 import org.mobicents.media.server.spi.recorder.RecorderListener;
+import org.restcomm.media.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.scheduler.Task;
 import org.restcomm.media.server.component.AbstractSink;
 import org.restcomm.media.server.component.audio.AudioOutput;
 import org.restcomm.media.server.component.oob.OOBOutput;

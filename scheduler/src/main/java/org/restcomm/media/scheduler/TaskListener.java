@@ -20,40 +20,23 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.scheduler;
-
-import java.util.concurrent.TimeUnit;
+package org.restcomm.media.scheduler;
 
 /**
- * Clock implementation which uses the default OS clock.
+ * Defines task error handler.
  * 
  * @author kulikov
  */
-public class WallClock implements Clock {
-
+public interface TaskListener {
     /**
-     * The default time unit: nanoseconds.
+     * Called when task execution terminates normally
      */
-    private TimeUnit timeUnit = TimeUnit.NANOSECONDS;
-
-    @Override
-    public long getTime() {
-        return System.nanoTime();
-    }
-
-    @Override
-    public long getCurrentTime() {
-        return System.currentTimeMillis();
-    }
-
-    @Override
-    public TimeUnit getTimeUnit() {
-        return timeUnit;
-    }
-
-    @Override
-    public long getTime(TimeUnit timeUnit) {
-        return timeUnit.convert(System.nanoTime(), this.timeUnit);
-    }
-
+    public void onTerminate();
+    
+    /**
+     * Called when error has occurred.
+     * 
+     * @param e the error class
+     */
+    public void handlerError(Exception e);
 }

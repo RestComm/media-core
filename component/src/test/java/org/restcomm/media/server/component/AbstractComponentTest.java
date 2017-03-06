@@ -30,10 +30,10 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mobicents.media.server.scheduler.Clock;
-import org.mobicents.media.server.scheduler.WallClock;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.memory.Frame;
+import org.restcomm.media.scheduler.Clock;
+import org.restcomm.media.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.scheduler.WallClock;
 import org.restcomm.media.server.component.AbstractSink;
 import org.restcomm.media.server.component.AbstractSource;
 /**

@@ -21,11 +21,11 @@
 
 package org.restcomm.media.control.mgcp.endpoint.provider;
 
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.restcomm.media.control.mgcp.endpoint.EndpointIdentifier;
 import org.restcomm.media.control.mgcp.endpoint.MediaGroup;
 import org.restcomm.media.control.mgcp.endpoint.MgcpSplitterEndpoint;
+import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.server.component.audio.AudioSplitter;
 import org.restcomm.media.server.component.oob.OOBSplitter;
 

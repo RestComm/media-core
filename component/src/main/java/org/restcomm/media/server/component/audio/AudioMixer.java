@@ -24,10 +24,10 @@ package org.restcomm.media.server.component.audio;
 
 import java.util.Iterator;
 
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
-import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
+import org.restcomm.media.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.scheduler.Task;
 import org.restcomm.media.server.concurrent.ConcurrentMap;
 
 /**

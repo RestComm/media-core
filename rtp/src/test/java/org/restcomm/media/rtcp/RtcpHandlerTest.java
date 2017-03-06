@@ -31,10 +31,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mobicents.media.server.scheduler.Clock;
-import org.mobicents.media.server.scheduler.Scheduler;
-import org.mobicents.media.server.scheduler.ServiceScheduler;
-import org.mobicents.media.server.scheduler.WallClock;
 import org.restcomm.media.network.channel.MultiplexedChannel;
 import org.restcomm.media.network.channel.PacketHandlerException;
 import org.restcomm.media.rtcp.RtcpBye;
@@ -53,6 +49,10 @@ import org.restcomm.media.rtp.RtpClock;
 import org.restcomm.media.rtp.SsrcGenerator;
 import org.restcomm.media.rtp.statistics.RtpMember;
 import org.restcomm.media.rtp.statistics.RtpStatistics;
+import org.restcomm.media.scheduler.Clock;
+import org.restcomm.media.scheduler.Scheduler;
+import org.restcomm.media.scheduler.ServiceScheduler;
+import org.restcomm.media.scheduler.WallClock;
 
 /**
  * 

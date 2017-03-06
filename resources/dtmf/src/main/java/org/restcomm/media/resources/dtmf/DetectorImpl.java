@@ -30,8 +30,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
-import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.spi.dtmf.DtmfDetector;
 import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
 import org.mobicents.media.server.spi.format.Format;
@@ -41,6 +39,8 @@ import org.mobicents.media.server.spi.listener.Listeners;
 import org.mobicents.media.server.spi.listener.TooManyListenersException;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.pooling.PooledObject;
+import org.restcomm.media.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.scheduler.Task;
 import org.restcomm.media.server.component.AbstractSink;
 import org.restcomm.media.server.component.audio.AudioOutput;
 import org.restcomm.media.server.component.audio.GoertzelFilter;

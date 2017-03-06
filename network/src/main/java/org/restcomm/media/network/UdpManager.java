@@ -37,10 +37,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.scheduler.Scheduler;
-import org.mobicents.media.server.scheduler.ServiceScheduler;
 import org.restcomm.media.network.channel.Channel;
 import org.restcomm.media.network.channel.NetworkChannel;
+import org.restcomm.media.scheduler.Scheduler;
+import org.restcomm.media.scheduler.ServiceScheduler;
 
 /**
  * Manager responsible for scheduling I/O operations over UDP.

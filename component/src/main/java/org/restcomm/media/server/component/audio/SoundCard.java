@@ -30,11 +30,11 @@ import javax.sound.sampled.SourceDataLine;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.spi.memory.Frame;
+import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.server.component.AbstractSink;
 /**
  *

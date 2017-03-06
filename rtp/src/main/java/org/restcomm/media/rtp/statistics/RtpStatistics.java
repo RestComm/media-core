@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.scheduler.Clock;
 import org.restcomm.media.rtcp.RtcpIntervalCalculator;
 import org.restcomm.media.rtcp.RtcpPacket;
 import org.restcomm.media.rtcp.RtcpPacketType;
@@ -38,6 +37,7 @@ import org.restcomm.media.rtp.CnameGenerator;
 import org.restcomm.media.rtp.RtpClock;
 import org.restcomm.media.rtp.RtpPacket;
 import org.restcomm.media.rtp.SsrcGenerator;
+import org.restcomm.media.scheduler.Clock;
 
 /**
  * Encapsulates statistics of an RTP/RTCP channel

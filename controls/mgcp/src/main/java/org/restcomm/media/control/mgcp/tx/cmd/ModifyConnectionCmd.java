@@ -23,10 +23,6 @@ package org.restcomm.media.control.mgcp.tx.cmd;
 
 import java.io.IOException;
 
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
-import org.mobicents.media.server.scheduler.Scheduler;
-import org.mobicents.media.server.scheduler.Task;
-import org.mobicents.media.server.scheduler.TaskChain;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
 import org.mobicents.media.server.utils.Text;
 import org.restcomm.media.control.mgcp.MgcpEvent;
@@ -38,6 +34,10 @@ import org.restcomm.media.control.mgcp.message.MgcpResponseCode;
 import org.restcomm.media.control.mgcp.message.Parameter;
 import org.restcomm.media.control.mgcp.params.LocalConnectionOptions;
 import org.restcomm.media.control.mgcp.tx.Action;
+import org.restcomm.media.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.scheduler.Scheduler;
+import org.restcomm.media.scheduler.Task;
+import org.restcomm.media.scheduler.TaskChain;
 import org.apache.log4j.Logger;
 /**
  * Modify connection command.

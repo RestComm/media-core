@@ -28,7 +28,6 @@ import java.net.URL;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.server.spi.dsp.Processor;
 import org.mobicents.media.server.spi.format.AudioFormat;
@@ -46,6 +45,7 @@ import org.restcomm.media.resource.player.audio.mpeg.AMRTrackImpl;
 import org.restcomm.media.resource.player.audio.tone.ToneTrackImpl;
 import org.restcomm.media.resource.player.audio.tts.TtsTrackImpl;
 import org.restcomm.media.resource.player.audio.wav.WavTrackImpl;
+import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.server.component.AbstractSource;
 import org.restcomm.media.server.component.audio.AudioInput;
 

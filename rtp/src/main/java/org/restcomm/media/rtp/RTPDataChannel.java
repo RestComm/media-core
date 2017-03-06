@@ -30,8 +30,6 @@ import org.apache.log4j.Logger;
 import org.mobicents.media.server.io.sdp.format.AVProfile;
 import org.mobicents.media.server.io.sdp.format.RTPFormat;
 import org.mobicents.media.server.io.sdp.format.RTPFormats;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
-import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.FormatNotSupportedException;
 import org.mobicents.media.server.spi.dsp.Processor;
@@ -46,6 +44,8 @@ import org.restcomm.media.rtp.crypto.DtlsSrtpServerProvider;
 import org.restcomm.media.rtp.rfc2833.DtmfInput;
 import org.restcomm.media.rtp.rfc2833.DtmfOutput;
 import org.restcomm.media.rtp.secure.DtlsHandler;
+import org.restcomm.media.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.scheduler.Task;
 import org.restcomm.media.server.component.audio.AudioComponent;
 import org.restcomm.media.server.component.oob.OOBComponent;
 
@@ -600,7 +600,7 @@ public class RTPDataChannel {
 		/**
 		 * (Non Java-doc.)
 		 * 
-		 * @see org.mobicents.media.server.scheduler.Task#perform()
+		 * @see org.restcomm.media.scheduler.Task#perform()
 		 */
 		public long perform() {
 				// Make sure the DTLS is completed for WebRTC calls

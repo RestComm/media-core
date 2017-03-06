@@ -13,9 +13,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.scheduler.Clock;
-import org.mobicents.media.server.scheduler.WallClock;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
@@ -25,6 +22,9 @@ import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.restcomm.media.control.mgcp.controller.Configurator;
 import org.restcomm.media.control.mgcp.controller.MgcpEndpoint;
+import org.restcomm.media.scheduler.Clock;
+import org.restcomm.media.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.scheduler.WallClock;
 
 /**
  *

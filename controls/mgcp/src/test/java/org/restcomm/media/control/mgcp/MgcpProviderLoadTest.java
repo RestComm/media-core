@@ -38,11 +38,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mobicents.media.server.scheduler.Clock;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
-import org.mobicents.media.server.scheduler.Scheduler;
-import org.mobicents.media.server.scheduler.ServiceScheduler;
-import org.mobicents.media.server.scheduler.WallClock;
 import org.mobicents.media.server.spi.listener.TooManyListenersException;
 import org.mobicents.media.server.utils.Text;
 import org.restcomm.media.control.mgcp.MgcpEvent;
@@ -51,6 +46,11 @@ import org.restcomm.media.control.mgcp.MgcpProvider;
 import org.restcomm.media.control.mgcp.message.MgcpRequest;
 import org.restcomm.media.control.mgcp.message.MgcpResponse;
 import org.restcomm.media.network.UdpManager;
+import org.restcomm.media.scheduler.Clock;
+import org.restcomm.media.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.scheduler.Scheduler;
+import org.restcomm.media.scheduler.ServiceScheduler;
+import org.restcomm.media.scheduler.WallClock;
 import org.restcomm.media.server.concurrent.ConcurrentMap;
 
 /**

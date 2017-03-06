@@ -26,11 +26,6 @@
  */
 package org.restcomm.media.control.mgcp;
 
-import org.mobicents.media.server.scheduler.Scheduler;
-import org.mobicents.media.server.scheduler.ServiceScheduler;
-import org.mobicents.media.server.scheduler.WallClock;
-import org.mobicents.media.server.scheduler.Clock;
-
 import java.net.InetSocketAddress;
 
 import org.mobicents.media.server.spi.listener.TooManyListenersException;
@@ -42,10 +37,14 @@ import org.restcomm.media.control.mgcp.message.MgcpRequest;
 import org.restcomm.media.control.mgcp.message.MgcpResponse;
 import org.restcomm.media.control.mgcp.message.Parameter;
 import org.restcomm.media.network.UdpManager;
+import org.restcomm.media.scheduler.Clock;
+import org.restcomm.media.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.scheduler.Scheduler;
+import org.restcomm.media.scheduler.ServiceScheduler;
+import org.restcomm.media.scheduler.WallClock;
 
 import java.io.IOException;
 
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;

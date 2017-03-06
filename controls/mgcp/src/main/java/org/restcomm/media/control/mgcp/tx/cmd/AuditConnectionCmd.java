@@ -24,10 +24,6 @@ import java.io.IOException;
 import java.util.Collection;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
-import org.mobicents.media.server.scheduler.Scheduler;
-import org.mobicents.media.server.scheduler.Task;
-import org.mobicents.media.server.scheduler.TaskChain;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.utils.Text;
 import org.restcomm.media.control.mgcp.MgcpEvent;
@@ -40,6 +36,10 @@ import org.restcomm.media.control.mgcp.message.MgcpResponse;
 import org.restcomm.media.control.mgcp.message.MgcpResponseCode;
 import org.restcomm.media.control.mgcp.message.Parameter;
 import org.restcomm.media.control.mgcp.tx.Action;
+import org.restcomm.media.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.scheduler.Scheduler;
+import org.restcomm.media.scheduler.Task;
+import org.restcomm.media.scheduler.TaskChain;
 
 /**
  * The AuditConnection command can be used by the Call Agent to retrieve the

@@ -22,11 +22,11 @@
 
 package org.restcomm.media.control.mgcp.tx;
 
-import org.mobicents.media.server.scheduler.Task;
-import org.mobicents.media.server.scheduler.TaskChain;
-import org.mobicents.media.server.scheduler.TaskChainListener;
-import org.mobicents.media.server.scheduler.TaskListener;
 import org.restcomm.media.control.mgcp.MgcpEvent;
+import org.restcomm.media.scheduler.Task;
+import org.restcomm.media.scheduler.TaskChain;
+import org.restcomm.media.scheduler.TaskChainListener;
+import org.restcomm.media.scheduler.TaskListener;
 
 /**
  * Defines action.

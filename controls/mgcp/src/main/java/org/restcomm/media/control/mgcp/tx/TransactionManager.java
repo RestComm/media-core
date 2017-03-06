@@ -28,11 +28,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.scheduler.Clock;
-import org.mobicents.media.server.scheduler.Scheduler;
 import org.restcomm.media.control.mgcp.MgcpProvider;
 import org.restcomm.media.control.mgcp.controller.CallManager;
 import org.restcomm.media.control.mgcp.controller.naming.NamingTree;
+import org.restcomm.media.scheduler.Clock;
+import org.restcomm.media.scheduler.Scheduler;
 import org.restcomm.media.server.concurrent.ConcurrentCyclicFIFO;
 import org.restcomm.media.server.concurrent.ConcurrentMap;
 

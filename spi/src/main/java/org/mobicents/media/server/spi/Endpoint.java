@@ -24,7 +24,7 @@ package org.mobicents.media.server.spi;
 
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.scheduler.PriorityQueueScheduler;
 
 /**
  * The basic implementation of the endpoint.

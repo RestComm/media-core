@@ -21,14 +21,14 @@
 
 package org.restcomm.media.server.bootstrap.ioc;
 
-import org.mobicents.media.server.scheduler.Clock;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
-import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.ServerManager;
 import org.restcomm.media.core.configuration.MediaServerConfiguration;
 import org.restcomm.media.network.UdpManager;
 import org.restcomm.media.resource.player.audio.RemoteStreamProvider;
 import org.restcomm.media.rtp.crypto.DtlsSrtpServerProvider;
+import org.restcomm.media.scheduler.Clock;
+import org.restcomm.media.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.scheduler.Scheduler;
 import org.restcomm.media.server.bootstrap.ioc.provider.AudioPlayerFactoryProvider;
 import org.restcomm.media.server.bootstrap.ioc.provider.AudioPlayerPoolProvider;
 import org.restcomm.media.server.bootstrap.ioc.provider.AudioRecorderFactoryProvider;

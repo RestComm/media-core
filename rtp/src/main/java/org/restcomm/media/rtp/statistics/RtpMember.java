@@ -22,11 +22,11 @@ package org.restcomm.media.rtp.statistics;
 
 import org.apache.commons.net.ntp.TimeStamp;
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.scheduler.Clock;
 import org.restcomm.media.rtcp.RtcpSenderReport;
 import org.restcomm.media.rtcp.ntp.NtpUtils;
 import org.restcomm.media.rtp.RtpClock;
 import org.restcomm.media.rtp.RtpPacket;
+import org.restcomm.media.scheduler.Clock;
 
 /**
  * Holds statistics for a member of an RTP session.

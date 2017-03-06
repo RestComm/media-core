@@ -29,11 +29,11 @@ import org.apache.log4j.Logger;
 import org.mobicents.media.server.io.sdp.format.AVProfile;
 import org.mobicents.media.server.io.sdp.format.RTPFormat;
 import org.mobicents.media.server.io.sdp.format.RTPFormats;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.restcomm.media.rtp.rfc2833.DtmfOutput;
 import org.restcomm.media.rtp.secure.DtlsHandler;
 import org.restcomm.media.rtp.statistics.RtpStatistics;
+import org.restcomm.media.scheduler.PriorityQueueScheduler;
 
 /**
  * Transmits RTP packets over a channel.

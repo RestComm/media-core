@@ -26,11 +26,11 @@ import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.mock;
 
 import org.junit.Test;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.restcomm.media.control.mgcp.endpoint.MgcpSplitterEndpoint;
 import org.restcomm.media.control.mgcp.endpoint.provider.MediaGroupProvider;
 import org.restcomm.media.control.mgcp.endpoint.provider.MgcpSplitterEndpointProvider;
+import org.restcomm.media.scheduler.PriorityQueueScheduler;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)

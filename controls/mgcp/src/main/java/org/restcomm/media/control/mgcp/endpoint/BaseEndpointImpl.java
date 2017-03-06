@@ -27,7 +27,6 @@ import java.util.Iterator;
 import org.apache.log4j.Logger;
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.Endpoint;
@@ -36,6 +35,7 @@ import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.restcomm.media.control.mgcp.connection.BaseConnection;
 import org.restcomm.media.control.mgcp.resources.ResourcesPool;
+import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.server.concurrent.ConcurrentMap;
 
 /**

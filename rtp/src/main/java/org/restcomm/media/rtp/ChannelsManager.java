@@ -26,15 +26,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.mobicents.media.server.io.sdp.format.AVProfile;
 import org.mobicents.media.server.io.sdp.format.RTPFormats;
-import org.mobicents.media.server.scheduler.Clock;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
-import org.mobicents.media.server.scheduler.WallClock;
 import org.restcomm.media.network.PortManager;
 import org.restcomm.media.network.UdpManager;
 import org.restcomm.media.rtcp.RtcpChannel;
 import org.restcomm.media.rtp.channels.AudioChannel;
 import org.restcomm.media.rtp.crypto.DtlsSrtpServerProvider;
 import org.restcomm.media.rtp.statistics.RtpStatistics;
+import org.restcomm.media.scheduler.Clock;
+import org.restcomm.media.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.scheduler.WallClock;
 
 /**
  * Local and RTP channels storage

@@ -26,12 +26,12 @@ import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.*;
 
 import org.junit.Test;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.restcomm.media.control.mgcp.endpoint.MediaGroupImpl;
 import org.restcomm.media.control.mgcp.endpoint.MgcpMixerEndpoint;
 import org.restcomm.media.control.mgcp.endpoint.provider.MediaGroupProvider;
 import org.restcomm.media.control.mgcp.endpoint.provider.MgcpMixerEndpointProvider;
+import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.server.component.audio.AudioComponent;
 
 /**

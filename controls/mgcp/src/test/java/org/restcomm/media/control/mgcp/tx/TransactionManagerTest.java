@@ -21,18 +21,18 @@
  */
 package org.restcomm.media.control.mgcp.tx;
 
-import org.mobicents.media.server.scheduler.TaskChain;
-import org.mobicents.media.server.scheduler.Task;
 import java.util.Random;
 
-import org.mobicents.media.server.scheduler.Clock;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
-import org.mobicents.media.server.scheduler.Scheduler;
-import org.mobicents.media.server.scheduler.ServiceScheduler;
-import org.mobicents.media.server.scheduler.WallClock;
 import org.restcomm.media.control.mgcp.tx.Action;
 import org.restcomm.media.control.mgcp.tx.Transaction;
 import org.restcomm.media.control.mgcp.tx.TransactionManager;
+import org.restcomm.media.scheduler.Clock;
+import org.restcomm.media.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.scheduler.Scheduler;
+import org.restcomm.media.scheduler.ServiceScheduler;
+import org.restcomm.media.scheduler.Task;
+import org.restcomm.media.scheduler.TaskChain;
+import org.restcomm.media.scheduler.WallClock;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;

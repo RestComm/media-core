@@ -31,8 +31,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
-import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.ControlProtocol;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.EndpointInstaller;
@@ -49,6 +47,8 @@ import org.restcomm.media.control.mgcp.resources.ResourcesPool;
 import org.restcomm.media.control.mgcp.tx.GlobalTransactionManager;
 import org.restcomm.media.control.mgcp.tx.Transaction;
 import org.restcomm.media.network.UdpManager;
+import org.restcomm.media.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.scheduler.Scheduler;
 
 /**
  * The MGCP access point.

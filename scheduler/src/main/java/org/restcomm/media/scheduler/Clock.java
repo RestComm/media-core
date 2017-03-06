@@ -19,22 +19,44 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.mobicents.media.server.scheduler;
+
+package org.restcomm.media.scheduler;
+
+import java.util.concurrent.TimeUnit;
 
 /**
- * Defines interface for monitoring task chain execution process.
+ * Media server internal clock.
  * 
  * @author kulikov
  */
-public interface TaskChainListener {
-    /**
-     * Called when task has been executed successfully
-     */
-    public void onTermination();
+public interface Clock {
     
     /**
-     * Called when task has been failed.
-     * @param e 
+     * Gets the elapsed time.
+     * 
+     * @return current time expressed in nanoseconds.
      */
-    public void onException(Exception e);
+    long getTime();
+    
+    /**
+     * Gets the current time.
+     * 
+     * @return An absolute time stamp in milliseconds
+     */
+    long getCurrentTime();
+
+    /**
+     * Gets the current time.
+     *
+     * @param timeUnit the time measurement units.
+     * @return the value in specified units.
+     */
+    long getTime(TimeUnit timeUnit);
+
+    /**
+     * Gets the time measurement units.
+     *
+     * @return the time measurement units.
+     */
+    TimeUnit getTimeUnit();
 }

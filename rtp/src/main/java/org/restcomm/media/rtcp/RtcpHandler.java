@@ -29,12 +29,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.scheduler.Scheduler;
 import org.restcomm.media.network.channel.PacketHandler;
 import org.restcomm.media.network.channel.PacketHandlerException;
 import org.restcomm.media.rtp.RtpPacket;
 import org.restcomm.media.rtp.secure.DtlsHandler;
 import org.restcomm.media.rtp.statistics.RtpStatistics;
+import org.restcomm.media.scheduler.Scheduler;
 
 /**
  * 
