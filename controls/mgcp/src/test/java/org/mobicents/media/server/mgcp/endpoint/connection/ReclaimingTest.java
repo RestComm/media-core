@@ -35,10 +35,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mobicents.media.server.impl.resource.audio.AudioRecorderFactory;
 import org.mobicents.media.server.impl.resource.audio.AudioRecorderPool;
-import org.mobicents.media.server.impl.resource.dtmf.DtmfDetectorFactory;
-import org.mobicents.media.server.impl.resource.dtmf.DtmfDetectorPool;
-import org.mobicents.media.server.impl.resource.dtmf.DtmfGeneratorFactory;
-import org.mobicents.media.server.impl.resource.dtmf.DtmfGeneratorPool;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerFactory;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerPool;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.CachedRemoteStreamProvider;
@@ -62,6 +58,10 @@ import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.server.spi.TooManyConnectionsException;
 import org.restcomm.media.core.configuration.DtlsConfiguration;
+import org.restcomm.media.resources.dtmf.DtmfDetectorFactory;
+import org.restcomm.media.resources.dtmf.DtmfDetectorPool;
+import org.restcomm.media.resources.dtmf.DtmfGeneratorFactory;
+import org.restcomm.media.resources.dtmf.DtmfGeneratorPool;
 import org.restcomm.media.server.component.dsp.DspFactoryImpl;
 
 /**

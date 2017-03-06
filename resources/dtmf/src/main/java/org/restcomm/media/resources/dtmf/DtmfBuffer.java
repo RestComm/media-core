@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.impl.resource.dtmf;
+package org.restcomm.media.resources.dtmf;
 
 import java.io.Serializable;
 import org.apache.log4j.Logger;

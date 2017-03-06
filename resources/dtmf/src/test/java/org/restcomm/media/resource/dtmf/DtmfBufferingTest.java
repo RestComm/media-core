@@ -2,7 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.mobicents.media.server.impl.resource.dtmf;
+package org.restcomm.media.resource.dtmf;
+
+import java.io.*;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -11,22 +13,25 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+import org.mobicents.media.server.spi.memory.Frame;
+import org.restcomm.media.resources.dtmf.DetectorImpl;
+import org.restcomm.media.resources.dtmf.GeneratorImpl;
+import org.restcomm.media.server.component.audio.AudioComponent;
+import org.restcomm.media.server.component.audio.AudioMixer;
+import org.restcomm.media.server.component.oob.OOBComponent;
+import org.restcomm.media.server.component.oob.OOBMixer;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.WallClock;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
 import org.mobicents.media.server.spi.dtmf.DtmfEvent;
 import org.mobicents.media.server.spi.listener.TooManyListenersException;
-import org.restcomm.media.server.component.audio.AudioComponent;
-import org.restcomm.media.server.component.audio.AudioMixer;
-import org.restcomm.media.server.component.oob.OOBComponent;
-import org.restcomm.media.server.component.oob.OOBMixer;
 
 /**
  *
  * @author yulian oifa
  */
-public class DtmfTest implements DtmfDetectorListener {
+public class DtmfBufferingTest implements DtmfDetectorListener {
     
     private Clock clock;
     private PriorityQueueScheduler scheduler;
@@ -44,7 +49,7 @@ public class DtmfTest implements DtmfDetectorListener {
     
     private String tone;
     
-    public DtmfTest() {
+    public DtmfBufferingTest() {
     }
 
     @BeforeClass
@@ -57,21 +62,19 @@ public class DtmfTest implements DtmfDetectorListener {
     
     @Before
     public void setUp() throws TooManyListenersException {
-    	clock = new WallClock();
+        clock = new WallClock();
 
         scheduler = new PriorityQueueScheduler();
         scheduler.setClock(clock);
         scheduler.start();
         
         generator = new GeneratorImpl("dtmf", scheduler);
-        generator.setToneDuration(500);
+        generator.setToneDuration(100);
         generator.setVolume(-20);
         
         detector = new DetectorImpl("dtmf", scheduler);
         detector.setVolume(-35);
         detector.setDuration(40);
-        
-        detector.addListener(this);
         
         audioMixer=new AudioMixer(scheduler);
         
@@ -82,9 +85,9 @@ public class DtmfTest implements DtmfDetectorListener {
         generatorComponent=new AudioComponent(2);
         generatorComponent.addInput(generator.getAudioInput());
         generatorComponent.updateMode(true,false);
-        
+                
         audioMixer.addComponent(detectorComponent);
-        audioMixer.addComponent(generatorComponent);    	
+        audioMixer.addComponent(generatorComponent);
         
         oobMixer=new OOBMixer(scheduler);
         
@@ -98,6 +101,8 @@ public class DtmfTest implements DtmfDetectorListener {
         
         oobMixer.addComponent(oobDetectorComponent);
         oobMixer.addComponent(oobGeneratorComponent);
+        
+        tone="";
     }
     
     @After
@@ -112,306 +117,259 @@ public class DtmfTest implements DtmfDetectorListener {
      * Test of setDuration method, of class DetectorImpl.
      */
     @Test
-    public void testDigit1() throws InterruptedException {
-    	generator.setDigit("1");
+    public void testFlush() throws InterruptedException, TooManyListenersException {
+        //queue "1" into detector's buffer
+        generator.setDigit("1");
         generator.activate();
         detector.activate();
     	audioMixer.start();
         
-        Thread.sleep(1000);
-        
+        Thread.sleep(200);        
+
         generator.deactivate();
         detector.deactivate();
     	audioMixer.stop();
-    	
-        assertEquals("1", tone);    	
+        
+        //assign listener and flush digit
+        detector.addListener(this);
+        detector.flushBuffer();
+
+        //wait a bit for delivery
+        Thread.sleep(300);        
+        
+        assertEquals("1", tone);
         
         tone="";
+        detector.removeListener(this);
+        //queue "1" into detector's buffer
         generator.setOOBDigit("1");
         generator.activate();
         detector.activate();
     	oobMixer.start();
         
-        Thread.sleep(1000);
-        
+        Thread.sleep(200);        
+
         generator.deactivate();
         detector.deactivate();
-    	oobMixer.stop();
-    	
+        oobMixer.stop();
+        
+        //assign listener and flush digit
+        detector.addListener(this);
+        detector.flushBuffer();
+
+        //wait a bit for delivery
+        Thread.sleep(300);        
+        
         assertEquals("1", tone);
     }
 
     @Test
-    public void testDigit2() throws InterruptedException {
+    public void testBuffering() throws InterruptedException, TooManyListenersException {
+        //queue "1" into detector's buffer
+        generator.setDigit("1");
+        generator.activate();
+        detector.activate();
+    	audioMixer.start();
+        
+        Thread.sleep(200);          
+        
+        //queue "2" into detector's buffer
+        generator.setDigit("2");
+        generator.wakeup();
+        
+        Thread.sleep(200);          
+
+        generator.deactivate();
+        detector.deactivate();
+    	audioMixer.stop();
+        
+        //assign listener and flush digit
+        detector.addListener(this);
+        detector.flushBuffer();
+
+        //wait a bit for delivery
+        Thread.sleep(200);        
+        
+        assertEquals("12", tone);
+        
+        tone="";
+        detector.removeListener(this);
+        //queue "1" into detector's buffer
+        generator.setOOBDigit("1");
+        generator.activate();
+        detector.activate();
+    	oobMixer.start();
+        
+        Thread.sleep(200);          
+        
+        //queue "2" into detector's buffer
+        generator.setOOBDigit("2");
+        generator.wakeup();
+        
+        Thread.sleep(200);          
+
+        generator.deactivate();
+        detector.deactivate();
+        oobMixer.stop();
+        
+        //assign listener and flush digit
+        detector.addListener(this);
+        detector.flushBuffer();
+
+        //wait a bit for delivery
+        Thread.sleep(200);        
+        
+        assertEquals("12", tone);
+    }
+
+    @Test
+    public void testDelivery() throws InterruptedException, TooManyListenersException {
+        //assign listener
+        detector.addListener(this);
+        
+        //queue "1" into detector's buffer
+        generator.setDigit("1");
+        generator.activate();
+        detector.activate();
+    	audioMixer.start();
+        
+        Thread.sleep(200);          
+
+        generator.deactivate();
+        detector.deactivate();
+    	audioMixer.stop();    	
+
+        //queue "2" into detector's buffer
         generator.setDigit("2");
         generator.activate();
         detector.activate();
     	audioMixer.start();
         
-        Thread.sleep(1000);
-        
+        Thread.sleep(200);          
+
         generator.deactivate();
         detector.deactivate();
     	audioMixer.stop();
-    	
-        assertEquals("2", tone);
+        
+        assertEquals("12", tone);
+        
+        //assign listener and flush digit
+        detector.flushBuffer();
+
+        //wait a bit for delivery
+        Thread.sleep(200);        
+        
+        assertEquals("12", tone);
         
         tone="";
+        //queue "1" into detector's buffer
+        generator.setOOBDigit("1");
+        generator.activate();
+        detector.activate();
+    	oobMixer.start();
+        
+        Thread.sleep(200);          
+
+        generator.deactivate();
+        detector.deactivate();
+        oobMixer.stop();    	
+
+        //queue "2" into detector's buffer
         generator.setOOBDigit("2");
         generator.activate();
         detector.activate();
-    	oobMixer.start();
+        oobMixer.start();
         
-        Thread.sleep(1000);
-        
-        generator.deactivate();
-        detector.deactivate();
-    	oobMixer.stop();
-    	
-        assertEquals("2", tone);
-    }
-    
-    @Test
-    public void testDigit3() throws InterruptedException {
-        generator.setDigit("3");
-        generator.activate();
-        detector.activate();
-    	audioMixer.start();
-        
-        Thread.sleep(1000);
-        
-        generator.deactivate();
-        detector.deactivate();
-    	audioMixer.stop();
-    	
-        assertEquals("3", tone);
-        
-        tone="";
-        generator.setOOBDigit("3");
-        generator.activate();
-        detector.activate();
-    	oobMixer.start();
-        
-        Thread.sleep(1000);
-        
-        generator.deactivate();
-        detector.deactivate();
-    	oobMixer.stop();
-    	
-        assertEquals("3", tone);
-    }
+        Thread.sleep(200);          
 
+        generator.deactivate();
+        detector.deactivate();
+        oobMixer.stop();
+        
+        assertEquals("12", tone);
+        
+        //assign listener and flush digit
+        detector.flushBuffer();
+
+        //wait a bit for delivery
+        Thread.sleep(200);        
+        
+        assertEquals("12", tone);
+    }
+    
     @Test
-    public void testDigit4() throws InterruptedException {
-        generator.setDigit("4");
+    public void testClear() throws InterruptedException, TooManyListenersException {
+        //queue "1" into detector's buffer
+        generator.setDigit("1");
         generator.activate();
         detector.activate();
     	audioMixer.start();
         
-        Thread.sleep(1000);
-        
+        Thread.sleep(200);          
+
         generator.deactivate();
         detector.deactivate();
     	audioMixer.stop();
-        
-        assertEquals("4", tone);
-        
-        tone="";
-        generator.setOOBDigit("4");
-        generator.activate();
-        detector.activate();
-    	oobMixer.start();
-        
-        Thread.sleep(1000);
-        
-        generator.deactivate();
-        detector.deactivate();
-    	oobMixer.stop();
-    	
-        assertEquals("4", tone);
-    }
-    
-    @Test
-    public void testDigit5() throws InterruptedException {
-        generator.setDigit("5");
+
+        //queue "2" into detector's buffer
+        generator.setDigit("2");
         generator.activate();
         detector.activate();
     	audioMixer.start();
         
-        Thread.sleep(1000);
-        
+        Thread.sleep(200);          
+
         generator.deactivate();
         detector.deactivate();
     	audioMixer.stop();
         
-        assertEquals("5", tone);
+        //assign listener and flush digit
+        detector.addListener(this);
+        detector.clearBuffer();
+        detector.flushBuffer();
+
+        //wait a bit for delivery
+        Thread.sleep(200);        
         
-        tone="";
-        generator.setOOBDigit("5");
+        assertEquals("", tone);
+        
+        detector.removeListener(this);
+        //queue "1" into detector's buffer
+        generator.setOOBDigit("1");
         generator.activate();
         detector.activate();
     	oobMixer.start();
         
-        Thread.sleep(1000);
-        
+        Thread.sleep(200);          
+
         generator.deactivate();
         detector.deactivate();
-    	oobMixer.stop();
+        oobMixer.stop();
+
+        //queue "2" into detector's buffer
+        generator.setOOBDigit("2");
+        generator.activate();
+        detector.activate();
+        oobMixer.start();
+        
+        Thread.sleep(200);          
+
+        generator.deactivate();
+        detector.deactivate();
+        oobMixer.stop();
+        
+        //assign listener and flush digit
+        detector.addListener(this);
+        detector.clearBuffer();
+        detector.flushBuffer();
+
+        //wait a bit for delivery
+        Thread.sleep(200);        
+        
+        assertEquals("", tone);
+    }        
     	
-        assertEquals("5", tone);
-    }
-    
-    @Test
-    public void testDigit6() throws InterruptedException {
-        generator.setDigit("6");
-        generator.activate();
-        detector.activate();
-    	audioMixer.start();
-        
-        Thread.sleep(1000);
-        
-        generator.deactivate();
-        detector.deactivate();
-    	audioMixer.stop();
-        
-        assertEquals("6", tone);  
-        
-        tone="";
-        generator.setOOBDigit("6");
-        generator.activate();
-        detector.activate();
-    	oobMixer.start();
-        
-        Thread.sleep(1000);
-        
-        generator.deactivate();
-        detector.deactivate();
-    	oobMixer.stop();
-    	
-        assertEquals("6", tone);
-    }
-    
-    @Test
-    public void testDigit7() throws InterruptedException {
-        generator.setDigit("7");
-        generator.activate();
-        detector.activate();
-    	audioMixer.start();
-        
-        Thread.sleep(1000);
-        
-        generator.deactivate();
-        detector.deactivate();
-    	audioMixer.stop();
-        
-        assertEquals("7", tone);
-        
-        tone="";
-        generator.setOOBDigit("7");
-        generator.activate();
-        detector.activate();
-    	oobMixer.start();
-        
-        Thread.sleep(1000);
-        
-        generator.deactivate();
-        detector.deactivate();
-    	oobMixer.stop();
-    	
-        assertEquals("7", tone);
-    }
-    
-    @Test
-    public void testDigit8() throws InterruptedException {
-        generator.setDigit("8");
-        generator.activate();
-        detector.activate();
-    	audioMixer.start();
-        
-        Thread.sleep(1000);
-        
-        generator.deactivate();
-        detector.deactivate();
-    	audioMixer.stop();
-        
-        assertEquals("8", tone);
-        
-        tone="";
-        generator.setOOBDigit("8");
-        generator.activate();
-        detector.activate();
-    	oobMixer.start();
-        
-        Thread.sleep(1000);
-        
-        generator.deactivate();
-        detector.deactivate();
-    	oobMixer.stop();
-    	
-        assertEquals("8", tone);
-    }
-    
-    @Test
-    public void testDigit9() throws InterruptedException {
-        generator.setDigit("9");
-        generator.activate();
-        detector.activate();
-    	audioMixer.start();
-        
-        Thread.sleep(1000);
-        
-        generator.deactivate();
-        detector.deactivate();
-    	audioMixer.stop();
-        
-        assertEquals("9", tone);
-        
-        tone="";
-        generator.setOOBDigit("9");
-        generator.activate();
-        detector.activate();
-    	oobMixer.start();
-        
-        Thread.sleep(1000);
-        
-        generator.deactivate();
-        detector.deactivate();
-    	oobMixer.stop();
-    	
-        assertEquals("9", tone);
-    }
-    
-    @Test
-    public void testDigit0() throws InterruptedException {
-        generator.setDigit("0");
-        generator.activate();
-        detector.activate();
-    	audioMixer.start();
-        
-        Thread.sleep(1000);
-        
-        generator.deactivate();
-        detector.deactivate();
-    	audioMixer.stop();
-        
-        assertEquals("0", tone);
-        
-        tone="";
-        generator.setOOBDigit("0");
-        generator.activate();
-        detector.activate();
-    	oobMixer.start();
-        
-        Thread.sleep(1000);
-        
-        generator.deactivate();
-        detector.deactivate();
-    	oobMixer.stop();
-    	
-        assertEquals("0", tone);
-    }
-    
     public void process(DtmfEvent event) {
-        tone = event.getTone();
+        tone += event.getTone();
     }
 }

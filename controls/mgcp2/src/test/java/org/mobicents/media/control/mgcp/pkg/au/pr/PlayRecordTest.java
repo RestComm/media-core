@@ -40,7 +40,6 @@ import org.mobicents.media.control.mgcp.pkg.MgcpEvent;
 import org.mobicents.media.control.mgcp.pkg.MgcpEventObserver;
 import org.mobicents.media.control.mgcp.pkg.au.ReturnCode;
 import org.mobicents.media.server.impl.resource.audio.RecorderEventImpl;
-import org.mobicents.media.server.impl.resource.dtmf.DtmfEventImpl;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerEvent;
 import org.mobicents.media.server.spi.dtmf.DtmfDetector;
 import org.mobicents.media.server.spi.player.Player;
@@ -48,6 +47,7 @@ import org.mobicents.media.server.spi.player.PlayerEvent;
 import org.mobicents.media.server.spi.recorder.Recorder;
 import org.mobicents.media.server.spi.recorder.RecorderEvent;
 import org.mockito.ArgumentCaptor;
+import org.restcomm.media.resources.dtmf.DtmfEventImpl;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)

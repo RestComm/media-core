@@ -41,7 +41,6 @@ import org.junit.Test;
 import org.mobicents.media.control.mgcp.pkg.MgcpEvent;
 import org.mobicents.media.control.mgcp.pkg.MgcpEventObserver;
 import org.mobicents.media.control.mgcp.pkg.au.ReturnCode;
-import org.mobicents.media.server.impl.resource.dtmf.DtmfEventImpl;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerEvent;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerImpl;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
@@ -49,6 +48,7 @@ import org.mobicents.media.server.spi.dtmf.DtmfDetector;
 import org.mobicents.media.server.spi.player.Player;
 import org.mobicents.media.server.spi.player.PlayerEvent;
 import org.mockito.ArgumentCaptor;
+import org.restcomm.media.resources.dtmf.DtmfEventImpl;
 
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;

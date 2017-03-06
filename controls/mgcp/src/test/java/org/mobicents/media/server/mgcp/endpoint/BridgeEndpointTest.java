@@ -34,10 +34,6 @@ import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.impl.resource.audio.AudioRecorderFactory;
 import org.mobicents.media.server.impl.resource.audio.AudioRecorderPool;
-import org.mobicents.media.server.impl.resource.dtmf.DtmfDetectorFactory;
-import org.mobicents.media.server.impl.resource.dtmf.DtmfDetectorPool;
-import org.mobicents.media.server.impl.resource.dtmf.DtmfGeneratorFactory;
-import org.mobicents.media.server.impl.resource.dtmf.DtmfGeneratorPool;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerFactory;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerPool;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.CachedRemoteStreamProvider;
@@ -59,6 +55,10 @@ import org.mobicents.media.server.spi.dtmf.DtmfEvent;
 import org.mobicents.media.server.spi.dtmf.DtmfGenerator;
 import org.mobicents.media.server.spi.listener.TooManyListenersException;
 import org.mobicents.media.server.utils.Text;
+import org.restcomm.media.resources.dtmf.DtmfDetectorFactory;
+import org.restcomm.media.resources.dtmf.DtmfDetectorPool;
+import org.restcomm.media.resources.dtmf.DtmfGeneratorFactory;
+import org.restcomm.media.resources.dtmf.DtmfGeneratorPool;
 import org.restcomm.media.server.component.audio.SpectraAnalyzer;
 
 /**

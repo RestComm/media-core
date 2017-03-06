@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.mobicents.media.server.impl.resource.dtmf;
+package org.restcomm.media.resource.dtmf;
 
 import java.io.FileOutputStream;
 import java.io.StringWriter;
@@ -20,6 +20,7 @@ import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
 import org.mobicents.media.server.spi.dtmf.DtmfEvent;
 import org.mobicents.media.server.spi.memory.Frame;
+import org.restcomm.media.resources.dtmf.GeneratorImpl;
 import org.restcomm.media.server.component.audio.AudioComponent;
 import org.restcomm.media.server.component.audio.AudioMixer;
 import org.restcomm.media.server.component.oob.OOBComponent;

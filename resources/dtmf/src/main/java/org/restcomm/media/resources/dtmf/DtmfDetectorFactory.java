@@ -19,7 +19,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.impl.resource.dtmf;
+package org.restcomm.media.resources.dtmf;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -27,40 +27,36 @@ import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.pooling.PooledObjectFactory;
 
 /**
- * Factory that produces DTMF Generators.
+ * Factory that produces DTMF Detectors.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
  */
-public class DtmfGeneratorFactory implements PooledObjectFactory<GeneratorImpl> {
+public class DtmfDetectorFactory implements PooledObjectFactory<DetectorImpl> {
 
-    /** Global ID generator for produced objects */
+    /** Global ID generator for DTMF detectors */
     private static final AtomicInteger ID = new AtomicInteger(1);
 
-    private static final int TONE_DURATION = 80;
-    private static final int TONE_VOLUME = -20;
+    /** Default volume for detectors **/
+    private static final int DEFAULT_DETECTOR_DBI = -35;
 
     private final PriorityQueueScheduler mediaScheduler;
-
-    private int duration;
     private int volume;
 
-    public DtmfGeneratorFactory(PriorityQueueScheduler mediaScheduler, int volume, int duration) {
+    public DtmfDetectorFactory(PriorityQueueScheduler mediaScheduler, int volume) {
         this.mediaScheduler = mediaScheduler;
         this.volume = volume;
-        this.duration = duration;
     }
 
-    public DtmfGeneratorFactory(PriorityQueueScheduler mediaScheduler) {
-        this(mediaScheduler, TONE_VOLUME, TONE_DURATION);
+    public DtmfDetectorFactory(PriorityQueueScheduler mediaScheduler) {
+        this.mediaScheduler = mediaScheduler;
+        this.volume = DEFAULT_DETECTOR_DBI;
     }
 
     @Override
-    public GeneratorImpl produce() {
-        GeneratorImpl generator = new GeneratorImpl("generator" + ID.getAndIncrement(), mediaScheduler);
-        generator.setVolume(this.volume);
-        generator.setToneDuration(this.duration);
-        return generator;
+    public DetectorImpl produce() {
+        DetectorImpl detector = new DetectorImpl("detector-" + ID.getAndIncrement(), mediaScheduler);
+        detector.setVolume(this.volume);
+        return detector;
     }
 
 }

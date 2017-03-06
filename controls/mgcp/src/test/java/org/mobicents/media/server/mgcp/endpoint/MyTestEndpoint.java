@@ -29,12 +29,12 @@ package org.mobicents.media.server.mgcp.endpoint;
 
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
-import org.mobicents.media.server.impl.resource.dtmf.GeneratorImpl;
 import org.mobicents.media.server.mgcp.endpoint.BaseMixerEndpointImpl;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
+import org.restcomm.media.resources.dtmf.DetectorImpl;
+import org.restcomm.media.resources.dtmf.GeneratorImpl;
 import org.restcomm.media.server.component.audio.AudioComponent;
 import org.restcomm.media.server.component.audio.Sine;
 import org.restcomm.media.server.component.audio.SpectraAnalyzer;

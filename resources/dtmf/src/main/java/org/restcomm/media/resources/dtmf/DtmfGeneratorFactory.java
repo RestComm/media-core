@@ -19,7 +19,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.impl.resource.dtmf;
+package org.restcomm.media.resources.dtmf;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -27,36 +27,40 @@ import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.pooling.PooledObjectFactory;
 
 /**
- * Factory that produces DTMF Detectors.
+ * Factory that produces DTMF Generators.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
+ *
  */
-public class DtmfDetectorFactory implements PooledObjectFactory<DetectorImpl> {
+public class DtmfGeneratorFactory implements PooledObjectFactory<GeneratorImpl> {
 
-    /** Global ID generator for DTMF detectors */
+    /** Global ID generator for produced objects */
     private static final AtomicInteger ID = new AtomicInteger(1);
 
-    /** Default volume for detectors **/
-    private static final int DEFAULT_DETECTOR_DBI = -35;
+    private static final int TONE_DURATION = 80;
+    private static final int TONE_VOLUME = -20;
 
     private final PriorityQueueScheduler mediaScheduler;
+
+    private int duration;
     private int volume;
 
-    public DtmfDetectorFactory(PriorityQueueScheduler mediaScheduler, int volume) {
+    public DtmfGeneratorFactory(PriorityQueueScheduler mediaScheduler, int volume, int duration) {
         this.mediaScheduler = mediaScheduler;
         this.volume = volume;
+        this.duration = duration;
     }
 
-    public DtmfDetectorFactory(PriorityQueueScheduler mediaScheduler) {
-        this.mediaScheduler = mediaScheduler;
-        this.volume = DEFAULT_DETECTOR_DBI;
+    public DtmfGeneratorFactory(PriorityQueueScheduler mediaScheduler) {
+        this(mediaScheduler, TONE_VOLUME, TONE_DURATION);
     }
 
     @Override
-    public DetectorImpl produce() {
-        DetectorImpl detector = new DetectorImpl("detector-" + ID.getAndIncrement(), mediaScheduler);
-        detector.setVolume(this.volume);
-        return detector;
+    public GeneratorImpl produce() {
+        GeneratorImpl generator = new GeneratorImpl("generator" + ID.getAndIncrement(), mediaScheduler);
+        generator.setVolume(this.volume);
+        generator.setToneDuration(this.duration);
+        return generator;
     }
 
 }
