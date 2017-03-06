@@ -105,7 +105,7 @@
 	</profiles>
 
 	<build>
-		<finalName>${project.artifactId}-${project.version}</finalName>
+		<finalName>jsr309-driver-${project.version}</finalName>
 		<plugins>
 			<plugin>
 				<artifactId>maven-eclipse-plugin</artifactId>
