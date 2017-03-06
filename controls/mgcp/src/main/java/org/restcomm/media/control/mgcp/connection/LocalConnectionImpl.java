@@ -24,17 +24,17 @@ package org.restcomm.media.control.mgcp.connection;
 
 import java.io.IOException;
 
-import org.mobicents.media.server.spi.Connection;
-import org.mobicents.media.server.spi.ConnectionFailureListener;
-import org.mobicents.media.server.spi.ConnectionMode;
-import org.mobicents.media.server.spi.ConnectionType;
-import org.mobicents.media.server.spi.ModeNotSupportedException;
-import org.mobicents.media.server.spi.pooling.PooledObject;
-import org.mobicents.media.server.utils.Text;
 import org.restcomm.media.rtp.ChannelsManager;
 import org.restcomm.media.rtp.LocalDataChannel;
 import org.restcomm.media.server.component.audio.AudioComponent;
 import org.restcomm.media.server.component.oob.OOBComponent;
+import org.restcomm.media.spi.Connection;
+import org.restcomm.media.spi.ConnectionFailureListener;
+import org.restcomm.media.spi.ConnectionMode;
+import org.restcomm.media.spi.ConnectionType;
+import org.restcomm.media.spi.ModeNotSupportedException;
+import org.restcomm.media.spi.pooling.PooledObject;
+import org.restcomm.media.spi.utils.Text;
 
 /**
  * Represents a local connection between two endpoints.

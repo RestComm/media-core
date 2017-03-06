@@ -23,7 +23,6 @@
 package org.restcomm.media.control.mgcp.tx;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.utils.Text;
 import org.restcomm.media.control.mgcp.MgcpEvent;
 import org.restcomm.media.control.mgcp.MgcpProvider;
 import org.restcomm.media.control.mgcp.controller.MgcpCall;
@@ -32,6 +31,7 @@ import org.restcomm.media.control.mgcp.controller.naming.UnknownEndpointExceptio
 import org.restcomm.media.control.mgcp.tx.cmd.ActionSelector;
 import org.restcomm.media.control.mgcp.tx.cmd.MgcpCommandException;
 import org.restcomm.media.scheduler.Scheduler;
+import org.restcomm.media.spi.utils.Text;
 
 import jain.protocol.ip.mgcp.message.parms.ReturnCode;
 

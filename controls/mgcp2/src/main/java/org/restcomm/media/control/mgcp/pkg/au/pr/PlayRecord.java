@@ -23,20 +23,20 @@ package org.restcomm.media.control.mgcp.pkg.au.pr;
 
 import java.util.Map;
 
-import org.mobicents.media.server.spi.dtmf.DtmfDetector;
-import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
-import org.mobicents.media.server.spi.dtmf.DtmfEvent;
-import org.mobicents.media.server.spi.player.Player;
-import org.mobicents.media.server.spi.player.PlayerEvent;
-import org.mobicents.media.server.spi.player.PlayerListener;
-import org.mobicents.media.server.spi.recorder.Recorder;
-import org.mobicents.media.server.spi.recorder.RecorderEvent;
-import org.mobicents.media.server.spi.recorder.RecorderListener;
 import org.restcomm.media.control.mgcp.command.param.NotifiedEntity;
 import org.restcomm.media.control.mgcp.pkg.AbstractMgcpSignal;
 import org.restcomm.media.control.mgcp.pkg.SignalType;
 import org.restcomm.media.control.mgcp.pkg.au.AudioPackage;
 import org.restcomm.media.control.mgcp.pkg.au.SignalParameters;
+import org.restcomm.media.spi.dtmf.DtmfDetector;
+import org.restcomm.media.spi.dtmf.DtmfDetectorListener;
+import org.restcomm.media.spi.dtmf.DtmfEvent;
+import org.restcomm.media.spi.player.Player;
+import org.restcomm.media.spi.player.PlayerEvent;
+import org.restcomm.media.spi.player.PlayerListener;
+import org.restcomm.media.spi.recorder.Recorder;
+import org.restcomm.media.spi.recorder.RecorderEvent;
+import org.restcomm.media.spi.recorder.RecorderListener;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)

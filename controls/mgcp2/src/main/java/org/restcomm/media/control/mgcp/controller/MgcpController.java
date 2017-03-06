@@ -25,10 +25,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.spi.ControlProtocol;
-import org.mobicents.media.server.spi.Endpoint;
-import org.mobicents.media.server.spi.EndpointInstaller;
-import org.mobicents.media.server.spi.ServerManager;
 import org.restcomm.media.control.mgcp.command.MgcpCommand;
 import org.restcomm.media.control.mgcp.command.MgcpCommandProvider;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointManager;
@@ -43,6 +39,10 @@ import org.restcomm.media.control.mgcp.message.MgcpResponseCode;
 import org.restcomm.media.control.mgcp.network.MgcpChannel;
 import org.restcomm.media.control.mgcp.transaction.MgcpTransactionManager;
 import org.restcomm.media.network.UdpManager;
+import org.restcomm.media.spi.ControlProtocol;
+import org.restcomm.media.spi.Endpoint;
+import org.restcomm.media.spi.EndpointInstaller;
+import org.restcomm.media.spi.ServerManager;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)

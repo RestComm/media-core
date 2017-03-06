@@ -26,14 +26,14 @@ import java.io.IOException;
 import java.net.SocketAddress;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.mobicents.media.server.spi.Connection;
-import org.mobicents.media.server.spi.ConnectionFailureListener;
-import org.mobicents.media.server.spi.ConnectionMode;
-import org.mobicents.media.server.spi.ModeNotSupportedException;
-import org.mobicents.media.server.utils.Text;
 import org.restcomm.media.control.mgcp.MgcpEvent;
 import org.restcomm.media.control.mgcp.message.MgcpRequest;
 import org.restcomm.media.control.mgcp.message.Parameter;
+import org.restcomm.media.spi.Connection;
+import org.restcomm.media.spi.ConnectionFailureListener;
+import org.restcomm.media.spi.ConnectionMode;
+import org.restcomm.media.spi.ModeNotSupportedException;
+import org.restcomm.media.spi.utils.Text;
 /**
  * Represents the connection activity.
  * 

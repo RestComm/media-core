@@ -29,11 +29,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-import org.mobicents.media.server.utils.Text;
 import org.restcomm.media.control.mgcp.controller.MgcpEndpoint;
 import org.restcomm.media.control.mgcp.controller.MyTestEndpoint;
 import org.restcomm.media.control.mgcp.controller.naming.EndpointQueue;
 import org.restcomm.media.control.mgcp.controller.signal.MgcpPackage;
+import org.restcomm.media.spi.utils.Text;
 
 /**
  *

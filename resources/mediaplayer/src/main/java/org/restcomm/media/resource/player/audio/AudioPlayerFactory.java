@@ -24,9 +24,9 @@ package org.restcomm.media.resource.player.audio;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.spi.dsp.DspFactory;
-import org.mobicents.media.server.spi.pooling.PooledObjectFactory;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.spi.dsp.DspFactory;
+import org.restcomm.media.spi.pooling.PooledObjectFactory;
 
 /**
  * Factory that produces Audio Players.

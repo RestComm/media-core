@@ -28,21 +28,21 @@ import java.net.MalformedURLException;
 import java.util.Collection;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.spi.MediaType;
-import org.mobicents.media.server.spi.ResourceUnavailableException;
-import org.mobicents.media.server.spi.dtmf.DtmfDetector;
-import org.mobicents.media.server.spi.listener.TooManyListenersException;
-import org.mobicents.media.server.spi.player.Player;
-import org.mobicents.media.server.spi.player.PlayerEvent;
-import org.mobicents.media.server.spi.player.PlayerListener;
-import org.mobicents.media.server.spi.recorder.Recorder;
-import org.mobicents.media.server.spi.recorder.RecorderEvent;
-import org.mobicents.media.server.spi.recorder.RecorderListener;
-import org.mobicents.media.server.utils.Text;
+import org.restcomm.media.ComponentType;
 import org.restcomm.media.control.mgcp.controller.signal.Event;
 import org.restcomm.media.control.mgcp.controller.signal.NotifyImmediately;
 import org.restcomm.media.control.mgcp.controller.signal.Signal;
+import org.restcomm.media.spi.MediaType;
+import org.restcomm.media.spi.ResourceUnavailableException;
+import org.restcomm.media.spi.dtmf.DtmfDetector;
+import org.restcomm.media.spi.listener.TooManyListenersException;
+import org.restcomm.media.spi.player.Player;
+import org.restcomm.media.spi.player.PlayerEvent;
+import org.restcomm.media.spi.player.PlayerListener;
+import org.restcomm.media.spi.recorder.Recorder;
+import org.restcomm.media.spi.recorder.RecorderEvent;
+import org.restcomm.media.spi.recorder.RecorderListener;
+import org.restcomm.media.spi.utils.Text;
 
 /**
  * Implements play announcement signal.

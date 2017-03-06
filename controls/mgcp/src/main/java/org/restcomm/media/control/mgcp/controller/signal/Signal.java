@@ -24,10 +24,10 @@ package org.restcomm.media.control.mgcp.controller.signal;
 
 import java.util.ArrayList;
 
-import org.mobicents.media.server.spi.Connection;
-import org.mobicents.media.server.spi.Endpoint;
-import org.mobicents.media.server.utils.Text;
 import org.restcomm.media.control.mgcp.controller.UnknownActivityException;
+import org.restcomm.media.spi.Connection;
+import org.restcomm.media.spi.Endpoint;
+import org.restcomm.media.spi.utils.Text;
 /**
  * Bridges the gap between the MGCP signal/event model and server SPI.
  * 

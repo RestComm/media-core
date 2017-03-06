@@ -22,18 +22,17 @@
 package org.restcomm.media.control.mgcp.pkg.sl;
 
 import org.apache.log4j.Logger;
-
-import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.spi.MediaType;
-import org.mobicents.media.server.spi.dtmf.DtmfGenerator;
-import org.mobicents.media.server.spi.dtmf.DtmfGeneratorEvent;
-import org.mobicents.media.server.spi.dtmf.DtmfGeneratorListener;
-import org.mobicents.media.server.utils.Text;
+import org.restcomm.media.ComponentType;
 import org.restcomm.media.control.mgcp.controller.signal.Event;
 import org.restcomm.media.control.mgcp.controller.signal.NotifyImmediately;
 import org.restcomm.media.control.mgcp.controller.signal.Signal;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.Task;
+import org.restcomm.media.spi.MediaType;
+import org.restcomm.media.spi.dtmf.DtmfGenerator;
+import org.restcomm.media.spi.dtmf.DtmfGeneratorEvent;
+import org.restcomm.media.spi.dtmf.DtmfGeneratorListener;
+import org.restcomm.media.spi.utils.Text;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Semaphore;

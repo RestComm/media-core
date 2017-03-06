@@ -28,8 +28,6 @@ package org.restcomm.media.control.mgcp;
 
 import java.net.InetSocketAddress;
 
-import org.mobicents.media.server.spi.listener.TooManyListenersException;
-import org.mobicents.media.server.utils.Text;
 import org.restcomm.media.control.mgcp.MgcpEvent;
 import org.restcomm.media.control.mgcp.MgcpListener;
 import org.restcomm.media.control.mgcp.MgcpProvider;
@@ -42,6 +40,8 @@ import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.Scheduler;
 import org.restcomm.media.scheduler.ServiceScheduler;
 import org.restcomm.media.scheduler.WallClock;
+import org.restcomm.media.spi.listener.TooManyListenersException;
+import org.restcomm.media.spi.utils.Text;
 
 import java.io.IOException;
 

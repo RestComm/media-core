@@ -20,7 +20,7 @@
 
 package org.restcomm.media.rtp.sdp;
 
-import org.mobicents.media.server.utils.Text;
+import org.restcomm.media.spi.utils.Text;
 
 /**
  * Represents the SDP rtcp-mux attribute field

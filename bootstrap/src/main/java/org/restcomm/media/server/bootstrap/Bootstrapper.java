@@ -22,7 +22,6 @@
 package org.restcomm.media.server.bootstrap;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.spi.MediaServer;
 import org.restcomm.media.core.configuration.MediaServerConfiguration;
 import org.restcomm.media.server.bootstrap.configuration.ConfigurationLoader;
 import org.restcomm.media.server.bootstrap.configuration.XmlConfigurationLoader;
@@ -30,6 +29,7 @@ import org.restcomm.media.server.bootstrap.ioc.CoreModule;
 import org.restcomm.media.server.bootstrap.ioc.MediaModule;
 import org.restcomm.media.server.bootstrap.ioc.MgcpModule;
 import org.restcomm.media.server.bootstrap.main.RestCommMediaServer;
+import org.restcomm.media.spi.MediaServer;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;

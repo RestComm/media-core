@@ -34,7 +34,6 @@ import static org.mockito.Mockito.when;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mobicents.media.server.spi.ConnectionMode;
 import org.restcomm.media.network.UdpManager;
 import org.restcomm.media.rtp.ChannelsManager;
 import org.restcomm.media.rtp.LocalDataChannel;
@@ -49,6 +48,7 @@ import org.restcomm.media.server.component.audio.AudioComponent;
 import org.restcomm.media.server.component.audio.AudioMixer;
 import org.restcomm.media.server.component.audio.Sine;
 import org.restcomm.media.server.component.audio.SpectraAnalyzer;
+import org.restcomm.media.spi.ConnectionMode;
 
 /**
  *

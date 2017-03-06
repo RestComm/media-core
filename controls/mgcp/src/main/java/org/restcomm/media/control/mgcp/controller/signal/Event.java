@@ -22,7 +22,8 @@
 package org.restcomm.media.control.mgcp.controller.signal;
 
 import java.util.ArrayList;
-import org.mobicents.media.server.utils.Text;
+
+import org.restcomm.media.spi.utils.Text;
 /**
  * Event thrown by endpoint or connection.
  * 

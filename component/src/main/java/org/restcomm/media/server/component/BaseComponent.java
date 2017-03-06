@@ -22,7 +22,7 @@
 
 package org.restcomm.media.server.component;
 
-import org.mobicents.media.Component;
+import org.restcomm.media.Component;
 
 /**
  *

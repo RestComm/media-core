@@ -23,8 +23,9 @@
 package org.restcomm.media.resource.player;
 
 import java.io.IOException;
-import org.mobicents.media.server.spi.format.Format;
-import org.mobicents.media.server.spi.memory.Frame;
+
+import org.restcomm.media.spi.format.Format;
+import org.restcomm.media.spi.memory.Frame;
 
 /**
  *

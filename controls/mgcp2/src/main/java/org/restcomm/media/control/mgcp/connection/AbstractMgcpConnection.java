@@ -27,7 +27,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.spi.ConnectionMode;
 import org.restcomm.media.control.mgcp.exception.MalformedMgcpEventRequestException;
 import org.restcomm.media.control.mgcp.exception.MgcpEventNotFoundException;
 import org.restcomm.media.control.mgcp.exception.MgcpPackageNotFoundException;
@@ -39,6 +38,7 @@ import org.restcomm.media.control.mgcp.pkg.MgcpRequestedEvent;
 import org.restcomm.media.control.mgcp.pkg.r.rto.RtpTimeoutEvent;
 import org.restcomm.media.server.component.audio.AudioComponent;
 import org.restcomm.media.server.component.oob.OOBComponent;
+import org.restcomm.media.spi.ConnectionMode;
 
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.FutureCallback;

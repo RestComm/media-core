@@ -25,22 +25,22 @@ package org.restcomm.media.control.mgcp.connection;
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.spi.Connection;
-import org.mobicents.media.server.spi.ConnectionEvent;
-import org.mobicents.media.server.spi.ConnectionFailureListener;
-import org.mobicents.media.server.spi.ConnectionListener;
-import org.mobicents.media.server.spi.ConnectionMode;
-import org.mobicents.media.server.spi.ConnectionState;
-import org.mobicents.media.server.spi.ConnectionType;
-import org.mobicents.media.server.spi.Endpoint;
-import org.mobicents.media.server.spi.ModeNotSupportedException;
-import org.mobicents.media.server.spi.listener.Listeners;
-import org.mobicents.media.server.spi.listener.TooManyListenersException;
-import org.mobicents.media.server.utils.Text;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.Task;
 import org.restcomm.media.server.component.audio.AudioComponent;
 import org.restcomm.media.server.component.oob.OOBComponent;
+import org.restcomm.media.spi.Connection;
+import org.restcomm.media.spi.ConnectionEvent;
+import org.restcomm.media.spi.ConnectionFailureListener;
+import org.restcomm.media.spi.ConnectionListener;
+import org.restcomm.media.spi.ConnectionMode;
+import org.restcomm.media.spi.ConnectionState;
+import org.restcomm.media.spi.ConnectionType;
+import org.restcomm.media.spi.Endpoint;
+import org.restcomm.media.spi.ModeNotSupportedException;
+import org.restcomm.media.spi.listener.Listeners;
+import org.restcomm.media.spi.listener.TooManyListenersException;
+import org.restcomm.media.spi.utils.Text;
 
 /**
  * Implements connection's FSM.

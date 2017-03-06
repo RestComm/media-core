@@ -40,12 +40,6 @@ import java.util.ArrayList;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mobicents.media.server.spi.ConnectionMode;
-import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
-import org.mobicents.media.server.spi.dtmf.DtmfEvent;
-import org.mobicents.media.server.spi.format.AudioFormat;
-import org.mobicents.media.server.spi.format.FormatFactory;
-import org.mobicents.media.server.spi.format.Formats;
 import org.restcomm.media.network.UdpManager;
 import org.restcomm.media.resources.dtmf.DetectorImpl;
 import org.restcomm.media.rtp.ChannelsManager;
@@ -65,6 +59,12 @@ import org.restcomm.media.server.component.dsp.Dsp;
 import org.restcomm.media.server.component.dsp.DspFactoryImpl;
 import org.restcomm.media.server.component.oob.OOBComponent;
 import org.restcomm.media.server.component.oob.OOBMixer;
+import org.restcomm.media.spi.ConnectionMode;
+import org.restcomm.media.spi.dtmf.DtmfDetectorListener;
+import org.restcomm.media.spi.dtmf.DtmfEvent;
+import org.restcomm.media.spi.format.AudioFormat;
+import org.restcomm.media.spi.format.FormatFactory;
+import org.restcomm.media.spi.format.Formats;
 
 /**
  *

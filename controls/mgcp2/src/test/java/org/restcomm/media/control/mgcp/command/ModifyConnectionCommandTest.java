@@ -31,7 +31,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.junit.Test;
-import org.mobicents.media.server.spi.ConnectionMode;
 import org.restcomm.media.control.mgcp.command.MgcpCommandResult;
 import org.restcomm.media.control.mgcp.command.ModifyConnectionCommand;
 import org.restcomm.media.control.mgcp.connection.MgcpRemoteConnection;
@@ -44,6 +43,7 @@ import org.restcomm.media.control.mgcp.message.MgcpParameterType;
 import org.restcomm.media.control.mgcp.message.MgcpRequest;
 import org.restcomm.media.control.mgcp.message.MgcpResponseCode;
 import org.restcomm.media.control.mgcp.util.collections.Parameters;
+import org.restcomm.media.spi.ConnectionMode;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)

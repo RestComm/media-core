@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import org.mobicents.media.server.utils.Text;
+import org.restcomm.media.spi.utils.Text;
 
 /**
  * Represents an ICEv19 candidate field as defined on

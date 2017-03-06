@@ -21,7 +21,7 @@
         
 package org.restcomm.media.control.mgcp.endpoint.factory;
 
-import org.mobicents.media.server.spi.Endpoint;
+import org.restcomm.media.spi.Endpoint;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)

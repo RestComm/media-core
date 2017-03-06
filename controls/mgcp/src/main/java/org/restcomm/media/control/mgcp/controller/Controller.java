@@ -31,11 +31,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.spi.ControlProtocol;
-import org.mobicents.media.server.spi.Endpoint;
-import org.mobicents.media.server.spi.EndpointInstaller;
-import org.mobicents.media.server.spi.ServerManager;
-import org.mobicents.media.server.spi.listener.TooManyListenersException;
 import org.restcomm.media.control.mgcp.MgcpEvent;
 import org.restcomm.media.control.mgcp.MgcpListener;
 import org.restcomm.media.control.mgcp.MgcpProvider;
@@ -49,6 +44,11 @@ import org.restcomm.media.control.mgcp.tx.Transaction;
 import org.restcomm.media.network.UdpManager;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.Scheduler;
+import org.restcomm.media.spi.ControlProtocol;
+import org.restcomm.media.spi.Endpoint;
+import org.restcomm.media.spi.EndpointInstaller;
+import org.restcomm.media.spi.ServerManager;
+import org.restcomm.media.spi.listener.TooManyListenersException;
 
 /**
  * The MGCP access point.

@@ -24,9 +24,9 @@ package org.restcomm.media.server.component.oob;
 
 import java.io.IOException;
 
-import org.mobicents.media.server.spi.memory.Frame;
 import org.restcomm.media.server.component.AbstractSink;
 import org.restcomm.media.server.concurrent.ConcurrentCyclicFIFO;
+import org.restcomm.media.spi.memory.Frame;
 
 /**
  * Implements input for compound components

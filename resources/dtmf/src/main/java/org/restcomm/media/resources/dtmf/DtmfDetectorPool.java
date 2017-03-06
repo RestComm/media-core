@@ -21,8 +21,8 @@
 
 package org.restcomm.media.resources.dtmf;
 
-import org.mobicents.media.server.spi.pooling.AbstractConcurrentResourcePool;
-import org.mobicents.media.server.spi.pooling.PooledObjectFactory;
+import org.restcomm.media.spi.pooling.AbstractConcurrentResourcePool;
+import org.restcomm.media.spi.pooling.PooledObjectFactory;
 
 /**
  * Thread-safe pool for DTMF Detectors.

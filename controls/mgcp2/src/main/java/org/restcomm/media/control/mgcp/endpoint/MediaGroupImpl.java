@@ -23,19 +23,19 @@ package org.restcomm.media.control.mgcp.endpoint;
 
 import javax.sound.sampled.spi.AudioFileReader;
 
-import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.spi.dtmf.DtmfDetector;
-import org.mobicents.media.server.spi.dtmf.DtmfDetectorProvider;
-import org.mobicents.media.server.spi.dtmf.DtmfGenerator;
-import org.mobicents.media.server.spi.player.Player;
-import org.mobicents.media.server.spi.player.PlayerProvider;
-import org.mobicents.media.server.spi.recorder.Recorder;
-import org.mobicents.media.server.spi.recorder.RecorderProvider;
+import org.restcomm.media.ComponentType;
 import org.restcomm.media.resource.player.audio.AudioPlayerImpl;
 import org.restcomm.media.resource.recorder.audio.AudioRecorderImpl;
 import org.restcomm.media.resources.dtmf.DetectorImpl;
 import org.restcomm.media.server.component.audio.AudioComponent;
 import org.restcomm.media.server.component.oob.OOBComponent;
+import org.restcomm.media.spi.dtmf.DtmfDetector;
+import org.restcomm.media.spi.dtmf.DtmfDetectorProvider;
+import org.restcomm.media.spi.dtmf.DtmfGenerator;
+import org.restcomm.media.spi.player.Player;
+import org.restcomm.media.spi.player.PlayerProvider;
+import org.restcomm.media.spi.recorder.Recorder;
+import org.restcomm.media.spi.recorder.RecorderProvider;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)

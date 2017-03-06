@@ -35,12 +35,12 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mobicents.media.server.spi.format.Format;
-import org.mobicents.media.server.spi.format.FormatFactory;
-import org.mobicents.media.server.spi.memory.Frame;
-import org.mobicents.media.server.spi.memory.Memory;
 import org.restcomm.media.server.component.dsp.Dsp;
 import org.restcomm.media.server.component.dsp.DspFactoryImpl;
+import org.restcomm.media.spi.format.Format;
+import org.restcomm.media.spi.format.FormatFactory;
+import org.restcomm.media.spi.memory.Frame;
+import org.restcomm.media.spi.memory.Memory;
 
 /**
  *

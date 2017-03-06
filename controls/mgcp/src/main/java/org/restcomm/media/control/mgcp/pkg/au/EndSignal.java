@@ -23,12 +23,12 @@
 package org.restcomm.media.control.mgcp.pkg.au;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.spi.Endpoint;
-import org.mobicents.media.server.spi.MediaType;
-import org.mobicents.media.server.spi.dtmf.DtmfDetector;
-import org.mobicents.media.server.utils.Text;
+import org.restcomm.media.ComponentType;
 import org.restcomm.media.control.mgcp.controller.signal.Signal;
+import org.restcomm.media.spi.Endpoint;
+import org.restcomm.media.spi.MediaType;
+import org.restcomm.media.spi.dtmf.DtmfDetector;
+import org.restcomm.media.spi.utils.Text;
 
 /**
  * Gracefully terminates Play, PlayRecord or PlayCollect signal.

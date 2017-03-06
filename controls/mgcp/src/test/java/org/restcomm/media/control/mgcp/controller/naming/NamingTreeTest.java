@@ -30,12 +30,12 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mobicents.media.server.utils.Text;
 import org.restcomm.media.control.mgcp.controller.MgcpEndpoint;
 import org.restcomm.media.control.mgcp.controller.MyTestEndpoint;
 import org.restcomm.media.control.mgcp.controller.naming.NamingTree;
 import org.restcomm.media.control.mgcp.controller.naming.UnknownEndpointException;
 import org.restcomm.media.control.mgcp.controller.signal.MgcpPackage;
+import org.restcomm.media.spi.utils.Text;
 
 /**
  *

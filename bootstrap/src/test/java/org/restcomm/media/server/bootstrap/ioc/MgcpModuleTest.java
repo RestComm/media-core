@@ -23,7 +23,6 @@ package org.restcomm.media.server.bootstrap.ioc;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.mobicents.media.server.spi.ServerManager;
 import org.restcomm.media.control.mgcp.command.MgcpCommandProvider;
 import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.restcomm.media.control.mgcp.pkg.MgcpSignalProvider;
@@ -32,6 +31,7 @@ import org.restcomm.media.server.bootstrap.ioc.CoreModule;
 import org.restcomm.media.server.bootstrap.ioc.MediaModule;
 import org.restcomm.media.server.bootstrap.ioc.MgcpModule;
 import org.restcomm.media.server.bootstrap.ioc.provider.mgcp.MgcpEndpointManagerProvider;
+import org.restcomm.media.spi.ServerManager;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;

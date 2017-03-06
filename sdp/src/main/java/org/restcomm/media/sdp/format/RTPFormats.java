@@ -22,9 +22,10 @@
 
 package org.restcomm.media.sdp.format;
 
-import org.mobicents.media.server.spi.format.Format;
-import org.mobicents.media.server.spi.format.Formats;
 import java.util.ArrayList;
+
+import org.restcomm.media.spi.format.Format;
+import org.restcomm.media.spi.format.Formats;
 /**
  * Implements RTP formats collection with fast search.
  *

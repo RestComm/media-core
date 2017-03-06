@@ -26,10 +26,10 @@ import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.mobicents.media.server.spi.memory.Frame;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.Task;
 import org.restcomm.media.server.concurrent.ConcurrentMap;
+import org.restcomm.media.spi.memory.Frame;
 
 /**
  * Implements compound oob mixer , one of core components of mms 3.0

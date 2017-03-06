@@ -21,10 +21,10 @@
 
 package org.restcomm.media.server.bootstrap.ioc.provider.media;
 
-import org.mobicents.media.server.spi.dtmf.DtmfDetectorProvider;
 import org.restcomm.media.core.configuration.MediaServerConfiguration;
 import org.restcomm.media.resources.dtmf.DetectorProvider;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.spi.dtmf.DtmfDetectorProvider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;

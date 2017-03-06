@@ -34,8 +34,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.mobicents.media.server.spi.ConnectionType;
-import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.restcomm.media.control.mgcp.connection.LocalConnectionFactory;
 import org.restcomm.media.control.mgcp.connection.LocalConnectionPool;
 import org.restcomm.media.control.mgcp.connection.RtpConnectionFactory;
@@ -63,6 +61,8 @@ import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.ServiceScheduler;
 import org.restcomm.media.scheduler.WallClock;
 import org.restcomm.media.server.component.dsp.DspFactoryImpl;
+import org.restcomm.media.spi.ConnectionType;
+import org.restcomm.media.spi.ResourceUnavailableException;
 
 /**
  * @author yulian oifa

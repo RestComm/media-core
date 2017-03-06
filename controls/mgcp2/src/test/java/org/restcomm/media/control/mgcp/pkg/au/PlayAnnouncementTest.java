@@ -37,9 +37,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
-import org.mobicents.media.server.spi.ResourceUnavailableException;
-import org.mobicents.media.server.spi.player.Player;
-import org.mobicents.media.server.spi.player.PlayerEvent;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.restcomm.media.control.mgcp.pkg.MgcpEvent;
@@ -49,6 +46,9 @@ import org.restcomm.media.control.mgcp.pkg.au.OperationFailed;
 import org.restcomm.media.control.mgcp.pkg.au.PlayAnnouncement;
 import org.restcomm.media.control.mgcp.pkg.au.ReturnCode;
 import org.restcomm.media.control.mgcp.pkg.au.SignalParameters;
+import org.restcomm.media.spi.ResourceUnavailableException;
+import org.restcomm.media.spi.player.Player;
+import org.restcomm.media.spi.player.PlayerEvent;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)

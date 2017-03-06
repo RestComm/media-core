@@ -27,12 +27,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Properties;
 
-import org.mobicents.media.server.spi.Connection;
-import org.mobicents.media.server.spi.Endpoint;
-import org.mobicents.media.server.utils.Text;
 import org.restcomm.media.control.mgcp.controller.Request;
 import org.restcomm.media.control.mgcp.controller.UnknownActivityException;
 import org.restcomm.media.control.mgcp.controller.UnknownEventException;
+import org.restcomm.media.spi.Connection;
+import org.restcomm.media.spi.Endpoint;
+import org.restcomm.media.spi.utils.Text;
 
 /**
  * MGCP event/signal package.

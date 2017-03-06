@@ -11,20 +11,20 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mobicents.media.Component;
-import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.spi.Connection;
-import org.mobicents.media.server.spi.ConnectionMode;
-import org.mobicents.media.server.spi.ConnectionType;
-import org.mobicents.media.server.spi.Endpoint;
-import org.mobicents.media.server.spi.EndpointState;
-import org.mobicents.media.server.spi.MediaType;
-import org.mobicents.media.server.spi.ResourceUnavailableException;
+import org.restcomm.media.Component;
+import org.restcomm.media.ComponentType;
 import org.restcomm.media.control.mgcp.controller.Configurator;
 import org.restcomm.media.control.mgcp.controller.MgcpEndpoint;
 import org.restcomm.media.scheduler.Clock;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.WallClock;
+import org.restcomm.media.spi.Connection;
+import org.restcomm.media.spi.ConnectionMode;
+import org.restcomm.media.spi.ConnectionType;
+import org.restcomm.media.spi.Endpoint;
+import org.restcomm.media.spi.EndpointState;
+import org.restcomm.media.spi.MediaType;
+import org.restcomm.media.spi.ResourceUnavailableException;
 
 /**
  *

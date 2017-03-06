@@ -26,11 +26,11 @@ import java.lang.reflect.Constructor;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.spi.Endpoint;
-import org.mobicents.media.server.spi.EndpointInstaller;
 import org.restcomm.media.control.mgcp.controller.Controller;
 import org.restcomm.media.control.mgcp.endpoint.naming.EndpointNameGenerator;
 import org.restcomm.media.core.Server;
+import org.restcomm.media.spi.Endpoint;
+import org.restcomm.media.spi.EndpointInstaller;
 
 /**
  * Endpoint installer is used for automatic creation and installation of

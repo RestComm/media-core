@@ -22,8 +22,8 @@
 
 package org.restcomm.media.control.mgcp.connection;
 
-import org.mobicents.media.server.spi.Connection;
-import org.mobicents.media.server.spi.ConnectionEvent;
+import org.restcomm.media.spi.Connection;
+import org.restcomm.media.spi.ConnectionEvent;
 
 /**
  * Implementation for connection event.
@@ -51,7 +51,7 @@ public class ConnectionEventImpl implements ConnectionEvent {
     /**
      * (Non Java-doc.)
      *
-     * @see org.mobicents.media.server.spi.ConnectionEvent#getId()
+     * @see org.restcomm.media.spi.ConnectionEvent#getId()
      */
     public int getId() {
         return this.id;
@@ -60,7 +60,7 @@ public class ConnectionEventImpl implements ConnectionEvent {
     /**
      * (Non Java-doc.)
      *
-     * @see org.mobicents.media.server.spi.ConnectionEvent#getSource()
+     * @see org.restcomm.media.spi.ConnectionEvent#getSource()
      */
     public Connection getSource() {
         return this.source;

@@ -21,7 +21,7 @@
  */
 package org.restcomm.media.control.mgcp.controller;
 
-import org.mobicents.media.server.utils.Text;
+import org.restcomm.media.spi.utils.Text;
 
 /**
  * Notified entity MGCP parameter.

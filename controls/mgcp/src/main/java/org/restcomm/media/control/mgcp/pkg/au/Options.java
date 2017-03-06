@@ -24,8 +24,8 @@ package org.restcomm.media.control.mgcp.pkg.au;
 
 import java.util.Collection;
 
-import org.mobicents.media.server.utils.Text;
 import org.restcomm.media.server.concurrent.ConcurrentCyclicFIFO;
+import org.restcomm.media.spi.utils.Text;
 /**
  * Represents parameters supplied with command.
  * 

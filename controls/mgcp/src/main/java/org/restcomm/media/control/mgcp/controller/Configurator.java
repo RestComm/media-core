@@ -29,10 +29,10 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.mobicents.media.server.spi.Endpoint;
 import org.restcomm.media.control.mgcp.MgcpProvider;
 import org.restcomm.media.control.mgcp.controller.signal.MgcpPackage;
 import org.restcomm.media.control.mgcp.pkg.PackageFactory;
+import org.restcomm.media.spi.Endpoint;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;

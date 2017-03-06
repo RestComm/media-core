@@ -21,10 +21,10 @@
  */
 package org.restcomm.media.control.mgcp.controller.naming;
 
-import org.mobicents.media.server.spi.EndpointInstaller;
-import org.mobicents.media.server.utils.Text;
 import org.restcomm.media.control.mgcp.controller.MgcpEndpoint;
 import org.restcomm.media.server.concurrent.ConcurrentCyclicFIFO;
+import org.restcomm.media.spi.EndpointInstaller;
+import org.restcomm.media.spi.utils.Text;
 
 /**
  * Naming tree for MGCP endpoints.

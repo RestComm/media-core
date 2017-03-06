@@ -21,7 +21,6 @@
 
 package org.restcomm.media.server.bootstrap.ioc;
 
-import org.mobicents.media.server.spi.ServerManager;
 import org.restcomm.media.core.configuration.MediaServerConfiguration;
 import org.restcomm.media.network.UdpManager;
 import org.restcomm.media.resource.player.audio.RemoteStreamProvider;
@@ -53,6 +52,7 @@ import org.restcomm.media.server.bootstrap.ioc.provider.DtmfDetectorPoolProvider
 import org.restcomm.media.server.bootstrap.ioc.provider.DtmfGeneratorFactoryProvider.DtmfGeneratorFactoryType;
 import org.restcomm.media.server.bootstrap.ioc.provider.DtmfGeneratorPoolProvider.DtmfGeneratorPoolType;
 import org.restcomm.media.server.bootstrap.ioc.provider.mgcp.Mgcp2ControllerProvider;
+import org.restcomm.media.spi.ServerManager;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provider;

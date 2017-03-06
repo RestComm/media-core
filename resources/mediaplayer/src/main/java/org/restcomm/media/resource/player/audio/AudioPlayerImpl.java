@@ -27,18 +27,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.spi.ResourceUnavailableException;
-import org.mobicents.media.server.spi.dsp.Processor;
-import org.mobicents.media.server.spi.format.AudioFormat;
-import org.mobicents.media.server.spi.format.FormatFactory;
-import org.mobicents.media.server.spi.listener.Listeners;
-import org.mobicents.media.server.spi.listener.TooManyListenersException;
-import org.mobicents.media.server.spi.memory.Frame;
-import org.mobicents.media.server.spi.player.Player;
-import org.mobicents.media.server.spi.player.PlayerListener;
-import org.mobicents.media.server.spi.pooling.PooledObject;
-import org.mobicents.media.server.spi.resource.TTSEngine;
+import org.restcomm.media.ComponentType;
 import org.restcomm.media.resource.player.Track;
 import org.restcomm.media.resource.player.audio.gsm.GsmTrackImpl;
 import org.restcomm.media.resource.player.audio.mpeg.AMRTrackImpl;
@@ -48,6 +37,17 @@ import org.restcomm.media.resource.player.audio.wav.WavTrackImpl;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.server.component.AbstractSource;
 import org.restcomm.media.server.component.audio.AudioInput;
+import org.restcomm.media.spi.ResourceUnavailableException;
+import org.restcomm.media.spi.dsp.Processor;
+import org.restcomm.media.spi.format.AudioFormat;
+import org.restcomm.media.spi.format.FormatFactory;
+import org.restcomm.media.spi.listener.Listeners;
+import org.restcomm.media.spi.listener.TooManyListenersException;
+import org.restcomm.media.spi.memory.Frame;
+import org.restcomm.media.spi.player.Player;
+import org.restcomm.media.spi.player.PlayerListener;
+import org.restcomm.media.spi.pooling.PooledObject;
+import org.restcomm.media.spi.resource.TTSEngine;
 
 /**
  * @author yulian oifa

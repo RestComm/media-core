@@ -22,13 +22,13 @@
 
 package org.restcomm.media.codec.ilbc;
 
-import org.mobicents.media.server.spi.dsp.Codec;
-import org.mobicents.media.server.spi.format.Format;
-import org.mobicents.media.server.spi.format.FormatFactory;
-import org.mobicents.media.server.spi.memory.Frame;
-import org.mobicents.media.server.spi.memory.Memory;
-
 import java.util.Arrays;
+
+import org.restcomm.media.spi.dsp.Codec;
+import org.restcomm.media.spi.format.Format;
+import org.restcomm.media.spi.format.FormatFactory;
+import org.restcomm.media.spi.memory.Frame;
+import org.restcomm.media.spi.memory.Memory;
 /**
  * 
  * @author oifa yulian

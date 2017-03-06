@@ -25,18 +25,18 @@ package org.restcomm.media.control.mgcp.endpoint;
 import java.util.Iterator;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.Component;
-import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.spi.Connection;
-import org.mobicents.media.server.spi.ConnectionType;
-import org.mobicents.media.server.spi.Endpoint;
-import org.mobicents.media.server.spi.EndpointState;
-import org.mobicents.media.server.spi.MediaType;
-import org.mobicents.media.server.spi.ResourceUnavailableException;
+import org.restcomm.media.Component;
+import org.restcomm.media.ComponentType;
 import org.restcomm.media.control.mgcp.connection.BaseConnection;
 import org.restcomm.media.control.mgcp.resources.ResourcesPool;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.server.concurrent.ConcurrentMap;
+import org.restcomm.media.spi.Connection;
+import org.restcomm.media.spi.ConnectionType;
+import org.restcomm.media.spi.Endpoint;
+import org.restcomm.media.spi.EndpointState;
+import org.restcomm.media.spi.MediaType;
+import org.restcomm.media.spi.ResourceUnavailableException;
 
 /**
  * Basic implementation of the endpoint.

@@ -24,12 +24,12 @@ package org.restcomm.media.rtp.rfc2833;
 
 import java.io.IOException;
 
-import org.mobicents.media.server.spi.memory.Frame;
 import org.restcomm.media.rtp.RTPDataChannel;
 import org.restcomm.media.rtp.RtpTransmitter;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.server.component.AbstractSink;
 import org.restcomm.media.server.component.oob.OOBOutput;
+import org.restcomm.media.spi.memory.Frame;
 
 /**
  * Transmitter implementation.

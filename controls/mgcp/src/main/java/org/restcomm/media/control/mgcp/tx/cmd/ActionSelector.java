@@ -22,12 +22,12 @@
 
 package org.restcomm.media.control.mgcp.tx.cmd;
 
-import org.mobicents.media.server.utils.Text;
 import org.restcomm.media.control.mgcp.MgcpEvent;
 import org.restcomm.media.control.mgcp.message.MgcpRequest;
 import org.restcomm.media.control.mgcp.message.Parameter;
 import org.restcomm.media.control.mgcp.tx.Action;
 import org.restcomm.media.scheduler.Scheduler;
+import org.restcomm.media.spi.utils.Text;
 
 /**
  *

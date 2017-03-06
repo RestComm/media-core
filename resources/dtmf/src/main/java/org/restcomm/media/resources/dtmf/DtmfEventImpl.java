@@ -22,8 +22,8 @@
 
 package org.restcomm.media.resources.dtmf;
 
-import org.mobicents.media.server.spi.dtmf.DtmfDetector;
-import org.mobicents.media.server.spi.dtmf.DtmfEvent;
+import org.restcomm.media.spi.dtmf.DtmfDetector;
+import org.restcomm.media.spi.dtmf.DtmfEvent;
 
 /**
  * 

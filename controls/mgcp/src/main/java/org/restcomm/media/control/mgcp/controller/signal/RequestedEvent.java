@@ -22,7 +22,7 @@
 
 package org.restcomm.media.control.mgcp.controller.signal;
 
-import org.mobicents.media.server.utils.Text;
+import org.restcomm.media.spi.utils.Text;
 
 /**
  *

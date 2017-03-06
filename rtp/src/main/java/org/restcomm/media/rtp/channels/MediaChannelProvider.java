@@ -21,8 +21,8 @@
 
 package org.restcomm.media.rtp.channels;
 
-import org.mobicents.media.server.spi.dsp.DspFactory;
 import org.restcomm.media.rtp.ChannelsManager;
+import org.restcomm.media.spi.dsp.DspFactory;
 
 /**
  * Provides RTP, RTCP and LOCAL channels.

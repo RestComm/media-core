@@ -20,7 +20,7 @@
 
 package org.restcomm.media.rtp.sdp;
 
-import org.mobicents.media.server.utils.Text;
+import org.restcomm.media.spi.utils.Text;
 
 /**
  * Supported media types in an SDP description.

@@ -8,9 +8,6 @@ import static org.mockito.Mockito.when;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.mobicents.media.server.spi.format.EncodingName;
-import org.mobicents.media.server.spi.format.Format;
-import org.mobicents.media.server.spi.format.FormatFactory;
 import org.restcomm.media.rtp.channels.AudioChannel;
 import org.restcomm.media.rtp.sdp.SdpFactory;
 import org.restcomm.media.sdp.SdpException;
@@ -19,6 +16,9 @@ import org.restcomm.media.sdp.fields.MediaDescriptionField;
 import org.restcomm.media.sdp.fields.parser.MediaDescriptionFieldParser;
 import org.restcomm.media.sdp.format.RTPFormat;
 import org.restcomm.media.sdp.format.RTPFormats;
+import org.restcomm.media.spi.format.EncodingName;
+import org.restcomm.media.spi.format.Format;
+import org.restcomm.media.spi.format.FormatFactory;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)

@@ -21,12 +21,12 @@
 
 package org.restcomm.media.server.bootstrap.ioc.provider;
 
-import org.mobicents.media.server.spi.dsp.DspFactory;
-import org.mobicents.media.server.spi.pooling.PooledObjectFactory;
 import org.restcomm.media.resource.player.audio.AudioPlayerFactory;
 import org.restcomm.media.resource.player.audio.AudioPlayerImpl;
 import org.restcomm.media.resource.player.audio.RemoteStreamProvider;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.spi.dsp.DspFactory;
+import org.restcomm.media.spi.pooling.PooledObjectFactory;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;

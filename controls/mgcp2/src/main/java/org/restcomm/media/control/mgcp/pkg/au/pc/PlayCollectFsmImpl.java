@@ -25,17 +25,17 @@ import java.net.MalformedURLException;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.spi.ResourceUnavailableException;
-import org.mobicents.media.server.spi.dtmf.DtmfDetector;
-import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
-import org.mobicents.media.server.spi.listener.TooManyListenersException;
-import org.mobicents.media.server.spi.player.Player;
-import org.mobicents.media.server.spi.player.PlayerListener;
 import org.restcomm.media.control.mgcp.pkg.MgcpEventSubject;
 import org.restcomm.media.control.mgcp.pkg.au.OperationComplete;
 import org.restcomm.media.control.mgcp.pkg.au.OperationFailed;
 import org.restcomm.media.control.mgcp.pkg.au.Playlist;
 import org.restcomm.media.control.mgcp.pkg.au.ReturnCode;
+import org.restcomm.media.spi.ResourceUnavailableException;
+import org.restcomm.media.spi.dtmf.DtmfDetector;
+import org.restcomm.media.spi.dtmf.DtmfDetectorListener;
+import org.restcomm.media.spi.listener.TooManyListenersException;
+import org.restcomm.media.spi.player.Player;
+import org.restcomm.media.spi.player.PlayerListener;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
 
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;

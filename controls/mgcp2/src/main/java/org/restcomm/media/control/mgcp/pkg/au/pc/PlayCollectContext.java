@@ -23,10 +23,10 @@ package org.restcomm.media.control.mgcp.pkg.au.pc;
 
 import java.util.Map;
 
-import org.mobicents.media.server.spi.dtmf.DtmfDetector;
-import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
 import org.restcomm.media.control.mgcp.pkg.au.Playlist;
 import org.restcomm.media.control.mgcp.pkg.au.SignalParameters;
+import org.restcomm.media.spi.dtmf.DtmfDetector;
+import org.restcomm.media.spi.dtmf.DtmfDetectorListener;
 
 import com.google.common.base.Optional;
 

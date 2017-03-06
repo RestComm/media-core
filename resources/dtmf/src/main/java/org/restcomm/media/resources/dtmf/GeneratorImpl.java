@@ -22,22 +22,22 @@
 
 package org.restcomm.media.resources.dtmf;
 
-import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.spi.format.AudioFormat;
-import org.mobicents.media.server.spi.format.FormatFactory;
-import org.mobicents.media.server.spi.format.Formats;
-import org.mobicents.media.server.spi.memory.Frame;
-import org.mobicents.media.server.spi.memory.Memory;
-import org.mobicents.media.server.spi.pooling.PooledObject;
+import org.restcomm.media.ComponentType;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.server.component.AbstractSource;
 import org.restcomm.media.server.component.audio.AudioInput;
 import org.restcomm.media.server.component.oob.OOBInput;
-import org.mobicents.media.server.spi.listener.Listeners;
-import org.mobicents.media.server.spi.listener.TooManyListenersException;
-import org.mobicents.media.server.spi.dtmf.DtmfGenerator;
-import org.mobicents.media.server.spi.dtmf.DtmfGeneratorEvent;
-import org.mobicents.media.server.spi.dtmf.DtmfGeneratorListener;
+import org.restcomm.media.spi.dtmf.DtmfGenerator;
+import org.restcomm.media.spi.dtmf.DtmfGeneratorEvent;
+import org.restcomm.media.spi.dtmf.DtmfGeneratorListener;
+import org.restcomm.media.spi.format.AudioFormat;
+import org.restcomm.media.spi.format.FormatFactory;
+import org.restcomm.media.spi.format.Formats;
+import org.restcomm.media.spi.listener.Listeners;
+import org.restcomm.media.spi.listener.TooManyListenersException;
+import org.restcomm.media.spi.memory.Frame;
+import org.restcomm.media.spi.memory.Memory;
+import org.restcomm.media.spi.pooling.PooledObject;
 
 /**
  * InbandGenerator generates Inband DTMF Tone only for uncompressed LINEAR

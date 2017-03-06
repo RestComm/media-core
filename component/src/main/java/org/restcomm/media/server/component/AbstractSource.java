@@ -24,10 +24,10 @@ package org.restcomm.media.server.component;
 
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.MediaSource;
-import org.mobicents.media.server.spi.memory.Frame;
+import org.restcomm.media.MediaSource;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.Task;
+import org.restcomm.media.spi.memory.Frame;
 
 /**
  * The base implementation of the Media source.
@@ -234,7 +234,7 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
     /**
      * (Non Java-doc).
      *
-     * @see org.mobicents.media.MediaSource#connect(org.mobicents.media.MediaSink)
+     * @see org.restcomm.media.MediaSource#connect(org.restcomm.media.MediaSink)
      */
     protected void connect(AbstractSink sink) {
         this.mediaSink = sink;
@@ -245,7 +245,7 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
     /**
      * (Non Java-doc).
      *
-     * @see org.mobicents.media.MediaSource#disconnect(org.mobicents.media.server.spi.io.Pipe)
+     * @see org.restcomm.media.MediaSource#disconnect(org.mobicents.media.server.spi.io.Pipe)
      */
     protected void disconnect() {
     	if(this.mediaSink!=null)
@@ -316,7 +316,7 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
     /**
      * (Non Java-doc).
      * 
-     * @see org.mobicents.media.MediaSource#getPacketsReceived()
+     * @see org.restcomm.media.MediaSource#getPacketsReceived()
      */
     public long getPacketsTransmitted() {
     	return txPackets;
@@ -325,7 +325,7 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
     /**
      * (Non Java-doc).
      * 
-     * @see org.mobicents.media.MediaSource#getBytesTransmitted()
+     * @see org.restcomm.media.MediaSource#getBytesTransmitted()
      */
     public long getBytesTransmitted() {
         return txBytes;

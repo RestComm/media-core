@@ -21,11 +21,11 @@
 
 package org.restcomm.media.server.bootstrap.ioc.provider;
 
-import org.mobicents.media.server.spi.pooling.PooledObjectFactory;
-import org.mobicents.media.server.spi.pooling.ResourcePool;
 import org.restcomm.media.core.configuration.MediaServerConfiguration;
 import org.restcomm.media.resource.recorder.audio.AudioRecorderImpl;
 import org.restcomm.media.resource.recorder.audio.AudioRecorderPool;
+import org.restcomm.media.spi.pooling.PooledObjectFactory;
+import org.restcomm.media.spi.pooling.ResourcePool;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;

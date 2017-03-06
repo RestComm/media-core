@@ -21,9 +21,9 @@
 
 package org.restcomm.media.resource.recorder.audio;
 
-import org.mobicents.media.server.spi.recorder.Recorder;
-import org.mobicents.media.server.spi.recorder.RecorderProvider;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.spi.recorder.Recorder;
+import org.restcomm.media.spi.recorder.RecorderProvider;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)

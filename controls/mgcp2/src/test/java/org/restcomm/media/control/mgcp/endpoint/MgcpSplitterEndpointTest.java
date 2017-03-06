@@ -28,7 +28,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.junit.Test;
-import org.mobicents.media.server.spi.ConnectionMode;
 import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.restcomm.media.control.mgcp.connection.MgcpLocalConnection;
 import org.restcomm.media.control.mgcp.connection.MgcpRemoteConnection;
@@ -43,6 +42,7 @@ import org.restcomm.media.server.component.audio.AudioComponent;
 import org.restcomm.media.server.component.audio.AudioSplitter;
 import org.restcomm.media.server.component.oob.OOBComponent;
 import org.restcomm.media.server.component.oob.OOBSplitter;
+import org.restcomm.media.spi.ConnectionMode;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)

@@ -24,7 +24,7 @@ package org.restcomm.media.rtp.sdp;
 
 import java.util.Iterator;
 
-import org.mobicents.media.server.utils.Text;
+import org.restcomm.media.spi.utils.Text;
 
 /**
  * t=<start time>  <stop time>.

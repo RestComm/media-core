@@ -21,8 +21,8 @@
 
 package org.restcomm.media.control.mgcp.command;
 
-import org.mobicents.media.server.spi.ConnectionMode;
 import org.restcomm.media.control.mgcp.message.MgcpResponseCode;
+import org.restcomm.media.spi.ConnectionMode;
 
 /**
  * Contains contextual data for an MGCP CRCX operation.

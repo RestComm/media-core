@@ -24,13 +24,13 @@ package org.restcomm.media.control.mgcp.endpoint;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.mobicents.media.server.spi.Connection;
-import org.mobicents.media.server.spi.ConnectionMode;
-import org.mobicents.media.server.spi.ConnectionType;
-import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.restcomm.media.control.mgcp.connection.BaseConnection;
 import org.restcomm.media.server.component.audio.AudioSplitter;
 import org.restcomm.media.server.component.oob.OOBSplitter;
+import org.restcomm.media.spi.Connection;
+import org.restcomm.media.spi.ConnectionMode;
+import org.restcomm.media.spi.ConnectionType;
+import org.restcomm.media.spi.ResourceUnavailableException;
 
 /**
  * Basic implementation of the endpoint.

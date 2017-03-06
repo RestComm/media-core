@@ -24,16 +24,16 @@ package org.restcomm.media.rtp;
 
 import java.io.IOException;
 
-import org.mobicents.media.server.spi.ConnectionMode;
-import org.mobicents.media.server.spi.ModeNotSupportedException;
-import org.mobicents.media.server.spi.format.AudioFormat;
-import org.mobicents.media.server.spi.format.FormatFactory;
 import org.restcomm.media.server.component.audio.AudioComponent;
 import org.restcomm.media.server.component.audio.AudioInput;
 import org.restcomm.media.server.component.audio.AudioOutput;
 import org.restcomm.media.server.component.oob.OOBComponent;
 import org.restcomm.media.server.component.oob.OOBInput;
 import org.restcomm.media.server.component.oob.OOBOutput;
+import org.restcomm.media.spi.ConnectionMode;
+import org.restcomm.media.spi.ModeNotSupportedException;
+import org.restcomm.media.spi.format.AudioFormat;
+import org.restcomm.media.spi.format.FormatFactory;
 
 
 /**

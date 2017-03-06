@@ -36,11 +36,6 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import org.junit.AfterClass;
 import org.junit.Test;
-import org.mobicents.media.server.spi.dtmf.DtmfDetector;
-import org.mobicents.media.server.spi.player.Player;
-import org.mobicents.media.server.spi.player.PlayerEvent;
-import org.mobicents.media.server.spi.recorder.Recorder;
-import org.mobicents.media.server.spi.recorder.RecorderEvent;
 import org.mockito.ArgumentCaptor;
 import org.restcomm.media.control.mgcp.pkg.MgcpEvent;
 import org.restcomm.media.control.mgcp.pkg.MgcpEventObserver;
@@ -49,6 +44,11 @@ import org.restcomm.media.control.mgcp.pkg.au.pr.PlayRecord;
 import org.restcomm.media.resource.player.audio.AudioPlayerEvent;
 import org.restcomm.media.resource.recorder.audio.RecorderEventImpl;
 import org.restcomm.media.resources.dtmf.DtmfEventImpl;
+import org.restcomm.media.spi.dtmf.DtmfDetector;
+import org.restcomm.media.spi.player.Player;
+import org.restcomm.media.spi.player.PlayerEvent;
+import org.restcomm.media.spi.recorder.Recorder;
+import org.restcomm.media.spi.recorder.RecorderEvent;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)

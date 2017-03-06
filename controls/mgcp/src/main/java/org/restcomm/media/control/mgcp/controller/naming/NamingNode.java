@@ -22,7 +22,8 @@
 package org.restcomm.media.control.mgcp.controller.naming;
 
 import java.util.ArrayList;
-import org.mobicents.media.server.utils.Text;
+
+import org.restcomm.media.spi.utils.Text;
 
 /**
  * The node in the naming tree.

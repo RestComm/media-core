@@ -26,9 +26,9 @@
  */
 package org.restcomm.media.control.mgcp.message;
 
-import org.mobicents.media.server.utils.Text;
 import org.restcomm.media.control.mgcp.message.MgcpRequest;
 import org.restcomm.media.control.mgcp.message.Parameter;
+import org.restcomm.media.spi.utils.Text;
 
 import java.nio.ByteBuffer;
 import org.junit.After;

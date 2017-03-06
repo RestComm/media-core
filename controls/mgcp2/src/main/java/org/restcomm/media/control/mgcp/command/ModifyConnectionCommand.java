@@ -22,7 +22,6 @@
 package org.restcomm.media.control.mgcp.command;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.spi.ConnectionMode;
 import org.restcomm.media.control.mgcp.connection.MgcpConnection;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointManager;
@@ -30,6 +29,7 @@ import org.restcomm.media.control.mgcp.exception.MgcpConnectionException;
 import org.restcomm.media.control.mgcp.message.MgcpParameterType;
 import org.restcomm.media.control.mgcp.message.MgcpResponseCode;
 import org.restcomm.media.control.mgcp.util.collections.Parameters;
+import org.restcomm.media.spi.ConnectionMode;
 
 import com.google.common.base.Optional;
 

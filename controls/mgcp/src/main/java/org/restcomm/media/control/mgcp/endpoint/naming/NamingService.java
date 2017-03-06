@@ -24,11 +24,11 @@ package org.restcomm.media.control.mgcp.endpoint.naming;
 
 import java.util.ArrayList;
 
-import org.mobicents.media.server.spi.Endpoint;
-import org.mobicents.media.server.spi.EndpointState;
-import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.restcomm.media.control.mgcp.endpoint.BaseEndpointImpl;
 import org.restcomm.media.control.mgcp.endpoint.exception.UnknownEndpointException;
+import org.restcomm.media.spi.Endpoint;
+import org.restcomm.media.spi.EndpointState;
+import org.restcomm.media.spi.ResourceUnavailableException;
 
 /**
  * Implements naming server for media server.

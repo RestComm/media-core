@@ -25,8 +25,9 @@ package org.restcomm.media.control.mgcp.message;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
-import org.mobicents.media.server.utils.Text;
+
 import org.apache.log4j.Logger;
+import org.restcomm.media.spi.utils.Text;
 
 /**
  * MGCP response message.

@@ -25,8 +25,8 @@ package org.restcomm.media.server.component.dsp;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.mobicents.media.server.spi.dsp.Codec;
-import org.mobicents.media.server.spi.dsp.DspFactory;
+import org.restcomm.media.spi.dsp.Codec;
+import org.restcomm.media.spi.dsp.DspFactory;
 
 /**
  * Defines configuration of the DSP and constructs new DSP.

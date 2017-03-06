@@ -22,10 +22,10 @@
 
 package org.restcomm.media.codec.g711.ulaw;
 
-import org.mobicents.media.server.spi.memory.Memory;
 import org.restcomm.media.codec.g711.ulaw.Decoder;
 import org.restcomm.media.codec.g711.ulaw.Encoder;
-import org.mobicents.media.server.spi.memory.Frame;
+import org.restcomm.media.spi.memory.Frame;
+import org.restcomm.media.spi.memory.Memory;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -114,10 +114,10 @@ public class UlawCodecTest  {
     @Test
     public void testCodec() {
         
-        org.mobicents.media.server.spi.dsp.Codec compressor = new Encoder();
+        org.restcomm.media.spi.dsp.Codec compressor = new Encoder();
         compressor.process(buffer);
 
-        org.mobicents.media.server.spi.dsp.Codec decompressor = new Decoder();
+        org.restcomm.media.spi.dsp.Codec decompressor = new Decoder();
         decompressor.process(buffer);
         
         byte[] res = buffer.getData();

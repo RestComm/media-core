@@ -23,7 +23,8 @@
 package org.restcomm.media.control.mgcp.message;
 
 import java.nio.ByteBuffer;
-import org.mobicents.media.server.utils.Text;
+
+import org.restcomm.media.spi.utils.Text;
 
 /**
  * MGCP parameter value

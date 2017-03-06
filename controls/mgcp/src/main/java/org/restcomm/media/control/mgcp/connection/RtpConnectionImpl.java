@@ -26,15 +26,6 @@ import java.io.IOException;
 import java.net.SocketException;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.spi.Connection;
-import org.mobicents.media.server.spi.ConnectionFailureListener;
-import org.mobicents.media.server.spi.ConnectionMode;
-import org.mobicents.media.server.spi.ConnectionState;
-import org.mobicents.media.server.spi.ConnectionType;
-import org.mobicents.media.server.spi.ModeNotSupportedException;
-import org.mobicents.media.server.spi.dsp.DspFactory;
-import org.mobicents.media.server.spi.pooling.PooledObject;
-import org.mobicents.media.server.utils.Text;
 import org.restcomm.media.rtp.ChannelsManager;
 import org.restcomm.media.rtp.CnameGenerator;
 import org.restcomm.media.rtp.RtpListener;
@@ -48,6 +39,15 @@ import org.restcomm.media.sdp.fields.MediaDescriptionField;
 import org.restcomm.media.sdp.rtcp.attributes.RtcpAttribute;
 import org.restcomm.media.server.component.audio.AudioComponent;
 import org.restcomm.media.server.component.oob.OOBComponent;
+import org.restcomm.media.spi.Connection;
+import org.restcomm.media.spi.ConnectionFailureListener;
+import org.restcomm.media.spi.ConnectionMode;
+import org.restcomm.media.spi.ConnectionState;
+import org.restcomm.media.spi.ConnectionType;
+import org.restcomm.media.spi.ModeNotSupportedException;
+import org.restcomm.media.spi.dsp.DspFactory;
+import org.restcomm.media.spi.pooling.PooledObject;
+import org.restcomm.media.spi.utils.Text;
 
 /**
  * 

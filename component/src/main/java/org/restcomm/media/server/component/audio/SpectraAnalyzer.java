@@ -27,13 +27,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.spi.format.AudioFormat;
-import org.mobicents.media.server.spi.format.FormatFactory;
-import org.mobicents.media.server.spi.format.Formats;
-import org.mobicents.media.server.spi.memory.Frame;
+import org.restcomm.media.ComponentType;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.server.component.AbstractSink;
+import org.restcomm.media.spi.format.AudioFormat;
+import org.restcomm.media.spi.format.FormatFactory;
+import org.restcomm.media.spi.format.Formats;
+import org.restcomm.media.spi.memory.Frame;
 
 /**
  * 

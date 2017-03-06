@@ -24,10 +24,10 @@ package org.restcomm.media.control.mgcp.pkg.au;
 
 import java.util.Collection;
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
-import org.mobicents.media.server.spi.dtmf.DtmfEvent;
-import org.mobicents.media.server.utils.Text;
 import org.restcomm.media.server.concurrent.ConcurrentCyclicFIFO;
+import org.restcomm.media.spi.dtmf.DtmfDetectorListener;
+import org.restcomm.media.spi.dtmf.DtmfEvent;
+import org.restcomm.media.spi.utils.Text;
 
 /**
  *

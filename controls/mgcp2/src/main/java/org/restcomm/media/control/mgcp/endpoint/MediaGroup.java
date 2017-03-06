@@ -21,10 +21,10 @@
 
 package org.restcomm.media.control.mgcp.endpoint;
 
-import org.mobicents.media.server.spi.dtmf.DtmfDetector;
-import org.mobicents.media.server.spi.dtmf.DtmfGenerator;
-import org.mobicents.media.server.spi.player.Player;
-import org.mobicents.media.server.spi.recorder.Recorder;
+import org.restcomm.media.spi.dtmf.DtmfDetector;
+import org.restcomm.media.spi.dtmf.DtmfGenerator;
+import org.restcomm.media.spi.player.Player;
+import org.restcomm.media.spi.recorder.Recorder;
 
 /**
  * Holds media components.

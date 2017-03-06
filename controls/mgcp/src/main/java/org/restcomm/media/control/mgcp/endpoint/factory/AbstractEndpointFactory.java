@@ -23,8 +23,8 @@ package org.restcomm.media.control.mgcp.endpoint.factory;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.mobicents.media.server.spi.Endpoint;
 import org.restcomm.media.control.mgcp.endpoint.naming.EndpointNameGenerator;
+import org.restcomm.media.spi.Endpoint;
 
 /**
  * Produces MGCP endpoints

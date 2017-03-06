@@ -21,10 +21,10 @@
 
 package org.restcomm.media.server.bootstrap.ioc.provider.mgcp;
 
-import org.mobicents.media.server.spi.dtmf.DtmfDetectorProvider;
-import org.mobicents.media.server.spi.player.PlayerProvider;
-import org.mobicents.media.server.spi.recorder.RecorderProvider;
 import org.restcomm.media.control.mgcp.endpoint.provider.MediaGroupProvider;
+import org.restcomm.media.spi.dtmf.DtmfDetectorProvider;
+import org.restcomm.media.spi.player.PlayerProvider;
+import org.restcomm.media.spi.recorder.RecorderProvider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;

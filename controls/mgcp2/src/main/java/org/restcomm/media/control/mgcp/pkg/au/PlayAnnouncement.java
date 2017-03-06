@@ -25,14 +25,14 @@ import java.net.MalformedURLException;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.spi.ResourceUnavailableException;
-import org.mobicents.media.server.spi.listener.TooManyListenersException;
-import org.mobicents.media.server.spi.player.Player;
-import org.mobicents.media.server.spi.player.PlayerEvent;
-import org.mobicents.media.server.spi.player.PlayerListener;
 import org.restcomm.media.control.mgcp.command.param.NotifiedEntity;
 import org.restcomm.media.control.mgcp.pkg.AbstractMgcpSignal;
 import org.restcomm.media.control.mgcp.pkg.SignalType;
+import org.restcomm.media.spi.ResourceUnavailableException;
+import org.restcomm.media.spi.listener.TooManyListenersException;
+import org.restcomm.media.spi.player.Player;
+import org.restcomm.media.spi.player.PlayerEvent;
+import org.restcomm.media.spi.player.PlayerListener;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;

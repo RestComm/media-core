@@ -21,8 +21,8 @@
 
 package org.restcomm.media.control.mgcp.connection;
 
-import org.mobicents.media.server.spi.pooling.PooledObjectFactory;
 import org.restcomm.media.rtp.ChannelsManager;
+import org.restcomm.media.spi.pooling.PooledObjectFactory;
 
 /**
  * Factory that produces local connections.

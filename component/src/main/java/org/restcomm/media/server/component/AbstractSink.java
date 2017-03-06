@@ -25,8 +25,8 @@ package org.restcomm.media.server.component;
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.MediaSink;
-import org.mobicents.media.server.spi.memory.Frame;
+import org.restcomm.media.MediaSink;
+import org.restcomm.media.spi.memory.Frame;
 /**
  * The base implementation of the media sink.
  * 

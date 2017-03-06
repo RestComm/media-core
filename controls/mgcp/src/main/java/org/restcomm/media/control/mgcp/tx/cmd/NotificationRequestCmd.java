@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.util.Collection;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.utils.Text;
 import org.restcomm.media.control.mgcp.MgcpEvent;
 import org.restcomm.media.control.mgcp.controller.MgcpEndpoint;
 import org.restcomm.media.control.mgcp.controller.UnknownEventException;
@@ -41,6 +40,7 @@ import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.Scheduler;
 import org.restcomm.media.scheduler.Task;
 import org.restcomm.media.scheduler.TaskChain;
+import org.restcomm.media.spi.utils.Text;
 /**
  *
  * @author yulian oifa

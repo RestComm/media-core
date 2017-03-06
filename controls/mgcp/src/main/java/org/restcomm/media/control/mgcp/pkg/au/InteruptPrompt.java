@@ -21,11 +21,11 @@
  */
 package org.restcomm.media.control.mgcp.pkg.au;
 
-import org.mobicents.media.server.spi.player.Player;
-import org.mobicents.media.server.utils.Text;
 import org.restcomm.media.control.mgcp.controller.signal.Event;
 import org.restcomm.media.control.mgcp.controller.signal.NotifyImmediately;
 import org.restcomm.media.control.mgcp.controller.signal.Signal;
+import org.restcomm.media.spi.player.Player;
+import org.restcomm.media.spi.utils.Text;
 
 /**
  *

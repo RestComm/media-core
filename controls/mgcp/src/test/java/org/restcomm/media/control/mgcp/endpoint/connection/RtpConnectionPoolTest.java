@@ -23,7 +23,6 @@ package org.restcomm.media.control.mgcp.endpoint.connection;
 
 import org.bouncycastle.crypto.tls.ProtocolVersion;
 import org.junit.Test;
-import org.mobicents.media.server.spi.dsp.DspFactory;
 import org.restcomm.media.control.mgcp.connection.RtpConnectionFactory;
 import org.restcomm.media.control.mgcp.connection.RtpConnectionImpl;
 import org.restcomm.media.control.mgcp.connection.RtpConnectionPool;
@@ -39,6 +38,7 @@ import org.restcomm.media.scheduler.Scheduler;
 import org.restcomm.media.scheduler.ServiceScheduler;
 import org.restcomm.media.scheduler.WallClock;
 import org.restcomm.media.server.component.dsp.DspFactoryImpl;
+import org.restcomm.media.spi.dsp.DspFactory;
 
 import junit.framework.Assert;
 

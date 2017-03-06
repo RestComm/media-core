@@ -21,10 +21,6 @@
 
 package org.restcomm.media.server.bootstrap.ioc;
 
-import org.mobicents.media.server.spi.dsp.DspFactory;
-import org.mobicents.media.server.spi.dtmf.DtmfDetectorProvider;
-import org.mobicents.media.server.spi.player.PlayerProvider;
-import org.mobicents.media.server.spi.recorder.RecorderProvider;
 import org.restcomm.media.rtp.ChannelsManager;
 import org.restcomm.media.rtp.channels.MediaChannelProvider;
 import org.restcomm.media.server.bootstrap.ioc.provider.DspProvider;
@@ -33,6 +29,10 @@ import org.restcomm.media.server.bootstrap.ioc.provider.media.AudioRecorderProvi
 import org.restcomm.media.server.bootstrap.ioc.provider.media.ChannelsManagerProvider;
 import org.restcomm.media.server.bootstrap.ioc.provider.media.DtmfDetectorProviderProvider;
 import org.restcomm.media.server.bootstrap.ioc.provider.media.MediaChannelProviderProvider;
+import org.restcomm.media.spi.dsp.DspFactory;
+import org.restcomm.media.spi.dtmf.DtmfDetectorProvider;
+import org.restcomm.media.spi.player.PlayerProvider;
+import org.restcomm.media.spi.recorder.RecorderProvider;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;

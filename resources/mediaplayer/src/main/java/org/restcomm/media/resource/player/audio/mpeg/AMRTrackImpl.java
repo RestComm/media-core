@@ -25,13 +25,13 @@ package org.restcomm.media.resource.player.audio.mpeg;
 import java.io.IOException;
 import java.net.URL;
 
-import org.mobicents.media.server.spi.format.Format;
-import org.mobicents.media.server.spi.memory.Frame;
 import org.restcomm.media.resource.player.Track;
 import org.restcomm.media.resource.player.video.mpeg.AudioTrack;
 import org.restcomm.media.resource.player.video.mpeg.MpegPresentation;
 import org.restcomm.media.resource.player.video.mpeg.RTPLocalPacket;
 import org.restcomm.media.resource.player.video.mpeg.RTPSample;
+import org.restcomm.media.spi.format.Format;
+import org.restcomm.media.spi.memory.Frame;
 
 /**
  * 

@@ -26,13 +26,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.spi.ControlProtocol;
-import org.mobicents.media.server.spi.MediaServer;
-import org.mobicents.media.server.spi.ServerManager;
 import org.restcomm.media.network.UdpManager;
 import org.restcomm.media.scheduler.Clock;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.Task;
+import org.restcomm.media.spi.ControlProtocol;
+import org.restcomm.media.spi.MediaServer;
+import org.restcomm.media.spi.ServerManager;
 
 /**
  * Implementation of a Media Server.

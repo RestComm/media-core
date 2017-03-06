@@ -23,7 +23,6 @@ package org.restcomm.media.control.mgcp.tx.cmd;
 
 import java.io.IOException;
 
-import org.mobicents.media.server.utils.Text;
 import org.restcomm.media.control.mgcp.MgcpEvent;
 import org.restcomm.media.control.mgcp.controller.MgcpCall;
 import org.restcomm.media.control.mgcp.controller.MgcpConnection;
@@ -38,6 +37,7 @@ import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.Scheduler;
 import org.restcomm.media.scheduler.Task;
 import org.restcomm.media.scheduler.TaskChain;
+import org.restcomm.media.spi.utils.Text;
 import org.apache.log4j.Logger;
 
 /**

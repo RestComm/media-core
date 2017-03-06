@@ -22,7 +22,8 @@
 package org.restcomm.media.control.mgcp.params;
 
 import java.util.Collection;
-import org.mobicents.media.server.utils.Text;
+
+import org.restcomm.media.spi.utils.Text;
 
 /**
  * Represents local connection options parameter

@@ -25,13 +25,6 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.spi.ConnectionMode;
-import org.mobicents.media.server.spi.FormatNotSupportedException;
-import org.mobicents.media.server.spi.dsp.Codec;
-import org.mobicents.media.server.spi.dsp.Processor;
-import org.mobicents.media.server.spi.format.AudioFormat;
-import org.mobicents.media.server.spi.format.FormatFactory;
-import org.mobicents.media.server.spi.format.Formats;
 import org.restcomm.media.ice.IceAuthenticatorImpl;
 import org.restcomm.media.rtcp.RtcpChannel;
 import org.restcomm.media.rtp.ChannelsManager;
@@ -44,6 +37,13 @@ import org.restcomm.media.sdp.fields.MediaDescriptionField;
 import org.restcomm.media.sdp.format.AVProfile;
 import org.restcomm.media.sdp.format.RTPFormat;
 import org.restcomm.media.sdp.format.RTPFormats;
+import org.restcomm.media.spi.ConnectionMode;
+import org.restcomm.media.spi.FormatNotSupportedException;
+import org.restcomm.media.spi.dsp.Codec;
+import org.restcomm.media.spi.dsp.Processor;
+import org.restcomm.media.spi.format.AudioFormat;
+import org.restcomm.media.spi.format.FormatFactory;
+import org.restcomm.media.spi.format.Formats;
 
 /**
  * Abstract representation of a media channel with RTP and RTCP components.

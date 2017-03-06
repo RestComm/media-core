@@ -22,8 +22,8 @@
 
 package org.restcomm.media.control.mgcp.pkg.au;
 
-import org.mobicents.media.server.utils.Text;
 import org.restcomm.media.control.mgcp.controller.signal.Event;
+import org.restcomm.media.spi.utils.Text;
 
 /**
  * Represents parameters supplied for event.

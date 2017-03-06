@@ -23,8 +23,8 @@ package org.restcomm.media.resources.dtmf;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.mobicents.media.server.spi.pooling.PooledObjectFactory;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.spi.pooling.PooledObjectFactory;
 
 /**
  * Factory that produces DTMF Generators.

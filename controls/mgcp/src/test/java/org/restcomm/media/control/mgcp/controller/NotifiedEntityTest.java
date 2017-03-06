@@ -10,8 +10,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import org.mobicents.media.server.utils.Text;
+
 import org.restcomm.media.control.mgcp.controller.NotifiedEntity;
+import org.restcomm.media.spi.utils.Text;
 
 /**
  *

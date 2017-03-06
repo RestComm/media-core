@@ -30,13 +30,13 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.spi.listener.Listeners;
-import org.mobicents.media.server.spi.listener.TooManyListenersException;
 import org.restcomm.media.control.mgcp.message.MgcpMessage;
 import org.restcomm.media.control.mgcp.message.MgcpRequest;
 import org.restcomm.media.control.mgcp.message.MgcpResponse;
 import org.restcomm.media.network.UdpManager;
 import org.restcomm.media.network.channel.RestrictedNetworkGuard;
+import org.restcomm.media.spi.listener.Listeners;
+import org.restcomm.media.spi.listener.TooManyListenersException;
 
 /**
  *

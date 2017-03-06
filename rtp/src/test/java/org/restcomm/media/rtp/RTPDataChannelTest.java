@@ -27,8 +27,6 @@
 
 package org.restcomm.media.rtp;
 
-import org.mobicents.media.server.spi.ConnectionMode;
-import org.mobicents.media.server.spi.format.Formats;
 import org.restcomm.media.network.UdpManager;
 import org.restcomm.media.rtp.ChannelsManager;
 import org.restcomm.media.rtp.RTPDataChannel;
@@ -46,7 +44,10 @@ import org.restcomm.media.server.component.audio.Sine;
 import org.restcomm.media.server.component.audio.SpectraAnalyzer;
 import org.restcomm.media.server.component.dsp.Dsp;
 import org.restcomm.media.server.component.dsp.DspFactoryImpl;
-import org.mobicents.media.server.spi.format.AudioFormat;
+import org.restcomm.media.spi.ConnectionMode;
+import org.restcomm.media.spi.format.AudioFormat;
+import org.restcomm.media.spi.format.FormatFactory;
+import org.restcomm.media.spi.format.Formats;
 
 import java.net.InetSocketAddress;
 
@@ -54,7 +55,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.mobicents.media.server.spi.format.FormatFactory;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;

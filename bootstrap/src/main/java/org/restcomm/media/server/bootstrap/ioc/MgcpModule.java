@@ -21,7 +21,6 @@
 
 package org.restcomm.media.server.bootstrap.ioc;
 
-import org.mobicents.media.server.spi.ServerManager;
 import org.restcomm.media.control.mgcp.call.MgcpCallManager;
 import org.restcomm.media.control.mgcp.command.MgcpCommandProvider;
 import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
@@ -54,6 +53,7 @@ import org.restcomm.media.server.bootstrap.ioc.provider.mgcp.MgcpTransactionNumb
 import org.restcomm.media.server.bootstrap.ioc.provider.mgcp.RtpEventProviderProvider;
 import org.restcomm.media.server.bootstrap.ioc.provider.mgcp.SubMgcpTransactionManagerProviderProvider;
 import org.restcomm.media.server.bootstrap.ioc.provider.mgcp.MgcpEndpointInstallerProvider.MgcpEndpointInstallerListType;
+import org.restcomm.media.spi.ServerManager;
 
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;

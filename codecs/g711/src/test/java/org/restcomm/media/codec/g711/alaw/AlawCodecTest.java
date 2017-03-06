@@ -28,10 +28,11 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import org.mobicents.media.server.spi.memory.Frame;
-import org.mobicents.media.server.spi.memory.Memory;
+
 import org.restcomm.media.codec.g711.alaw.Decoder;
 import org.restcomm.media.codec.g711.alaw.Encoder;
+import org.restcomm.media.spi.memory.Frame;
+import org.restcomm.media.spi.memory.Memory;
 
 /**
  *
@@ -112,12 +113,12 @@ public class AlawCodecTest {
      */
     @Test
     public void testCodec() {
-        org.mobicents.media.server.spi.dsp.Codec compressor = new Encoder();
+        org.restcomm.media.spi.dsp.Codec compressor = new Encoder();
         long s = System.nanoTime();
         compressor.process(buffer);
         long f = System.nanoTime();
         System.out.println("Duration=" + (f-s));
-        org.mobicents.media.server.spi.dsp.Codec decompressor = new Decoder();
+        org.restcomm.media.spi.dsp.Codec decompressor = new Decoder();
         decompressor.process(buffer);
         
         byte[] res = buffer.getData();

@@ -25,15 +25,15 @@ package org.restcomm.media.rtp;
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.spi.FormatNotSupportedException;
-import org.mobicents.media.server.spi.dsp.Processor;
-import org.mobicents.media.server.spi.format.AudioFormat;
-import org.mobicents.media.server.spi.format.FormatFactory;
-import org.mobicents.media.server.spi.format.Formats;
-import org.mobicents.media.server.spi.memory.Frame;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.server.component.AbstractSink;
 import org.restcomm.media.server.component.audio.AudioOutput;
+import org.restcomm.media.spi.FormatNotSupportedException;
+import org.restcomm.media.spi.dsp.Processor;
+import org.restcomm.media.spi.format.AudioFormat;
+import org.restcomm.media.spi.format.FormatFactory;
+import org.restcomm.media.spi.format.Formats;
+import org.restcomm.media.spi.memory.Frame;
 
 /**
  * Transmitter implementation.
@@ -117,7 +117,7 @@ public class RTPOutput extends AbstractSink {
 	 * (Non Java-doc.)
 	 * 
 	 * 
-	 * @see org.mobicents.media.MediaSink#setFormats(org.mobicents.media.server.spi.format.Formats)
+	 * @see org.restcomm.media.MediaSink#setFormats(org.restcomm.media.spi.format.Formats)
 	 */
 	public void setFormats(Formats formats) throws FormatNotSupportedException {
 		this.formats = formats;

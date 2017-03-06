@@ -22,7 +22,7 @@
 
 package org.restcomm.media.control.mgcp;
 
-import org.mobicents.media.server.spi.listener.Listener;
+import org.restcomm.media.spi.listener.Listener;
 
 /**
  * MGCP event listener.

@@ -35,10 +35,10 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mobicents.media.server.spi.Endpoint;
 import org.restcomm.media.control.mgcp.endpoint.MyTestEndpoint;
 import org.restcomm.media.control.mgcp.endpoint.exception.UnknownEndpointException;
 import org.restcomm.media.control.mgcp.endpoint.naming.NamingService;
+import org.restcomm.media.spi.Endpoint;
 
 /**
  *

@@ -24,8 +24,8 @@ package org.restcomm.media.control.mgcp;
 
 import java.net.SocketAddress;
 
-import org.mobicents.media.server.spi.listener.Event;
 import org.restcomm.media.control.mgcp.message.MgcpMessage;
+import org.restcomm.media.spi.listener.Event;
 
 /**
  * Mgcp protocol event.

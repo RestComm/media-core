@@ -21,16 +21,16 @@
  */
 package org.restcomm.media.control.mgcp.pkg.dtmf;
 
-import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.spi.MediaType;
-import org.mobicents.media.server.spi.dtmf.DtmfDetector;
-import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
-import org.mobicents.media.server.spi.dtmf.DtmfEvent;
-import org.mobicents.media.server.spi.listener.TooManyListenersException;
-import org.mobicents.media.server.utils.Text;
+import org.restcomm.media.ComponentType;
 import org.restcomm.media.control.mgcp.controller.signal.Event;
 import org.restcomm.media.control.mgcp.controller.signal.NotifyImmediately;
 import org.restcomm.media.control.mgcp.controller.signal.Signal;
+import org.restcomm.media.spi.MediaType;
+import org.restcomm.media.spi.dtmf.DtmfDetector;
+import org.restcomm.media.spi.dtmf.DtmfDetectorListener;
+import org.restcomm.media.spi.dtmf.DtmfEvent;
+import org.restcomm.media.spi.listener.TooManyListenersException;
+import org.restcomm.media.spi.utils.Text;
 
 /**
  *

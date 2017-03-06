@@ -18,14 +18,14 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mobicents.media.server.spi.format.EncodingName;
-import org.mobicents.media.server.spi.format.Format;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.restcomm.media.resource.player.audio.CachedRemoteStreamProvider;
 import org.restcomm.media.resource.player.audio.DirectRemoteStreamProvider;
 import org.restcomm.media.resource.player.audio.wav.WavTrackImpl;
+import org.restcomm.media.spi.format.EncodingName;
+import org.restcomm.media.spi.format.Format;
 
 /**
  * Created by hamsterksu on 30.06.16.

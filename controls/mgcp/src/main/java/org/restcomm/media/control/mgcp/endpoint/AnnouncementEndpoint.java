@@ -22,10 +22,10 @@
 
 package org.restcomm.media.control.mgcp.endpoint;
 
-import org.mobicents.media.Component;
-import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.spi.MediaType;
-import org.mobicents.media.server.spi.ResourceUnavailableException;
+import org.restcomm.media.Component;
+import org.restcomm.media.ComponentType;
+import org.restcomm.media.spi.MediaType;
+import org.restcomm.media.spi.ResourceUnavailableException;
 
 /**
  * Announcement endpoint implementation

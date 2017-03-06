@@ -13,7 +13,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-import org.mobicents.media.server.spi.memory.Frame;
 import org.restcomm.media.resources.dtmf.DetectorImpl;
 import org.restcomm.media.resources.dtmf.GeneratorImpl;
 import org.restcomm.media.scheduler.Clock;
@@ -23,9 +22,10 @@ import org.restcomm.media.server.component.audio.AudioComponent;
 import org.restcomm.media.server.component.audio.AudioMixer;
 import org.restcomm.media.server.component.oob.OOBComponent;
 import org.restcomm.media.server.component.oob.OOBMixer;
-import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
-import org.mobicents.media.server.spi.dtmf.DtmfEvent;
-import org.mobicents.media.server.spi.listener.TooManyListenersException;
+import org.restcomm.media.spi.dtmf.DtmfDetectorListener;
+import org.restcomm.media.spi.dtmf.DtmfEvent;
+import org.restcomm.media.spi.listener.TooManyListenersException;
+import org.restcomm.media.spi.memory.Frame;
 
 /**
  *

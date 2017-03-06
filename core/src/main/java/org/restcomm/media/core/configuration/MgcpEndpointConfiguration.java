@@ -21,7 +21,7 @@
 
 package org.restcomm.media.core.configuration;
 
-import org.mobicents.media.server.spi.RelayType;
+import org.restcomm.media.spi.RelayType;
 
 /**
  * Configuration parameters of an MGCP Endpoint.

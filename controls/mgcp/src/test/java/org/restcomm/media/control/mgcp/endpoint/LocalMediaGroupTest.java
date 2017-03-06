@@ -35,15 +35,7 @@ import org.bouncycastle.crypto.tls.ProtocolVersion;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.spi.Connection;
-import org.mobicents.media.server.spi.ConnectionMode;
-import org.mobicents.media.server.spi.ConnectionType;
-import org.mobicents.media.server.spi.MediaType;
-import org.mobicents.media.server.spi.ResourceUnavailableException;
-import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
-import org.mobicents.media.server.spi.dtmf.DtmfEvent;
-import org.mobicents.media.server.utils.Text;
+import org.restcomm.media.ComponentType;
 import org.restcomm.media.control.mgcp.connection.LocalConnectionFactory;
 import org.restcomm.media.control.mgcp.connection.LocalConnectionPool;
 import org.restcomm.media.control.mgcp.connection.RtpConnectionFactory;
@@ -74,6 +66,14 @@ import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.ServiceScheduler;
 import org.restcomm.media.scheduler.WallClock;
 import org.restcomm.media.server.component.dsp.DspFactoryImpl;
+import org.restcomm.media.spi.Connection;
+import org.restcomm.media.spi.ConnectionMode;
+import org.restcomm.media.spi.ConnectionType;
+import org.restcomm.media.spi.MediaType;
+import org.restcomm.media.spi.ResourceUnavailableException;
+import org.restcomm.media.spi.dtmf.DtmfDetectorListener;
+import org.restcomm.media.spi.dtmf.DtmfEvent;
+import org.restcomm.media.spi.utils.Text;
 
 /**
  *

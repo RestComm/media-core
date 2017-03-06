@@ -22,11 +22,11 @@
 
 package org.restcomm.media.server.component.audio;
 
-import org.mobicents.media.server.spi.memory.Frame;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.server.component.AbstractSink;
 import org.restcomm.media.server.component.AbstractSource;
 import org.restcomm.media.server.concurrent.ConcurrentCyclicFIFO;
+import org.restcomm.media.spi.memory.Frame;
 
 /**
  * Implements output for compound components.

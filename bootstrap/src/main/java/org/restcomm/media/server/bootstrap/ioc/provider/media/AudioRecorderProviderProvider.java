@@ -21,9 +21,9 @@
 
 package org.restcomm.media.server.bootstrap.ioc.provider.media;
 
-import org.mobicents.media.server.spi.recorder.RecorderProvider;
 import org.restcomm.media.resource.recorder.audio.AudioRecorderProvider;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.spi.recorder.RecorderProvider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;

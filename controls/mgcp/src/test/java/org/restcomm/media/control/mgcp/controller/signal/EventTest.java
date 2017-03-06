@@ -10,10 +10,11 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import org.mobicents.media.server.utils.Text;
+
 import org.restcomm.media.control.mgcp.controller.signal.Event;
 import org.restcomm.media.control.mgcp.controller.signal.EventAction;
 import org.restcomm.media.control.mgcp.controller.signal.Signal;
+import org.restcomm.media.spi.utils.Text;
 
 /**
  *

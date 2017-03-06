@@ -30,12 +30,12 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import org.mobicents.media.server.spi.format.AudioFormat;
-import org.mobicents.media.server.spi.format.Format;
-import org.mobicents.media.server.spi.format.FormatFactory;
-import org.mobicents.media.server.spi.memory.Frame;
-import org.mobicents.media.server.spi.memory.Memory;
 import org.restcomm.media.resource.player.Track;
+import org.restcomm.media.spi.format.AudioFormat;
+import org.restcomm.media.spi.format.Format;
+import org.restcomm.media.spi.format.FormatFactory;
+import org.restcomm.media.spi.memory.Frame;
+import org.restcomm.media.spi.memory.Memory;
 import org.apache.log4j.Logger;
 /**
  *

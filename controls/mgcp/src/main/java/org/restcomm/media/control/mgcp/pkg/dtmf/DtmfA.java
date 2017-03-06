@@ -21,8 +21,8 @@
  */
 package org.restcomm.media.control.mgcp.pkg.dtmf;
 
-import org.mobicents.media.server.utils.Text;
 import org.restcomm.media.control.mgcp.controller.signal.Event;
+import org.restcomm.media.spi.utils.Text;
 
 /**
  *

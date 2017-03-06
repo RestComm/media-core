@@ -29,22 +29,22 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.spi.dtmf.DtmfDetector;
-import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
-import org.mobicents.media.server.spi.format.Format;
-import org.mobicents.media.server.spi.format.FormatFactory;
-import org.mobicents.media.server.spi.format.Formats;
-import org.mobicents.media.server.spi.listener.Listeners;
-import org.mobicents.media.server.spi.listener.TooManyListenersException;
-import org.mobicents.media.server.spi.memory.Frame;
-import org.mobicents.media.server.spi.pooling.PooledObject;
+import org.restcomm.media.ComponentType;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.Task;
 import org.restcomm.media.server.component.AbstractSink;
 import org.restcomm.media.server.component.audio.AudioOutput;
 import org.restcomm.media.server.component.audio.GoertzelFilter;
 import org.restcomm.media.server.component.oob.OOBOutput;
+import org.restcomm.media.spi.dtmf.DtmfDetector;
+import org.restcomm.media.spi.dtmf.DtmfDetectorListener;
+import org.restcomm.media.spi.format.Format;
+import org.restcomm.media.spi.format.FormatFactory;
+import org.restcomm.media.spi.format.Formats;
+import org.restcomm.media.spi.listener.Listeners;
+import org.restcomm.media.spi.listener.TooManyListenersException;
+import org.restcomm.media.spi.memory.Frame;
+import org.restcomm.media.spi.pooling.PooledObject;
 
 /**
  * Implements inband DTMF detector.
