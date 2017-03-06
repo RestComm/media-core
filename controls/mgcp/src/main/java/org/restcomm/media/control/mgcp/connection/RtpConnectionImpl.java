@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.net.SocketException;
 
 import org.apache.log4j.Logger;
+import org.restcomm.media.component.audio.AudioComponent;
+import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.rtp.ChannelsManager;
 import org.restcomm.media.rtp.CnameGenerator;
 import org.restcomm.media.rtp.RtpListener;
@@ -37,8 +39,6 @@ import org.restcomm.media.sdp.SessionDescriptionParser;
 import org.restcomm.media.sdp.dtls.attributes.FingerprintAttribute;
 import org.restcomm.media.sdp.fields.MediaDescriptionField;
 import org.restcomm.media.sdp.rtcp.attributes.RtcpAttribute;
-import org.restcomm.media.server.component.audio.AudioComponent;
-import org.restcomm.media.server.component.oob.OOBComponent;
 import org.restcomm.media.spi.Connection;
 import org.restcomm.media.spi.ConnectionFailureListener;
 import org.restcomm.media.spi.ConnectionMode;

@@ -34,6 +34,10 @@ import static org.mockito.Mockito.when;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.restcomm.media.component.audio.AudioComponent;
+import org.restcomm.media.component.audio.AudioMixer;
+import org.restcomm.media.component.audio.Sine;
+import org.restcomm.media.component.audio.SpectraAnalyzer;
 import org.restcomm.media.network.UdpManager;
 import org.restcomm.media.rtp.ChannelsManager;
 import org.restcomm.media.rtp.LocalDataChannel;
@@ -44,10 +48,6 @@ import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.Scheduler;
 import org.restcomm.media.scheduler.ServiceScheduler;
 import org.restcomm.media.scheduler.WallClock;
-import org.restcomm.media.server.component.audio.AudioComponent;
-import org.restcomm.media.server.component.audio.AudioMixer;
-import org.restcomm.media.server.component.audio.Sine;
-import org.restcomm.media.server.component.audio.SpectraAnalyzer;
 import org.restcomm.media.spi.ConnectionMode;
 
 /**

@@ -21,13 +21,13 @@
 
 package org.restcomm.media.control.mgcp.endpoint.provider;
 
+import org.restcomm.media.component.audio.AudioMixer;
+import org.restcomm.media.component.oob.OOBMixer;
 import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.restcomm.media.control.mgcp.endpoint.EndpointIdentifier;
 import org.restcomm.media.control.mgcp.endpoint.MediaGroup;
 import org.restcomm.media.control.mgcp.endpoint.MgcpMixerEndpoint;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
-import org.restcomm.media.server.component.audio.AudioMixer;
-import org.restcomm.media.server.component.oob.OOBMixer;
 
 /**
  * Provides MGCP endpoints that rely on a Mixer to relay media.

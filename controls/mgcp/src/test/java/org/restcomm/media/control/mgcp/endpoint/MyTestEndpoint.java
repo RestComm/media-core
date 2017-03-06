@@ -29,13 +29,13 @@ package org.restcomm.media.control.mgcp.endpoint;
 
 import org.restcomm.media.Component;
 import org.restcomm.media.ComponentType;
+import org.restcomm.media.component.audio.AudioComponent;
+import org.restcomm.media.component.audio.Sine;
+import org.restcomm.media.component.audio.SpectraAnalyzer;
+import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.control.mgcp.endpoint.BaseMixerEndpointImpl;
 import org.restcomm.media.resources.dtmf.DetectorImpl;
 import org.restcomm.media.resources.dtmf.GeneratorImpl;
-import org.restcomm.media.server.component.audio.AudioComponent;
-import org.restcomm.media.server.component.audio.Sine;
-import org.restcomm.media.server.component.audio.SpectraAnalyzer;
-import org.restcomm.media.server.component.oob.OOBComponent;
 import org.restcomm.media.spi.ConnectionMode;
 import org.restcomm.media.spi.MediaType;
 import org.restcomm.media.spi.ResourceUnavailableException;

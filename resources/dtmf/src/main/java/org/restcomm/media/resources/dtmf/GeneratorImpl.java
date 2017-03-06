@@ -23,10 +23,10 @@
 package org.restcomm.media.resources.dtmf;
 
 import org.restcomm.media.ComponentType;
+import org.restcomm.media.component.AbstractSource;
+import org.restcomm.media.component.audio.AudioInput;
+import org.restcomm.media.component.oob.OOBInput;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
-import org.restcomm.media.server.component.AbstractSource;
-import org.restcomm.media.server.component.audio.AudioInput;
-import org.restcomm.media.server.component.oob.OOBInput;
 import org.restcomm.media.spi.dtmf.DtmfGenerator;
 import org.restcomm.media.spi.dtmf.DtmfGeneratorEvent;
 import org.restcomm.media.spi.dtmf.DtmfGeneratorListener;

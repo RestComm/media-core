@@ -25,9 +25,9 @@ package org.restcomm.media.rtp;
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
+import org.restcomm.media.component.AbstractSink;
+import org.restcomm.media.component.audio.AudioOutput;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
-import org.restcomm.media.server.component.AbstractSink;
-import org.restcomm.media.server.component.audio.AudioOutput;
 import org.restcomm.media.spi.FormatNotSupportedException;
 import org.restcomm.media.spi.dsp.Processor;
 import org.restcomm.media.spi.format.AudioFormat;

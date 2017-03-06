@@ -24,11 +24,11 @@ package org.restcomm.media.control.mgcp.endpoint;
 import javax.sound.sampled.spi.AudioFileReader;
 
 import org.restcomm.media.ComponentType;
+import org.restcomm.media.component.audio.AudioComponent;
+import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.resource.player.audio.AudioPlayerImpl;
 import org.restcomm.media.resource.recorder.audio.AudioRecorderImpl;
 import org.restcomm.media.resources.dtmf.DetectorImpl;
-import org.restcomm.media.server.component.audio.AudioComponent;
-import org.restcomm.media.server.component.oob.OOBComponent;
 import org.restcomm.media.spi.dtmf.DtmfDetector;
 import org.restcomm.media.spi.dtmf.DtmfDetectorProvider;
 import org.restcomm.media.spi.dtmf.DtmfGenerator;

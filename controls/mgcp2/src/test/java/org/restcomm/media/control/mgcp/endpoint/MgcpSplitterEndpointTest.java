@@ -28,6 +28,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.junit.Test;
+import org.restcomm.media.component.audio.AudioComponent;
+import org.restcomm.media.component.audio.AudioSplitter;
+import org.restcomm.media.component.oob.OOBComponent;
+import org.restcomm.media.component.oob.OOBSplitter;
 import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.restcomm.media.control.mgcp.connection.MgcpLocalConnection;
 import org.restcomm.media.control.mgcp.connection.MgcpRemoteConnection;
@@ -38,10 +42,6 @@ import org.restcomm.media.control.mgcp.exception.MgcpCallNotFoundException;
 import org.restcomm.media.control.mgcp.exception.MgcpConnectionException;
 import org.restcomm.media.control.mgcp.exception.MgcpConnectionNotFoundException;
 import org.restcomm.media.control.mgcp.exception.MgcpException;
-import org.restcomm.media.server.component.audio.AudioComponent;
-import org.restcomm.media.server.component.audio.AudioSplitter;
-import org.restcomm.media.server.component.oob.OOBComponent;
-import org.restcomm.media.server.component.oob.OOBSplitter;
 import org.restcomm.media.spi.ConnectionMode;
 
 /**

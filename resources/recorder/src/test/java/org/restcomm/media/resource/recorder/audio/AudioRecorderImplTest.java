@@ -10,15 +10,15 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.restcomm.media.component.audio.AudioComponent;
+import org.restcomm.media.component.audio.AudioInput;
+import org.restcomm.media.component.audio.AudioMixer;
+import org.restcomm.media.component.audio.AudioOutput;
+import org.restcomm.media.component.audio.Sine;
 import org.restcomm.media.resource.recorder.audio.AudioRecorderImpl;
 import org.restcomm.media.scheduler.Clock;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.WallClock;
-import org.restcomm.media.server.component.audio.AudioComponent;
-import org.restcomm.media.server.component.audio.AudioInput;
-import org.restcomm.media.server.component.audio.AudioMixer;
-import org.restcomm.media.server.component.audio.AudioOutput;
-import org.restcomm.media.server.component.audio.Sine;
 
 /**
  *

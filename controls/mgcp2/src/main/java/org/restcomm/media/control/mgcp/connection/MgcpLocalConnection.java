@@ -24,6 +24,8 @@ package org.restcomm.media.control.mgcp.connection;
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
+import org.restcomm.media.component.audio.AudioComponent;
+import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.control.mgcp.exception.MgcpConnectionException;
 import org.restcomm.media.control.mgcp.exception.UnsupportedMgcpEventException;
 import org.restcomm.media.control.mgcp.message.LocalConnectionOptions;
@@ -32,8 +34,6 @@ import org.restcomm.media.control.mgcp.pkg.MgcpEventProvider;
 import org.restcomm.media.control.mgcp.pkg.MgcpRequestedEvent;
 import org.restcomm.media.rtp.ChannelsManager;
 import org.restcomm.media.rtp.LocalDataChannel;
-import org.restcomm.media.server.component.audio.AudioComponent;
-import org.restcomm.media.server.component.oob.OOBComponent;
 import org.restcomm.media.spi.ConnectionMode;
 import org.restcomm.media.spi.ModeNotSupportedException;
 

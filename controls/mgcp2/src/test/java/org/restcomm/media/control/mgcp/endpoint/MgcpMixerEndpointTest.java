@@ -25,6 +25,10 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 import org.junit.Test;
+import org.restcomm.media.component.audio.AudioComponent;
+import org.restcomm.media.component.audio.AudioMixer;
+import org.restcomm.media.component.oob.OOBComponent;
+import org.restcomm.media.component.oob.OOBMixer;
 import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.restcomm.media.control.mgcp.connection.MgcpRemoteConnection;
 import org.restcomm.media.control.mgcp.endpoint.EndpointIdentifier;
@@ -34,10 +38,6 @@ import org.restcomm.media.control.mgcp.endpoint.MgcpMixerEndpoint;
 import org.restcomm.media.control.mgcp.exception.MgcpCallNotFoundException;
 import org.restcomm.media.control.mgcp.exception.MgcpConnectionException;
 import org.restcomm.media.control.mgcp.exception.MgcpConnectionNotFoundException;
-import org.restcomm.media.server.component.audio.AudioComponent;
-import org.restcomm.media.server.component.audio.AudioMixer;
-import org.restcomm.media.server.component.oob.OOBComponent;
-import org.restcomm.media.server.component.oob.OOBMixer;
 import org.restcomm.media.spi.ConnectionMode;
 
 /**

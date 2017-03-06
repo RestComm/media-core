@@ -27,6 +27,8 @@ import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 
 import org.apache.log4j.Logger;
+import org.restcomm.media.component.audio.AudioComponent;
+import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.network.ProtocolHandler;
 import org.restcomm.media.network.UdpManager;
 import org.restcomm.media.rtp.crypto.DtlsSrtpServerProvider;
@@ -38,8 +40,6 @@ import org.restcomm.media.scheduler.Task;
 import org.restcomm.media.sdp.format.AVProfile;
 import org.restcomm.media.sdp.format.RTPFormat;
 import org.restcomm.media.sdp.format.RTPFormats;
-import org.restcomm.media.server.component.audio.AudioComponent;
-import org.restcomm.media.server.component.oob.OOBComponent;
 import org.restcomm.media.spi.ConnectionMode;
 import org.restcomm.media.spi.FormatNotSupportedException;
 import org.restcomm.media.spi.dsp.Processor;

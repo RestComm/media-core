@@ -20,10 +20,10 @@
 
 package org.restcomm.media.rtp.channels;
 
+import org.restcomm.media.component.audio.AudioComponent;
+import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.rtp.ChannelsManager;
 import org.restcomm.media.scheduler.Clock;
-import org.restcomm.media.server.component.audio.AudioComponent;
-import org.restcomm.media.server.component.oob.OOBComponent;
 
 /**
  * Media channel responsible for audio processing.

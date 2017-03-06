@@ -28,10 +28,10 @@ package org.restcomm.media.control.mgcp.endpoint.connection;
 
 import java.io.IOException;
 
+import org.restcomm.media.component.audio.AudioComponent;
+import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.control.mgcp.connection.BaseConnection;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
-import org.restcomm.media.server.component.audio.AudioComponent;
-import org.restcomm.media.server.component.oob.OOBComponent;
 import org.restcomm.media.spi.Connection;
 import org.restcomm.media.spi.ConnectionFailureListener;
 import org.restcomm.media.spi.MediaType;

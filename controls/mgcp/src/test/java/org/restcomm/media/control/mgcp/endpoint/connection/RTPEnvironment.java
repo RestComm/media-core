@@ -24,6 +24,7 @@ package org.restcomm.media.control.mgcp.endpoint.connection;
 import java.io.IOException;
 
 import org.bouncycastle.crypto.tls.ProtocolVersion;
+import org.restcomm.media.component.dsp.DspFactoryImpl;
 import org.restcomm.media.core.configuration.DtlsConfiguration;
 import org.restcomm.media.network.UdpManager;
 import org.restcomm.media.rtp.ChannelsManager;
@@ -35,7 +36,6 @@ import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.Scheduler;
 import org.restcomm.media.scheduler.ServiceScheduler;
 import org.restcomm.media.scheduler.WallClock;
-import org.restcomm.media.server.component.dsp.DspFactoryImpl;
 
 /**
  * Super class for all RTP transmission tests

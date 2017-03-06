@@ -27,6 +27,8 @@ import java.net.SocketException;
 import java.nio.channels.DatagramChannel;
 
 import org.apache.log4j.Logger;
+import org.restcomm.media.component.audio.AudioComponent;
+import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.ice.IceAuthenticator;
 import org.restcomm.media.ice.IceComponent;
 import org.restcomm.media.ice.IceHandler;
@@ -42,8 +44,6 @@ import org.restcomm.media.rtp.statistics.RtpStatistics;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.Task;
 import org.restcomm.media.sdp.format.RTPFormats;
-import org.restcomm.media.server.component.audio.AudioComponent;
-import org.restcomm.media.server.component.oob.OOBComponent;
 import org.restcomm.media.spi.ConnectionMode;
 import org.restcomm.media.spi.FormatNotSupportedException;
 import org.restcomm.media.spi.dsp.Processor;

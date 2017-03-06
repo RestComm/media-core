@@ -21,13 +21,13 @@
 
 package org.restcomm.media.control.mgcp.endpoint.provider;
 
+import org.restcomm.media.component.audio.AudioSplitter;
+import org.restcomm.media.component.oob.OOBSplitter;
 import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.restcomm.media.control.mgcp.endpoint.EndpointIdentifier;
 import org.restcomm.media.control.mgcp.endpoint.MediaGroup;
 import org.restcomm.media.control.mgcp.endpoint.MgcpSplitterEndpoint;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
-import org.restcomm.media.server.component.audio.AudioSplitter;
-import org.restcomm.media.server.component.oob.OOBSplitter;
 
 /**
  * Provides MGCP endpoints that rely on a Splitter to relay media.

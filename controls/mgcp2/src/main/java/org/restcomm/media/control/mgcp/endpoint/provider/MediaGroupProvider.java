@@ -21,10 +21,10 @@
 
 package org.restcomm.media.control.mgcp.endpoint.provider;
 
+import org.restcomm.media.component.audio.AudioComponent;
+import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.control.mgcp.endpoint.MediaGroup;
 import org.restcomm.media.control.mgcp.endpoint.MediaGroupImpl;
-import org.restcomm.media.server.component.audio.AudioComponent;
-import org.restcomm.media.server.component.oob.OOBComponent;
 import org.restcomm.media.spi.dtmf.DtmfDetectorProvider;
 import org.restcomm.media.spi.player.PlayerProvider;
 import org.restcomm.media.spi.recorder.RecorderProvider;

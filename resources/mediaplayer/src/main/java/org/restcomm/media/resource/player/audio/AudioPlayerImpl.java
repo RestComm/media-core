@@ -28,6 +28,8 @@ import java.net.URL;
 
 import org.apache.log4j.Logger;
 import org.restcomm.media.ComponentType;
+import org.restcomm.media.component.AbstractSource;
+import org.restcomm.media.component.audio.AudioInput;
 import org.restcomm.media.resource.player.Track;
 import org.restcomm.media.resource.player.audio.gsm.GsmTrackImpl;
 import org.restcomm.media.resource.player.audio.mpeg.AMRTrackImpl;
@@ -35,8 +37,6 @@ import org.restcomm.media.resource.player.audio.tone.ToneTrackImpl;
 import org.restcomm.media.resource.player.audio.tts.TtsTrackImpl;
 import org.restcomm.media.resource.player.audio.wav.WavTrackImpl;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
-import org.restcomm.media.server.component.AbstractSource;
-import org.restcomm.media.server.component.audio.AudioInput;
 import org.restcomm.media.spi.ResourceUnavailableException;
 import org.restcomm.media.spi.dsp.Processor;
 import org.restcomm.media.spi.format.AudioFormat;

@@ -21,10 +21,10 @@
 
 package org.restcomm.media.control.mgcp.endpoint;
 
+import org.restcomm.media.component.audio.AudioMixer;
+import org.restcomm.media.component.oob.OOBMixer;
 import org.restcomm.media.control.mgcp.connection.MgcpConnection;
 import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
-import org.restcomm.media.server.component.audio.AudioMixer;
-import org.restcomm.media.server.component.oob.OOBMixer;
 
 /**
  * Implementation of an MGCP Endpoint that mixes audio frames from all sources.

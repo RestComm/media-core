@@ -26,13 +26,13 @@ import java.util.concurrent.Semaphore;
 
 import org.restcomm.media.Component;
 import org.restcomm.media.ComponentType;
+import org.restcomm.media.component.audio.AudioComponent;
+import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.control.mgcp.resources.ResourcesPool;
 import org.restcomm.media.resource.player.audio.AudioPlayerImpl;
 import org.restcomm.media.resource.recorder.audio.AudioRecorderImpl;
 import org.restcomm.media.resources.dtmf.DetectorImpl;
 import org.restcomm.media.resources.dtmf.GeneratorImpl;
-import org.restcomm.media.server.component.audio.AudioComponent;
-import org.restcomm.media.server.component.oob.OOBComponent;
 import org.restcomm.media.spi.ConnectionMode;
 import org.restcomm.media.spi.Endpoint;
 /**

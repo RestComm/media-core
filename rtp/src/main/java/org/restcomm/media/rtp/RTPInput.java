@@ -23,9 +23,9 @@
 package org.restcomm.media.rtp;
 
 import org.apache.log4j.Logger;
+import org.restcomm.media.component.AbstractSource;
+import org.restcomm.media.component.audio.AudioInput;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
-import org.restcomm.media.server.component.AbstractSource;
-import org.restcomm.media.server.component.audio.AudioInput;
 import org.restcomm.media.spi.dsp.Processor;
 import org.restcomm.media.spi.format.AudioFormat;
 import org.restcomm.media.spi.format.FormatFactory;
