@@ -165,7 +165,7 @@ fi
 # Display our environment
 echo "=============================================================================="
 echo ""
-echo "  Media Server Bootstrap Environment"
+echo "  RestComm Media Server Bootstrap Environment"
 echo ""
 echo "  MMS_HOME: $MMS_HOME"
 echo ""
@@ -194,5 +194,5 @@ echo ""
          -Djava.ext.dirs="$MMS_ENDORSED_DIRS" \
          -Dmbrola.base="$MMS_HOME/mbrola" \
          -classpath "$MMS_CLASSPATH" \
-         org.mobicents.media.server.bootstrap.Main "$@"
+         org.restcomm.media.bootstrap.Main "$@"
       MMS_STATUS=$?

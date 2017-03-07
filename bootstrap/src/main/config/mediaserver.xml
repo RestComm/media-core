@@ -22,12 +22,10 @@
 		<address>127.0.0.1</address>
 		<port>2427</port>
 		<endpoints>
-			<endpoint name="mobicents/bridge/" class="org.restcomm.media.control.mgcp.endpoint.BridgeEndpoint" relay="splitter" poolSize="50" />
-			<endpoint name="mobicents/ivr/" class="org.restcomm.media.control.mgcp.endpoint.IvrEndpoint" relay="mixer" poolSize="50" />
-			<endpoint name="mobicents/cnf/" class="org.restcomm.media.control.mgcp.endpoint.ConferenceEndpoint" relay="mixer" poolSize="50" />
+			<endpoint name="mobicents/bridge/" relay="splitter" />
+			<endpoint name="mobicents/ivr/" relay="mixer" />
+			<endpoint name="mobicents/cnf/" relay="mixer"/>
 		</endpoints>
-		<configuration>mgcp-conf.xml</configuration>
-		<poolSize>25</poolSize>
 	</controller>
 
 	<media>
@@ -53,19 +51,14 @@
 	</media>
 
 	<resources>
-		<localConnection poolSize="100" />
-		<remoteConnection poolSize="50" />
-		<player poolSize="50">
+		<player>
 			<cache>
 				<cacheSize>100</cacheSize>
 				<cacheEnabled>false</cacheEnabled>
 			</cache>
 		</player>
-		<recorder poolSize="50" />
-		<dtmfDetector poolSize="50" dbi="-35" />
-		<dtmfGenerator poolSize="50" toneVolume="-20" toneDuration="80" />
-		<signalDetector poolSize="0" />
-		<signalGenerator poolSize="0" />
+		<dtmfDetector dbi="-35" />
+		<dtmfGenerator toneVolume="-20" toneDuration="80" />
 	</resources>
 
 	<dtls>

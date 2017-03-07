@@ -35,6 +35,7 @@ import com.google.inject.TypeLiteral;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
+@Deprecated
 public class AudioRecorderPoolProvider implements Provider<AudioRecorderPool> {
 
     private final MediaServerConfiguration config;
@@ -48,7 +49,7 @@ public class AudioRecorderPoolProvider implements Provider<AudioRecorderPool> {
 
     @Override
     public AudioRecorderPool get() {
-        return new AudioRecorderPool(config.getResourcesConfiguration().getRecorderCount(), factory);
+        return new AudioRecorderPool(50, factory);
     }
 
     public static final class AudioRecorderPoolType extends TypeLiteral<ResourcePool<AudioRecorderImpl>> {

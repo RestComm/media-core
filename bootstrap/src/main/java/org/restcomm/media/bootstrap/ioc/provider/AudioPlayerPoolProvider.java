@@ -35,6 +35,7 @@ import com.google.inject.TypeLiteral;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
+@Deprecated
 public class AudioPlayerPoolProvider implements Provider<AudioPlayerPool> {
 
     private final MediaServerConfiguration config;
@@ -48,7 +49,7 @@ public class AudioPlayerPoolProvider implements Provider<AudioPlayerPool> {
 
     @Override
     public AudioPlayerPool get() {
-        return new AudioPlayerPool(this.config.getResourcesConfiguration().getPlayerCount(), this.factory);
+        return new AudioPlayerPool(50, this.factory);
     }
 
     public static final class AudioPlayerPoolType extends TypeLiteral<ResourcePool<AudioPlayerImpl>> {

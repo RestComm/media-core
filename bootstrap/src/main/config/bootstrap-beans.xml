@@ -6,7 +6,7 @@
         
 	<!-- File Filter -->
     <bean name="FileFilter"
-		class="org.mobicents.media.server.bootstrap.FileFilterImpl">
+		class="org.restcomm.media.bootstrap.FileFilterImpl">
 		<!-- Unless specified the default list of suffixes is , -beans.xml, -conf.xml -->
         <constructor>
             <parameter>
@@ -19,7 +19,7 @@
 
 	<!-- The MainDeployer -->
     <bean name="MainDeployer"
-		class="org.mobicents.media.server.bootstrap.MainDeployer">
+		class="org.restcomm.media.bootstrap.MainDeployer">
         <property name="path">${mms.home.dir}/deploy</property>
         <property name="fileFilter"><inject bean="FileFilter"/></property>
     </bean>

@@ -88,7 +88,7 @@ public class Main {
 
     private void processCommandLine(String[] args) {
 
-        String programName = System.getProperty("program.name", "Mobicents Media Server");
+        String programName = System.getProperty("program.name", "RestComm Media Server");
 
         int c;
         String arg;
