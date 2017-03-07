@@ -5,11 +5,12 @@
 	<packaging>jar</packaging>
 
 	<parent>
-		<groupId>org.mobicents.media</groupId>
-		<artifactId>server</artifactId>
+		<groupId>org.restcomm</groupId>
+		<artifactId>media</artifactId>
 		<version>6.0.0-SNAPSHOT</version>
 	</parent>
 
+	<groupId>org.restcomm.media</groupId>
 	<artifactId>bootstrap</artifactId>
 	<name>Bootstrap</name>
 
@@ -26,75 +27,60 @@
 	<dependencies>
 		<!-- Modules -->
 		<dependency>
-			<groupId>org.mobicents.media</groupId>
+			<groupId>org.restcomm.media</groupId>
 			<artifactId>spi</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.mobicents.media</groupId>
+			<groupId>org.restcomm.media</groupId>
 			<artifactId>core</artifactId>
 			<version>${project.version}</version>
 			<type>jar</type>
 		</dependency>
 		<dependency>
-			<groupId>org.mobicents.media.io</groupId>
+			<groupId>org.restcomm.media</groupId>
 			<artifactId>rtp</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<!--<dependency>
-			<groupId>org.mobicents.media.hardware</groupId>
-			<artifactId>mobicents-dahdi</artifactId> 
-			<version>${project.version}</version>
-		</dependency> -->
 		<dependency>
-			<groupId>org.mobicents.media.io</groupId>
-			<artifactId>ss7</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.mobicents.media.resources</groupId>
+			<groupId>org.restcomm.media.resources</groupId>
 			<artifactId>dtmf</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.mobicents.media.resources</groupId>
+			<groupId>org.restcomm.media.resources</groupId>
 			<artifactId>player</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.mobicents.media.resources</groupId>
+			<groupId>org.restcomm.media.resources</groupId>
 			<artifactId>recorder</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.mobicents.media.controls</groupId>
-			<artifactId>mgcp</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 
 		<!-- codecs -->
 		<dependency>
-			<groupId>org.mobicents.media.codecs</groupId>
+			<groupId>org.restcomm.media.codecs</groupId>
 			<artifactId>l16</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.mobicents.media.codecs</groupId>
+			<groupId>org.restcomm.media.codecs</groupId>
 			<artifactId>g711</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.mobicents.media.codecs</groupId>
+			<groupId>org.restcomm.media.codecs</groupId>
 			<artifactId>gsm</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.mobicents.media.codecs</groupId>
+			<groupId>org.restcomm.media.codecs</groupId>
 			<artifactId>g729</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.mobicents.media.codecs</groupId>
+			<groupId>org.restcomm.media.codecs</groupId>
 			<artifactId>ilbc</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -172,42 +158,6 @@
                     </execution>
                 </executions>
             </plugin>
-	        <!--<plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                       <id>copy</id>
-                       <phase>package</phase>
-                       <goals>
-                          <goal>copy</goal>
-                       </goals>
-                       <configuration>
-                          <artifactItems>
-                              <artifactItem>
-                                 <groupId>
-                                     org.mobicents.media.hardware
-                                 </groupId>
-                                 <artifactId>
-                                     libmobicents-dahdi-linux
-                                 </artifactId>
-                                 <version>
-                                     ${pom.version}
-                                 </version>
-                                 <type>so</type>
-                                 <overWrite>true</overWrite>
-                                 <outputDirectory>
-                                     ${project.build.directory}/mms-server.dir/native
-                                 </outputDirectory>
-                                 <destFileName>
-                                     libmobicents-dahdi-linux.so
-                                 </destFileName>
-                             </artifactItem>
-                         </artifactItems>
-                      </configuration>
-                  </execution>
-              </executions>
-            </plugin>  -->
 	</plugins>
     </build>
 

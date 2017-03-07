@@ -5,53 +5,54 @@
 	<packaging>jar</packaging>
 
 	<parent>
-		<groupId>org.mobicents.media.controls</groupId>
+		<groupId>org.restcomm.media</groupId>
 		<artifactId>controls</artifactId>
 		<version>6.0.0-SNAPSHOT</version>
 	</parent>
 
+	<groupId>org.restcomm.media.controls</groupId>
 	<artifactId>mgcp2</artifactId>
 	<name>MGCP2</name>
 
 	<dependencies>
 		<!-- Modules -->
 		<dependency>
-			<groupId>org.mobicents.media</groupId>
+			<groupId>org.restcomm.media</groupId>
 			<artifactId>spi</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.mobicents.media</groupId>
+			<groupId>org.restcomm.media</groupId>
 			<artifactId>components</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.mobicents.media.resources</groupId>
+			<groupId>org.restcomm.media.resources</groupId>
 			<artifactId>player</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.mobicents.media.resources</groupId>
+			<groupId>org.restcomm.media.resources</groupId>
 			<artifactId>recorder</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.mobicents.media.client</groupId>
-			<artifactId>mgcp-driver</artifactId>
+			<groupId>org.restcomm.media.client.mgcp</groupId>
+			<artifactId>driver</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.mobicents.media.io</groupId>
+			<groupId>org.restcomm.media</groupId>
 			<artifactId>network</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.mobicents.media.io</groupId>
+			<groupId>org.restcomm.media</groupId>
 			<artifactId>sdp</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.mobicents.media.io</groupId>
+			<groupId>org.restcomm.media</groupId>
 			<artifactId>rtp</artifactId>
 			<version>${project.version}</version>
 		</dependency>

@@ -4,83 +4,94 @@
     <packaging>jar</packaging>
 
     <parent>
-        <groupId>org.mobicents.media</groupId>
-        <artifactId>server</artifactId>
+        <groupId>org.restcomm</groupId>
+        <artifactId>media</artifactId>
         <version>6.0.0-SNAPSHOT</version>
     </parent>
 
+    <groupId>org.restcomm.media</groupId>
     <artifactId>core</artifactId>
     <name>Core</name>
 
 	<dependencies>
 		<dependency>
-			<groupId>org.mobicents.media</groupId>
+			<groupId>org.restcomm.media</groupId>
 			<artifactId>concurrent</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.mobicents.media</groupId>
+			<groupId>org.restcomm.media</groupId>
 			<artifactId>spi</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.mobicents.media</groupId>
+			<groupId>org.restcomm.media</groupId>
 			<artifactId>components</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.mobicents.media.io</groupId>
-			<artifactId>ss7</artifactId>
+			<groupId>org.restcomm.media.codecs</groupId>
+			<artifactId>ilbc</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.mobicents.media.io</groupId>
+			<groupId>org.restcomm.media.codecs</groupId>
+			<artifactId>l16</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.restcomm.media.codecs</groupId>
+			<artifactId>gsm</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.restcomm.media.codecs</groupId>
+			<artifactId>g729</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.restcomm.media.codecs</groupId>
+			<artifactId>g711</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.restcomm.media</groupId>
 			<artifactId>rtp</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.mobicents.media.io</groupId>
+			<groupId>org.restcomm.media</groupId>
 			<artifactId>ice</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.mobicents.media</groupId>
+			<groupId>org.restcomm.media</groupId>
 			<artifactId>scheduler</artifactId>
 			<version>${project.version}</version>
 			<type>jar</type>
 		</dependency>
 		<dependency>
-			<groupId>org.mobicents.media.controls</groupId>
+			<groupId>org.restcomm.media.controls</groupId>
 			<artifactId>mgcp2</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 
 		<!--RESOURCES -->
 		<dependency>
-			<groupId>org.mobicents.media.resources</groupId>
+			<groupId>org.restcomm.media.resources</groupId>
 			<artifactId>recorder</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.mobicents.media.resources</groupId>
+			<groupId>org.restcomm.media.resources</groupId>
 			<artifactId>player</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.mobicents.media.resources</groupId>
+			<groupId>org.restcomm.media.resources</groupId>
 			<artifactId>dtmf</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>org.mobicents.media.resources</groupId>
-			<artifactId>tones</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<!-- dependency> 
-			<groupId>org.ice4j</groupId>
-			<artifactId>ice4j</artifactId> 
-			<version>1.0.0</version> 
-		</dependency -->
 		<dependency>
 			<groupId>org.bitlet</groupId>
 			<artifactId>weupnp</artifactId>
@@ -97,7 +108,6 @@
 		</dependency>
 	</dependencies>
 
-	<!--  -->
     <build>
         <plugins>
             <plugin>

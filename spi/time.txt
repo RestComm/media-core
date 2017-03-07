@@ -1,9 +1,0 @@
-Running org.mobicents.media.server.utils.TextTest
-Split execution time=3045629
-Create/straing execution time=28128
-Create/straing execution time=926252
-==== Duration=14295
-==== Duration=3409
-==== Duration=38465
-10
-

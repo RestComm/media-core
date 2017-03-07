@@ -5,16 +5,13 @@
 configMgcpController() {
     address=${1-127.0.0.1}
     port=${2-2427}
-    expected_load=${3-50}
 	
-    echo "Configuring MGCP Controller [Address=$address, Port=$port, Expected Load=$expected_load]"
+    echo "Configuring MGCP Controller [Address=$address, Port=$port]"
 
     xmlstarlet ed --inplace --pf \
 	    -u "/mediaserver/controller[@protocol='mgcp']/address" -v "$address" \
         -u "/mediaserver/controller[@protocol='mgcp']/port" -v "$port" \
-        -u "/mediaserver/controller[@protocol='mgcp']/poolSize" -v "$expected_load" \
-        -u "/mediaserver/controller[@protocol='mgcp']/endpoints/*/@poolSize" -v "$expected_load" \
         $MS_HOME/conf/mediaserver.xml
 }
 
-configMgcpController $MGCP_ADDRESS $MGCP_PORT $EXPECTED_LOAD
+configMgcpController $MGCP_ADDRESS $MGCP_PORT
