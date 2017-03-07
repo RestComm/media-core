@@ -37,7 +37,6 @@ import org.restcomm.media.core.configuration.MgcpControllerConfiguration;
 import org.restcomm.media.core.configuration.MgcpEndpointConfiguration;
 import org.restcomm.media.core.configuration.NetworkConfiguration;
 import org.restcomm.media.core.configuration.ResourcesConfiguration;
-import org.restcomm.media.rtp.crypto.CipherSuite;
 
 /**
  * Loads Media Server configurations from an XML file.
@@ -97,17 +96,13 @@ public class XmlConfigurationLoader implements ConfigurationLoader {
         // Basic Controller configuration
         dst.setAddress(src.getString("address", MgcpControllerConfiguration.ADDRESS));
         dst.setPort(src.getInt("port", MgcpControllerConfiguration.PORT));
-        dst.setPoolSize(src.getInt("poolSize", MgcpControllerConfiguration.POOL_SIZE));
-        dst.setConfiguration(src.getString("configuration", MgcpControllerConfiguration.CONFIGURATION));
 
         // Iterate over endpoint configuration
         List<HierarchicalConfiguration<ImmutableNode>> endpoints = src.childConfigurationsAt("endpoints");
         for (HierarchicalConfiguration<ImmutableNode> endpoint : endpoints) {
             MgcpEndpointConfiguration endpointConfig = new MgcpEndpointConfiguration();
             endpointConfig.setName(endpoint.getString("[@name]"));
-            endpointConfig.setClassName(endpoint.getString("[@class]"));
             endpointConfig.setRelayType(endpoint.getString("[@relay]", "mixer"));
-            endpointConfig.setPoolSize(endpoint.getInt("[@poolSize]", MgcpEndpointConfiguration.POOL_SIZE));
             dst.addEndpoint(endpointConfig);
         }
     }

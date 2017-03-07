@@ -66,22 +66,14 @@ public class XmlConfigurationLoaderTest {
         MgcpControllerConfiguration controller = config.getControllerConfiguration();
         Assert.assertEquals("198.162.1.175", controller.getAddress());
         Assert.assertEquals(3437, controller.getPort());
-        Assert.assertEquals("mgcp-conf-test.xml", controller.getConfiguration());
-        Assert.assertEquals(5, controller.getPoolSize());
         MgcpEndpointConfiguration bridgeEndpoint = controller.getEndpoint("mobicents/bridge/");
         Assert.assertNotNull(bridgeEndpoint);
-        Assert.assertEquals("org.mobicents.media.server.mgcp.endpoint.BridgeEndpoint", bridgeEndpoint.getClassName());
-        Assert.assertEquals(51, bridgeEndpoint.getPoolSize());
         Assert.assertEquals(RelayType.SPLITTER, bridgeEndpoint.getRelayType());
         MgcpEndpointConfiguration ivrEndpoint = controller.getEndpoint("mobicents/ivr/");
         Assert.assertNotNull(ivrEndpoint);
-        Assert.assertEquals(52, ivrEndpoint.getPoolSize());
-        Assert.assertEquals("org.mobicents.media.server.mgcp.endpoint.IvrEndpoint", ivrEndpoint.getClassName());
         Assert.assertEquals(RelayType.MIXER, ivrEndpoint.getRelayType());
         MgcpEndpointConfiguration cnfEndpoint = controller.getEndpoint("mobicents/cnf/");
         Assert.assertNotNull(cnfEndpoint);
-        Assert.assertEquals(53, cnfEndpoint.getPoolSize());
-        Assert.assertEquals("org.mobicents.media.server.mgcp.endpoint.ConferenceEndpoint", cnfEndpoint.getClassName());
         Assert.assertEquals(RelayType.MIXER, cnfEndpoint.getRelayType());
 
         MediaConfiguration media = config.getMediaConfiguration();
@@ -149,8 +141,6 @@ public class XmlConfigurationLoaderTest {
         MgcpControllerConfiguration controller = config.getControllerConfiguration();
         Assert.assertEquals(MgcpControllerConfiguration.ADDRESS, controller.getAddress());
         Assert.assertEquals(MgcpControllerConfiguration.PORT, controller.getPort());
-        Assert.assertEquals(MgcpControllerConfiguration.CONFIGURATION, controller.getConfiguration());
-        Assert.assertEquals(MgcpControllerConfiguration.POOL_SIZE, controller.getPoolSize());
         Assert.assertFalse(controller.getEndpoints().hasNext());
 
         MediaConfiguration media = config.getMediaConfiguration();
@@ -207,8 +197,6 @@ public class XmlConfigurationLoaderTest {
         MgcpControllerConfiguration controller = config.getControllerConfiguration();
         Assert.assertEquals(MgcpControllerConfiguration.ADDRESS, controller.getAddress());
         Assert.assertEquals(MgcpControllerConfiguration.PORT, controller.getPort());
-        Assert.assertEquals(MgcpControllerConfiguration.CONFIGURATION, controller.getConfiguration());
-        Assert.assertEquals(MgcpControllerConfiguration.POOL_SIZE, controller.getPoolSize());
         Assert.assertFalse(controller.getEndpoints().hasNext());
         
         MediaConfiguration media = config.getMediaConfiguration();

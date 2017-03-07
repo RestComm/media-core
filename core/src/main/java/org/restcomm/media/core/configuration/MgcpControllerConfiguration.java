@@ -35,20 +35,14 @@ public class MgcpControllerConfiguration {
     
     public static final String ADDRESS = "127.0.0.1";
     public static final int PORT = 2427;
-    public static final int POOL_SIZE = 25;
-    public static final String CONFIGURATION = "mgcp-conf.xml";
 
     private String address;
     private int port;
-    private int poolSize;
-    private String configuration;
     private final Map<String, MgcpEndpointConfiguration> endpoints;
 
     public MgcpControllerConfiguration() {
         this.address = ADDRESS;
         this.port = PORT;
-        this.poolSize = POOL_SIZE;
-        this.configuration = CONFIGURATION;
         this.endpoints = new HashMap<>(5);
     }
 
@@ -72,28 +66,6 @@ public class MgcpControllerConfiguration {
             throw new IllegalArgumentException("Illegal MGCP port value: 0 < " + port + " < 65536");
         }
         this.port = port;
-    }
-
-    public int getPoolSize() {
-        return poolSize;
-    }
-
-    public void setPoolSize(int poolSize) {
-        if (poolSize < 0) {
-            throw new IllegalArgumentException("Pool size cannot be negative.");
-        }
-        this.poolSize = poolSize;
-    }
-
-    public String getConfiguration() {
-        return configuration;
-    }
-
-    public void setConfiguration(String configuration) {
-        if (configuration == null || configuration.isEmpty()) {
-            throw new IllegalArgumentException("Configuration file path cannot be empty.");
-        }
-        this.configuration = configuration;
     }
     
     public int countEndpoints() {

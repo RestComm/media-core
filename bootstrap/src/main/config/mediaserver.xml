@@ -22,12 +22,10 @@
 		<address>127.0.0.1</address>
 		<port>2427</port>
 		<endpoints>
-			<endpoint name="mobicents/bridge/" class="org.restcomm.media.control.mgcp.endpoint.BridgeEndpoint" relay="splitter" poolSize="50" />
-			<endpoint name="mobicents/ivr/" class="org.restcomm.media.control.mgcp.endpoint.IvrEndpoint" relay="mixer" poolSize="50" />
-			<endpoint name="mobicents/cnf/" class="org.restcomm.media.control.mgcp.endpoint.ConferenceEndpoint" relay="mixer" poolSize="50" />
+			<endpoint name="mobicents/bridge/" relay="splitter" />
+			<endpoint name="mobicents/ivr/" relay="mixer" />
+			<endpoint name="mobicents/cnf/" relay="mixer"/>
 		</endpoints>
-		<configuration>mgcp-conf.xml</configuration>
-		<poolSize>25</poolSize>
 	</controller>
 
 	<media>

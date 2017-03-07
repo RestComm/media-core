@@ -22,12 +22,10 @@
 		<address>198.162.1.175</address>
 		<port>3437</port>
 		<endpoints>
-			<endpoint name="mobicents/bridge/" class="org.mobicents.media.server.mgcp.endpoint.BridgeEndpoint" relay="splitter" poolSize="51" />
-			<endpoint name="mobicents/ivr/" class="org.mobicents.media.server.mgcp.endpoint.IvrEndpoint" relay="mixer" poolSize="52" />
-			<endpoint name="mobicents/cnf/" class="org.mobicents.media.server.mgcp.endpoint.ConferenceEndpoint" relay="mixer" poolSize="53" />
+			<endpoint name="mobicents/bridge/" relay="splitter"  />
+			<endpoint name="mobicents/ivr/" relay="mixer" />
+			<endpoint name="mobicents/cnf/" relay="mixer" />
 		</endpoints>
-		<configuration>mgcp-conf-test.xml</configuration>
-		<poolSize>5</poolSize>
 	</controller>
 
 	<media>
