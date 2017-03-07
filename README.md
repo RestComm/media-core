@@ -1,35 +1,35 @@
+# RestComm Media Server
+
 **RestComm Media Server** (RMS) is a Java-based realtime Media Server that offers streaming, conferencing, recording, playback, IVR, text-to-speech and other rich media features. It also supports and is compliant with [WebRTC](http://www.webrtc.org/).
 
 The Media Server can be accessed programmatically via MGCP or JSR 309. Both drivers run in Java EE, SIP Servlets or JSLEE containers.
 
 RestComm Media Server is led by [TeleStax, Inc.](http://www.telestax.com) and developed collaboratively by a community of individual and enterprise contributors.
 
-Documentation
-========
+## Documentation
+
 Read the [Online Documentation](http://documentation.telestax.com/core/media_server/Media_Server_User_Guide.html). You can also find the documentation inside the binary.
 
+## Downloads
 
-Downloads
-========
 Get the [latest release](https://github.com/RestComm/mediaserver/releases/latest). It only takes a few minutes to setup and run.
 
-Issue Tracking and Roadmap
-========
+## Issue Tracking and Roadmap
+
 [Issue Tracker](https://github.com/RestComm/mediaserver/issues)
 
-License
-========
+## Continuous Integration and Delivery
+
+[![RestComm Media Server Continuous Job](http://www.cloudbees.com/sites/default/files/Button-Built-on-CB-1.png)](https://mobicents.ci.cloudbees.com/job/RestComm-MediaServer-6.x/)
+
+## License
 
 RestComm Media Server is lead by [TeleStax](http://www.telestax.com/), Inc. and developed collaboratively by a community of individual and enterprise contributors.
 
 RestComm Media Server is licensed under dual license policy. The default license is the Free Open Source GNU Affero GPL v3.0. Alternatively a commercial license can be obtained from Telestax ([contact form](http://www.telestax.com/contactus/#InquiryForm))
 
-Continuous Integration and Delivery
-========
-[![RestComm Media Server Continuous Job](http://www.cloudbees.com/sites/default/files/Button-Built-on-CB-1.png)](https://mobicents.ci.cloudbees.com/job/RestComm-MediaServer-6.x/)
+# Contributions 
 
-Community 
-========
 [![Join the chat at https://gitter.im/RestComm/mediaserver](https://badges.gitter.im/RestComm/mediaserver.svg)](https://gitter.im/RestComm/mediaserver?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Help us improve the project by [asking questions](https://groups.google.com/forum/#!forum/restcomm), [reporting bugs](https://github.com/RestComm/mediaserver/issues) and [contributing back](https://github.com/RestComm/mediaserver/pulls).
@@ -41,8 +41,8 @@ Top contributors will be given the opportunity to [apply for a job](https://tele
 
 Join our vibrant community and download the latest stable build NOW!
 
-Acknowledgements
-========
+## Acknowledgements
+
 We [publicly acknowledge our contributors]((http://www.telestax.com/opensource/acknowledgments/)). A big **THANK YOU** to all of you, who help us drive the project forward and ensure its quality!
 
 Many thanks to [SIPME](https://www.sipme.me/) for the ongoing support and contributions since 2010.
