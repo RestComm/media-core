@@ -29,6 +29,8 @@ import java.net.InetSocketAddress;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.restcomm.media.codec.g711.alaw.Decoder;
+import org.restcomm.media.codec.g711.alaw.Encoder;
 import org.restcomm.media.component.audio.AudioComponent;
 import org.restcomm.media.component.audio.AudioMixer;
 import org.restcomm.media.component.audio.Sine;
@@ -112,8 +114,8 @@ public class RtpChannelTest {
         Formats dstFormats = new Formats();
         dstFormats.add(FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1));
         
-        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder");
-        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder");
+        dspFactory.addCodec(Encoder.class.getName());
+        dspFactory.addCodec(Decoder.class.getName());
 
         dsp11 = dspFactory.newProcessor();
         dsp12 = dspFactory.newProcessor();

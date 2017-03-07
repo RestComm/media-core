@@ -72,7 +72,6 @@ public class CnameGeneratorTest {
             long start = System.currentTimeMillis();
             String cname = CnameGenerator.generateCname();
             long time = System.currentTimeMillis() - start;
-            System.out.println("Took " + time + " ms");
 
             // then
             // test minimum size
@@ -135,8 +134,8 @@ public class CnameGeneratorTest {
                 String cname = CnameGenerator.generateCname();
                 long time = System.currentTimeMillis() - start;
 
-                if (log.isInfoEnabled()) {
-                    log.info(this.name + " took " + time + "ms to generate the cname " + cname);
+                if (log.isDebugEnabled()) {
+                    log.debug(this.name + " took " + time + "ms to generate the cname " + cname);
                 }
 
                 // then

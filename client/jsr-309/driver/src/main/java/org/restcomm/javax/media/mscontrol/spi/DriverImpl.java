@@ -44,7 +44,6 @@ public class DriverImpl implements Driver, JainMgcpListener {
     private JainMgcpStack mgcpStack;
     private JainMgcpProvider mgcpProvider;
     
-
     private NotifiedEntity callAgent;
     
     private String localHost;

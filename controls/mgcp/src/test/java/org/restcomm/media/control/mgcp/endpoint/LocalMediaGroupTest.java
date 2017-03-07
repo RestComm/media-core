@@ -36,6 +36,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.restcomm.media.ComponentType;
+import org.restcomm.media.codec.g711.alaw.Decoder;
+import org.restcomm.media.codec.g711.alaw.Encoder;
 import org.restcomm.media.component.dsp.DspFactoryImpl;
 import org.restcomm.media.control.mgcp.connection.LocalConnectionFactory;
 import org.restcomm.media.control.mgcp.connection.LocalConnectionPool;
@@ -141,8 +143,8 @@ public class LocalMediaGroupTest implements DtmfDetectorListener {
         channelsManager = new ChannelsManager(udpManager, dtlsServerProvider);
         channelsManager.setScheduler(mediaScheduler);        
 
-        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder");
-        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder");
+        dspFactory.addCodec(Encoder.class.getName());
+        dspFactory.addCodec(Decoder.class.getName());
                 
         // Resource
         this.rtpConnectionFactory = new RtpConnectionFactory(channelsManager, dspFactory);

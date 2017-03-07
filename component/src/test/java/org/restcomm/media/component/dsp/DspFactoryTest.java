@@ -30,13 +30,9 @@ package org.restcomm.media.component.dsp;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.restcomm.media.component.dsp.Dsp;
-import org.restcomm.media.component.dsp.DspFactoryImpl;
+import org.restcomm.media.codec.g711.alaw.Decoder;
+import org.restcomm.media.codec.g711.alaw.Encoder;
 import org.restcomm.media.spi.format.Format;
 import org.restcomm.media.spi.format.FormatFactory;
 import org.restcomm.media.spi.memory.Frame;
@@ -50,40 +46,20 @@ public class DspFactoryTest {
 
     private DspFactoryImpl dspFactory = new DspFactoryImpl();
 
-    public DspFactoryTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
-
-    @Before
-    public void setUp() {
-    }
-
-    @After
-    public void tearDown() {
-    }
-
     /**
      * Test of addCodec method, of class DspFactory.
      */
     @Test
     public void testLoading() throws Exception {
-        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder");
-        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder");
-
-        Dsp dsp = dspFactory.newProcessor();
+        dspFactory.addCodec(Encoder.class.getName());
+        dspFactory.addCodec(Decoder.class.getName());
+        dspFactory.newProcessor();
     }
 
     @Test
     public void testUnknownInput() throws Exception {
-        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder");
-        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder");
+        dspFactory.addCodec(Encoder.class.getName());
+        dspFactory.addCodec(Decoder.class.getName());
 
         Dsp dsp = dspFactory.newProcessor();
 
@@ -95,8 +71,8 @@ public class DspFactoryTest {
     
     @Test
     public void testUndefinedOutput() throws Exception {
-        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder");
-        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder");
+        dspFactory.addCodec(Encoder.class.getName());
+        dspFactory.addCodec(Decoder.class.getName());
 
         Dsp dsp = dspFactory.newProcessor();
 
@@ -112,8 +88,8 @@ public class DspFactoryTest {
     public void testInputToOutputMatch() throws Exception {
         Format fmt = FormatFactory.createAudioFormat("test", 8000);
         
-        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder");
-        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder");
+        dspFactory.addCodec(Encoder.class.getName());
+        dspFactory.addCodec(Decoder.class.getName());
 
         Dsp dsp = dspFactory.newProcessor();
         
@@ -130,8 +106,8 @@ public class DspFactoryTest {
     	Format fmt = FormatFactory.createAudioFormat("linear", 8000, 16, 1);
         Format fmt2 = FormatFactory.createAudioFormat("pcma", 8000, 8, 1);
 
-        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder");
-        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder");
+        dspFactory.addCodec(Encoder.class.getName());
+        dspFactory.addCodec(Decoder.class.getName());
 
         Dsp dsp = dspFactory.newProcessor();
         

@@ -4,8 +4,8 @@
     <!-- Implemented packages -->
     <packages>
         <package name="AU">
-            <signal name="pa" handler="org.mobicents.media.server.mgcp.pkg.au.Play"/>
-            <signal name="pc" handler="org.mobicents.media.server.mgcp.pkg.au.PlayCollect"/>
+            <signal name="pa" handler="org.restcomm.media.control.mgcp.pkg.au.Play"/>
+            <signal name="pc" handler="org.restcomm.media.control.mgcp.pkg.au.PlayCollect"/>
         </package>        
     </packages>
 

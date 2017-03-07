@@ -24,6 +24,8 @@ package org.restcomm.media.control.mgcp.endpoint.connection;
 import java.io.IOException;
 
 import org.bouncycastle.crypto.tls.ProtocolVersion;
+import org.restcomm.media.codec.g711.alaw.Decoder;
+import org.restcomm.media.codec.g711.alaw.Encoder;
 import org.restcomm.media.component.dsp.DspFactoryImpl;
 import org.restcomm.media.core.configuration.DtlsConfiguration;
 import org.restcomm.media.network.UdpManager;
@@ -67,8 +69,8 @@ public class RTPEnvironment {
         //use default clock
         clock = new WallClock();
 
-        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder");
-        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder");
+        dspFactory.addCodec(Encoder.class.getName());
+        dspFactory.addCodec(Decoder.class.getName());
         
         //create single thread scheduler
         mediaScheduler = new PriorityQueueScheduler();

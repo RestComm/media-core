@@ -2,33 +2,30 @@ package org.restcomm.javax.media.mscontrol.load;
 
 import java.net.URI;
 import java.util.Properties;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.CompletionService;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import javax.media.mscontrol.EventType;
 import javax.media.mscontrol.MediaErr;
 import javax.media.mscontrol.MediaEvent;
 import javax.media.mscontrol.MediaEventListener;
 import javax.media.mscontrol.MediaEventNotifier;
 import javax.media.mscontrol.MediaSession;
-import javax.media.mscontrol.MsControlException;
 import javax.media.mscontrol.MsControlFactory;
 import javax.media.mscontrol.mediagroup.MediaGroup;
 import javax.media.mscontrol.mediagroup.signals.SignalDetectorEvent;
 import javax.media.mscontrol.networkconnection.NetworkConnection;
 import javax.media.mscontrol.networkconnection.SdpPortManager;
 import javax.media.mscontrol.networkconnection.SdpPortManagerEvent;
-import javax.media.mscontrol.spi.DriverManager;
+
 import org.junit.Test;
 import org.restcomm.javax.media.mscontrol.spi.DriverImpl;
 
 import junit.framework.Assert;
-import junit.framework.TestCase;
 
 public class DTMFLoadTest {
 	// Property key for the Unique MGCP stack name for this application

@@ -34,9 +34,7 @@ import javax.media.mscontrol.mediagroup.CodecConstants;
 import javax.media.mscontrol.mediagroup.Recorder;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.restcomm.javax.media.mscontrol.ParametersImpl;
 
@@ -48,18 +46,6 @@ import org.restcomm.javax.media.mscontrol.ParametersImpl;
 public class ParametersImplTest {
 	Parameters parameters = null;
 	Object obj = null;
-
-	public ParametersImplTest() {
-
-	}
-
-	@BeforeClass
-	public static void setUpClass() throws Exception {
-	}
-
-	@AfterClass
-	public static void tearDownClass() throws Exception {
-	}
 
 	@Before
 	public void setUp() {

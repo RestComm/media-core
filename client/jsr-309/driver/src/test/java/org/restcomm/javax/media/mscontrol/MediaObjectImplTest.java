@@ -28,16 +28,13 @@
 package org.restcomm.javax.media.mscontrol;
 
 import java.util.Properties;
+
 import javax.media.mscontrol.MediaSession;
 import javax.media.mscontrol.MsControlException;
 import javax.media.mscontrol.networkconnection.NetworkConnection;
-import org.junit.After;
-import org.junit.AfterClass;
+
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.restcomm.javax.media.mscontrol.MediaSessionImpl;
-import org.restcomm.javax.media.mscontrol.MsControlFactoryImpl;
 import org.restcomm.javax.media.mscontrol.spi.DriverImpl;
 
 /**
@@ -50,17 +47,6 @@ public class MediaObjectImplTest {
     
     private MediaSession session;
     private MsControlFactoryImpl factory;
-    
-    public MediaObjectImplTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
 
     @Before
     public void setUp() throws MsControlException {
@@ -74,10 +60,6 @@ public class MediaObjectImplTest {
         
         factory = (MsControlFactoryImpl) driver.getFactory(properties);
         session = (MediaSessionImpl) factory.createMediaSession();
-    }
-
-    @After
-    public void tearDown() {
     }
 
     /**
