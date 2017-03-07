@@ -29,12 +29,12 @@ package org.restcomm.media.core.configuration;
  */
 public enum CodecType {
     
-    PCMU(0, "pcmu", "org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Encoder", "org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Decoder"), 
-    PCMA(8, "pcma", "org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder", "org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder"), 
-    GSM(3, "gsm", "org.mobicents.media.server.impl.dsp.audio.gsm.Encoder", "org.mobicents.media.server.impl.dsp.audio.gsm.Decoder"), 
-    L16(97, "l16", "org.mobicents.media.server.impl.dsp.audio.l16.Encoder", "org.mobicents.media.server.impl.dsp.audio.l16.Decoder"),
-    G729(18, "g729", "org.mobicents.media.server.impl.dsp.audio.g729.Encoder", "org.mobicents.media.server.impl.dsp.audio.g729.Decoder"),
-    ILBC(102, "ilbc", "org.mobicents.media.server.impl.dsp.audio.ilbc.Encoder", "org.mobicents.media.server.impl.dsp.audio.ilbc.Decoder"),
+    PCMU(0, "pcmu", org.restcomm.media.codec.g711.ulaw.Encoder.class.getName(), org.restcomm.media.codec.g711.ulaw.Decoder.class.getName()), 
+    PCMA(8, "pcma", org.restcomm.media.codec.g711.alaw.Encoder.class.getName(), org.restcomm.media.codec.g711.alaw.Decoder.class.getName()), 
+    GSM(3, "gsm", org.restcomm.media.codec.gsm.Encoder.class.getName(), org.restcomm.media.codec.gsm.Decoder.class.getName()), 
+    L16(97, "l16", org.restcomm.media.codec.l16.Encoder.class.getName(), org.restcomm.media.codec.l16.Decoder.class.getName()),
+    G729(18, "g729", org.restcomm.media.codec.g729.Encoder.class.getName(), org.restcomm.media.codec.g729.Decoder.class.getName()),
+    ILBC(102, "ilbc", org.restcomm.media.codec.ilbc.Encoder.class.getName(), org.restcomm.media.codec.ilbc.Decoder.class.getName()),
     DTMF(101, "telephone-event", "", "");
 
     private final int payloadType;

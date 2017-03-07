@@ -35,6 +35,7 @@ import com.google.inject.TypeLiteral;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
+@Deprecated
 public class DtmfGeneratorPoolProvider implements Provider<DtmfGeneratorPool> {
 
     private final MediaServerConfiguration config;
@@ -48,7 +49,7 @@ public class DtmfGeneratorPoolProvider implements Provider<DtmfGeneratorPool> {
 
     @Override
     public DtmfGeneratorPool get() {
-        return new DtmfGeneratorPool(config.getResourcesConfiguration().getDtmfGeneratorCount(), factory);
+        return new DtmfGeneratorPool(50, factory);
     }
 
     public static final class DtmfGeneratorPoolType extends TypeLiteral<ResourcePool<GeneratorImpl>> {

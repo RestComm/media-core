@@ -30,6 +30,31 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>org.restcomm.media.codecs</groupId>
+			<artifactId>ilbc</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.restcomm.media.codecs</groupId>
+			<artifactId>l16</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.restcomm.media.codecs</groupId>
+			<artifactId>gsm</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.restcomm.media.codecs</groupId>
+			<artifactId>g729</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.restcomm.media.codecs</groupId>
+			<artifactId>g711</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.restcomm.media</groupId>
 			<artifactId>rtp</artifactId>
 			<version>${project.version}</version>

@@ -123,17 +123,9 @@ public class XmlConfigurationLoader implements ConfigurationLoader {
     }
 
     private static void configureResource(HierarchicalConfiguration<ImmutableNode> src, ResourcesConfiguration dst) {
-        dst.setLocalConnectionCount(src.getInt("localConnection[@poolSize]", ResourcesConfiguration.LOCAL_CONNECTION_COUNT));
-        dst.setRemoteConnectionCount(src.getInt("remoteConnection[@poolSize]", ResourcesConfiguration.REMOTE_CONNECTION_COUNT));
-        dst.setPlayerCount(src.getInt("player[@poolSize]", ResourcesConfiguration.PLAYER_COUNT));
-        dst.setRecorderCount(src.getInt("recorder[@poolSize]", ResourcesConfiguration.RECORDER_COUNT));
-        dst.setDtmfDetectorCount(src.getInt("dtmfDetector[@poolSize]", ResourcesConfiguration.DTMF_DETECTOR_COUNT));
         dst.setDtmfDetectorDbi(src.getInt("dtmfDetector[@dbi]", ResourcesConfiguration.DTMF_DETECTOR_DBI));
-        dst.setDtmfGeneratorCount(src.getInt("dtmfGenerator[@poolSize]", ResourcesConfiguration.DTMF_GENERATOR_COUNT));
         dst.setDtmfGeneratorToneVolume(src.getInt("dtmfGenerator[@toneVolume]", ResourcesConfiguration.DTMF_GENERATOR_TONE_VOLUME));
         dst.setDtmfGeneratorToneDuration(src.getInt("dtmfGenerator[@toneDuration]", ResourcesConfiguration.DTMF_GENERATOR_TONE_DURATION));
-        dst.setSignalDetectorCount(src.getInt("signalDetector[@poolSize]", ResourcesConfiguration.SIGNAL_DETECTOR_COUNT));
-        dst.setSignalGeneratorCount(src.getInt("signalGenerator[@poolSize]", ResourcesConfiguration.SIGNAL_GENERATOR_COUNT));
         configurePlayer(src, dst);
     }
 
@@ -148,8 +140,6 @@ public class XmlConfigurationLoader implements ConfigurationLoader {
 
     private static void configurePlayer(HierarchicalConfiguration<ImmutableNode> src, ResourcesConfiguration dst) {
         HierarchicalConfiguration<ImmutableNode> player = src.configurationAt("player");
-        dst.setPlayerCount(player.getInt("[@poolSize]", ResourcesConfiguration.PLAYER_COUNT));
-
         HierarchicalConfiguration<ImmutableNode> cache;
         try {
             cache = player.configurationAt("cache");

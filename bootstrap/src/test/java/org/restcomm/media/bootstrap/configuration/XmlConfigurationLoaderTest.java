@@ -88,16 +88,9 @@ public class XmlConfigurationLoaderTest {
         Assert.assertTrue(media.hasCodec("g729"));
 
         ResourcesConfiguration resources = config.getResourcesConfiguration();
-        Assert.assertEquals(200, resources.getLocalConnectionCount());
-        Assert.assertEquals(100, resources.getRemoteConnectionCount());
-        Assert.assertEquals(100, resources.getRecorderCount());
-        Assert.assertEquals(100, resources.getDtmfDetectorCount());
         Assert.assertEquals(-25, resources.getDtmfDetectorDbi());
-        Assert.assertEquals(100, resources.getDtmfGeneratorCount());
         Assert.assertEquals(100, resources.getDtmfGeneratorToneDuration());
         Assert.assertEquals(-25, resources.getDtmfGeneratorToneVolume());
-        Assert.assertEquals(10, resources.getSignalDetectorCount());
-        Assert.assertEquals(10, resources.getSignalGeneratorCount());
 
         DtlsConfiguration dtls = config.getDtlsConfiguration();
         Assert.assertEquals(ProtocolVersion.DTLSv10, dtls.getMinVersion());
@@ -112,7 +105,6 @@ public class XmlConfigurationLoaderTest {
         Assert.assertEquals(SignatureAlgorithm.ecdsa, dtls.getAlgorithmCertificate().getSignatureAlgorithm());
         Assert.assertEquals(ClientCertificateType.ecdsa_sign, dtls.getAlgorithmCertificate().getClientCertificate());
 
-        Assert.assertEquals(100, resources.getPlayerCount());
         Assert.assertEquals(100, resources.getPlayerCacheSize());
         Assert.assertEquals(true, resources.getPlayerCacheEnabled());
     }
@@ -151,17 +143,9 @@ public class XmlConfigurationLoaderTest {
         Assert.assertEquals(0, media.countCodecs());
 
         ResourcesConfiguration resources = config.getResourcesConfiguration();
-        Assert.assertEquals(ResourcesConfiguration.LOCAL_CONNECTION_COUNT, resources.getLocalConnectionCount());
-        Assert.assertEquals(ResourcesConfiguration.REMOTE_CONNECTION_COUNT, resources.getRemoteConnectionCount());
-        Assert.assertEquals(ResourcesConfiguration.PLAYER_COUNT, resources.getPlayerCount());
-        Assert.assertEquals(ResourcesConfiguration.RECORDER_COUNT, resources.getRecorderCount());
-        Assert.assertEquals(ResourcesConfiguration.DTMF_DETECTOR_COUNT, resources.getDtmfDetectorCount());
         Assert.assertEquals(ResourcesConfiguration.DTMF_DETECTOR_DBI, resources.getDtmfDetectorDbi());
-        Assert.assertEquals(ResourcesConfiguration.DTMF_GENERATOR_COUNT, resources.getDtmfGeneratorCount());
         Assert.assertEquals(ResourcesConfiguration.DTMF_GENERATOR_TONE_DURATION, resources.getDtmfGeneratorToneDuration());
         Assert.assertEquals(ResourcesConfiguration.DTMF_GENERATOR_TONE_VOLUME, resources.getDtmfGeneratorToneVolume());
-        Assert.assertEquals(ResourcesConfiguration.SIGNAL_DETECTOR_COUNT, resources.getSignalDetectorCount());
-        Assert.assertEquals(ResourcesConfiguration.SIGNAL_GENERATOR_COUNT, resources.getSignalGeneratorCount());
 
         DtlsConfiguration dtls = config.getDtlsConfiguration();
         Assert.assertEquals(ProtocolVersion.DTLSv10, dtls.getMinVersion());
@@ -207,17 +191,9 @@ public class XmlConfigurationLoaderTest {
         Assert.assertEquals(0, media.countCodecs());
         
         ResourcesConfiguration resources = config.getResourcesConfiguration();
-        Assert.assertEquals(ResourcesConfiguration.LOCAL_CONNECTION_COUNT, resources.getLocalConnectionCount());
-        Assert.assertEquals(ResourcesConfiguration.REMOTE_CONNECTION_COUNT, resources.getRemoteConnectionCount());
-        Assert.assertEquals(ResourcesConfiguration.PLAYER_COUNT, resources.getPlayerCount());
-        Assert.assertEquals(ResourcesConfiguration.RECORDER_COUNT, resources.getRecorderCount());
-        Assert.assertEquals(ResourcesConfiguration.DTMF_DETECTOR_COUNT, resources.getDtmfDetectorCount());
         Assert.assertEquals(ResourcesConfiguration.DTMF_DETECTOR_DBI, resources.getDtmfDetectorDbi());
-        Assert.assertEquals(ResourcesConfiguration.DTMF_GENERATOR_COUNT, resources.getDtmfGeneratorCount());
         Assert.assertEquals(ResourcesConfiguration.DTMF_GENERATOR_TONE_DURATION, resources.getDtmfGeneratorToneDuration());
         Assert.assertEquals(ResourcesConfiguration.DTMF_GENERATOR_TONE_VOLUME, resources.getDtmfGeneratorToneVolume());
-        Assert.assertEquals(ResourcesConfiguration.SIGNAL_DETECTOR_COUNT, resources.getSignalDetectorCount());
-        Assert.assertEquals(ResourcesConfiguration.SIGNAL_GENERATOR_COUNT, resources.getSignalGeneratorCount());
         
         DtlsConfiguration dtls = config.getDtlsConfiguration();
         Assert.assertEquals(ProtocolVersion.DTLSv10, dtls.getMinVersion());
