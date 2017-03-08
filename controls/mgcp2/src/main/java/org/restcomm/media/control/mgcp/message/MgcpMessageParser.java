@@ -40,6 +40,10 @@ public class MgcpMessageParser {
     public MgcpRequest parseRequest(byte[] data, int offset, int length) throws MgcpParseException {
         return parseRequest(new String(data, offset, length));
     }
+    
+    public MgcpRequest parseRequest(byte[] data) throws MgcpParseException {
+        return parseRequest(data, 0, data.length);
+    }
 
     public MgcpRequest parseRequest(String message) throws MgcpParseException {
         try {
@@ -83,6 +87,10 @@ public class MgcpMessageParser {
 
     public MgcpResponse parseResponse(byte[] data, int offset, int length) throws MgcpParseException {
         return parseResponse(new String(data, offset, length));
+    }
+
+    public MgcpResponse parseResponse(byte[] data) throws MgcpParseException {
+        return parseResponse(data, 0, data.length);
     }
 
     public MgcpResponse parseResponse(String message) throws MgcpParseException {
