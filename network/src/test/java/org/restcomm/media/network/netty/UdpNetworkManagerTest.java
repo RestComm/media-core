@@ -25,58 +25,52 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.net.InetSocketAddress;
 
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.restcomm.media.network.PortManager;
 import org.restcomm.media.network.RtpPortManager;
-import org.restcomm.media.network.netty.NetworkManager;
-import org.restcomm.media.network.netty.UdpNetworkManager;
 
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
+import io.netty.channel.socket.DatagramChannel;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-@Ignore
 public class UdpNetworkManagerTest {
     
     private NetworkManager manager;
     
     @After
-    public void afterTest() {
+    public void after() {
         if(this.manager != null && this.manager.isActive()) {
             this.manager.deactivate();
         }
+        this.manager = null;
     }
     
     @Test
-    public void testBindUdpChannel() {
+    public void testBindChannel() throws InterruptedException {
         // given
-        RtpPortManager ports = mock(RtpPortManager.class);
-        ChannelHandler handler = mock(ChannelHandler.class);
-        NetworkManager manager = new UdpNetworkManager("127.0.0.1", ports);
+        final String address = "127.0.0.1";
+        final int port = 60000;
+        final PortManager ports = mock(PortManager.class);
+        final ChannelHandler handler = mock(ChannelHandler.class);
+        this.manager = new UdpNetworkManager("127.0.0.1", ports);
 
         // when - activate manager and bind channel
-        when(ports.next()).thenReturn(65530);
+        when(ports.next()).thenReturn(port);
+
         manager.activate();
-        
-        ChannelFuture future = manager.bindChannel(handler);
-        Channel channel = future.channel();
-        
-        try {
-            future.sync();
-        } catch (InterruptedException e) {
-            fail();
-        }
+
+        final ChannelFuture future = manager.bindChannel(handler);
+        final DatagramChannel channel = (DatagramChannel) future.sync().channel();
         
         // then
         assertTrue(manager.isActive());
@@ -84,10 +78,12 @@ public class UdpNetworkManagerTest {
         assertNotNull(channel);
         assertTrue(channel.isOpen());
         assertTrue(channel.isActive());
-        assertEquals(new InetSocketAddress("127.0.0.1", 65530), channel.localAddress());
+        assertFalse(channel.isConnected());
+        assertEquals(new InetSocketAddress(address, port), channel.localAddress());
         
         // when - deactivate manager
         manager.deactivate();
+        Thread.sleep(UdpNetworkManager.SHUTDOWN_TIME * 1000);
         
         // then
         assertFalse(manager.isActive());
@@ -98,9 +94,10 @@ public class UdpNetworkManagerTest {
     @Test(expected=IllegalStateException.class)
     public void testBindWhileInactive() {
         // given
-        RtpPortManager ports = mock(RtpPortManager.class);
-        ChannelHandler handler = mock(ChannelHandler.class);
-        NetworkManager manager = new UdpNetworkManager("127.0.0.1", ports);
+        final String address = "127.0.0.1";
+        final RtpPortManager ports = mock(RtpPortManager.class);
+        final ChannelHandler handler = mock(ChannelHandler.class);
+        final NetworkManager manager = new UdpNetworkManager(address, ports);
         
         // when
         manager.bindChannel(handler);

@@ -41,16 +41,6 @@ public interface NetworkManager {
     ChannelFuture bindChannel(ChannelHandler handler);
 
     /**
-     * Binds a channel to predefined address and port.
-     * 
-     * @param address The address to bind the channel to
-     * @param port The port to bind the channel to
-     * @param handler The channel handler
-     * @return The future of the binding operation
-     */
-    ChannelFuture bindChannel(String address, int port, ChannelHandler handler);
-
-    /**
      * Activates the manager.
      * 
      * <p>

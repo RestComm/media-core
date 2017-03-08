@@ -21,9 +21,10 @@
 
 package org.restcomm.media.network.netty;
 
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.restcomm.media.network.RtpPortManager;
+import org.restcomm.media.network.PortManager;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
@@ -34,7 +35,7 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.concurrent.DefaultThreadFactory;
 
 /**
- * Netty-based network manager that provides channels for media and control streaming.
+ * Netty-based network manager that provides datagram channels.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  * 
@@ -42,15 +43,23 @@ import io.netty.util.concurrent.DefaultThreadFactory;
 public class UdpNetworkManager implements NetworkManager {
 
     public static final int N_THREADS = Runtime.getRuntime().availableProcessors();
-
+    public static final long SHUTDOWN_TIME = 5L;
+    
+    
     private final String address;
-    private final RtpPortManager ports;
+    private final PortManager ports;
     private EventLoopGroup eventGroup;
     private final AtomicBoolean active;
-
-    public UdpNetworkManager(String address, RtpPortManager ports) {
+    
+    /**
+     * Creates a new Network Manager.
+     * 
+     * @param address The address the manager will bind channels to.
+     * @param portManager The port range manager.
+     */
+    public UdpNetworkManager(String address, PortManager portManager) {
         this.address = address;
-        this.ports = ports;
+        this.ports = portManager;
         this.active = new AtomicBoolean(false);
     }
 
@@ -59,8 +68,7 @@ public class UdpNetworkManager implements NetworkManager {
         return bindChannel(this.address, this.ports.next(), handler);
     }
 
-    @Override
-    public ChannelFuture bindChannel(String address, int port, ChannelHandler handler) {
+    private ChannelFuture bindChannel(String address, int port, ChannelHandler handler) {
         if (this.active.get()) {
             Bootstrap bootstrap = new Bootstrap().group(this.eventGroup).channel(NioDatagramChannel.class).handler(handler);
             return bootstrap.bind(address, port);
@@ -82,7 +90,7 @@ public class UdpNetworkManager implements NetworkManager {
     @Override
     public void deactivate() throws IllegalStateException {
         if (this.active.get()) {
-            this.eventGroup.shutdownGracefully();
+            this.eventGroup.shutdownGracefully(0L, SHUTDOWN_TIME, TimeUnit.SECONDS);
             this.active.set(false);
         } else {
             throw new IllegalStateException("Network Manager is already inactive");
