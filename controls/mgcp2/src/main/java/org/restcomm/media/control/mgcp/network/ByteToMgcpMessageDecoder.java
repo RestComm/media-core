@@ -34,7 +34,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
 
 /**
- * Decoder that converts a byte array into an {@link MgcpMessage}.
+ * Decoder that converts a {@link ByteBuf} into an {@link MgcpMessage}.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
