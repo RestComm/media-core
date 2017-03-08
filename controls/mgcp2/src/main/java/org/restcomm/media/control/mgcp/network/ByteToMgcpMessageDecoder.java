@@ -31,7 +31,7 @@ import org.restcomm.media.control.mgcp.message.MgcpResponse;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.MessageToMessageDecoder;
+import io.netty.handler.codec.ByteToMessageDecoder;
 
 /**
  * Decoder that converts a {@link ByteBuf} into an {@link MgcpMessage}.
@@ -39,7 +39,7 @@ import io.netty.handler.codec.MessageToMessageDecoder;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class ByteToMgcpMessageDecoder extends MessageToMessageDecoder<ByteBuf> {
+public class ByteToMgcpMessageDecoder extends ByteToMessageDecoder {
 
     private final MgcpMessageParser parser;
 
