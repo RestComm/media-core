@@ -86,10 +86,10 @@ public class UdpManager {
     private List<Future<?>> pollTaskFutures;
     private AtomicInteger currSelectorIndex;
 
-    public UdpManager(Scheduler scheduler) {
+    public UdpManager(Scheduler scheduler, PortManager portManager, PortManager localPortManager) {
         // Core elements
-        this.portManager = new PortManager();
-        this.localPortManager = new PortManager();
+        this.portManager = portManager;
+        this.localPortManager = localPortManager;
 
         // UDP Manager properties
         this.inet = INET_UNKNOWN;
@@ -233,30 +233,12 @@ public class UdpManager {
     }
 
     /**
-     * Modify the low boundary.
-     * 
-     * @param low port number
-     */
-    public void setLowestPort(int low) {
-        portManager.setLowestPort(low);
-    }
-
-    /**
      * Gets the low boundary of available range.
      * 
      * @return low min port number
      */
     public int getLowestPort() {
-        return portManager.getLowestPort();
-    }
-
-    /**
-     * Modify the upper boundary.
-     * 
-     * @param high port number
-     */
-    public void setHighestPort(int high) {
-        portManager.setHighestPort(high);
+        return portManager.getLowest();
     }
 
     /**
@@ -265,7 +247,7 @@ public class UdpManager {
      * @retun min port number
      */
     public int getHighestPort() {
-        return portManager.getLowestPort();
+        return portManager.getLowest();
     }
 
     public void addSelector(Selector selector) {

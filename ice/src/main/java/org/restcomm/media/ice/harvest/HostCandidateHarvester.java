@@ -40,7 +40,7 @@ import org.restcomm.media.ice.HostCandidate;
 import org.restcomm.media.ice.IceComponent;
 import org.restcomm.media.ice.IceMediaStream;
 import org.restcomm.media.ice.LocalCandidateWrapper;
-import org.restcomm.media.network.PortManager;
+import org.restcomm.media.network.RtpPortManager;
 
 /**
  * Harvester that gathers Host candidates, ie transport addresses obtained
@@ -155,7 +155,7 @@ public class HostCandidateHarvester implements CandidateHarvester {
 		return channel;
 	}
 	
-	public void harvest(PortManager portManager, IceMediaStream mediaStream, Selector selector) throws HarvestException {
+	public void harvest(RtpPortManager portManager, IceMediaStream mediaStream, Selector selector) throws HarvestException {
 		// Find available addresses
 		List<InetAddress> addresses = findAddresses();
 
@@ -166,7 +166,7 @@ public class HostCandidateHarvester implements CandidateHarvester {
 			boolean gathered = gatherCandidate(rtpComponent, address, portManager.next(), portManager, selector);
 			
 			if(!gathered) {
-				logCandidateNotFound(address.toString(), portManager.getLowestPort(), portManager.getHighestPort());
+				logCandidateNotFound(address.toString(), portManager.getLowest(), portManager.getHighest());
 			}
 			
 			/*
@@ -179,7 +179,7 @@ public class HostCandidateHarvester implements CandidateHarvester {
 				// RTCP traffic will be bound to next logical port
 				gathered = gatherCandidate(rtcpComponent, address, portManager.current() + 1, portManager, selector);
 				if (!gathered) {
-					logCandidateNotFound(address.toString(), portManager.getLowestPort(), portManager.getHighestPort());
+					logCandidateNotFound(address.toString(), portManager.getLowest(), portManager.getHighest());
 				}
 			}
 		}
@@ -209,7 +209,7 @@ public class HostCandidateHarvester implements CandidateHarvester {
 	 * @return Whether a candidate was successfully gathered. The portManager
 	 *         will keep track of the effective port.
 	 */
-	private boolean gatherCandidate(IceComponent component, InetAddress address, int startingPort, PortManager portManager, Selector selector) {
+	private boolean gatherCandidate(IceComponent component, InetAddress address, int startingPort, RtpPortManager portManager, Selector selector) {
 		// Recursion stop criteria
 		if(startingPort == portManager.peek()) {
 			return false;

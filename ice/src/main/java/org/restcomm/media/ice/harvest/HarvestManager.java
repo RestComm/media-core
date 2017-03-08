@@ -29,7 +29,7 @@ import org.restcomm.media.ice.CandidateType;
 import org.restcomm.media.ice.FoundationsRegistry;
 import org.restcomm.media.ice.IceMediaStream;
 import org.restcomm.media.ice.lite.LiteFoundationsRegistry;
-import org.restcomm.media.network.PortManager;
+import org.restcomm.media.network.RtpPortManager;
 
 /**
  * Manages the candidate harvesting process
@@ -93,7 +93,7 @@ public class HarvestManager {
 		return externalAddress;
 	}
 
-	public void harvest(IceMediaStream mediaStream, PortManager portManager, Selector selector) throws HarvestException, NoCandidatesGatheredException {
+	public void harvest(IceMediaStream mediaStream, RtpPortManager portManager, Selector selector) throws HarvestException, NoCandidatesGatheredException {
 		// Ask each harvester to gather candidates for the media stream
 		// HOST candidates take precedence and are mandatory
 		CandidateHarvester hostHarvester = harvesters.get(CandidateType.HOST);

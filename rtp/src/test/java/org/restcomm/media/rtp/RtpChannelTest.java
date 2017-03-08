@@ -37,6 +37,7 @@ import org.restcomm.media.component.audio.Sine;
 import org.restcomm.media.component.audio.SpectraAnalyzer;
 import org.restcomm.media.component.dsp.Dsp;
 import org.restcomm.media.component.dsp.DspFactoryImpl;
+import org.restcomm.media.network.RtpPortManager;
 import org.restcomm.media.network.UdpManager;
 import org.restcomm.media.rtp.ChannelsManager;
 import org.restcomm.media.rtp.RtpChannel;
@@ -135,7 +136,7 @@ public class RtpChannelTest {
         mediaScheduler.setClock(clock);
         mediaScheduler.start();
 
-        udpManager = new UdpManager(scheduler);
+        udpManager = new UdpManager(scheduler, new RtpPortManager(), new RtpPortManager());
         scheduler.start();
         udpManager.start();
         

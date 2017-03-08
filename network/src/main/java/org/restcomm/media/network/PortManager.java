@@ -1,8 +1,7 @@
 /*
- * JBoss, Home of Professional Open Source
- * Copyright 2011, Red Hat, Inc. and individual contributors
- * by the @authors tag. See the copyright.txt in the distribution for a
- * full listing of individual contributors.
+ * TeleStax, Open Source Cloud Communications
+ * Copyright 2011-2016, Telestax Inc and individual contributors
+ * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -22,78 +21,51 @@
 
 package org.restcomm.media.network;
 
-import java.util.concurrent.atomic.AtomicInteger;
 /**
- * The utility class that helps to accuire port for converstion.
+ * Utility class that manages a range of ports.
  *
- * The range of available port is identified by a pair of integer constants.
- * Method <code>next</code> consiquently peeks up even port either from beginning or
- * from the end of range.
- *
+ * The range of available port is identified by a pair of integer constants. Method <code>next</code> consequently peeks up even
+ * port either from beginning or from the end of range.
+ * 
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  * @author yulian oifa
+ *
  */
-public class PortManager {
-    //the available range
-    private int low = 1024, high=65534;
-    private int step=(high-low)/2;
-    //pointers
-    private AtomicInteger currPort = new AtomicInteger(0);
-
-    /**
-     * Creates new instance.
-     */
-    public PortManager() {
-    }
-
-    /**
-     * Modify the low boundary.
-     * @param low port number
-     */
-    public void setLowestPort(int low) {
-        this.low = low % 2 == 0 ? low : low + 1;
-        step=(high-low)/2;
-    }
+public interface PortManager {
 
     /**
      * Gets the low boundary of available range.
-     * @return low min port number
+     * 
+     * @return Minimum port number
      */
-    public int getLowestPort() {
-        return low;
-    }
-
-    /**
-     * Modify the upper boundary.
-     * @param high port number
-     */
-    public void setHighestPort(int high) {
-        this.high = high % 2 == 0 ? high : high - 1;
-        step=(high-low)/2 + 1;
-    }
+    int getLowest();
 
     /**
      * Gets the upper boundary of available range.
-     * @retun min port number
+     * 
+     * @return Maximum port number
      */
-    public int getHighestPort() {
-        return this.high;
-    }
+    int getHighest();
 
     /**
-     * Select the next port probably available.
-     *
-     * @return even port number
+     * Gets the current port.
+     * 
+     * @return The current port.
      */
-    public int next() {
-    	return high-(currPort.getAndAdd(1)%step)*2;        
-    }
-    
-    public int peek() {
-    	return high-((currPort.get()+1)%step)*2;
-    }
+    public int current();
 
-    public int current() {
-    	return high-(currPort.get()%step)*2;
-    }
-    
+    /**
+     * Peeks into the next available port. Does not move the internal pointer.
+     * 
+     * @return The next available port.
+     */
+    public int peek();
+
+    /**
+     * Moves to the next available port.
+     * 
+     * @return The next available port.
+     */
+    public int next();
+
 }

@@ -23,7 +23,7 @@ package org.restcomm.media.network.netty;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.restcomm.media.network.PortManager;
+import org.restcomm.media.network.RtpPortManager;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
@@ -41,14 +41,14 @@ import io.netty.util.concurrent.DefaultThreadFactory;
  */
 public class UdpNetworkManager implements NetworkManager {
 
-    public static final int N_THREADS = Runtime.getRuntime().availableProcessors() * 2;
+    public static final int N_THREADS = Runtime.getRuntime().availableProcessors();
 
     private final String address;
-    private final PortManager ports;
+    private final RtpPortManager ports;
     private EventLoopGroup eventGroup;
     private final AtomicBoolean active;
 
-    public UdpNetworkManager(String address, PortManager ports) {
+    public UdpNetworkManager(String address, RtpPortManager ports) {
         this.address = address;
         this.ports = ports;
         this.active = new AtomicBoolean(false);

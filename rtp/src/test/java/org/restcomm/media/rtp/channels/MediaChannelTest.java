@@ -27,6 +27,7 @@ import java.io.IOException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.restcomm.media.network.RtpPortManager;
 import org.restcomm.media.network.UdpManager;
 import org.restcomm.media.rtcp.RtcpChannel;
 import org.restcomm.media.rtp.ChannelsManager;
@@ -81,7 +82,7 @@ public class MediaChannelTest {
 		this.mediaScheduler = new PriorityQueueScheduler();
 		this.mediaScheduler.setClock(this.wallClock);
 		this.scheduler = new ServiceScheduler();
-		this.udpManager = new UdpManager(scheduler);
+		this.udpManager = new UdpManager(scheduler, new RtpPortManager(), new RtpPortManager());
 		this.channelsManager = new ChannelsManager(udpManager, mockedDtlsServerProvider);
 		this.channelsManager.setScheduler(this.mediaScheduler);
 		

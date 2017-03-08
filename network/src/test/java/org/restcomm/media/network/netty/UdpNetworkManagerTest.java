@@ -34,7 +34,7 @@ import java.net.InetSocketAddress;
 import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.restcomm.media.network.PortManager;
+import org.restcomm.media.network.RtpPortManager;
 import org.restcomm.media.network.netty.NetworkManager;
 import org.restcomm.media.network.netty.UdpNetworkManager;
 
@@ -61,7 +61,7 @@ public class UdpNetworkManagerTest {
     @Test
     public void testBindUdpChannel() {
         // given
-        PortManager ports = mock(PortManager.class);
+        RtpPortManager ports = mock(RtpPortManager.class);
         ChannelHandler handler = mock(ChannelHandler.class);
         NetworkManager manager = new UdpNetworkManager("127.0.0.1", ports);
 
@@ -98,7 +98,7 @@ public class UdpNetworkManagerTest {
     @Test(expected=IllegalStateException.class)
     public void testBindWhileInactive() {
         // given
-        PortManager ports = mock(PortManager.class);
+        RtpPortManager ports = mock(RtpPortManager.class);
         ChannelHandler handler = mock(ChannelHandler.class);
         NetworkManager manager = new UdpNetworkManager("127.0.0.1", ports);
         

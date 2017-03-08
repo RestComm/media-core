@@ -57,7 +57,7 @@ public class UdpPeripheryTest {
 
     @Before
     public void setUp() throws IOException {
-        udpPeriphery = new UdpManager(scheduler);
+        udpPeriphery = new UdpManager(scheduler, new RtpPortManager(), new RtpPortManager());
         scheduler.start();
         udpPeriphery.start();
     }

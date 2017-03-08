@@ -39,11 +39,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.restcomm.media.concurrent.ConcurrentMap;
-import org.restcomm.media.control.mgcp.MgcpEvent;
-import org.restcomm.media.control.mgcp.MgcpListener;
-import org.restcomm.media.control.mgcp.MgcpProvider;
 import org.restcomm.media.control.mgcp.message.MgcpRequest;
 import org.restcomm.media.control.mgcp.message.MgcpResponse;
+import org.restcomm.media.network.RtpPortManager;
 import org.restcomm.media.network.UdpManager;
 import org.restcomm.media.scheduler.Clock;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
@@ -81,7 +79,7 @@ public class MgcpProviderLoadTest {
         mediaScheduler.setClock(clock);
         mediaScheduler.start();
         
-        udpInterface = new UdpManager(scheduler);
+        udpInterface = new UdpManager(scheduler, new RtpPortManager(), new RtpPortManager());
         udpInterface.setLocalBindAddress("127.0.0.1");
         udpInterface.setBindAddress("127.0.0.1");
         udpInterface.setLocalNetwork("127.0.0.1");

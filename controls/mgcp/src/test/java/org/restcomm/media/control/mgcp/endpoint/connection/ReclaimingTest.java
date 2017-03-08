@@ -41,6 +41,7 @@ import org.restcomm.media.control.mgcp.connection.RtpConnectionPool;
 import org.restcomm.media.control.mgcp.endpoint.MyTestEndpoint;
 import org.restcomm.media.control.mgcp.resources.ResourcesPool;
 import org.restcomm.media.core.configuration.DtlsConfiguration;
+import org.restcomm.media.network.RtpPortManager;
 import org.restcomm.media.network.UdpManager;
 import org.restcomm.media.resource.dtmf.DtmfDetectorFactory;
 import org.restcomm.media.resource.dtmf.DtmfDetectorPool;
@@ -116,7 +117,7 @@ public class ReclaimingTest {
         mediaScheduler.setClock(clock);
         mediaScheduler.start();
 
-        channelsManager = new ChannelsManager(new UdpManager(new ServiceScheduler()), dtlsServerProvider);
+        channelsManager = new ChannelsManager(new UdpManager(new ServiceScheduler(), new RtpPortManager(), new RtpPortManager()), dtlsServerProvider);
         channelsManager.setScheduler(mediaScheduler);        
 
         // Resource
