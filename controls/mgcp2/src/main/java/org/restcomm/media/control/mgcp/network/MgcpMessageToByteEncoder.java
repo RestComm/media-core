@@ -21,14 +21,12 @@
 
 package org.restcomm.media.control.mgcp.network;
 
-import java.util.List;
-
 import org.restcomm.media.control.mgcp.message.MgcpMessage;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.MessageToMessageEncoder;
+import io.netty.channel.ChannelHandler.Sharable;
+import io.netty.handler.codec.MessageToByteEncoder;
 
 /**
  * Encoder that converts an {@link MgcpMessage} into a {@link ByteBuf}.
@@ -36,10 +34,10 @@ import io.netty.handler.codec.MessageToMessageEncoder;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpMessageToByteEncoder extends MessageToMessageEncoder<MgcpMessage> {
+public class MgcpMessageToByteEncoder extends MessageToByteEncoder<MgcpMessage> {
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, MgcpMessage msg, List<Object> out) throws Exception {
+    protected void encode(ChannelHandlerContext ctx, MgcpMessage msg, ByteBuf out) throws Exception {
         // Convert MGCP message to String
         String string = msg.toString();
 
@@ -47,8 +45,7 @@ public class MgcpMessageToByteEncoder extends MessageToMessageEncoder<MgcpMessag
         byte[] bytes = string.getBytes();
 
         // Output bytes
-        ByteBuf buffer = Unpooled.copiedBuffer(bytes);
-        out.add(buffer);
+        out.writeBytes(bytes);
     }
 
 }

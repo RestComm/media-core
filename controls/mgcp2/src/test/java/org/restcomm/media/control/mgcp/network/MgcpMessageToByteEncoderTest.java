@@ -21,18 +21,15 @@
 
 package org.restcomm.media.control.mgcp.network;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.restcomm.media.control.mgcp.message.MgcpMessage;
 import org.restcomm.media.control.mgcp.message.MgcpMessageParser;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
@@ -55,19 +52,14 @@ public class MgcpMessageToByteEncoderTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpMessage mgcpMessage = parser.parseRequest(message);
         final ChannelHandlerContext context = mock(ChannelHandlerContext.class);
-        final List<Object> out = new ArrayList<>(1);
+        final ByteBuf buffer = Unpooled.buffer(message.getBytes().length);
         final MgcpMessageToByteEncoder encoder = new MgcpMessageToByteEncoder();
 
         // when
-        encoder.encode(context, mgcpMessage, out);
+        encoder.encode(context, mgcpMessage, buffer);
 
         // then
-        assertFalse(out.isEmpty());
-        assertTrue(out.get(0) instanceof ByteBuf);
-
-        final ByteBuf buffer = (ByteBuf) out.get(0);
-        byte[] payload = new byte[buffer.readableBytes()];
-        assertEquals(message.getBytes().length, payload.length);
+        assertEquals(message.getBytes().length, buffer.readableBytes());
     }
 
 }
