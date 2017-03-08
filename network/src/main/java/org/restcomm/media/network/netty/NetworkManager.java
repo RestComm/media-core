@@ -37,8 +37,10 @@ public interface NetworkManager {
      * 
      * @param handler The channel handler.
      * @return The future of the binding operation
+     * 
+     * @throws IllegalStateException If the manager is inactive.
      */
-    ChannelFuture bindChannel(ChannelHandler handler);
+    ChannelFuture bindDatagramChannel(String address, int port, ChannelHandler handler) throws IllegalStateException;
 
     /**
      * Activates the manager.
@@ -59,7 +61,7 @@ public interface NetworkManager {
      * The internal scheduler will elegantly shutdown any active channel and the manager won't be able to provide channels.
      * <p>
      * 
-     * @throws IllegalStateException If the manager was already activated
+     * @throws IllegalStateException If the manager is inactive.
      */
     void deactivate() throws IllegalStateException;
 

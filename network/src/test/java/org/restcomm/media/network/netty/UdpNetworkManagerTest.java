@@ -26,14 +26,11 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.net.InetSocketAddress;
 
 import org.junit.After;
 import org.junit.Test;
-import org.restcomm.media.network.PortManager;
-import org.restcomm.media.network.RtpPortManager;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
@@ -60,16 +57,13 @@ public class UdpNetworkManagerTest {
         // given
         final String address = "127.0.0.1";
         final int port = 60000;
-        final PortManager ports = mock(PortManager.class);
         final ChannelHandler handler = mock(ChannelHandler.class);
-        this.manager = new UdpNetworkManager("127.0.0.1", ports);
+        this.manager = new UdpNetworkManager();
 
         // when - activate manager and bind channel
-        when(ports.next()).thenReturn(port);
-
         manager.activate();
 
-        final ChannelFuture future = manager.bindChannel(handler);
+        final ChannelFuture future = manager.bindDatagramChannel(address, port, handler);
         final DatagramChannel channel = (DatagramChannel) future.sync().channel();
         
         // then
@@ -95,12 +89,12 @@ public class UdpNetworkManagerTest {
     public void testBindWhileInactive() {
         // given
         final String address = "127.0.0.1";
-        final RtpPortManager ports = mock(RtpPortManager.class);
+        final int port = 60000;
         final ChannelHandler handler = mock(ChannelHandler.class);
-        final NetworkManager manager = new UdpNetworkManager(address, ports);
+        final NetworkManager manager = new UdpNetworkManager();
         
         // when
-        manager.bindChannel(handler);
+        manager.bindDatagramChannel(address, port, handler);
     }
 
 }

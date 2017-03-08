@@ -24,8 +24,6 @@ package org.restcomm.media.network.netty;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.restcomm.media.network.PortManager;
-
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
@@ -45,9 +43,6 @@ public class UdpNetworkManager implements NetworkManager {
     public static final int N_THREADS = Runtime.getRuntime().availableProcessors();
     public static final long SHUTDOWN_TIME = 5L;
     
-    
-    private final String address;
-    private final PortManager ports;
     private EventLoopGroup eventGroup;
     private final AtomicBoolean active;
     
@@ -57,18 +52,12 @@ public class UdpNetworkManager implements NetworkManager {
      * @param address The address the manager will bind channels to.
      * @param portManager The port range manager.
      */
-    public UdpNetworkManager(String address, PortManager portManager) {
-        this.address = address;
-        this.ports = portManager;
+    public UdpNetworkManager() {
         this.active = new AtomicBoolean(false);
     }
 
     @Override
-    public ChannelFuture bindChannel(ChannelHandler handler) throws IllegalStateException {
-        return bindChannel(this.address, this.ports.next(), handler);
-    }
-
-    private ChannelFuture bindChannel(String address, int port, ChannelHandler handler) {
+    public ChannelFuture bindDatagramChannel(String address, int port, ChannelHandler handler) throws IllegalStateException {
         if (this.active.get()) {
             Bootstrap bootstrap = new Bootstrap().group(this.eventGroup).channel(NioDatagramChannel.class).handler(handler);
             return bootstrap.bind(address, port);
