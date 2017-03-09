@@ -22,15 +22,20 @@
 package org.restcomm.media.control.mgcp.network;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
+
+import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Test;
 import org.restcomm.media.control.mgcp.message.MgcpMessage;
 import org.restcomm.media.control.mgcp.message.MgcpMessageParser;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.socket.DatagramPacket;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -48,18 +53,28 @@ public class MgcpMessageEncoderTest {
         builder.append("N:restcomm@127.0.0.1:2727").append(System.lineSeparator());
         builder.append("Z2:mobicents/ivr/$@127.0.0.1:2427").append(System.lineSeparator());
 
+        final InetSocketAddress sender = new InetSocketAddress("127.0.0.1", 2727);
+        final InetSocketAddress recipient = new InetSocketAddress("127.0.0.1", 2427);
         final String message = builder.toString();
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpMessage mgcpMessage = parser.parseRequest(message);
         final ChannelHandlerContext context = mock(ChannelHandlerContext.class);
-        final ByteBuf buffer = Unpooled.buffer(message.getBytes().length);
+        final List<Object> out = new ArrayList<>(1);
         final MgcpMessageEncoder encoder = new MgcpMessageEncoder();
 
         // when
-        encoder.encode(context, mgcpMessage, buffer);
+        mgcpMessage.setRecipient(recipient);
+        mgcpMessage.setSender(sender);
+        encoder.encode(context, mgcpMessage, out);
 
         // then
-        assertEquals(message.getBytes().length, buffer.readableBytes());
+        assertFalse(out.isEmpty());
+        assertTrue(out.get(0) instanceof DatagramPacket);
+        
+        DatagramPacket packet = (DatagramPacket) out.get(0);
+        assertEquals(recipient, packet.recipient());
+        assertEquals(sender, packet.sender());
+        
     }
 
 }

@@ -52,7 +52,7 @@ public class MgcpChannelInboundHandler extends SimpleChannelInboundHandler<MgcpM
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, MgcpMessage msg) throws Exception {
-        notify(originator, from, to, message, direction);
+        notify(this, msg.getSender(), msg.getSender(), msg, MessageDirection.INCOMING);
     }
 
     @Override

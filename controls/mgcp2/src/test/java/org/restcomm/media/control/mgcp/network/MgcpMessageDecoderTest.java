@@ -29,6 +29,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,6 +45,7 @@ import org.restcomm.media.control.mgcp.message.MgcpResponse;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.socket.DatagramPacket;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -65,6 +67,9 @@ public class MgcpMessageDecoderTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final ChannelHandlerContext context = mock(ChannelHandlerContext.class);
         final ByteBuf byteBuf = mock(ByteBuf.class);
+        final InetSocketAddress sender = new InetSocketAddress("127.0.0.1", 2727);
+        final InetSocketAddress recipient = new InetSocketAddress("127.0.0.1", 2427);
+        final DatagramPacket packet = new DatagramPacket(byteBuf, recipient, sender);
         final List<Object> outList = new ArrayList<>(1);
         final MgcpMessageDecoder decoder = new MgcpMessageDecoder(parser);
 
@@ -80,7 +85,7 @@ public class MgcpMessageDecoderTest {
             }
         });
 
-        decoder.decode(context, byteBuf, outList);
+        decoder.decode(context, packet, outList);
 
         // then
         assertFalse(outList.isEmpty());
@@ -94,6 +99,8 @@ public class MgcpMessageDecoderTest {
         assertEquals("sendrecv", request.getParameter(MgcpParameterType.MODE));
         assertEquals("restcomm@127.0.0.1:2727", request.getParameter(MgcpParameterType.NOTIFIED_ENTITY));
         assertEquals("mobicents/ivr/$@127.0.0.1:2427", request.getParameter(MgcpParameterType.SECOND_ENDPOINT));
+        assertEquals(sender, request.getSender());
+        assertEquals(recipient, request.getRecipient());
     }
 
     @Test
@@ -110,6 +117,9 @@ public class MgcpMessageDecoderTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final ChannelHandlerContext context = mock(ChannelHandlerContext.class);
         final ByteBuf byteBuf = mock(ByteBuf.class);
+        final InetSocketAddress sender = new InetSocketAddress("127.0.0.1", 2727);
+        final InetSocketAddress recipient = new InetSocketAddress("127.0.0.1", 2427);
+        final DatagramPacket packet = new DatagramPacket(byteBuf, recipient, sender);
         final List<Object> outList = new ArrayList<>(1);
         final MgcpMessageDecoder decoder = new MgcpMessageDecoder(parser);
 
@@ -125,7 +135,7 @@ public class MgcpMessageDecoderTest {
             }
         });
 
-        decoder.decode(context, byteBuf, outList);
+        decoder.decode(context, packet, outList);
 
         // then
         assertFalse(outList.isEmpty());
@@ -139,6 +149,8 @@ public class MgcpMessageDecoderTest {
         assertEquals("mobicents/bridge/1@127.0.0.1:2427", response.getParameter(MgcpParameterType.ENDPOINT_ID));
         assertEquals("mobicents/ivr/1@127.0.0.1:2427", response.getParameter(MgcpParameterType.SECOND_ENDPOINT));
         assertEquals("10", response.getParameter(MgcpParameterType.CONNECTION_ID2));
+        assertEquals(sender, response.getSender());
+        assertEquals(recipient, response.getRecipient());
     }
 
     @Test(expected = MgcpParseException.class)
@@ -155,6 +167,9 @@ public class MgcpMessageDecoderTest {
         final MgcpMessageParser parser = mock(MgcpMessageParser.class);
         final ChannelHandlerContext context = mock(ChannelHandlerContext.class);
         final ByteBuf byteBuf = mock(ByteBuf.class);
+        final InetSocketAddress sender = new InetSocketAddress("127.0.0.1", 2727);
+        final InetSocketAddress recipient = new InetSocketAddress("127.0.0.1", 2427);
+        final DatagramPacket packet = new DatagramPacket(byteBuf, recipient, sender);
         final List<Object> outList = new ArrayList<>(1);
         final MgcpMessageDecoder decoder = new MgcpMessageDecoder(parser);
 
@@ -171,7 +186,7 @@ public class MgcpMessageDecoderTest {
         });
         when(parser.parseRequest(any(byte[].class))).thenThrow(new MgcpParseException("Testing purposes!"));
 
-        decoder.decode(context, byteBuf, outList);
+        decoder.decode(context, packet, outList);
     }
 
 }

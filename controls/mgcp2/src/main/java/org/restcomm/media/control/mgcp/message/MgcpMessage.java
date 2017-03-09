@@ -21,6 +21,7 @@
 
 package org.restcomm.media.control.mgcp.message;
 
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
 import org.restcomm.media.control.mgcp.util.collections.Parameters;
@@ -33,55 +34,74 @@ import org.restcomm.media.control.mgcp.util.collections.Parameters;
  */
 public abstract class MgcpMessage {
 
+    protected InetSocketAddress sender;
+    protected InetSocketAddress recipient;
+
     protected int transactionId;
     protected final Parameters<MgcpParameterType> parameters;
     protected final ByteBuffer data;
-    
+
     public MgcpMessage() {
         this.transactionId = -1;
         this.parameters = new Parameters<>();
         this.data = ByteBuffer.allocate(8192);
     }
-    
+
+    public InetSocketAddress getSender() {
+        return sender;
+    }
+
+    public void setSender(InetSocketAddress sender) {
+        this.sender = sender;
+    }
+
+    public InetSocketAddress getRecipient() {
+        return recipient;
+    }
+
+    public void setRecipient(InetSocketAddress recipient) {
+        this.recipient = recipient;
+    }
+
     public int getTransactionId() {
         return transactionId;
     }
-    
+
     public void setTransactionId(int transactionId) {
         this.transactionId = transactionId;
     }
-    
+
     public boolean isSdpDetected() {
         return this.parameters.containsKey(MgcpParameterType.SDP);
     }
-    
+
     public Parameters<MgcpParameterType> getParameters() {
         return parameters.clone();
     }
-    
+
     public String getParameter(MgcpParameterType type) {
         return this.parameters.getString(type).orNull();
     }
-    
+
     public boolean hasParameter(MgcpParameterType type) {
         return this.parameters.containsKey(type);
     }
-    
+
     public void addParameter(MgcpParameterType type, String value) {
         this.parameters.put(type, value);
     }
-    
+
     public void removeParameter(MgcpParameterType type) {
         this.parameters.remove(type);
     }
-    
+
     public void removeParameters() {
         this.parameters.clear();
     }
-    
+
     public abstract boolean isRequest();
-    
+
     @Override
     public abstract String toString();
-    
+
 }

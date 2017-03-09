@@ -21,11 +21,16 @@
 
 package org.restcomm.media.control.mgcp.network;
 
+import java.net.InetSocketAddress;
+import java.util.List;
+
 import org.restcomm.media.control.mgcp.message.MgcpMessage;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.MessageToByteEncoder;
+import io.netty.channel.socket.DatagramPacket;
+import io.netty.handler.codec.MessageToMessageEncoder;
 
 /**
  * Encoder that converts an {@link MgcpMessage} into a {@link ByteBuf}.
@@ -33,20 +38,18 @@ import io.netty.handler.codec.MessageToByteEncoder;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpMessageEncoder extends MessageToByteEncoder<MgcpMessage> {
-    
+public class MgcpMessageEncoder extends MessageToMessageEncoder<MgcpMessage> {
+
     public static final String PIPELINE_KEY = "mgcp-encoder";
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, MgcpMessage msg, ByteBuf out) throws Exception {
-        // Convert MGCP message to String
-        String string = msg.toString();
-
-        // Convert String to Byte
-        byte[] bytes = string.getBytes();
-
-        // Output bytes
-        out.writeBytes(bytes);
+    protected void encode(ChannelHandlerContext ctx, MgcpMessage msg, List<Object> out) throws Exception {
+        final InetSocketAddress sender = msg.getSender();
+        final InetSocketAddress recipient = msg.getRecipient();
+        final byte[] content = msg.toString().getBytes();
+        final ByteBuf buffer = Unpooled.buffer(content.length).writeBytes(content);
+        final DatagramPacket packet = new DatagramPacket(buffer, recipient, sender);
+        out.add(packet);
     }
 
 }

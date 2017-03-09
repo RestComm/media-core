@@ -21,6 +21,7 @@
 
 package org.restcomm.media.control.mgcp.network;
 
+import java.net.InetSocketAddress;
 import java.util.List;
 
 import org.restcomm.media.control.mgcp.exception.MgcpParseException;
@@ -31,7 +32,8 @@ import org.restcomm.media.control.mgcp.message.MgcpResponse;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.ByteToMessageDecoder;
+import io.netty.channel.socket.DatagramPacket;
+import io.netty.handler.codec.MessageToMessageDecoder;
 
 /**
  * Decoder that converts a {@link ByteBuf} into an {@link MgcpMessage}.
@@ -39,7 +41,7 @@ import io.netty.handler.codec.ByteToMessageDecoder;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpMessageDecoder extends ByteToMessageDecoder {
+public class MgcpMessageDecoder extends MessageToMessageDecoder<DatagramPacket> {
     
     public static final String PIPELINE_KEY = "mgcp-decoder";
 
@@ -49,11 +51,23 @@ public class MgcpMessageDecoder extends ByteToMessageDecoder {
         this.parser = parser;
     }
 
+    private MgcpRequest handleRequest(byte[] packet) throws MgcpParseException {
+        return this.parser.parseRequest(packet);
+    }
+
+    private MgcpResponse handleResponse(byte[] packet) throws MgcpParseException {
+        return this.parser.parseResponse(packet);
+    }
+
     @Override
-    protected void decode(ChannelHandlerContext ctx, ByteBuf msg, List<Object> out) throws Exception {
+    protected void decode(ChannelHandlerContext ctx, DatagramPacket msg, List<Object> out) throws Exception {
+        final ByteBuf content = msg.content();
+        final InetSocketAddress recipient = msg.recipient();
+        final InetSocketAddress sender = msg.sender();
+        
         // Get data from buffer
-        byte[] payload = new byte[msg.readableBytes()];
-        msg.getBytes(0, payload);
+        byte[] payload = new byte[content.readableBytes()];
+        content.getBytes(0, payload);
 
         // Check message type based on first byte
         byte b = payload[0];
@@ -65,17 +79,12 @@ public class MgcpMessageDecoder extends ByteToMessageDecoder {
         } else {
             message = handleRequest(payload);
         }
+        
+        message.setRecipient(recipient);
+        message.setSender(sender);
 
         // Pass message to next handler
         out.add(message);
-    }
-
-    private MgcpRequest handleRequest(byte[] packet) throws MgcpParseException {
-        return this.parser.parseRequest(packet);
-    }
-
-    private MgcpResponse handleResponse(byte[] packet) throws MgcpParseException {
-        return this.parser.parseResponse(packet);
     }
 
 }
