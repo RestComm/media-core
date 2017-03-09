@@ -39,11 +39,13 @@ import io.netty.handler.codec.ByteToMessageDecoder;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class ByteToMgcpMessageDecoder extends ByteToMessageDecoder {
+public class MgcpMessageDecoder extends ByteToMessageDecoder {
+    
+    public static final String PIPELINE_KEY = "mgcp-decoder";
 
     private final MgcpMessageParser parser;
 
-    public ByteToMgcpMessageDecoder(MgcpMessageParser parser) {
+    public MgcpMessageDecoder(MgcpMessageParser parser) {
         this.parser = parser;
     }
 

@@ -49,7 +49,7 @@ import io.netty.channel.ChannelHandlerContext;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class ByteToMgcpMessageDecoderTest {
+public class MgcpMessageDecoderTest {
 
     @Test
     public void testDecodeRequest() throws Exception {
@@ -66,7 +66,7 @@ public class ByteToMgcpMessageDecoderTest {
         final ChannelHandlerContext context = mock(ChannelHandlerContext.class);
         final ByteBuf byteBuf = mock(ByteBuf.class);
         final List<Object> outList = new ArrayList<>(1);
-        final ByteToMgcpMessageDecoder decoder = new ByteToMgcpMessageDecoder(parser);
+        final MgcpMessageDecoder decoder = new MgcpMessageDecoder(parser);
 
         // when
         when(byteBuf.readableBytes()).thenReturn(payload.length);
@@ -111,7 +111,7 @@ public class ByteToMgcpMessageDecoderTest {
         final ChannelHandlerContext context = mock(ChannelHandlerContext.class);
         final ByteBuf byteBuf = mock(ByteBuf.class);
         final List<Object> outList = new ArrayList<>(1);
-        final ByteToMgcpMessageDecoder decoder = new ByteToMgcpMessageDecoder(parser);
+        final MgcpMessageDecoder decoder = new MgcpMessageDecoder(parser);
 
         // when
         when(byteBuf.readableBytes()).thenReturn(payload.length);
@@ -156,7 +156,7 @@ public class ByteToMgcpMessageDecoderTest {
         final ChannelHandlerContext context = mock(ChannelHandlerContext.class);
         final ByteBuf byteBuf = mock(ByteBuf.class);
         final List<Object> outList = new ArrayList<>(1);
-        final ByteToMgcpMessageDecoder decoder = new ByteToMgcpMessageDecoder(parser);
+        final MgcpMessageDecoder decoder = new MgcpMessageDecoder(parser);
 
         // when
         when(byteBuf.readableBytes()).thenReturn(payload.length);

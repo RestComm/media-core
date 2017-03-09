@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2017, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
@@ -21,31 +21,32 @@
 
 package org.restcomm.media.control.mgcp.network;
 
-import org.restcomm.media.control.mgcp.message.MgcpMessage;
+import org.restcomm.media.network.netty.NetworkManager;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelHandler.Sharable;
-import io.netty.handler.codec.MessageToByteEncoder;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandler;
 
 /**
- * Encoder that converts an {@link MgcpMessage} into a {@link ByteBuf}.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpMessageToByteEncoder extends MessageToByteEncoder<MgcpMessage> {
+public class MgcpNettyChannel {
 
-    @Override
-    protected void encode(ChannelHandlerContext ctx, MgcpMessage msg, ByteBuf out) throws Exception {
-        // Convert MGCP message to String
-        String string = msg.toString();
+    private final NetworkManager networkManager;
+    private Channel channel;
+    private ChannelHandler handler;
 
-        // Convert String to Byte
-        byte[] bytes = string.getBytes();
-
-        // Output bytes
-        out.writeBytes(bytes);
+    public MgcpNettyChannel(NetworkManager networkManager) {
+        this.networkManager = networkManager;
+        
+    }
+    
+    public void open() throws InterruptedException {
+        channel = this.networkManager.bindChannel(handler).sync().channel();
+    }
+    
+    public void close() {
+        
     }
 
 }

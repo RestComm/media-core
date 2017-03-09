@@ -36,7 +36,7 @@ import io.netty.channel.ChannelHandlerContext;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpMessageToByteEncoderTest {
+public class MgcpMessageEncoderTest {
 
     @Test
     public void testEncode() throws Exception {
@@ -53,7 +53,7 @@ public class MgcpMessageToByteEncoderTest {
         final MgcpMessage mgcpMessage = parser.parseRequest(message);
         final ChannelHandlerContext context = mock(ChannelHandlerContext.class);
         final ByteBuf buffer = Unpooled.buffer(message.getBytes().length);
-        final MgcpMessageToByteEncoder encoder = new MgcpMessageToByteEncoder();
+        final MgcpMessageEncoder encoder = new MgcpMessageEncoder();
 
         // when
         encoder.encode(context, mgcpMessage, buffer);
