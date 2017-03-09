@@ -22,6 +22,7 @@
 package org.restcomm.media.control.mgcp.network;
 
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 
@@ -33,19 +34,18 @@ import io.netty.channel.ChannelPipeline;
  */
 public class MgcpChannelInitializer extends ChannelInitializer<Channel> {
 
-    private final MgcpMessageDecoder mgcpDecoder;
-    private final MgcpMessageEncoder mgcpEncoder;
+    private static final ChannelHandler[] NO_HANDLERS = new ChannelHandler[0];
 
-    public MgcpChannelInitializer(MgcpMessageDecoder mgcpDecoder, MgcpMessageEncoder mgcpEncoder) {
-        this.mgcpDecoder = mgcpDecoder;
-        this.mgcpEncoder = mgcpEncoder;
+    private final ChannelHandler[] handlers;
+
+    public MgcpChannelInitializer(ChannelHandler... handlers) {
+        this.handlers = (handlers == null || handlers.length == 0) ? NO_HANDLERS : handlers;
     }
 
     @Override
     protected void initChannel(Channel ch) throws Exception {
         ChannelPipeline pipeline = ch.pipeline();
-        pipeline.addFirst(MgcpMessageDecoder.PIPELINE_KEY, this.mgcpDecoder);
-        pipeline.addFirst(MgcpMessageEncoder.PIPELINE_KEY, this.mgcpEncoder);
+        pipeline.addLast(this.handlers);
     }
 
 }

@@ -40,13 +40,13 @@ import io.netty.channel.SimpleChannelInboundHandler;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpChannelInboundHandler extends SimpleChannelInboundHandler<MgcpMessage> implements MgcpMessageSubject {
+public class MgcpHandler extends SimpleChannelInboundHandler<MgcpMessage> implements MgcpMessageSubject {
 
-    private static final Logger log = Logger.getLogger(MgcpChannelInboundHandler.class);
+    private static final Logger log = Logger.getLogger(MgcpHandler.class);
 
     private final Set<MgcpMessageObserver> observers;
 
-    public MgcpChannelInboundHandler() {
+    public MgcpHandler() {
         this.observers = Sets.newConcurrentHashSet();
     }
 
