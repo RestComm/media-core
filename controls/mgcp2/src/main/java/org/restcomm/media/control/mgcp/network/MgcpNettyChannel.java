@@ -21,6 +21,7 @@
 
 package org.restcomm.media.control.mgcp.network;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Iterator;
 import java.util.Set;
@@ -60,7 +61,7 @@ public class MgcpNettyChannel implements MgcpMessageObserver, MgcpMessageSubject
 
     // Handlers
     private final MgcpChannelInitializer initializer;
-    private final MgcpHandler inboundHandler;
+    private final MgcpInboundHandler inboundHandler;
     private final MgcpMessageDecoder decoder;
     private final MgcpMessageEncoder encoder;
 
@@ -70,16 +71,16 @@ public class MgcpNettyChannel implements MgcpMessageObserver, MgcpMessageSubject
     // Listeners
     private final Set<MgcpMessageObserver> observers;
 
-    public MgcpNettyChannel(MgcpHandler handler, MgcpMessageDecoder decoder, MgcpMessageEncoder encoder) {
+    public MgcpNettyChannel(MgcpInboundHandler handler, MgcpMessageDecoder decoder, MgcpMessageEncoder encoder) {
         // Handlers
         this.inboundHandler = handler;
         this.decoder = decoder;
         this.encoder = encoder;
-        this.initializer = new MgcpChannelInitializer(inboundHandler, decoder, encoder);
+        this.initializer = new MgcpChannelInitializer(this.decoder, this.encoder, this.inboundHandler);
 
         // Channel State
         this.active = new AtomicBoolean(false);
-        
+
         // Listeners
         this.observers = Sets.newConcurrentHashSet();
     }
@@ -145,10 +146,13 @@ public class MgcpNettyChannel implements MgcpMessageObserver, MgcpMessageSubject
     }
 
     public void bind(InetSocketAddress address) {
-        Bootstrap bootstrap = new Bootstrap().group(this.eventGroup).channel(NioDatagramChannel.class)
-                .handler(this.initializer);
-        ChannelFuture bindFuture = bootstrap.bind();
+        Bootstrap bootstrap = new Bootstrap().group(this.eventGroup).channel(NioDatagramChannel.class).handler(this.initializer);
+        ChannelFuture bindFuture = bootstrap.bind(address);
         bindFuture.addListener(new ChannelBindListener());
+    }
+
+    public void send(MgcpMessage message) throws IOException {
+        channel.writeAndFlush(message);
     }
 
     private final class ChannelBindListener implements ChannelFutureListener {

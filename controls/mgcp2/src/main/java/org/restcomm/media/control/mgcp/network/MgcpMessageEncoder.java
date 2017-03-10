@@ -24,6 +24,7 @@ package org.restcomm.media.control.mgcp.network;
 import java.net.InetSocketAddress;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.restcomm.media.control.mgcp.message.MgcpMessage;
 
 import io.netty.buffer.ByteBuf;
@@ -40,6 +41,8 @@ import io.netty.handler.codec.MessageToMessageEncoder;
  */
 public class MgcpMessageEncoder extends MessageToMessageEncoder<MgcpMessage> {
 
+    private static final Logger log = Logger.getLogger(MgcpMessageEncoder.class);
+
     public static final String PIPELINE_KEY = "mgcp-encoder";
 
     @Override
@@ -49,6 +52,11 @@ public class MgcpMessageEncoder extends MessageToMessageEncoder<MgcpMessage> {
         final byte[] content = msg.toString().getBytes();
         final ByteBuf buffer = Unpooled.buffer(content.length).writeBytes(content);
         final DatagramPacket packet = new DatagramPacket(buffer, recipient, sender);
+
+        if (log.isDebugEnabled()) {
+            log.debug("Sending outgoing message to " + recipient.getHostString() + "\n" + msg.toString());
+        }
+
         out.add(packet);
     }
 

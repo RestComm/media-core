@@ -24,6 +24,7 @@ package org.restcomm.media.control.mgcp.network;
 import java.net.InetSocketAddress;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.restcomm.media.control.mgcp.exception.MgcpParseException;
 import org.restcomm.media.control.mgcp.message.MgcpMessage;
 import org.restcomm.media.control.mgcp.message.MgcpMessageParser;
@@ -42,6 +43,8 @@ import io.netty.handler.codec.MessageToMessageDecoder;
  *
  */
 public class MgcpMessageDecoder extends MessageToMessageDecoder<DatagramPacket> {
+    
+    private static final Logger log = Logger.getLogger(MgcpMessageDecoder.class);
     
     public static final String PIPELINE_KEY = "mgcp-decoder";
 
@@ -80,9 +83,13 @@ public class MgcpMessageDecoder extends MessageToMessageDecoder<DatagramPacket> 
             message = handleRequest(payload);
         }
         
+        if (log.isDebugEnabled()) {
+            log.debug("Incoming MGCP message from " + sender.toString() + ":\n\n" + message.toString() + "\n");
+        }
+        
         message.setRecipient(recipient);
         message.setSender(sender);
-
+        
         // Pass message to next handler
         out.add(message);
     }
