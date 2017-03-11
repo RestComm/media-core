@@ -8,8 +8,8 @@
 
 package org.restcomm.media.stun.messages.attributes.address;
 
-import org.restcomm.media.network.TransportAddress;
-import org.restcomm.media.network.TransportAddress.TransportProtocol;
+import org.restcomm.media.network.deprecated.TransportAddress;
+import org.restcomm.media.network.deprecated.TransportAddress.TransportProtocol;
 import org.restcomm.media.stun.StunException;
 import org.restcomm.media.stun.messages.attributes.StunAttribute;
 

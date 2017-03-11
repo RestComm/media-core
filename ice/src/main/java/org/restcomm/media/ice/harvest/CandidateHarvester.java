@@ -24,7 +24,7 @@ import java.nio.channels.Selector;
 
 import org.restcomm.media.ice.CandidateType;
 import org.restcomm.media.ice.IceMediaStream;
-import org.restcomm.media.network.RtpPortManager;
+import org.restcomm.media.network.deprecated.RtpPortManager;
 
 /**
  * 

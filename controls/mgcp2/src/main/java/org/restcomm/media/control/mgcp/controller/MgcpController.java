@@ -38,7 +38,7 @@ import org.restcomm.media.control.mgcp.message.MgcpResponse;
 import org.restcomm.media.control.mgcp.message.MgcpResponseCode;
 import org.restcomm.media.control.mgcp.network.MgcpChannel;
 import org.restcomm.media.control.mgcp.transaction.MgcpTransactionManager;
-import org.restcomm.media.network.UdpManager;
+import org.restcomm.media.network.deprecated.UdpManager;
 import org.restcomm.media.spi.ControlProtocol;
 import org.restcomm.media.spi.Endpoint;
 import org.restcomm.media.spi.EndpointInstaller;

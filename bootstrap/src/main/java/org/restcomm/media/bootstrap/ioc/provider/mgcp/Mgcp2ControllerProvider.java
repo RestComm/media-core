@@ -27,7 +27,7 @@ import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.restcomm.media.control.mgcp.network.MgcpChannel;
 import org.restcomm.media.control.mgcp.transaction.MgcpTransactionManager;
 import org.restcomm.media.core.configuration.MediaServerConfiguration;
-import org.restcomm.media.network.UdpManager;
+import org.restcomm.media.network.deprecated.UdpManager;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;

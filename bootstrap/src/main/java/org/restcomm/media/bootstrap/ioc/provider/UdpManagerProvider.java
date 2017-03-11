@@ -22,9 +22,9 @@
 package org.restcomm.media.bootstrap.ioc.provider;
 
 import org.restcomm.media.core.configuration.MediaServerConfiguration;
-import org.restcomm.media.network.PortManager;
-import org.restcomm.media.network.RtpPortManager;
-import org.restcomm.media.network.UdpManager;
+import org.restcomm.media.network.deprecated.PortManager;
+import org.restcomm.media.network.deprecated.RtpPortManager;
+import org.restcomm.media.network.deprecated.UdpManager;
 import org.restcomm.media.scheduler.Scheduler;
 
 import com.google.inject.Inject;

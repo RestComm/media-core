@@ -50,7 +50,7 @@ import org.restcomm.media.ice.harvest.HarvestException;
 import org.restcomm.media.ice.harvest.HostCandidateHarvester;
 import org.restcomm.media.ice.harvest.NoCandidatesGatheredException;
 import org.restcomm.media.ice.lite.LiteFoundationsRegistry;
-import org.restcomm.media.network.RtpPortManager;
+import org.restcomm.media.network.deprecated.RtpPortManager;
 
 /**
  * 

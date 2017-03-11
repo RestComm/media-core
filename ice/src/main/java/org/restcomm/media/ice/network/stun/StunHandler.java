@@ -26,10 +26,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.restcomm.media.ice.IceAuthenticator;
-import org.restcomm.media.network.TransportAddress;
-import org.restcomm.media.network.TransportAddress.TransportProtocol;
-import org.restcomm.media.network.channel.PacketHandler;
-import org.restcomm.media.network.channel.PacketHandlerException;
+import org.restcomm.media.network.deprecated.TransportAddress;
+import org.restcomm.media.network.deprecated.TransportAddress.TransportProtocol;
+import org.restcomm.media.network.deprecated.channel.PacketHandler;
+import org.restcomm.media.network.deprecated.channel.PacketHandlerException;
 import org.restcomm.media.stun.StunException;
 import org.restcomm.media.stun.messages.StunMessage;
 import org.restcomm.media.stun.messages.StunMessageFactory;

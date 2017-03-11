@@ -32,7 +32,7 @@ import org.restcomm.media.ice.IceComponent;
 import org.restcomm.media.ice.IceMediaStream;
 import org.restcomm.media.ice.LocalCandidateWrapper;
 import org.restcomm.media.ice.ServerReflexiveCandidate;
-import org.restcomm.media.network.RtpPortManager;
+import org.restcomm.media.network.deprecated.RtpPortManager;
 
 /**
  * Gathers SRFLX candidates for the public address on which Media Server is installed.

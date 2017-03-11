@@ -29,7 +29,7 @@ import org.restcomm.media.ice.CandidateType;
 import org.restcomm.media.ice.FoundationsRegistry;
 import org.restcomm.media.ice.IceMediaStream;
 import org.restcomm.media.ice.lite.LiteFoundationsRegistry;
-import org.restcomm.media.network.RtpPortManager;
+import org.restcomm.media.network.deprecated.RtpPortManager;
 
 /**
  * Manages the candidate harvesting process

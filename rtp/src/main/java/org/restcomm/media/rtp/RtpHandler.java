@@ -24,8 +24,8 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
 import org.apache.log4j.Logger;
-import org.restcomm.media.network.channel.PacketHandler;
-import org.restcomm.media.network.channel.PacketHandlerException;
+import org.restcomm.media.network.deprecated.channel.PacketHandler;
+import org.restcomm.media.network.deprecated.channel.PacketHandlerException;
 import org.restcomm.media.rtcp.RtcpHeader;
 import org.restcomm.media.rtp.rfc2833.DtmfInput;
 import org.restcomm.media.rtp.secure.DtlsHandler;

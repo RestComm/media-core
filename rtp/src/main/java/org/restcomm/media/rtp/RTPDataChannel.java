@@ -29,8 +29,8 @@ import java.nio.channels.SelectionKey;
 import org.apache.log4j.Logger;
 import org.restcomm.media.component.audio.AudioComponent;
 import org.restcomm.media.component.oob.OOBComponent;
-import org.restcomm.media.network.ProtocolHandler;
-import org.restcomm.media.network.UdpManager;
+import org.restcomm.media.network.deprecated.ProtocolHandler;
+import org.restcomm.media.network.deprecated.UdpManager;
 import org.restcomm.media.rtp.crypto.DtlsSrtpServerProvider;
 import org.restcomm.media.rtp.rfc2833.DtmfInput;
 import org.restcomm.media.rtp.rfc2833.DtmfOutput;
@@ -496,7 +496,7 @@ public class RTPDataChannel {
 		/**
 		 * (Non Java-doc.)
 		 * 
-		 * @see org.restcomm.media.network.ProtocolHandler#receive(java.nio.channels.DatagramChannel)
+		 * @see org.restcomm.media.network.deprecated.ProtocolHandler#receive(java.nio.channels.DatagramChannel)
 		 */
 		public void receive(DatagramChannel channel) {
 			RTPDataChannel.this.count++;
@@ -525,7 +525,7 @@ public class RTPDataChannel {
 		/**
 		 * (Non Java-doc.)
 		 * 
-		 * @see org.restcomm.media.network.ProtocolHandler#send(java.nio.channels.DatagramChannel)
+		 * @see org.restcomm.media.network.deprecated.ProtocolHandler#send(java.nio.channels.DatagramChannel)
 		 */
 		public void send(DatagramChannel channel) {
 		}

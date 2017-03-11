@@ -11,7 +11,7 @@ package org.restcomm.media.stun.messages.attributes;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.UndeclaredThrowableException;
 
-import org.restcomm.media.network.TransportAddress;
+import org.restcomm.media.network.deprecated.TransportAddress;
 import org.restcomm.media.stun.StunException;
 import org.restcomm.media.stun.messages.attributes.address.ChangedAddressAttribute;
 import org.restcomm.media.stun.messages.attributes.address.DestinationAddressAttribute;

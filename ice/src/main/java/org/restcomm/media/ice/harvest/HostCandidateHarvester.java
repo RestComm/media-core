@@ -40,7 +40,7 @@ import org.restcomm.media.ice.HostCandidate;
 import org.restcomm.media.ice.IceComponent;
 import org.restcomm.media.ice.IceMediaStream;
 import org.restcomm.media.ice.LocalCandidateWrapper;
-import org.restcomm.media.network.RtpPortManager;
+import org.restcomm.media.network.deprecated.RtpPortManager;
 
 /**
  * Harvester that gathers Host candidates, ie transport addresses obtained
