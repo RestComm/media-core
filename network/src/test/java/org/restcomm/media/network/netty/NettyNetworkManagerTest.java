@@ -21,19 +21,30 @@
 
 package org.restcomm.media.network.netty;
 
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.after;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import com.google.common.util.concurrent.FutureCallback;
 
-import static org.junit.Assert.*;
-
 import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelPromise;
+import io.netty.channel.DefaultChannelProgressivePromise;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
@@ -59,13 +70,26 @@ public class NettyNetworkManagerTest {
             }
             this.eventLoopGroup = null;
         }
-        
-        if(this.eventExecutor != null) {
-            if(!this.eventExecutor.isShutdown()) {
+
+        if (this.eventExecutor != null) {
+            if (!this.eventExecutor.isShutdown()) {
                 this.eventExecutor.shutdownGracefully(0L, 0L, TimeUnit.MILLISECONDS);
             }
             this.eventExecutor = null;
         }
+    }
+
+    @SuppressWarnings("resource")
+    @Test(expected = IllegalStateException.class)
+    public void testInvalidBootstrap() throws Exception {
+        // given
+        final EventLoopGroup eventLoopGroup = mock(EventLoopGroup.class);
+        final Bootstrap bootstrap = mock(Bootstrap.class);
+
+        // when
+        when(bootstrap.validate()).thenThrow(new IllegalStateException("Testing purposes!"));
+
+        new NettyNetworkManager(eventLoopGroup, bootstrap);
     }
 
     @Test
@@ -76,13 +100,10 @@ public class NettyNetworkManagerTest {
         final NettyNetworkManager networkManager = new NettyNetworkManager(eventLoopGroup, bootstrap);
 
         // when
-        final long shutdownStart = System.currentTimeMillis();
         networkManager.close();
-        final long shutdownStop = System.currentTimeMillis();
 
         // then
         assertTrue(eventLoopGroup.isShutdown());
-        assertEquals(NettyNetworkManager.SHUTDOWN_TIMEOUT, shutdownStop - shutdownStart, 1.0);
     }
 
     @Test(expected = IOException.class)
@@ -125,13 +146,93 @@ public class NettyNetworkManagerTest {
         final Exception exception = new RuntimeException("Testing purposes!");
         this.eventExecutor = new DefaultEventExecutor();
         final Future shutdownFuture = new FailedFuture<>(this.eventExecutor, exception);
-        
+
         // when
         when(eventLoopGroup.shutdownGracefully(any(Long.class), any(Long.class), any(TimeUnit.class))).thenReturn(shutdownFuture);
         networkManager.close(callback);
-        
+
         // then
         verify(callback, times(1)).onFailure(exception);
+    }
+
+    @Test
+    public void testOpenChannelSync() throws Exception {
+        // given
+        this.eventLoopGroup = new NioEventLoopGroup(1);
+        final ChannelHandler channelHandler = mock(ChannelHandler.class);
+        final Bootstrap bootstrap = new Bootstrap().group(eventLoopGroup).channel(NioDatagramChannel.class).handler(channelHandler);
+        try (final NettyNetworkManager networkManager = new NettyNetworkManager(eventLoopGroup, bootstrap)) {
+            // when
+            final Channel channel = networkManager.openChannel();
+
+            // then
+            assertTrue(channel.isOpen());
+            assertTrue(channel.isRegistered());
+            assertFalse(channel.isActive());
+        }
+    }
+
+    @Test(expected = IOException.class)
+    public void testOpenChannelSyncFailure() throws Exception {
+        // given
+        this.eventLoopGroup = new NioEventLoopGroup(1);
+        final Bootstrap bootstrap = mock(Bootstrap.class);
+        final Exception exception = new RuntimeException("Testing purposes!");
+        try (final NettyNetworkManager networkManager = new NettyNetworkManager(eventLoopGroup, bootstrap)) {
+            // when
+            when(bootstrap.clone()).thenReturn(bootstrap);
+            when(bootstrap.register()).thenThrow(exception);
+
+            networkManager.openChannel();
+        }
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    @Test
+    public void testOpenChannelAsync() throws Exception {
+        // given
+        this.eventLoopGroup = new NioEventLoopGroup(1);
+        final ChannelHandler channelHandler = mock(ChannelHandler.class);
+        final Bootstrap bootstrap = new Bootstrap().group(eventLoopGroup).channel(NioDatagramChannel.class).handler(channelHandler);
+        this.eventExecutor = new DefaultEventExecutor();
+        final FutureCallback<Channel> callback = mock(FutureCallback.class);
+        final ArgumentCaptor<Channel> captor = ArgumentCaptor.forClass(Channel.class);
+
+        try (final NettyNetworkManager networkManager = new NettyNetworkManager(eventLoopGroup, bootstrap)) {
+            // when
+            networkManager.openChannel(callback);
+
+            // then
+            verify(callback, timeout(100)).onSuccess(captor.capture());
+            assertTrue(captor.getValue().isOpen());
+            assertTrue(captor.getValue().isRegistered());
+            assertFalse(captor.getValue().isActive());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testOpenChannelAsyncFailure() throws Exception {
+        // given
+        this.eventLoopGroup = new NioEventLoopGroup(1);
+        final Bootstrap bootstrap = mock(Bootstrap.class);
+        this.eventExecutor = new DefaultEventExecutor();
+        final FutureCallback<Channel> callback = mock(FutureCallback.class);
+        final Channel channel = mock(Channel.class);
+        final ChannelPromise promise = new DefaultChannelProgressivePromise(channel, eventExecutor);
+        final Exception exception = new RuntimeException("Testing purposes!");
+
+        try (final NettyNetworkManager networkManager = new NettyNetworkManager(eventLoopGroup, bootstrap)) {
+            // when
+            when(bootstrap.clone()).thenReturn(bootstrap);
+            when(bootstrap.register()).thenReturn(promise);
+            promise.setFailure(exception);
+
+            networkManager.openChannel(callback);
+
+            // then
+            verify(callback, timeout(100)).onFailure(exception);
+        }
     }
 
 }

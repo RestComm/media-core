@@ -64,6 +64,7 @@ public class NettyNetworkManager implements NetworkManager<Channel>, AsyncNetwor
     }
 
     public NettyNetworkManager(EventLoopGroup eventGroup, Bootstrap bootstrap) {
+        bootstrap.validate();
         this.eventGroup = eventGroup;
         this.bootstrap = bootstrap;
     }
