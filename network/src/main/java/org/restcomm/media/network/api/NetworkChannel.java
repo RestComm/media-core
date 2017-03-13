@@ -27,6 +27,6 @@ package org.restcomm.media.network.api;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface NetworkChannel<M> extends SyncNetworkChannel<M>, AsyncNetworkChannel<M> {
+public interface NetworkChannel<M> extends SynchronousNetworkChannel<M>, AsynchronousNetworkChannel<M> {
 
 }

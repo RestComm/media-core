@@ -21,27 +21,28 @@
 
 package org.restcomm.media.network.api;
 
-import java.io.IOException;
 import java.net.SocketAddress;
+
+import com.google.common.util.concurrent.FutureCallback;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface SyncNetworkChannel<M> {
+public interface AsynchronousNetworkChannel<M> {
+    
+    void open(FutureCallback<Void> callback);
 
-    void open() throws IOException;
+    void close(FutureCallback<Void> callback);
 
-    void close() throws IOException;
+    void bind(SocketAddress localAddress, FutureCallback<Void> callback);
 
-    void bind(SocketAddress localAddress) throws IOException;
+    void connect(SocketAddress remoteAddress, FutureCallback<Void> callback);
 
-    void connect(SocketAddress remoteAddress) throws IOException;
+    void receive();
 
-    void receive() throws IOException;
+    void send(M message, FutureCallback<Void> callback);
 
-    void send(M message) throws IOException;
-
-    void send(M message, SocketAddress remoteAddress) throws IOException;
+    void send(M message, SocketAddress remoteAddress, FutureCallback<Void> callback);
 
 }

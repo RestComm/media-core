@@ -24,8 +24,8 @@ package org.restcomm.media.network.netty;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-import org.restcomm.media.network.api.AsyncNetworkManager;
-import org.restcomm.media.network.api.NetworkManager;
+import org.restcomm.media.network.api.AsynchronousNetworkManager;
+import org.restcomm.media.network.api.SynchronousNetworkManager;
 
 import com.google.common.util.concurrent.FutureCallback;
 
@@ -43,11 +43,11 @@ import io.netty.util.concurrent.GenericFutureListener;
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  * 
- * @see NetworkManager
- * @see AsyncNetworkManager
+ * @see SynchronousNetworkManager
+ * @see AsynchronousNetworkManager
  *
  */
-public class NettyNetworkManager implements NetworkManager<Channel>, AsyncNetworkManager<Channel> {
+public class NettyNetworkManager implements SynchronousNetworkManager<Channel>, AsynchronousNetworkManager<Channel> {
 
     static final long SHUTDOWN_TIMEOUT = 5L;
     static final int N_THREADS = Runtime.getRuntime().availableProcessors();

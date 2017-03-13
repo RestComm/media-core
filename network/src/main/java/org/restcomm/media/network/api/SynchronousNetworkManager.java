@@ -21,29 +21,32 @@
 
 package org.restcomm.media.network.api;
 
-import com.google.common.util.concurrent.FutureCallback;
+import java.io.IOException;
 
 /**
- * Provides and multiplexes a group of {@link SyncNetworkChannel} in asynchronous fashion.
+ * Provides and multiplexes a group of {@link SynchronousNetworkChannel}.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  * @param <C> The type of channel produced by the Network Manager.
  */
-public interface AsyncNetworkManager<C> {
+public interface SynchronousNetworkManager<C> extends AutoCloseable {
 
     /**
      * Opens and registers a new Network Channel.
      * 
-     * @param callback The callback that is invoked when the channel is open.
+     * @return A new {@link SynchronousNetworkChannel}
+     * 
+     * @throws IOException If an error occurs when creating the channel.
      */
-    void openChannel(FutureCallback<C> callback);
+    public C openChannel() throws IOException;
 
     /**
-     * Asynchronously shuts down the Network Manager, closing any registered channels.
+     * Shuts down the Network Manager, closing any registered channels.
      * 
-     * @param callback The callback that is invoked when the manager is shut down.
+     * @throws IOException If any error occurs when closing the manager.
      */
-    void close(FutureCallback<Void> callback);
+    @Override
+    void close() throws IOException;
 
 }
