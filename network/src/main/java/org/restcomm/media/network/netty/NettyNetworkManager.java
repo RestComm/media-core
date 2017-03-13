@@ -49,7 +49,8 @@ import io.netty.util.concurrent.GenericFutureListener;
  */
 public class NettyNetworkManager implements NetworkManager<Channel>, AsyncNetworkManager<Channel> {
 
-    private static final int N_THREADS = Runtime.getRuntime().availableProcessors();
+    static final long SHUTDOWN_TIMEOUT = 5L;
+    static final int N_THREADS = Runtime.getRuntime().availableProcessors();
 
     private final EventLoopGroup eventGroup;
     private final Bootstrap bootstrap;
