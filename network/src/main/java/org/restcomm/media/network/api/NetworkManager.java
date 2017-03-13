@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
+ * Copyright 2011-2017, Telestax Inc and individual contributors
  * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
@@ -21,12 +21,32 @@
 
 package org.restcomm.media.network.api;
 
+import java.io.IOException;
+
 /**
- * Network channel that supports both synchronous and asynchronous API.
+ * Provides and multiplexes a group of {@link SyncNetworkChannel}.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
+ * @param <C> The type of channel produced by the Network Manager.
  */
-public interface NetworkChannel<M> extends SyncNetworkChannel<M>, AsyncNetworkChannel<M> {
+public interface NetworkManager<C> extends AutoCloseable {
+
+    /**
+     * Opens and registers a new Network Channel.
+     * 
+     * @return A new {@link SyncNetworkChannel}
+     * 
+     * @throws IOException If an error occurs when creating the channel.
+     */
+    public C openChannel() throws IOException;
+
+    /**
+     * Shuts down the Network Manager, closing any registered channels.
+     * 
+     * @throws IOException If any error occurs when closing the manager.
+     */
+    @Override
+    void close() throws IOException;
 
 }

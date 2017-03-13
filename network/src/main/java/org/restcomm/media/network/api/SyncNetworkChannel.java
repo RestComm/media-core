@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
+ * Copyright 2011-2017, Telestax Inc and individual contributors
  * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
@@ -21,12 +21,27 @@
 
 package org.restcomm.media.network.api;
 
+import java.io.IOException;
+import java.net.SocketAddress;
+
 /**
- * Network channel that supports both synchronous and asynchronous API.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface NetworkChannel<M> extends SyncNetworkChannel<M>, AsyncNetworkChannel<M> {
+public interface SyncNetworkChannel<M> {
+
+    void open() throws IOException;
+
+    void close() throws IOException;
+
+    void bind(SocketAddress localAddress) throws IOException;
+
+    void connect(SocketAddress remoteAddress) throws IOException;
+
+    void receive() throws IOException;
+
+    void send(M message) throws IOException;
+
+    void send(M message, SocketAddress remoteAddress) throws IOException;
 
 }

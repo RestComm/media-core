@@ -24,19 +24,15 @@ package org.restcomm.media.network.netty;
 import java.io.IOException;
 import java.net.SocketAddress;
 
-import org.restcomm.media.network.api.AsyncNetworkChannel;
 import org.restcomm.media.network.api.NetworkChannel;
 
 import com.google.common.util.concurrent.FutureCallback;
 
-import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.AddressedEnvelope;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.DefaultAddressedEnvelope;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioDatagramChannel;
 
 /**
  * Network channel powered by Netty that features both a Sync and Async API.
@@ -44,28 +40,26 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class NettyNetworkChannel<M> implements AsyncNetworkChannel<M>, NetworkChannel<M> {
+public class NettyNetworkChannel<M> implements NetworkChannel<M> {
 
     public static final int N_THREADS = 1;
 
     // Netty Components
-    private EventLoopGroup eventGroup;
-    private Bootstrap bootstrap;
+    private NettyNetworkManager networkManager;
     private Channel channel;
 
-    public NettyNetworkChannel() {
-        super();
+    public NettyNetworkChannel(NettyNetworkManager networkManager) {
+        this.networkManager = networkManager;
     }
-    
+
     /*
      * SYNC API
      */
     @Override
-    public void open() {
-        this.eventGroup = new NioEventLoopGroup(N_THREADS);
-        this.bootstrap  = new Bootstrap().group(this.eventGroup).channel(NioDatagramChannel.class);
+    public void open() throws IOException {
+        this.channel = this.networkManager.openChannel();
     }
-    
+
     @Override
     public void close() throws IOException {
         try {
@@ -75,33 +69,71 @@ public class NettyNetworkChannel<M> implements AsyncNetworkChannel<M>, NetworkCh
         }
     }
 
+    @Override
+    public void bind(SocketAddress localAddress) throws IOException {
+        try {
+            this.channel.bind(localAddress).sync();
+        } catch (Exception e) {
+            throw new IOException("Could not bind channel to address " + localAddress.toString(), e);
+        }
+    }
+
+    @Override
+    public void connect(SocketAddress remoteAddress) throws IOException {
+        try {
+            this.channel.connect(remoteAddress).sync();
+        } catch (Exception e) {
+            throw new IOException(
+                    "Could not connect channel " + this.channel.localAddress().toString() + " to " + remoteAddress.toString(),
+                    e);
+        }
+    }
+
+    @Override
+    public void send(M message) throws IOException {
+        try {
+            this.channel.writeAndFlush(message).sync();
+        } catch (Exception e) {
+            throw new IOException("Could not send message to remote peer " + channel.remoteAddress().toString(), e);
+        }
+    }
+
+    @Override
+    public void send(M message, SocketAddress remoteAddress) throws IOException {
+        try {
+            // Wrap message in addressed envelope
+            AddressedEnvelope<M, SocketAddress> envelope = new DefaultAddressedEnvelope<>(message, remoteAddress);
+            // Send message
+            this.channel.writeAndFlush(envelope).sync();
+        } catch (Exception e) {
+            throw new IOException("Could not send message to remote peer " + remoteAddress.toString(), e);
+        }
+    }
+
     /*
      * ASYNC API
      */
     @Override
     public void open(FutureCallback<Void> callback) {
-        this.eventGroup = new NioEventLoopGroup(N_THREADS);
-        this.bootstrap  = new Bootstrap().group(this.eventGroup).channel(NioDatagramChannel.class);
-        callback.onSuccess(null);
-        // TODO check what open does
+        this.networkManager.openChannel(new NettyNetworkChannelCallbackListener(callback));
     }
 
     @Override
     public void close(FutureCallback<Void> callback) {
         ChannelFuture future = this.channel.close();
-        future.addListener(new ChannelCallbackListener(callback));
+        future.addListener(new NettyNetworkChannelVoidCallbackListener(callback));
     }
 
     @Override
     public void bind(SocketAddress localAddress, FutureCallback<Void> callback) {
         ChannelFuture future = this.channel.bind(localAddress);
-        future.addListener(new ChannelCallbackListener(callback));
+        future.addListener(new NettyNetworkChannelVoidCallbackListener(callback));
     }
 
     @Override
     public void connect(SocketAddress remoteAddress, FutureCallback<Void> callback) {
         ChannelFuture future = this.channel.connect(remoteAddress);
-        future.addListener(new ChannelCallbackListener(callback));
+        future.addListener(new NettyNetworkChannelVoidCallbackListener(callback));
     }
 
     @Override
@@ -112,7 +144,7 @@ public class NettyNetworkChannel<M> implements AsyncNetworkChannel<M>, NetworkCh
     @Override
     public void send(M message, FutureCallback<Void> callback) {
         ChannelFuture future = this.channel.writeAndFlush(message);
-        future.addListener(new ChannelCallbackListener(callback));
+        future.addListener(new NettyNetworkChannelVoidCallbackListener(callback));
     }
 
     @Override
@@ -120,14 +152,14 @@ public class NettyNetworkChannel<M> implements AsyncNetworkChannel<M>, NetworkCh
         // Wrap the message in an envelop
         DefaultAddressedEnvelope<M, SocketAddress> envelope = new DefaultAddressedEnvelope<>(message, remoteAddress);
         ChannelFuture future = this.channel.writeAndFlush(envelope);
-        future.addListener(new ChannelCallbackListener(callback));
+        future.addListener(new NettyNetworkChannelVoidCallbackListener(callback));
     }
 
-    private static final class ChannelCallbackListener implements ChannelFutureListener {
+    private static final class NettyNetworkChannelVoidCallbackListener implements ChannelFutureListener {
 
         private final FutureCallback<Void> observer;
 
-        public ChannelCallbackListener(FutureCallback<Void> observer) {
+        public NettyNetworkChannelVoidCallbackListener(FutureCallback<Void> observer) {
             super();
             this.observer = observer;
         }
@@ -140,6 +172,26 @@ public class NettyNetworkChannel<M> implements AsyncNetworkChannel<M>, NetworkCh
                 this.observer.onFailure(future.cause());
             }
 
+        }
+    }
+
+    private final class NettyNetworkChannelCallbackListener implements FutureCallback<Channel> {
+
+        private final FutureCallback<Void> observer;
+
+        public NettyNetworkChannelCallbackListener(FutureCallback<Void> observer) {
+            this.observer = observer;
+        }
+
+        @Override
+        public void onSuccess(Channel result) {
+            NettyNetworkChannel.this.channel = result;
+            observer.onSuccess(null);
+        }
+
+        @Override
+        public void onFailure(Throwable t) {
+            observer.onFailure(t);
         }
     }
 

@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
+ * Copyright 2011-2017, Telestax Inc and individual contributors
  * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
@@ -21,12 +21,29 @@
 
 package org.restcomm.media.network.api;
 
+import com.google.common.util.concurrent.FutureCallback;
+
 /**
- * Network channel that supports both synchronous and asynchronous API.
+ * Provides and multiplexes a group of {@link SyncNetworkChannel} in asynchronous fashion.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
+ * @param <C> The type of channel produced by the Network Manager.
  */
-public interface NetworkChannel<M> extends SyncNetworkChannel<M>, AsyncNetworkChannel<M> {
+public interface AsyncNetworkManager<C> {
+
+    /**
+     * Opens and registers a new Network Channel.
+     * 
+     * @param callback The callback that is invoked when the channel is open.
+     */
+    void openChannel(FutureCallback<C> callback);
+
+    /**
+     * Asynchronously shuts down the Network Manager, closing any registered channels.
+     * 
+     * @param callback The callback that is invoked when the manager is shut down.
+     */
+    void close(FutureCallback<Void> callback);
 
 }
