@@ -62,18 +62,6 @@
 			<groupId>jain</groupId>
 			<artifactId>jain-mgcp-ri</artifactId>
 		</dependency>
-
-		<!-- Utilities -->
-		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-			<version>${version.guava}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.restcomm.fsm</groupId>
-			<artifactId>squirrel-foundation</artifactId>
-			<version>0.3.9.11</version>
-		</dependency>
 	</dependencies>
 
 	<build>

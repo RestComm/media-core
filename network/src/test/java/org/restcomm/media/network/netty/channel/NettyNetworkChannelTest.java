@@ -19,7 +19,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.network.netty;
+package org.restcomm.media.network.netty.channel;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -33,7 +33,9 @@ import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.restcomm.media.network.netty.NettyNetworkChannel.NettyNetworkChannelCallbackListener;
+import org.restcomm.media.network.netty.NettyNetworkManager;
+import org.restcomm.media.network.netty.channel.NettyNetworkChannel;
+import org.restcomm.media.network.netty.channel.NettyNetworkChannel.NettyNetworkChannelCallbackListener;
 
 import com.google.common.util.concurrent.FutureCallback;
 

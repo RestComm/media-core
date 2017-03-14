@@ -19,12 +19,13 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.network.netty;
+package org.restcomm.media.network.netty.channel;
 
 import java.io.IOException;
 import java.net.SocketAddress;
 
 import org.restcomm.media.network.api.NetworkChannel;
+import org.restcomm.media.network.netty.NettyNetworkManager;
 
 import com.google.common.util.concurrent.FutureCallback;
 
