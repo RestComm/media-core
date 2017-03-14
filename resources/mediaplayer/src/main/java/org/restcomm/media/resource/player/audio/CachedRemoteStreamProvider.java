@@ -1,21 +1,17 @@
 package org.restcomm.media.resource.player.audio;
 
+import com.google.common.cache.*;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufInputStream;
+import io.netty.buffer.Unpooled;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
-import org.ehcache.Cache;
-import org.ehcache.CacheManager;
-import org.ehcache.config.builders.CacheConfigurationBuilder;
-import org.ehcache.config.builders.CacheManagerBuilder;
-import org.ehcache.config.builders.ResourcePoolsBuilder;
-import org.ehcache.config.units.MemoryUnit;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.Map;
+import java.util.concurrent.Callable;
 
 /**
  * Created by achikin on 5/9/16.
@@ -24,90 +20,46 @@ public class CachedRemoteStreamProvider implements RemoteStreamProvider {
 
     private final static Logger log = Logger.getLogger(CachedRemoteStreamProvider.class);
 
-    private CacheManager cacheManager;
-
-    private ConcurrentHashMap<String, ByteStreamDownloader> inProgress = new ConcurrentHashMap<>();
+    private Cache<String, ByteBuf> cache;
 
     public CachedRemoteStreamProvider(int size) {
         log.info("Create AudioCache with size: " + size + "Mb");
-        cacheManager = CacheManagerBuilder.newCacheManagerBuilder()
-                .withCache("preConfigured",
-                        CacheConfigurationBuilder.newCacheConfigurationBuilder(String.class, byte[].class,
-                                ResourcePoolsBuilder.newResourcePoolsBuilder().offheap(size, MemoryUnit.MB))
-                                .build())
-                .build(true);
-    }
-
-    private Cache<String, byte[]> getCache() {
-        return cacheManager.getCache("preConfigured", String.class, byte[].class);
-    }
-
-    public InputStream getStream(URL uri) throws IOException {
-        String key = uri.toString();
-        Cache<String, byte[]> cache = getCache();
-
-        byte[] stream = cache.get(key);
-        if (stream == null) {
-            stream = download(cache, uri);
-        }
-
-        return new ByteArrayInputStream(stream);
-    }
-
-    private byte[] download(Cache<String, byte[]> cache, final URL uri) throws IOException {
-        String key = uri.toString();
-        ByteStreamDownloader stream = inProgress.get(key);
-        if (stream == null) {
-            stream = new ByteStreamDownloader();
-            ByteStreamDownloader prev = inProgress.putIfAbsent(key, stream);
-            if (prev == null) {
-                //check bytes in cache again too, maybe it's already added
-                byte[] bytes = cache.get(key);
-                if (bytes != null) {
-                    return bytes;
-                }
-            } else {
-                stream = prev;
+        cache = CacheBuilder.newBuilder().maximumWeight(size * 1024L * 1024L).weigher(new Weigher<String, ByteBuf>() {
+            @Override
+            public int weigh(String s, ByteBuf byteBuf) {
+                return byteBuf.capacity();
             }
-        }
+        }).removalListener(new RemovalListener<String, ByteBuf>() {
+            @Override
+            public void onRemoval(RemovalNotification<String, ByteBuf> removalNotification) {
+                ByteBuf buf = removalNotification.getValue();
+                if (buf != null) {
+                    buf.release();
+                }
+            }
+        }).build();
+    }
+
+    public InputStream getStream(final URL uri) throws IOException {
+        final String key = uri.toString();
         try {
-            byte[] bytes = stream.download(uri);
-            if (bytes != null) {
-                cache.putIfAbsent(key, bytes);
-            } else {
-                bytes = cache.get(key);
-            }
-            if (bytes == null) {
-                throw new IOException("No data for " + uri);
-            }
-            return bytes;
-        } finally {
-            inProgress.remove(key);
+            ByteBuf buf = cache.get(key, new Callable<ByteBuf>() {
+                @Override
+                public ByteBuf call() throws Exception {
+                    byte[] bytes = IOUtils.toByteArray(uri.openStream());
+                    return Unpooled.directBuffer(bytes.length).writeBytes(bytes);
+                }
+            });
+            return new ByteBufInputStream(buf.retainedDuplicate(), true);
+        } catch (Throwable e) {
+            throw new IOException(e);
         }
     }
 
-    private static class ByteStreamDownloader {
-
-        private Lock lock = new ReentrantLock();
-
-        volatile boolean downloaded;
-
-        public byte[] download(final URL uri) throws IOException {
-            if (downloaded) {
-                return null;
-            }
-            lock.lock();
-            try {
-                //need to check twice
-                if (downloaded) {
-                    return null;
-                }
-                byte[] bytes = IOUtils.toByteArray(uri.openStream());
-                downloaded = bytes != null;
-                return bytes;
-            } finally {
-                lock.unlock();
-            }
+    public void dump() {
+        log.info("--- Cache dump ---");
+        for (Map.Entry<String, ByteBuf> e : cache.asMap().entrySet()) {
+            log.info(e.getKey() + "; " + e.getValue().refCnt());
         }
     }
 }
