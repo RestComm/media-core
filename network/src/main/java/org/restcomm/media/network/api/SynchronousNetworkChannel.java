@@ -30,11 +30,17 @@ import java.net.SocketAddress;
  */
 public interface SynchronousNetworkChannel<M> {
 
+    boolean isOpen();
+
     void open() throws IOException;
 
     void close() throws IOException;
 
+    boolean isBound();
+
     void bind(SocketAddress localAddress) throws IOException;
+
+    boolean isConnected();
 
     void connect(SocketAddress remoteAddress) throws IOException;
 

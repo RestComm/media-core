@@ -30,12 +30,18 @@ import com.google.common.util.concurrent.FutureCallback;
  *
  */
 public interface AsynchronousNetworkChannel<M> {
-    
+
+    boolean isOpen();
+
     void open(FutureCallback<Void> callback);
 
     void close(FutureCallback<Void> callback);
 
+    boolean isBound();
+
     void bind(SocketAddress localAddress, FutureCallback<Void> callback);
+
+    boolean isConnected();
 
     void connect(SocketAddress remoteAddress, FutureCallback<Void> callback);
 

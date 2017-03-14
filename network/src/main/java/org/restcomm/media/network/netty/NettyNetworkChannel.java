@@ -51,6 +51,29 @@ public class NettyNetworkChannel<M> implements NetworkChannel<M> {
     public NettyNetworkChannel(NettyNetworkManager networkManager) {
         this.networkManager = networkManager;
     }
+    
+    /*
+     * COMMON API
+     */
+    @Override
+    public boolean isOpen() {
+        return (this.channel != null && channel.isOpen());
+    }
+    
+    @Override
+    public boolean isBound() {
+        return (this.channel != null && channel.localAddress() != null);
+    }
+    
+    @Override
+    public boolean isConnected() {
+        return (this.channel != null && channel.remoteAddress() != null);
+    }
+    
+    @Override
+    public void receive() {
+        this.channel.read();
+    }
 
     /*
      * SYNC API
@@ -137,11 +160,6 @@ public class NettyNetworkChannel<M> implements NetworkChannel<M> {
     }
 
     @Override
-    public void receive() {
-        this.channel.read();
-    }
-
-    @Override
     public void send(M message, FutureCallback<Void> callback) {
         ChannelFuture future = this.channel.writeAndFlush(message);
         future.addListener(new NettyNetworkChannelVoidCallbackListener(callback));
@@ -155,7 +173,7 @@ public class NettyNetworkChannel<M> implements NetworkChannel<M> {
         future.addListener(new NettyNetworkChannelVoidCallbackListener(callback));
     }
 
-    private static final class NettyNetworkChannelVoidCallbackListener implements ChannelFutureListener {
+    static final class NettyNetworkChannelVoidCallbackListener implements ChannelFutureListener {
 
         private final FutureCallback<Void> observer;
 
@@ -175,7 +193,7 @@ public class NettyNetworkChannel<M> implements NetworkChannel<M> {
         }
     }
 
-    private final class NettyNetworkChannelCallbackListener implements FutureCallback<Channel> {
+    final class NettyNetworkChannelCallbackListener implements FutureCallback<Channel> {
 
         private final FutureCallback<Void> observer;
 
