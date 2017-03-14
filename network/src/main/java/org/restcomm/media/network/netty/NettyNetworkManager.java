@@ -23,6 +23,7 @@ package org.restcomm.media.network.netty;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.restcomm.media.network.api.AsynchronousNetworkManager;
 import org.restcomm.media.network.api.SynchronousNetworkManager;
@@ -54,6 +55,7 @@ public class NettyNetworkManager implements SynchronousNetworkManager<Channel>, 
 
     private final EventLoopGroup eventGroup;
     private final Bootstrap bootstrap;
+    private final AtomicBoolean open;
 
     public NettyNetworkManager() {
         this(N_THREADS);
@@ -67,10 +69,17 @@ public class NettyNetworkManager implements SynchronousNetworkManager<Channel>, 
         bootstrap.validate();
         this.eventGroup = eventGroup;
         this.bootstrap = bootstrap;
+        this.open = new AtomicBoolean(true);
     }
 
+    /**
+     * {@inheritDoc}
+     * 
+     * @throws IllegalStateException If manager is already closed.
+     */
     @Override
-    public Channel openChannel() throws IOException {
+    public Channel openChannel() throws IOException, IllegalStateException {
+        assertOpen();
         try {
             return this.bootstrap.clone().register().sync().channel();
         } catch (Exception e) {
@@ -78,25 +87,54 @@ public class NettyNetworkManager implements SynchronousNetworkManager<Channel>, 
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * 
+     * @throws IllegalStateException If manager is already closed.
+     */
     @Override
-    public void openChannel(FutureCallback<Channel> callback) {
+    public void openChannel(FutureCallback<Channel> callback) throws IllegalStateException {
+        assertOpen();
+
         ChannelFuture future = this.bootstrap.clone().register();
         future.addListener(new NetworkManagerChannelFutureCallback(callback));
     }
 
+    /**
+     * {@inheritDoc}
+     * 
+     * @throws IllegalStateException If manager is already closed.
+     */
     @Override
-    public void close() throws IOException {
-        try {
-            this.eventGroup.shutdownGracefully(0L, 5L, TimeUnit.SECONDS).sync();
-        } catch (Exception e) {
-            throw new IOException("Could not be gracefully closed.", e);
+    public void close() throws IOException, IllegalStateException {
+        if (this.open.compareAndSet(true, false)) {
+            try {
+                this.eventGroup.shutdownGracefully(0L, 5L, TimeUnit.SECONDS).sync();
+            } catch (Exception e) {
+                throw new IOException("Could not be gracefully closed.", e);
+            }
+        } else {
+            throw new IllegalStateException("Network Manager is already closed");
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * 
+     * @throws IllegalStateException If manager is already closed.
+     */
     @Override
-    public void close(FutureCallback<Void> callback) {
+    public void close(FutureCallback<Void> callback) throws IllegalStateException {
+        assertOpen();
+
         Future<?> future = this.eventGroup.shutdownGracefully(0L, 5L, TimeUnit.SECONDS);
         future.addListener(new NetworkManagerVoidFutureCallback(callback));
+    }
+
+    private void assertOpen() throws IllegalStateException {
+        if (!this.open.get()) {
+            throw new IllegalStateException("Network Manager is already closed.");
+        }
     }
 
     private static final class NetworkManagerVoidFutureCallback implements GenericFutureListener<Future<Object>> {
