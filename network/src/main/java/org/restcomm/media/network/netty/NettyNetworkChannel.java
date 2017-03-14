@@ -106,9 +106,7 @@ public class NettyNetworkChannel<M> implements NetworkChannel<M> {
         try {
             this.channel.connect(remoteAddress).sync();
         } catch (Exception e) {
-            throw new IOException(
-                    "Could not connect channel " + this.channel.localAddress().toString() + " to " + remoteAddress.toString(),
-                    e);
+            throw new IOException("Could not connect channel " + this.channel.localAddress().toString() + " to " + remoteAddress.toString(), e);
         }
     }
 
