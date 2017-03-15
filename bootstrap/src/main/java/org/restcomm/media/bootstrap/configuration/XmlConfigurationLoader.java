@@ -149,7 +149,8 @@ public class XmlConfigurationLoader implements ConfigurationLoader {
         }
         dst.setPlayerCache(
                 cache.getBoolean("cacheEnabled", ResourcesConfiguration.PLAYER_CACHE_ENABLED),
-                cache.getInt("cacheSize", ResourcesConfiguration.PLAYER_CACHE_SIZE)
+                cache.getInt("cacheSize", ResourcesConfiguration.PLAYER_CACHE_SIZE),
+                cache.getString("urlPattern", null)
         );
 
     }

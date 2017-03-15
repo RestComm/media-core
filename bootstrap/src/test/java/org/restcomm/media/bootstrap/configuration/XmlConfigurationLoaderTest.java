@@ -107,6 +107,7 @@ public class XmlConfigurationLoaderTest {
 
         Assert.assertEquals(100, resources.getPlayerCacheSize());
         Assert.assertEquals(true, resources.getPlayerCacheEnabled());
+        Assert.assertEquals(".*", resources.getPlayerCacheUrlPattern());
     }
 
     /**
