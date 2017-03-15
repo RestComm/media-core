@@ -1,4 +1,4 @@
-package org.restcomm.media.bootstrap.ioc.provider;
+package org.restcomm.media.bootstrap.ioc.provider.remotestream;
 
 import com.google.inject.Provider;
 

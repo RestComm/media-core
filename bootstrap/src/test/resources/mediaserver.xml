@@ -48,6 +48,7 @@
 			<cache>
 				<cacheSize>100</cacheSize>
 				<cacheEnabled>true</cacheEnabled>
+				<urlPattern>.*</urlPattern>
 			</cache>
 		</player>
 		<dtmfDetector dbi="-25" />

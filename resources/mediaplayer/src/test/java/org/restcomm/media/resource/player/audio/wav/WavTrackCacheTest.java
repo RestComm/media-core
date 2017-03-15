@@ -23,7 +23,6 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.restcomm.media.resource.player.audio.CachedRemoteStreamProvider;
 import org.restcomm.media.resource.player.audio.DirectRemoteStreamProvider;
-import org.restcomm.media.resource.player.audio.wav.WavTrackImpl;
 import org.restcomm.media.spi.format.EncodingName;
 import org.restcomm.media.spi.format.Format;
 
@@ -68,15 +67,19 @@ public class WavTrackCacheTest {
         WavTrackImpl track1 = new WavTrackImpl(url1, cache);
         assertEquals(expectedFormat.getName(), track1.getFormat().getName());
         assertEquals(expectedDuration, track1.getDuration());
+        track1.close();
 
         WavTrackImpl track2 = new WavTrackImpl(url2, cache);
         assertEquals(expectedFormat.getName(), track2.getFormat().getName());
         assertEquals(expectedDuration, track2.getDuration());
+        track2.close();
 
         WavTrackImpl track3 = new WavTrackImpl(url2, cache);
         assertEquals(expectedFormat.getName(), track3.getFormat().getName());
         assertEquals(expectedDuration, track3.getDuration());
+        track3.close();
 
+        cache.dump();
         verify(mockConnection).getInputStream();
     }
 
@@ -84,10 +87,10 @@ public class WavTrackCacheTest {
     public void testCacheOverflow() throws IOException, UnsupportedAudioFileException {
         //file size is 61712 bytes
         //1Mb cache contains have 15 full files
-        int cacheSize = 1;
-        double fileSize = 61712d;
-        int iteration = (int) Math.floor(cacheSize * 1024d * 1024d / fileSize) - 1;
-
+        //int cacheSize = 1;
+        //double fileSize = 61712d;
+        //we have 4 segments in guava cache
+        int iteration = 8;//(int) Math.floor(cacheSize * 1024d * 1024d / fileSize) - 1;
         CachedRemoteStreamProvider cache = new CachedRemoteStreamProvider(1);
 
         for (int j = 0; j < 10; j++) {
@@ -96,6 +99,7 @@ public class WavTrackCacheTest {
                 WavTrackImpl track = new WavTrackImpl(url, cache);
                 assertEquals(expectedFormat.getName(), track.getFormat().getName());
                 assertEquals(expectedDuration, track.getDuration());
+                track.close();
             }
         }
         verify(mockConnection, Mockito.times(iteration)).getInputStream();
@@ -104,6 +108,7 @@ public class WavTrackCacheTest {
             WavTrackImpl track = new WavTrackImpl(url, cache);
             assertEquals(expectedFormat.getName(), track.getFormat().getName());
             assertEquals(expectedDuration, track.getDuration());
+            track.close();
         }
         verify(mockConnection, Mockito.times(2 * iteration)).getInputStream();
     }
@@ -118,14 +123,17 @@ public class WavTrackCacheTest {
         WavTrackImpl track1 = new WavTrackImpl(url1, noCache);
         assertEquals(expectedFormat.getName(), track1.getFormat().getName());
         assertEquals(expectedDuration, track1.getDuration());
+        track1.close();
 
         WavTrackImpl track2 = new WavTrackImpl(url2, noCache);
         assertEquals(expectedFormat.getName(), track2.getFormat().getName());
         assertEquals(expectedDuration, track2.getDuration());
+        track2.close();
 
         WavTrackImpl track3 = new WavTrackImpl(url2, noCache);
         assertEquals(expectedFormat.getName(), track3.getFormat().getName());
         assertEquals(expectedDuration, track3.getDuration());
+        track3.close();
 
         verify(mockConnection, times(3)).getInputStream();
     }

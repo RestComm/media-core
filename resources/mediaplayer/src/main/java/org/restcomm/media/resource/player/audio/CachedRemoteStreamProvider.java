@@ -1,21 +1,17 @@
 package org.restcomm.media.resource.player.audio;
 
-import java.io.ByteArrayInputStream;
+import com.google.common.cache.*;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufInputStream;
+import io.netty.buffer.Unpooled;
+import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
-import org.ehcache.Cache;
-import org.ehcache.CacheManager;
-import org.ehcache.config.builders.CacheConfigurationBuilder;
-import org.ehcache.config.builders.CacheManagerBuilder;
-import org.ehcache.config.builders.ResourcePoolsBuilder;
-import org.ehcache.config.units.MemoryUnit;
-import org.ehcache.sizeof.annotations.IgnoreSizeOf;
+import java.util.Map;
+import java.util.concurrent.Callable;
 
 /**
  * Created by achikin on 5/9/16.
@@ -24,70 +20,46 @@ public class CachedRemoteStreamProvider implements RemoteStreamProvider {
 
     private final static Logger log = Logger.getLogger(CachedRemoteStreamProvider.class);
 
-    private CacheManager cacheManager;
-
-    private ByteStreamCache.ISizeChangedListener sizeChangedListener;
+    private Cache<String, ByteBuf> cache;
 
     public CachedRemoteStreamProvider(int size) {
         log.info("Create AudioCache with size: " + size + "Mb");
-        cacheManager = CacheManagerBuilder.newCacheManagerBuilder()
-                .withCache("preConfigured",
-                        CacheConfigurationBuilder.newCacheConfigurationBuilder(URL.class, ByteStreamCache.class,
-                                ResourcePoolsBuilder.newResourcePoolsBuilder().heap(size, MemoryUnit.MB))
-                                .build())
-                .build(true);
-        sizeChangedListener = new ByteStreamCache.ISizeChangedListener() {
+        cache = CacheBuilder.newBuilder().maximumWeight(size * 1024L * 1024L).weigher(new Weigher<String, ByteBuf>() {
             @Override
-            public void onSizeChanged(final URL uri, final ByteStreamCache self) {
-                log.debug("onSizeChanged for " + uri);
-                getCache().put(uri, self);
+            public int weigh(String s, ByteBuf byteBuf) {
+                return byteBuf.capacity();
             }
-        };
-    }
-
-    private Cache<URL, ByteStreamCache> getCache() {
-        return cacheManager.getCache("preConfigured", URL.class, ByteStreamCache.class);
-    }
-
-    public InputStream getStream(URL uri) throws IOException {
-        Cache<URL, ByteStreamCache> cache = getCache();
-
-        ByteStreamCache stream = cache.get(uri);
-        if (stream == null) {
-            stream = new ByteStreamCache();
-            ByteStreamCache exists = cache.putIfAbsent(uri, stream);
-            if (exists != null) {
-                stream = exists;
-            }
-        }
-        return new ByteArrayInputStream(stream.getBytes(uri, sizeChangedListener));
-    }
-
-    private static class ByteStreamCache {
-
-        @IgnoreSizeOf
-        private Lock lock = new ReentrantLock();
-
-        private volatile byte[] bytes;
-
-        public byte[] getBytes(final URL uri, final ISizeChangedListener listener) throws IOException {
-            if (bytes == null) {
-                lock.lock();
-                try {
-                    //need to check twice
-                    if (bytes == null) {
-                        bytes = IOUtils.toByteArray(uri.openStream());
-                        listener.onSizeChanged(uri, this);
-                    }
-                } finally {
-                    lock.unlock();
+        }).removalListener(new RemovalListener<String, ByteBuf>() {
+            @Override
+            public void onRemoval(RemovalNotification<String, ByteBuf> removalNotification) {
+                ByteBuf buf = removalNotification.getValue();
+                if (buf != null) {
+                    buf.release();
                 }
             }
-            return bytes;
-        }
+        }).build();
+    }
 
-        interface ISizeChangedListener {
-            void onSizeChanged(URL uri, ByteStreamCache self);
+    public InputStream getStream(final URL uri) throws IOException {
+        final String key = uri.toString();
+        try {
+            ByteBuf buf = cache.get(key, new Callable<ByteBuf>() {
+                @Override
+                public ByteBuf call() throws Exception {
+                    byte[] bytes = IOUtils.toByteArray(uri.openStream());
+                    return Unpooled.directBuffer(bytes.length).writeBytes(bytes);
+                }
+            });
+            return new ByteBufInputStream(buf.retainedDuplicate(), true);
+        } catch (Throwable e) {
+            throw new IOException(e);
+        }
+    }
+
+    public void dump() {
+        log.info("--- Cache dump ---");
+        for (Map.Entry<String, ByteBuf> e : cache.asMap().entrySet()) {
+            log.info(e.getKey() + "; " + e.getValue().refCnt());
         }
     }
 }

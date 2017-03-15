@@ -38,6 +38,7 @@ public class ResourcesConfiguration {
     private int dtmfGeneratorToneVolume;
     private int dtmfGeneratorToneDuration;
     private int playerCacheSize;
+    private String playerCacheUrlPattern;
 
     public ResourcesConfiguration() {
         this.dtmfDetectorDbi = DTMF_DETECTOR_DBI;
@@ -79,7 +80,7 @@ public class ResourcesConfiguration {
         this.dtmfGeneratorToneDuration = dtmfGeneratorToneDuration;
     }
 
-    public void setPlayerCache(boolean playerCacheEnabled, int playerCacheSize) {
+    public void setPlayerCache(boolean playerCacheEnabled, int playerCacheSize, String urlPattern) {
         if (!playerCacheEnabled) {
             this.playerCacheSize = 0;
             return;
@@ -88,6 +89,7 @@ public class ResourcesConfiguration {
             throw new IllegalArgumentException("Player cache size cannot be negative");
         }
         this.playerCacheSize = playerCacheSize;
+        this.playerCacheUrlPattern = urlPattern;
     }
 
     public int getPlayerCacheSize() {
@@ -98,4 +100,7 @@ public class ResourcesConfiguration {
         return this.playerCacheSize != 0;
     }
 
+    public String getPlayerCacheUrlPattern() {
+        return playerCacheUrlPattern;
+    }
 }
