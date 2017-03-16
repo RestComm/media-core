@@ -22,6 +22,7 @@
 package org.restcomm.media.network.netty.channel;
 
 import org.apache.log4j.Logger;
+import org.restcomm.media.network.deprecated.netty.NetworkManager;
 
 import com.google.common.util.concurrent.FutureCallback;
 
@@ -30,13 +31,14 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 
 /**
- * Implementation 
+ * Implementation if {@link NettyNetworkChannelFsm} that uses Asynchronous API of {@link NetworkManager}.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class ConcreteNettyNetworkChannelFsm extends AbstractNettyNetworkChannelFsm {
+public class AsynchronousNettyNetworkChannelFsm extends AbstractNettyNetworkChannelFsm {
 
-    private static final Logger log = Logger.getLogger(ConcreteNettyNetworkChannelFsm.class);
+    private static final Logger log = Logger.getLogger(AsynchronousNettyNetworkChannelFsm.class);
 
     @Override
     public void enterOpening(NettyNetworkChannelState from, NettyNetworkChannelState to, NettyNetworkChannelEvent event, NettyNetworkChannelContext context) {

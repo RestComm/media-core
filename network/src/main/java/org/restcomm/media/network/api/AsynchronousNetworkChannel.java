@@ -45,6 +45,8 @@ public interface AsynchronousNetworkChannel<M> {
 
     void connect(SocketAddress remoteAddress, FutureCallback<Void> callback);
 
+    void disconnect(FutureCallback<Void> callback);
+
     void receive();
 
     void send(M message, FutureCallback<Void> callback);

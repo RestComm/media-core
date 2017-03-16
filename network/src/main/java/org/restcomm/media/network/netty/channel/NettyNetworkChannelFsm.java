@@ -24,7 +24,7 @@ package org.restcomm.media.network.netty.channel;
 import org.squirrelframework.foundation.fsm.StateMachine;
 
 /**
- * Finite State Machine for {@link NettyNetworkChannel}.
+ * Finite State Machine for {@link AsynchronousNettyNetworkChannel}.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *

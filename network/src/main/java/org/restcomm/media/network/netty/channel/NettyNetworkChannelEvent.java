@@ -22,7 +22,7 @@
 package org.restcomm.media.network.netty.channel;
 
 /**
- * Valid events for {@link NettyNetworkChannel}.
+ * Valid events for {@link AsynchronousNettyNetworkChannel}.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *

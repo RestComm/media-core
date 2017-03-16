@@ -28,7 +28,7 @@ import org.restcomm.media.network.netty.NettyNetworkManager;
 import io.netty.channel.Channel;
 
 /**
- * The runtime context of a {@link NettyNetworkChannel}.
+ * The runtime context of a {@link AsynchronousNettyNetworkChannel}.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *

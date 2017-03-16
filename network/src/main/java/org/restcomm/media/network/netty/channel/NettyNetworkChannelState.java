@@ -22,7 +22,7 @@
 package org.restcomm.media.network.netty.channel;
 
 /**
- * Valid states of a {@link NettyNetworkChannel}.
+ * Valid states of a {@link AsynchronousNettyNetworkChannel}.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
