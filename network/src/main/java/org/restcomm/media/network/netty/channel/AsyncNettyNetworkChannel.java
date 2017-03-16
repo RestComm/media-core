@@ -38,16 +38,16 @@ import io.netty.channel.DefaultAddressedEnvelope;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class AsynchronousNettyNetworkChannel<M> implements AsynchronousNetworkChannel<M> {
+public class AsyncNettyNetworkChannel<M> implements AsynchronousNetworkChannel<M> {
 
     public static final int N_THREADS = 1;
 
-    private final NettyNetworkChannelContext context;
+    private final NettyNetworkChannelGlobalContext context;
     private final NettyNetworkChannelFsm fsm;
 
-    public AsynchronousNettyNetworkChannel(NettyNetworkManager networkManager) {
-        this.context = new NettyNetworkChannelContext(networkManager);
-        this.fsm = NettyNetworkChannelFsmBuilder.INSTANCE.build();
+    public AsyncNettyNetworkChannel(NettyNetworkManager networkManager) {
+        this.context = new NettyNetworkChannelGlobalContext(networkManager);
+        this.fsm = NettyNetworkChannelFsmBuilder.INSTANCE.build(this.context);
     }
 
     @Override
@@ -81,17 +81,17 @@ public class AsynchronousNettyNetworkChannel<M> implements AsynchronousNetworkCh
             // TODO handle inside FSM Listener
             callback.onFailure(new IllegalStateException("Channel is already open."));
         } else {
-            this.fsm.start(this.context);
-            this.fsm.fire(NettyNetworkChannelEvent.OPEN, this.context);
-            // TODO register callback
+            this.fsm.start();
+            NettyNetworkChannelTransitionContext transitionContext = new NettyNetworkChannelTransitionContext().setCallback(callback);
+            this.fsm.fire(NettyNetworkChannelEvent.OPEN, transitionContext);
         }
     }
 
     @Override
     public void close(FutureCallback<Void> callback) {
         if (isOpen()) {
-            this.fsm.fire(NettyNetworkChannelEvent.CLOSE, this.context);
-            // TODO register callback
+            NettyNetworkChannelTransitionContext transitionContext = new NettyNetworkChannelTransitionContext().setCallback(callback);
+            this.fsm.fire(NettyNetworkChannelEvent.CLOSE, transitionContext);
         } else {
             // TODO handle inside FSM Listener
             callback.onFailure(new IllegalStateException("Channel is already closed."));
@@ -104,7 +104,8 @@ public class AsynchronousNettyNetworkChannel<M> implements AsynchronousNetworkCh
             // TODO handle inside FSM Listener
             callback.onFailure(new IllegalStateException("Channel is already bound."));
         } else {
-            this.fsm.fire(NettyNetworkChannelEvent.BIND, this.context);
+            NettyNetworkChannelTransitionContext transitionContext = new NettyNetworkChannelTransitionContext().setCallback(callback);
+            this.fsm.fire(NettyNetworkChannelEvent.BIND, transitionContext);
             // TODO register callback
         }
     }
@@ -115,16 +116,16 @@ public class AsynchronousNettyNetworkChannel<M> implements AsynchronousNetworkCh
             // TODO handle inside FSM Listener
             callback.onFailure(new IllegalStateException("Channel is already bound."));
         } else {
-            this.fsm.fire(NettyNetworkChannelEvent.CONNECT, this.context);
-            // TODO register callback
+            NettyNetworkChannelTransitionContext transitionContext = new NettyNetworkChannelTransitionContext().setCallback(callback);
+            this.fsm.fire(NettyNetworkChannelEvent.CONNECT, transitionContext);
         }
     }
 
     @Override
     public void disconnect(FutureCallback<Void> callback) {
         if (isConnected()) {
-            this.fsm.fire(NettyNetworkChannelEvent.DISCONNECT, this.context);
-            // TODO register callback
+            NettyNetworkChannelTransitionContext transitionContext = new NettyNetworkChannelTransitionContext().setCallback(callback);
+            this.fsm.fire(NettyNetworkChannelEvent.DISCONNECT, transitionContext);
         } else {
             // TODO handle inside FSM Listener
             callback.onFailure(new IllegalStateException("Channel is not connected."));

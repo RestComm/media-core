@@ -32,29 +32,29 @@ import org.squirrelframework.foundation.fsm.StateMachine.TransitionExceptionEven
  *
  */
 public class NettyNetworkChannelFsmListener implements
-        StateMachineListener<NettyNetworkChannelFsm, NettyNetworkChannelState, NettyNetworkChannelEvent, NettyNetworkChannelContext> {
+        StateMachineListener<NettyNetworkChannelFsm, NettyNetworkChannelState, NettyNetworkChannelEvent, NettyNetworkChannelTransitionContext> {
 
     @Override
     public void stateMachineEvent(
-            StateMachineEvent<NettyNetworkChannelFsm, NettyNetworkChannelState, NettyNetworkChannelEvent, NettyNetworkChannelContext> event) {
+            StateMachineEvent<NettyNetworkChannelFsm, NettyNetworkChannelState, NettyNetworkChannelEvent, NettyNetworkChannelTransitionContext> event) {
         if (event instanceof TransitionCompleteEvent) {
-            onTransitionComplete((TransitionCompleteEvent<NettyNetworkChannelFsm, NettyNetworkChannelState, NettyNetworkChannelEvent, NettyNetworkChannelContext>) event);
+            onTransitionComplete((TransitionCompleteEvent<NettyNetworkChannelFsm, NettyNetworkChannelState, NettyNetworkChannelEvent, NettyNetworkChannelTransitionContext>) event);
         } else if (event instanceof TransitionExceptionEvent) {
-            onTransitionError((TransitionExceptionEvent<NettyNetworkChannelFsm, NettyNetworkChannelState, NettyNetworkChannelEvent, NettyNetworkChannelContext>) event);
+            onTransitionError((TransitionExceptionEvent<NettyNetworkChannelFsm, NettyNetworkChannelState, NettyNetworkChannelEvent, NettyNetworkChannelTransitionContext>) event);
         } else if (event instanceof TransitionDeclinedEvent) {
-            onTransitionDeclined((TransitionCompleteEvent<NettyNetworkChannelFsm, NettyNetworkChannelState, NettyNetworkChannelEvent, NettyNetworkChannelContext>) event);
+            onTransitionDeclined((TransitionCompleteEvent<NettyNetworkChannelFsm, NettyNetworkChannelState, NettyNetworkChannelEvent, NettyNetworkChannelTransitionContext>) event);
         }
     }
 
-    private void onTransitionComplete(TransitionCompleteEvent<NettyNetworkChannelFsm, NettyNetworkChannelState, NettyNetworkChannelEvent, NettyNetworkChannelContext> event) {
+    private void onTransitionComplete(TransitionCompleteEvent<NettyNetworkChannelFsm, NettyNetworkChannelState, NettyNetworkChannelEvent, NettyNetworkChannelTransitionContext> event) {
 
     }
 
-    private void onTransitionError(TransitionExceptionEvent<NettyNetworkChannelFsm, NettyNetworkChannelState, NettyNetworkChannelEvent, NettyNetworkChannelContext> event) {
+    private void onTransitionError(TransitionExceptionEvent<NettyNetworkChannelFsm, NettyNetworkChannelState, NettyNetworkChannelEvent, NettyNetworkChannelTransitionContext> event) {
 
     }
 
-    private void onTransitionDeclined(TransitionCompleteEvent<NettyNetworkChannelFsm, NettyNetworkChannelState, NettyNetworkChannelEvent, NettyNetworkChannelContext> event) {
+    private void onTransitionDeclined(TransitionCompleteEvent<NettyNetworkChannelFsm, NettyNetworkChannelState, NettyNetworkChannelEvent, NettyNetworkChannelTransitionContext> event) {
 
     }
 

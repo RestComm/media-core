@@ -31,92 +31,92 @@ import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
  *
  */
 public abstract class AbstractNettyNetworkChannelFsm extends
-        AbstractStateMachine<NettyNetworkChannelFsm, NettyNetworkChannelState, NettyNetworkChannelEvent, NettyNetworkChannelContext>
+        AbstractStateMachine<NettyNetworkChannelFsm, NettyNetworkChannelState, NettyNetworkChannelEvent, NettyNetworkChannelTransitionContext>
         implements NettyNetworkChannelFsm {
 
     @Override
     public void enterOpening(NettyNetworkChannelState from, NettyNetworkChannelState to, NettyNetworkChannelEvent event,
-            NettyNetworkChannelContext context) {
+            NettyNetworkChannelTransitionContext context) {
     }
 
     @Override
     public void exitOpening(NettyNetworkChannelState from, NettyNetworkChannelState to, NettyNetworkChannelEvent event,
-            NettyNetworkChannelContext context) {
+            NettyNetworkChannelTransitionContext context) {
     }
 
     @Override
     public void enterOpen(NettyNetworkChannelState from, NettyNetworkChannelState to, NettyNetworkChannelEvent event,
-            NettyNetworkChannelContext context) {
+            NettyNetworkChannelTransitionContext context) {
     }
 
     @Override
     public void exitOpen(NettyNetworkChannelState from, NettyNetworkChannelState to, NettyNetworkChannelEvent event,
-            NettyNetworkChannelContext context) {
+            NettyNetworkChannelTransitionContext context) {
     }
 
     @Override
     public void enterBinding(NettyNetworkChannelState from, NettyNetworkChannelState to, NettyNetworkChannelEvent event,
-            NettyNetworkChannelContext context) {
+            NettyNetworkChannelTransitionContext context) {
     }
 
     @Override
     public void exitBinding(NettyNetworkChannelState from, NettyNetworkChannelState to, NettyNetworkChannelEvent event,
-            NettyNetworkChannelContext context) {
+            NettyNetworkChannelTransitionContext context) {
     }
 
     @Override
     public void enterBound(NettyNetworkChannelState from, NettyNetworkChannelState to, NettyNetworkChannelEvent event,
-            NettyNetworkChannelContext context) {
+            NettyNetworkChannelTransitionContext context) {
     }
 
     @Override
     public void exitBound(NettyNetworkChannelState from, NettyNetworkChannelState to, NettyNetworkChannelEvent event,
-            NettyNetworkChannelContext context) {
+            NettyNetworkChannelTransitionContext context) {
     }
 
     @Override
     public void enterConnecting(NettyNetworkChannelState from, NettyNetworkChannelState to, NettyNetworkChannelEvent event,
-            NettyNetworkChannelContext context) {
+            NettyNetworkChannelTransitionContext context) {
     }
 
     @Override
     public void exitConnecting(NettyNetworkChannelState from, NettyNetworkChannelState to, NettyNetworkChannelEvent event,
-            NettyNetworkChannelContext context) {
+            NettyNetworkChannelTransitionContext context) {
     }
 
     @Override
     public void enterConnected(NettyNetworkChannelState from, NettyNetworkChannelState to, NettyNetworkChannelEvent event,
-            NettyNetworkChannelContext context) {
+            NettyNetworkChannelTransitionContext context) {
     }
 
     @Override
     public void exitConnected(NettyNetworkChannelState from, NettyNetworkChannelState to, NettyNetworkChannelEvent event,
-            NettyNetworkChannelContext context) {
+            NettyNetworkChannelTransitionContext context) {
     }
 
     @Override
     public void enterDisconnecting(NettyNetworkChannelState from, NettyNetworkChannelState to, NettyNetworkChannelEvent event,
-            NettyNetworkChannelContext context) {
+            NettyNetworkChannelTransitionContext context) {
     }
 
     @Override
     public void exitDisconnecting(NettyNetworkChannelState from, NettyNetworkChannelState to, NettyNetworkChannelEvent event,
-            NettyNetworkChannelContext context) {
+            NettyNetworkChannelTransitionContext context) {
     }
 
     @Override
     public void enterClosing(NettyNetworkChannelState from, NettyNetworkChannelState to, NettyNetworkChannelEvent event,
-            NettyNetworkChannelContext context) {
+            NettyNetworkChannelTransitionContext context) {
     }
 
     @Override
     public void exitClosing(NettyNetworkChannelState from, NettyNetworkChannelState to, NettyNetworkChannelEvent event,
-            NettyNetworkChannelContext context) {
+            NettyNetworkChannelTransitionContext context) {
     }
 
     @Override
     public void enterClosed(NettyNetworkChannelState from, NettyNetworkChannelState to, NettyNetworkChannelEvent event,
-            NettyNetworkChannelContext context) {
+            NettyNetworkChannelTransitionContext context) {
     }
 
 }

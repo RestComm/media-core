@@ -33,19 +33,21 @@ public class NettyNetworkChannelFsmBuilder {
 
     public static final NettyNetworkChannelFsmBuilder INSTANCE = new NettyNetworkChannelFsmBuilder();
 
-    private final StateMachineBuilder<NettyNetworkChannelFsm, NettyNetworkChannelState, NettyNetworkChannelEvent, NettyNetworkChannelContext> builder;
+    private final StateMachineBuilder<NettyNetworkChannelFsm, NettyNetworkChannelState, NettyNetworkChannelEvent, NettyNetworkChannelTransitionContext> builder;
 
     private NettyNetworkChannelFsmBuilder() {
         this.builder = StateMachineBuilderFactory
-                .<NettyNetworkChannelFsm, NettyNetworkChannelState, NettyNetworkChannelEvent, NettyNetworkChannelContext> create(
-                        NettyNetworkChannelFsm.class, NettyNetworkChannelState.class, NettyNetworkChannelEvent.class,
-                        NettyNetworkChannelContext.class);
+                .<NettyNetworkChannelFsm, NettyNetworkChannelState, NettyNetworkChannelEvent, NettyNetworkChannelTransitionContext> create(
+                        AsyncNettyNetworkChannelFsm.class, NettyNetworkChannelState.class, NettyNetworkChannelEvent.class,
+                        NettyNetworkChannelTransitionContext.class, NettyNetworkChannelGlobalContext.class);
         
         this.builder.externalTransition().from(NettyNetworkChannelState.UNINITIALIZED).to(NettyNetworkChannelState.OPENING).on(NettyNetworkChannelEvent.OPEN);
         
         this.builder.onEntry(NettyNetworkChannelState.OPENING).callMethod("enterOpening");
         this.builder.externalTransition().from(NettyNetworkChannelState.OPENING).to(NettyNetworkChannelState.OPEN).on(NettyNetworkChannelEvent.OPENED);
         this.builder.externalTransition().from(NettyNetworkChannelState.OPENING).to(NettyNetworkChannelState.CLOSED).on(NettyNetworkChannelEvent.CLOSE);
+        this.builder.transit().from(NettyNetworkChannelState.OPEN).to(NettyNetworkChannelState.CLOSED).onAny();
+        
         this.builder.onExit(NettyNetworkChannelState.OPENING).callMethod("exitOpening");
         
         this.builder.onEntry(NettyNetworkChannelState.OPEN).callMethod("enterOpen");
@@ -91,8 +93,8 @@ public class NettyNetworkChannelFsmBuilder {
         this.builder.defineFinalState(NettyNetworkChannelState.CLOSED);
     }
 
-    public NettyNetworkChannelFsm build() {
-        return this.builder.newStateMachine(NettyNetworkChannelState.UNINITIALIZED);
+    public NettyNetworkChannelFsm build(NettyNetworkChannelGlobalContext context) {
+        return this.builder.newStateMachine(NettyNetworkChannelState.UNINITIALIZED, context);
     }
 
 }

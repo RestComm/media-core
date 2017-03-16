@@ -36,61 +36,68 @@ import io.netty.channel.ChannelFutureListener;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class AsynchronousNettyNetworkChannelFsm extends AbstractNettyNetworkChannelFsm {
+public class AsyncNettyNetworkChannelFsm extends AbstractNettyNetworkChannelFsm {
 
-    private static final Logger log = Logger.getLogger(AsynchronousNettyNetworkChannelFsm.class);
-
-    @Override
-    public void enterOpening(NettyNetworkChannelState from, NettyNetworkChannelState to, NettyNetworkChannelEvent event, NettyNetworkChannelContext context) {
-        // Try opening the channel
-        // A listener will get the response asynchronously
-        context.getNetworkManager().openChannel(new OpenCallback(context));
+    private static final Logger log = Logger.getLogger(AsyncNettyNetworkChannelFsm.class);
+    
+    private final NettyNetworkChannelGlobalContext globalContext;
+    
+    public AsyncNettyNetworkChannelFsm(NettyNetworkChannelGlobalContext globalContext) {
+        super();
+        this.globalContext = globalContext;
     }
 
     @Override
-    public void enterBinding(NettyNetworkChannelState from, NettyNetworkChannelState to, NettyNetworkChannelEvent event, NettyNetworkChannelContext context) {
+    public void enterOpening(NettyNetworkChannelState from, NettyNetworkChannelState to, NettyNetworkChannelEvent event, NettyNetworkChannelTransitionContext context) {
+        // Try opening the channel
+        // A listener will get the response asynchronously
+        this.globalContext.getNetworkManager().openChannel(new OpenCallback(context));
+    }
+
+    @Override
+    public void enterBinding(NettyNetworkChannelState from, NettyNetworkChannelState to, NettyNetworkChannelEvent event, NettyNetworkChannelTransitionContext context) {
         // Bind channel to local address
         // A listener will get the response asynchronously
-        final ChannelFuture future = context.getChannel().bind(context.getLocalAddress());
+        final ChannelFuture future = this.globalContext.getChannel().bind(this.globalContext.getLocalAddress());
         future.addListener(new BindCallback(context));
     }
 
     @Override
-    public void enterConnecting(NettyNetworkChannelState from, NettyNetworkChannelState to, NettyNetworkChannelEvent event, NettyNetworkChannelContext context) {
-        final ChannelFuture future = context.getChannel().connect(context.getRemoteAddress());
+    public void enterConnecting(NettyNetworkChannelState from, NettyNetworkChannelState to, NettyNetworkChannelEvent event, NettyNetworkChannelTransitionContext context) {
+        final ChannelFuture future = this.globalContext.getChannel().connect(this.globalContext.getRemoteAddress());
         future.addListener(new ConnectCallback(context));
     }
 
     @Override
-    public void enterDisconnecting(NettyNetworkChannelState from, NettyNetworkChannelState to, NettyNetworkChannelEvent event, NettyNetworkChannelContext context) {
+    public void enterDisconnecting(NettyNetworkChannelState from, NettyNetworkChannelState to, NettyNetworkChannelEvent event, NettyNetworkChannelTransitionContext context) {
         // Disconnect channel from remote peer
         // A listener will get the response asynchronously
-        final ChannelFuture future = context.getChannel().disconnect();
+        final ChannelFuture future = this.globalContext.getChannel().disconnect();
         future.addListener(new DisconnectCallback(context));
     }
 
     @Override
-    public void exitDisconnecting(NettyNetworkChannelState from, NettyNetworkChannelState to, NettyNetworkChannelEvent event, NettyNetworkChannelContext context) {
+    public void exitDisconnecting(NettyNetworkChannelState from, NettyNetworkChannelState to, NettyNetworkChannelEvent event, NettyNetworkChannelTransitionContext context) {
         // Clean reference to remote address
-        context.setRemoteAddress(null);
+        this.globalContext.setRemoteAddress(null);
     }
 
     @Override
-    public void enterClosing(NettyNetworkChannelState from, NettyNetworkChannelState to, NettyNetworkChannelEvent event, NettyNetworkChannelContext context) {
-        final ChannelFuture future = context.getChannel().close();
+    public void enterClosing(NettyNetworkChannelState from, NettyNetworkChannelState to, NettyNetworkChannelEvent event, NettyNetworkChannelTransitionContext context) {
+        final ChannelFuture future = this.globalContext.getChannel().close();
         future.addListener(new CloseCallback(context));
     }
 
     @Override
-    public void enterClosed(NettyNetworkChannelState from, NettyNetworkChannelState to, NettyNetworkChannelEvent event, NettyNetworkChannelContext context) {
-        context.clean();
+    public void enterClosed(NettyNetworkChannelState from, NettyNetworkChannelState to, NettyNetworkChannelEvent event, NettyNetworkChannelTransitionContext context) {
+        this.globalContext.clean();
     }
 
     private final class OpenCallback implements FutureCallback<Channel> {
 
-        private final NettyNetworkChannelContext context;
+        private final NettyNetworkChannelTransitionContext context;
 
-        public OpenCallback(NettyNetworkChannelContext context) {
+        public OpenCallback(NettyNetworkChannelTransitionContext context) {
             this.context = context;
         }
 
@@ -99,23 +106,25 @@ public class AsynchronousNettyNetworkChannelFsm extends AbstractNettyNetworkChan
             if(log.isTraceEnabled()) {
                 log.trace("Channel opened successfully");
             }
-            this.context.setChannel(result);
+            globalContext.setChannel(result);
             fire(NettyNetworkChannelEvent.OPENED, this.context);
+            this.context.getCallback().onSuccess(null);
         }
 
         @Override
         public void onFailure(Throwable t) {
             log.warn("Channel could not be opened, so will be terminated prematurely.", t);
             fire(NettyNetworkChannelEvent.CLOSE, this.context);
+            this.context.getCallback().onFailure(t);
         }
 
     }
 
     private final class BindCallback implements ChannelFutureListener {
 
-        private final NettyNetworkChannelContext context;
+        private final NettyNetworkChannelTransitionContext context;
 
-        public BindCallback(NettyNetworkChannelContext context) {
+        public BindCallback(NettyNetworkChannelTransitionContext context) {
             this.context = context;
         }
 
@@ -126,9 +135,11 @@ public class AsynchronousNettyNetworkChannelFsm extends AbstractNettyNetworkChan
                     log.debug("Channel is bound to " + future.channel().localAddress().toString());
                 }
                 fire(NettyNetworkChannelEvent.BOUND, this.context);
+                this.context.getCallback().onSuccess(null);
             } else {
-                log.warn("Could not bind channel to " + context.getLocalAddress() + ". Channel will be closed.", future.cause());
+                log.warn("Could not bind channel to " + globalContext.getLocalAddress() + ". Channel will be closed.", future.cause());
                 fire(NettyNetworkChannelEvent.CLOSE, this.context);
+                this.context.getCallback().onFailure(future.cause());
             }
         }
 
@@ -136,9 +147,9 @@ public class AsynchronousNettyNetworkChannelFsm extends AbstractNettyNetworkChan
 
     private final class ConnectCallback implements ChannelFutureListener {
 
-        private final NettyNetworkChannelContext context;
+        private final NettyNetworkChannelTransitionContext context;
 
-        public ConnectCallback(NettyNetworkChannelContext context) {
+        public ConnectCallback(NettyNetworkChannelTransitionContext context) {
             this.context = context;
         }
 
@@ -149,9 +160,11 @@ public class AsynchronousNettyNetworkChannelFsm extends AbstractNettyNetworkChan
                     log.debug("Channel is connected to " + future.channel().remoteAddress().toString());
                 }
                 fire(NettyNetworkChannelEvent.CONNECTED, this.context);
+                this.context.getCallback().onSuccess(null);
             } else {
-                log.warn("Could not connect channel to " + context.getRemoteAddress() + ". Channel will be closed.", future.cause());
+                log.warn("Could not connect channel to " + globalContext.getRemoteAddress() + ". Channel will be closed.", future.cause());
                 fire(NettyNetworkChannelEvent.CLOSE, this.context);
+                this.context.getCallback().onFailure(future.cause());
             }
         }
 
@@ -159,9 +172,9 @@ public class AsynchronousNettyNetworkChannelFsm extends AbstractNettyNetworkChan
 
     private final class DisconnectCallback implements ChannelFutureListener {
 
-        private final NettyNetworkChannelContext context;
+        private final NettyNetworkChannelTransitionContext context;
 
-        public DisconnectCallback(NettyNetworkChannelContext context) {
+        public DisconnectCallback(NettyNetworkChannelTransitionContext context) {
             this.context = context;
         }
 
@@ -172,9 +185,11 @@ public class AsynchronousNettyNetworkChannelFsm extends AbstractNettyNetworkChan
                     log.debug("Channel disconnected from " + future.channel().remoteAddress().toString());
                 }
                 fire(NettyNetworkChannelEvent.DISCONNECTED, this.context);
+                this.context.getCallback().onSuccess(null);
             } else {
-                log.warn("Could not disconnect channel from " + context.getRemoteAddress() + ". Channel will be closed.", future.cause());
+                log.warn("Could not disconnect channel from " + globalContext.getRemoteAddress() + ". Channel will be closed.", future.cause());
                 fire(NettyNetworkChannelEvent.CLOSE, this.context);
+                this.context.getCallback().onFailure(future.cause());
             }
         }
 
@@ -182,9 +197,9 @@ public class AsynchronousNettyNetworkChannelFsm extends AbstractNettyNetworkChan
 
     private final class CloseCallback implements ChannelFutureListener {
         
-        private final NettyNetworkChannelContext context;
+        private final NettyNetworkChannelTransitionContext context;
         
-        public CloseCallback(NettyNetworkChannelContext context) {
+        public CloseCallback(NettyNetworkChannelTransitionContext context) {
             this.context = context;
         }
         
@@ -194,8 +209,10 @@ public class AsynchronousNettyNetworkChannelFsm extends AbstractNettyNetworkChan
                 if(log.isDebugEnabled()) {
                     log.debug("Channel closed in elegant manner");
                 }
+                this.context.getCallback().onSuccess(null);
             } else {
                 log.warn("Channel could not be closed properly", future.cause());
+                this.context.getCallback().onFailure(future.cause());
             }
             fire(NettyNetworkChannelEvent.CLOSED, this.context);
         }

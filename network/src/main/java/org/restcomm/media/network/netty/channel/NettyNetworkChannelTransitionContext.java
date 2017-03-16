@@ -21,19 +21,27 @@
 
 package org.restcomm.media.network.netty.channel;
 
+import com.google.common.util.concurrent.FutureCallback;
+
 /**
- * Valid states of a {@link AsyncNettyNetworkChannel}.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum NettyNetworkChannelState {
+public class NettyNetworkChannelTransitionContext {
 
-    UNINITIALIZED, OPENING, OPEN, BINDING, BOUND, CONNECTING, CONNECTED, DISCONNECTING, CLOSING, CLOSED;
+    private FutureCallback<Void> callback;
 
-    NettyNetworkChannelState() {
+    NettyNetworkChannelTransitionContext() {
+        super();
+    }
+
+    FutureCallback<Void> getCallback() {
+        return callback;
     }
     
-    
+    public NettyNetworkChannelTransitionContext setCallback(FutureCallback<Void> callback) {
+        this.callback = callback;
+        return this;
+    }
     
 }

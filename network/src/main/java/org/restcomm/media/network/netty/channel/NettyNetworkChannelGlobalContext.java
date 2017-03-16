@@ -28,19 +28,19 @@ import org.restcomm.media.network.netty.NettyNetworkManager;
 import io.netty.channel.Channel;
 
 /**
- * The runtime context of a {@link AsynchronousNettyNetworkChannel}.
+ * The runtime context of a {@link AsyncNettyNetworkChannel}.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class NettyNetworkChannelContext {
+public class NettyNetworkChannelGlobalContext {
 
     private NettyNetworkManager networkManager;
     private Channel channel;
     private SocketAddress localAddress;
     private SocketAddress remoteAddress;
 
-    public NettyNetworkChannelContext(NettyNetworkManager networkManager) {
+    public NettyNetworkChannelGlobalContext(NettyNetworkManager networkManager) {
         super();
         this.networkManager = networkManager;
     }
