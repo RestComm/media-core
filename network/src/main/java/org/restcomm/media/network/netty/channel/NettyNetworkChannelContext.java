@@ -21,6 +21,8 @@
 
 package org.restcomm.media.network.netty.channel;
 
+import java.net.SocketAddress;
+
 import org.restcomm.media.network.netty.NettyNetworkManager;
 
 import io.netty.channel.Channel;
@@ -33,15 +35,17 @@ import io.netty.channel.Channel;
  */
 public class NettyNetworkChannelContext {
 
-    private final NettyNetworkManager networkManager;
+    private NettyNetworkManager networkManager;
     private Channel channel;
+    private SocketAddress localAddress;
+    private SocketAddress remoteAddress;
 
     public NettyNetworkChannelContext(NettyNetworkManager networkManager) {
         super();
         this.networkManager = networkManager;
     }
-    
-    public NettyNetworkManager getNetworkManager() {
+
+    NettyNetworkManager getNetworkManager() {
         return networkManager;
     }
 
@@ -51,6 +55,29 @@ public class NettyNetworkChannelContext {
 
     void setChannel(Channel channel) {
         this.channel = channel;
+    }
+
+    SocketAddress getLocalAddress() {
+        return localAddress;
+    }
+
+    void setLocalAddress(SocketAddress localAddress) {
+        this.localAddress = localAddress;
+    }
+
+    SocketAddress getRemoteAddress() {
+        return remoteAddress;
+    }
+
+    void setRemoteAddress(SocketAddress remoteAddress) {
+        this.remoteAddress = remoteAddress;
+    }
+
+    void clean() {
+        this.channel = null;
+        this.localAddress = null;
+        this.remoteAddress = null;
+        this.networkManager = null;
     }
 
 }

@@ -29,6 +29,6 @@ package org.restcomm.media.network.netty.channel;
  */
 public enum NettyNetworkChannelState {
 
-    OPEN, ACTIVE, CLOSED;
+    UNINITIALIZED, OPENING, OPEN, BINDING, BOUND, CONNECTING, CONNECTED, DISCONNECTING, CLOSING, CLOSED;
 
 }

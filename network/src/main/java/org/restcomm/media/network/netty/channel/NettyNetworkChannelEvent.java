@@ -27,6 +27,8 @@ package org.restcomm.media.network.netty.channel;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface NettyNetworkChannelEvent {
+public enum NettyNetworkChannelEvent {
 
+    OPEN, OPENED, BIND, BOUND, CONNECT, CONNECTED, DISCONNECT, DISCONNECTED, CLOSE, CLOSED;
+    
 }
