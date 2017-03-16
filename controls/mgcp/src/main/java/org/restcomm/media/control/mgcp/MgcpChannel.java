@@ -22,8 +22,8 @@
 package org.restcomm.media.control.mgcp;
 
 import org.apache.log4j.Logger;
-import org.restcomm.media.network.channel.MultiplexedNetworkChannel;
-import org.restcomm.media.network.channel.RestrictedNetworkGuard;
+import org.restcomm.media.network.deprecated.channel.MultiplexedNetworkChannel;
+import org.restcomm.media.network.deprecated.channel.RestrictedNetworkGuard;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)

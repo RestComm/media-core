@@ -41,7 +41,7 @@ import org.restcomm.media.control.mgcp.endpoint.naming.NamingService;
 import org.restcomm.media.control.mgcp.resources.ResourcesPool;
 import org.restcomm.media.control.mgcp.tx.GlobalTransactionManager;
 import org.restcomm.media.control.mgcp.tx.Transaction;
-import org.restcomm.media.network.UdpManager;
+import org.restcomm.media.network.deprecated.UdpManager;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.Scheduler;
 import org.restcomm.media.spi.ControlProtocol;

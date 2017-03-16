@@ -31,10 +31,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.log4j.Logger;
 import org.restcomm.media.control.mgcp.message.MgcpMessage;
+import org.restcomm.media.control.mgcp.message.MgcpMessageParser;
 import org.restcomm.media.control.mgcp.message.MgcpRequest;
 import org.restcomm.media.control.mgcp.message.MgcpResponse;
-import org.restcomm.media.network.UdpManager;
-import org.restcomm.media.network.channel.RestrictedNetworkGuard;
+import org.restcomm.media.control.mgcp.network.MgcpChannel;
+import org.restcomm.media.control.mgcp.network.MgcpPacketHandler;
+import org.restcomm.media.network.deprecated.UdpManager;
+import org.restcomm.media.network.deprecated.channel.RestrictedNetworkGuard;
 import org.restcomm.media.spi.listener.Listeners;
 import org.restcomm.media.spi.listener.TooManyListenersException;
 
@@ -66,7 +69,7 @@ public class MgcpProvider {
     public MgcpProvider(UdpManager transport, int port) {
         this.transport = transport;
         this.networkGuard = new RestrictedNetworkGuard(transport.getLocalNetwork(), transport.getLocalSubnet());
-        this.mgcpHandler = new MgcpPacketHandler(this);
+        this.mgcpHandler = new MgcpPacketHandler(new MgcpMessageParser());
         this.dataChannel = new MgcpChannel(this.networkGuard, this.mgcpHandler);
         this.port = port;
 
