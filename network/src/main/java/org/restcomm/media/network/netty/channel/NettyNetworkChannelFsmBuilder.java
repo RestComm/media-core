@@ -75,15 +75,10 @@ public class NettyNetworkChannelFsmBuilder {
         this.builder.externalTransition().from(NettyNetworkChannelState.CONNECTED).to(NettyNetworkChannelState.CLOSING).on(NettyNetworkChannelEvent.CLOSE);
         this.builder.onExit(NettyNetworkChannelState.CONNECTED).callMethod("exitConnected");
 
-        this.builder.onEntry(NettyNetworkChannelState.DISCONNECTING).callMethod("enterDisconnected");
+        this.builder.onEntry(NettyNetworkChannelState.DISCONNECTING).callMethod("enterDisconnecting");
         this.builder.externalTransition().from(NettyNetworkChannelState.DISCONNECTING).to(NettyNetworkChannelState.BOUND).on(NettyNetworkChannelEvent.DISCONNECTED);
         this.builder.externalTransition().from(NettyNetworkChannelState.DISCONNECTING).to(NettyNetworkChannelState.CLOSING).on(NettyNetworkChannelEvent.CLOSE);
-        this.builder.onExit(NettyNetworkChannelState.DISCONNECTING).callMethod("exitDisconnected");
-        
-        this.builder.onEntry(NettyNetworkChannelState.BOUND).callMethod("enterBound");
-        this.builder.externalTransition().from(NettyNetworkChannelState.BOUND).to(NettyNetworkChannelState.CONNECTING).on(NettyNetworkChannelEvent.CONNECT);
-        this.builder.externalTransition().from(NettyNetworkChannelState.BOUND).to(NettyNetworkChannelState.CLOSING).on(NettyNetworkChannelEvent.CLOSE);
-        this.builder.onExit(NettyNetworkChannelState.BOUND).callMethod("exitBound");
+        this.builder.onExit(NettyNetworkChannelState.DISCONNECTING).callMethod("exitDisconnecting");
 
         this.builder.onEntry(NettyNetworkChannelState.CLOSING).callMethod("enterClosing");
         this.builder.externalTransition().from(NettyNetworkChannelState.CLOSING).to(NettyNetworkChannelState.CLOSED).on(NettyNetworkChannelEvent.CLOSED);

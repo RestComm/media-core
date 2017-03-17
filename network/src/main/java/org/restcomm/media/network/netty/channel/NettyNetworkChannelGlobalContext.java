@@ -23,7 +23,7 @@ package org.restcomm.media.network.netty.channel;
 
 import java.net.SocketAddress;
 
-import org.restcomm.media.network.netty.NettyNetworkManager;
+import org.restcomm.media.network.api.AsynchronousNetworkManager;
 
 import io.netty.channel.Channel;
 
@@ -35,17 +35,17 @@ import io.netty.channel.Channel;
  */
 public class NettyNetworkChannelGlobalContext {
 
-    private NettyNetworkManager networkManager;
+    private AsynchronousNetworkManager<Channel> networkManager;
     private Channel channel;
     private SocketAddress localAddress;
     private SocketAddress remoteAddress;
 
-    public NettyNetworkChannelGlobalContext(NettyNetworkManager networkManager) {
+    public NettyNetworkChannelGlobalContext(AsynchronousNetworkManager<Channel> networkManager) {
         super();
         this.networkManager = networkManager;
     }
 
-    NettyNetworkManager getNetworkManager() {
+    AsynchronousNetworkManager<Channel> getNetworkManager() {
         return networkManager;
     }
 
