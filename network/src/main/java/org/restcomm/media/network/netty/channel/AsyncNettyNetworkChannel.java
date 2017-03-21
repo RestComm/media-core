@@ -48,6 +48,7 @@ public class AsyncNettyNetworkChannel<M> implements AsynchronousNetworkChannel<M
     public AsyncNettyNetworkChannel(NettyNetworkManager networkManager) {
         this.context = new NettyNetworkChannelGlobalContext(networkManager);
         this.fsm = NettyNetworkChannelFsmBuilder.INSTANCE.build(this.context);
+        this.fsm.start();
     }
 
     @Override
@@ -81,7 +82,6 @@ public class AsyncNettyNetworkChannel<M> implements AsynchronousNetworkChannel<M
             // TODO handle inside FSM Listener
             callback.onFailure(new IllegalStateException("Channel is already open."));
         } else {
-            this.fsm.start();
             NettyNetworkChannelTransitionContext transitionContext = new NettyNetworkChannelTransitionContext().setCallback(callback);
             this.fsm.fire(NettyNetworkChannelEvent.OPEN, transitionContext);
         }
@@ -104,9 +104,9 @@ public class AsyncNettyNetworkChannel<M> implements AsynchronousNetworkChannel<M
             // TODO handle inside FSM Listener
             callback.onFailure(new IllegalStateException("Channel is already bound."));
         } else {
+            this.context.setLocalAddress(localAddress);
             NettyNetworkChannelTransitionContext transitionContext = new NettyNetworkChannelTransitionContext().setCallback(callback);
             this.fsm.fire(NettyNetworkChannelEvent.BIND, transitionContext);
-            // TODO register callback
         }
     }
 
@@ -116,6 +116,7 @@ public class AsyncNettyNetworkChannel<M> implements AsynchronousNetworkChannel<M
             // TODO handle inside FSM Listener
             callback.onFailure(new IllegalStateException("Channel is already bound."));
         } else {
+            this.context.setRemoteAddress(remoteAddress);
             NettyNetworkChannelTransitionContext transitionContext = new NettyNetworkChannelTransitionContext().setCallback(callback);
             this.fsm.fire(NettyNetworkChannelEvent.CONNECT, transitionContext);
         }
@@ -142,7 +143,7 @@ public class AsyncNettyNetworkChannel<M> implements AsynchronousNetworkChannel<M
     @Override
     public void send(M message, FutureCallback<Void> callback) {
         if (isConnected()) {
-            final ChannelFuture future = this.context.getChannel().writeAndFlush(callback);
+            final ChannelFuture future = this.context.getChannel().writeAndFlush(message);
             future.addListener(new NettyNetworkChannelVoidCallbackListener(callback));
         } else {
             callback.onFailure(new IllegalStateException("Channel is not connected."));

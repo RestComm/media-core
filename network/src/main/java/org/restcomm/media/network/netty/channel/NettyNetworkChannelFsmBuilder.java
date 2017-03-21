@@ -23,6 +23,7 @@ package org.restcomm.media.network.netty.channel;
 
 import org.squirrelframework.foundation.fsm.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
+import org.squirrelframework.foundation.fsm.StateMachineConfiguration;
 
 /**
  * Builder for {@link NettyNetworkChannelFsm}. Use the {@link NettyNetworkChannelFsmBuilder#INSTANCE} to invoke the FSM builder.
@@ -89,7 +90,7 @@ public class NettyNetworkChannelFsmBuilder {
     }
 
     public NettyNetworkChannelFsm build(NettyNetworkChannelGlobalContext context) {
-        return this.builder.newStateMachine(NettyNetworkChannelState.UNINITIALIZED, context);
+        return this.builder.newStateMachine(NettyNetworkChannelState.UNINITIALIZED, StateMachineConfiguration.getInstance().enableDebugMode(true), context);
     }
 
 }
