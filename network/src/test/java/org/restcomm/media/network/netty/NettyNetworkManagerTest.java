@@ -36,7 +36,11 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import com.google.common.util.concurrent.FutureCallback;
 
@@ -57,6 +61,8 @@ import io.netty.util.concurrent.Future;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({Bootstrap.class})
 public class NettyNetworkManagerTest {
 
     private EventExecutor eventExecutor;
@@ -83,21 +89,21 @@ public class NettyNetworkManagerTest {
     @Test(expected = IllegalStateException.class)
     public void testInvalidBootstrap() throws Exception {
         // given
-        final EventLoopGroup eventLoopGroup = mock(EventLoopGroup.class);
         final Bootstrap bootstrap = mock(Bootstrap.class);
 
         // when
         when(bootstrap.validate()).thenThrow(new IllegalStateException("Testing purposes!"));
 
-        new NettyNetworkManager(eventLoopGroup, bootstrap);
+        new NettyNetworkManager(bootstrap);
     }
 
     @Test
     public void testCloseSync() throws Exception {
         // given
         this.eventLoopGroup = new NioEventLoopGroup(1);
-        final Bootstrap bootstrap = mock(Bootstrap.class);
-        final NettyNetworkManager networkManager = new NettyNetworkManager(eventLoopGroup, bootstrap);
+        final Bootstrap bootstrap = PowerMockito.mock(Bootstrap.class);
+        PowerMockito.when(bootstrap.group()).thenReturn(eventLoopGroup);
+        final NettyNetworkManager networkManager = new NettyNetworkManager(bootstrap);
 
         // when
         networkManager.close();
@@ -110,8 +116,9 @@ public class NettyNetworkManagerTest {
     public void testCloseSyncFailure() throws Exception {
         // given
         final EventLoopGroup eventLoopGroup = mock(EventLoopGroup.class);
-        final Bootstrap bootstrap = mock(Bootstrap.class);
-        final NettyNetworkManager networkManager = new NettyNetworkManager(eventLoopGroup, bootstrap);
+        final Bootstrap bootstrap = PowerMockito.mock(Bootstrap.class);
+        PowerMockito.when(bootstrap.group()).thenReturn(eventLoopGroup);
+        final NettyNetworkManager networkManager = new NettyNetworkManager(bootstrap);
 
         // when
         when(eventLoopGroup.shutdownGracefully(any(Long.class), any(Long.class), any(TimeUnit.class))).thenThrow(new RuntimeException("Testing purposes!"));
@@ -123,9 +130,10 @@ public class NettyNetworkManagerTest {
     public void testCloseAsync() {
         // given
         this.eventLoopGroup = new NioEventLoopGroup(1);
-        final Bootstrap bootstrap = mock(Bootstrap.class);
+        final Bootstrap bootstrap = PowerMockito.mock(Bootstrap.class);
+        PowerMockito.when(bootstrap.group()).thenReturn(eventLoopGroup);
         final FutureCallback<Void> callback = mock(FutureCallback.class);
-        final NettyNetworkManager networkManager = new NettyNetworkManager(eventLoopGroup, bootstrap);
+        final NettyNetworkManager networkManager = new NettyNetworkManager(bootstrap);
 
         // when
         networkManager.close(callback);
@@ -140,8 +148,9 @@ public class NettyNetworkManagerTest {
     public void testCloseAsyncFailure() {
         // given
         final EventLoopGroup eventLoopGroup = mock(EventLoopGroup.class);
-        final Bootstrap bootstrap = mock(Bootstrap.class);
-        final NettyNetworkManager networkManager = new NettyNetworkManager(eventLoopGroup, bootstrap);
+        final Bootstrap bootstrap = PowerMockito.mock(Bootstrap.class);
+        PowerMockito.when(bootstrap.group()).thenReturn(eventLoopGroup);
+        final NettyNetworkManager networkManager = new NettyNetworkManager(bootstrap);
         final FutureCallback<Void> callback = mock(FutureCallback.class);
         final Exception exception = new RuntimeException("Testing purposes!");
         this.eventExecutor = new DefaultEventExecutor();
@@ -152,7 +161,7 @@ public class NettyNetworkManagerTest {
         networkManager.close(callback);
 
         // then
-        verify(callback, times(1)).onFailure(exception);
+        verify(callback, timeout(100)).onFailure(exception);
     }
 
     @Test
@@ -161,7 +170,7 @@ public class NettyNetworkManagerTest {
         this.eventLoopGroup = new NioEventLoopGroup(1);
         final ChannelHandler channelHandler = mock(ChannelHandler.class);
         final Bootstrap bootstrap = new Bootstrap().group(eventLoopGroup).channel(NioDatagramChannel.class).handler(channelHandler);
-        try (final NettyNetworkManager networkManager = new NettyNetworkManager(eventLoopGroup, bootstrap)) {
+        try (final NettyNetworkManager networkManager = new NettyNetworkManager(bootstrap)) {
             // when
             final Channel channel = networkManager.openChannel();
 
@@ -176,9 +185,10 @@ public class NettyNetworkManagerTest {
     public void testOpenChannelSyncFailure() throws Exception {
         // given
         this.eventLoopGroup = new NioEventLoopGroup(1);
-        final Bootstrap bootstrap = mock(Bootstrap.class);
+        final Bootstrap bootstrap = PowerMockito.mock(Bootstrap.class);
+        PowerMockito.when(bootstrap.group()).thenReturn(eventLoopGroup);
         final Exception exception = new RuntimeException("Testing purposes!");
-        try (final NettyNetworkManager networkManager = new NettyNetworkManager(eventLoopGroup, bootstrap)) {
+        try (final NettyNetworkManager networkManager = new NettyNetworkManager(bootstrap)) {
             // when
             when(bootstrap.clone()).thenReturn(bootstrap);
             when(bootstrap.register()).thenThrow(exception);
@@ -198,7 +208,7 @@ public class NettyNetworkManagerTest {
         final FutureCallback<Channel> callback = mock(FutureCallback.class);
         final ArgumentCaptor<Channel> captor = ArgumentCaptor.forClass(Channel.class);
 
-        try (final NettyNetworkManager networkManager = new NettyNetworkManager(eventLoopGroup, bootstrap)) {
+        try (final NettyNetworkManager networkManager = new NettyNetworkManager(bootstrap)) {
             // when
             networkManager.openChannel(callback);
 
@@ -215,14 +225,15 @@ public class NettyNetworkManagerTest {
     public void testOpenChannelAsyncFailure() throws Exception {
         // given
         this.eventLoopGroup = new NioEventLoopGroup(1);
-        final Bootstrap bootstrap = mock(Bootstrap.class);
+        final Bootstrap bootstrap = PowerMockito.mock(Bootstrap.class);
+        PowerMockito.when(bootstrap.group()).thenReturn(eventLoopGroup);
         this.eventExecutor = new DefaultEventExecutor();
         final FutureCallback<Channel> callback = mock(FutureCallback.class);
         final Channel channel = mock(Channel.class);
         final ChannelPromise promise = new DefaultChannelProgressivePromise(channel, eventExecutor);
         final Exception exception = new RuntimeException("Testing purposes!");
 
-        try (final NettyNetworkManager networkManager = new NettyNetworkManager(eventLoopGroup, bootstrap)) {
+        try (final NettyNetworkManager networkManager = new NettyNetworkManager(bootstrap)) {
             // when
             when(bootstrap.clone()).thenReturn(bootstrap);
             when(bootstrap.register()).thenReturn(promise);

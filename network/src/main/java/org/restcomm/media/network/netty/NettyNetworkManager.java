@@ -62,13 +62,13 @@ public class NettyNetworkManager implements SynchronousNetworkManager<Channel>, 
     }
 
     public NettyNetworkManager(int threadCount) {
-        this(new NioEventLoopGroup(threadCount), new Bootstrap().channel(NioDatagramChannel.class));
+        this(new Bootstrap().channel(NioDatagramChannel.class).group(new NioEventLoopGroup(threadCount)));
     }
 
-    public NettyNetworkManager(EventLoopGroup eventGroup, Bootstrap bootstrap) {
+    public NettyNetworkManager(Bootstrap bootstrap) {
         bootstrap.validate();
-        this.eventGroup = eventGroup;
         this.bootstrap = bootstrap;
+        this.eventGroup = bootstrap.group();
         this.open = new AtomicBoolean(true);
     }
 

@@ -54,12 +54,23 @@ import io.netty.util.concurrent.EventExecutor;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class NettyNetworkChannelTest {
+public class AsyncNettyNetworkChannelTest {
 
     private EventExecutor executor;
+    private NettyNetworkManager networkManager;
 
     @After
     public void after() {
+        if(this.networkManager != null) {
+            try {
+                this.networkManager.close();
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            this.networkManager = null;
+        }
+        
         if (this.executor != null) {
             if (!this.executor.isShutdown()) {
                 this.executor.shutdownGracefully(0L, 0L, TimeUnit.MILLISECONDS);
@@ -67,47 +78,14 @@ public class NettyNetworkChannelTest {
             this.executor = null;
         }
     }
-//
-//    @Test
-//    public void testOpenSync() throws Exception {
-//        // given
-//        final Channel channel = mock(Channel.class);
-//        final NettyNetworkManager networkManager = mock(NettyNetworkManager.class);
-//        final AsynchronousNettyNetworkChannel<Object> networkChannel = new AsynchronousNettyNetworkChannel<>(networkManager);
-//
-//        // when
-//        when(channel.isOpen()).thenReturn(true);
-//        when(channel.localAddress()).thenReturn(null);
-//        when(channel.remoteAddress()).thenReturn(null);
-//        when(networkManager.openChannel()).thenReturn(channel);
-//
-//        networkChannel.open();
-//
-//        // then
-//        verify(networkManager, times(1)).openChannel();
-//        assertTrue(networkChannel.isOpen());
-//        assertFalse(networkChannel.isBound());
-//        assertFalse(networkChannel.isConnected());
-//    }
 
-//    @Test(expected = IOException.class)
-//    public void testOpenSyncFailure() throws Exception {
-//        // given
-//        final NettyNetworkManager networkManager = mock(NettyNetworkManager.class);
-//        final AsynchronousNettyNetworkChannel<Object> networkChannel = new AsynchronousNettyNetworkChannel<>(networkManager);
-//
-//        // when
-//        when(networkManager.openChannel()).thenThrow(new IOException("Testing purposes!"));
-//        networkChannel.open();
-//    }
-//
 //    @SuppressWarnings({ "unchecked", "rawtypes" })
 //    @Test
 //    public void testOpenAsync() throws Exception {
 //        // given
 //        final Channel channel = mock(Channel.class);
 //        final NettyNetworkManager networkManager = mock(NettyNetworkManager.class);
-//        final AsynchronousNettyNetworkChannel<Object> networkChannel = new AsynchronousNettyNetworkChannel<>(networkManager);
+//        final AsyncNettyNetworkChannel<Object> networkChannel = new AsyncNettyNetworkChannel<>(networkManager);
 //        final FutureCallback<Void> callback = mock(FutureCallback.class);
 //        final ArgumentCaptor<NettyNetworkChannelCallbackListener> managerCaptor = ArgumentCaptor
 //                .forClass(NettyNetworkChannelCallbackListener.class);
@@ -117,6 +95,7 @@ public class NettyNetworkChannelTest {
 //        when(channel.localAddress()).thenReturn(null);
 //        when(channel.remoteAddress()).thenReturn(null);
 //        doNothing().when(networkManager).openChannel(managerCaptor.capture());
+//        networkManager.open
 //
 //        networkChannel.open(callback);
 //        managerCaptor.getValue().onSuccess(channel);
@@ -129,7 +108,25 @@ public class NettyNetworkChannelTest {
 //        assertFalse(networkChannel.isBound());
 //        assertFalse(networkChannel.isConnected());
 //    }
-//
+    
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testOpenAsync() {
+        // given
+        FutureCallback<Void> openCallback = mock(FutureCallback.class);
+        this.networkManager = new NettyNetworkManager();
+        final AsyncNettyNetworkChannel<Object> networkChannel = new AsyncNettyNetworkChannel<>(networkManager);
+        
+        // when
+        networkChannel.open(openCallback);
+        
+        // then
+        verify(openCallback, timeout(100)).onSuccess(null);
+        assertTrue(networkChannel.isOpen());
+        assertFalse(networkChannel.isBound());
+        assertFalse(networkChannel.isConnected());
+    }
+
 //    @SuppressWarnings({ "unchecked", "rawtypes" })
 //    @Test
 //    public void testOpenAsyncFailure() throws Exception {
