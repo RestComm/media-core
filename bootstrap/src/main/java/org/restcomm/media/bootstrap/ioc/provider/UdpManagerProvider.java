@@ -22,7 +22,9 @@
 package org.restcomm.media.bootstrap.ioc.provider;
 
 import org.restcomm.media.core.configuration.MediaServerConfiguration;
-import org.restcomm.media.network.UdpManager;
+import org.restcomm.media.network.deprecated.PortManager;
+import org.restcomm.media.network.deprecated.RtpPortManager;
+import org.restcomm.media.network.deprecated.UdpManager;
 import org.restcomm.media.scheduler.Scheduler;
 
 import com.google.inject.Inject;
@@ -36,16 +38,20 @@ public class UdpManagerProvider implements Provider<UdpManager> {
 
     private final Scheduler scheduler;
     private final MediaServerConfiguration config;
+    private final PortManager portManager;
+    private final PortManager localPortManager;
     
     @Inject
     public UdpManagerProvider(MediaServerConfiguration config, Scheduler scheduler) {
         this.scheduler = scheduler;
         this.config = config;
+        this.portManager = new RtpPortManager(config.getMediaConfiguration().getLowPort(), config.getMediaConfiguration().getHighPort());
+        this.localPortManager = new RtpPortManager();
     }
     
     @Override
     public UdpManager get() {
-        UdpManager udpManager = new UdpManager(scheduler);
+        UdpManager udpManager = new UdpManager(scheduler, this.portManager, this.localPortManager);
         udpManager.setBindAddress(config.getNetworkConfiguration().getBindAddress());
         udpManager.setLocalBindAddress(config.getControllerConfiguration().getAddress());
         udpManager.setExternalAddress(config.getNetworkConfiguration().getExternalAddress());
@@ -53,8 +59,6 @@ public class UdpManagerProvider implements Provider<UdpManager> {
         udpManager.setLocalSubnet(config.getNetworkConfiguration().getSubnet());
         udpManager.setUseSbc(config.getNetworkConfiguration().isSbc());
         udpManager.setRtpTimeout(config.getMediaConfiguration().getTimeout());
-        udpManager.setLowestPort(config.getMediaConfiguration().getLowPort());
-        udpManager.setHighestPort(config.getMediaConfiguration().getHighPort());
         return udpManager;
     }
 

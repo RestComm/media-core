@@ -24,8 +24,8 @@ package org.restcomm.media.rtp;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.restcomm.media.network.PortManager;
-import org.restcomm.media.network.UdpManager;
+import org.restcomm.media.network.deprecated.PortManager;
+import org.restcomm.media.network.deprecated.UdpManager;
 import org.restcomm.media.rtcp.RtcpChannel;
 import org.restcomm.media.rtp.channels.AudioChannel;
 import org.restcomm.media.rtp.crypto.DtlsSrtpServerProvider;

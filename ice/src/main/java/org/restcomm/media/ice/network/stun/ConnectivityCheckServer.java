@@ -21,7 +21,7 @@
 package org.restcomm.media.ice.network.stun;
 
 import org.restcomm.media.ice.IceAgent;
-import org.restcomm.media.network.server.NioServer;
+import org.restcomm.media.network.deprecated.server.NioServer;
 
 /**
  * Non-blocking server to listen to STUN connectivity checks that happen as part

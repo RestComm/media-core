@@ -26,15 +26,19 @@
  */
 package org.restcomm.media.control.mgcp;
 
+import static org.junit.Assert.assertTrue;
+
+import java.io.IOException;
 import java.net.InetSocketAddress;
 
-import org.restcomm.media.control.mgcp.MgcpEvent;
-import org.restcomm.media.control.mgcp.MgcpListener;
-import org.restcomm.media.control.mgcp.MgcpProvider;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.restcomm.media.control.mgcp.message.MgcpRequest;
 import org.restcomm.media.control.mgcp.message.MgcpResponse;
 import org.restcomm.media.control.mgcp.message.Parameter;
-import org.restcomm.media.network.UdpManager;
+import org.restcomm.media.network.deprecated.RtpPortManager;
+import org.restcomm.media.network.deprecated.UdpManager;
 import org.restcomm.media.scheduler.Clock;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.Scheduler;
@@ -42,16 +46,6 @@ import org.restcomm.media.scheduler.ServiceScheduler;
 import org.restcomm.media.scheduler.WallClock;
 import org.restcomm.media.spi.listener.TooManyListenersException;
 import org.restcomm.media.spi.utils.Text;
-
-import java.io.IOException;
-
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 /**
  *
@@ -78,7 +72,7 @@ public class MgcpProviderTest {
         mediaScheduler.setClock(clock);
         mediaScheduler.start();
         
-        udpInterface = new UdpManager(scheduler);
+        udpInterface = new UdpManager(scheduler, new RtpPortManager(), new RtpPortManager());
         udpInterface.setLocalBindAddress("127.0.0.1");
         udpInterface.setBindAddress("127.0.0.1");
         udpInterface.setLocalNetwork("127.0.0.1");

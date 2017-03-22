@@ -28,7 +28,8 @@ import org.restcomm.media.codec.g711.alaw.Decoder;
 import org.restcomm.media.codec.g711.alaw.Encoder;
 import org.restcomm.media.component.dsp.DspFactoryImpl;
 import org.restcomm.media.core.configuration.DtlsConfiguration;
-import org.restcomm.media.network.UdpManager;
+import org.restcomm.media.network.deprecated.RtpPortManager;
+import org.restcomm.media.network.deprecated.UdpManager;
 import org.restcomm.media.rtp.ChannelsManager;
 import org.restcomm.media.rtp.crypto.AlgorithmCertificate;
 import org.restcomm.media.rtp.crypto.CipherSuite;
@@ -77,7 +78,7 @@ public class RTPEnvironment {
         mediaScheduler.setClock(clock);
         mediaScheduler.start();
 
-        udpManager = new UdpManager(scheduler);
+        udpManager = new UdpManager(scheduler, new RtpPortManager(), new RtpPortManager());
         udpManager.setBindAddress("127.0.0.1");
         scheduler.start();
         udpManager.start();

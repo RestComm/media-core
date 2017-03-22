@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.restcomm.media.network.UdpManager;
+import org.restcomm.media.network.deprecated.UdpManager;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.Scheduler;
 import org.restcomm.media.scheduler.Task;

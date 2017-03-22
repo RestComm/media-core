@@ -32,7 +32,7 @@ import org.restcomm.media.ice.IceComponent;
 import org.restcomm.media.ice.IceMediaStream;
 import org.restcomm.media.ice.LocalCandidateWrapper;
 import org.restcomm.media.ice.ServerReflexiveCandidate;
-import org.restcomm.media.network.PortManager;
+import org.restcomm.media.network.deprecated.RtpPortManager;
 
 /**
  * Gathers SRFLX candidates for the public address on which Media Server is installed.
@@ -55,7 +55,7 @@ public class ExternalCandidateHarvester implements CandidateHarvester {
 	}
 	
 	@Override
-	public void harvest(PortManager portManager, IceMediaStream mediaStream, Selector selector) throws HarvestException {
+	public void harvest(RtpPortManager portManager, IceMediaStream mediaStream, Selector selector) throws HarvestException {
 		harvest(mediaStream.getRtpComponent());
 		if(mediaStream.supportsRtcp() && !mediaStream.isRtcpMux()) {
 			harvest(mediaStream.getRtcpComponent());

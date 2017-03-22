@@ -50,7 +50,7 @@ import org.restcomm.media.ice.harvest.HarvestException;
 import org.restcomm.media.ice.harvest.HostCandidateHarvester;
 import org.restcomm.media.ice.harvest.NoCandidatesGatheredException;
 import org.restcomm.media.ice.lite.LiteFoundationsRegistry;
-import org.restcomm.media.network.PortManager;
+import org.restcomm.media.network.deprecated.RtpPortManager;
 
 /**
  * 
@@ -103,9 +103,7 @@ public class ExternalCandidateHarvesterTest {
 		
 		// when
 		try {
-			PortManager portManager = new PortManager();
-			portManager.setHighestPort(62000);
-			portManager.setLowestPort(61000);
+			RtpPortManager portManager = new RtpPortManager(61000, 62000);
 			// host harvester takes precedence over srflx
 			hostHarvester.harvest(portManager, mediaStream, selector);
 			srflxHarvester.harvest(portManager, mediaStream, selector);

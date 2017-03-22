@@ -138,6 +138,11 @@
             <artifactId>guava</artifactId>
             <version>${version.guava}</version>
         </dependency>
+        <dependency>
+            <groupId>org.restcomm.fsm</groupId>
+            <artifactId>squirrel-foundation</artifactId>
+            <version>0.3.9.11</version>
+        </dependency>
 
         <!-- Logging -->
         <dependency>

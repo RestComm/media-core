@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.restcomm.media.ice.IceComponent;
 import org.restcomm.media.ice.IceHandler;
 import org.restcomm.media.ice.events.IceEventListener;
-import org.restcomm.media.network.channel.PacketHandlerException;
+import org.restcomm.media.network.deprecated.channel.PacketHandlerException;
 import org.restcomm.media.stun.StunException;
 import org.restcomm.media.stun.messages.StunMessage;
 import org.restcomm.media.stun.messages.StunRequest;

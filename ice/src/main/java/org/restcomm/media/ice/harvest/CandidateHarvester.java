@@ -24,7 +24,7 @@ import java.nio.channels.Selector;
 
 import org.restcomm.media.ice.CandidateType;
 import org.restcomm.media.ice.IceMediaStream;
-import org.restcomm.media.network.PortManager;
+import org.restcomm.media.network.deprecated.RtpPortManager;
 
 /**
  * 
@@ -46,7 +46,7 @@ public interface CandidateHarvester {
 	 * @throws HarvestException
 	 *             When an error occurs during the candidate harvesting process.
 	 */
-	void harvest(PortManager portManager, IceMediaStream mediaStream, Selector selector) throws HarvestException;
+	void harvest(RtpPortManager portManager, IceMediaStream mediaStream, Selector selector) throws HarvestException;
 
 	/**
 	 * Gets the type of candidates gathered by the harvester.

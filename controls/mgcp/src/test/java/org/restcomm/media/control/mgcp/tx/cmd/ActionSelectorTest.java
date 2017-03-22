@@ -17,13 +17,8 @@ import org.restcomm.media.control.mgcp.MgcpEvent;
 import org.restcomm.media.control.mgcp.MgcpProvider;
 import org.restcomm.media.control.mgcp.message.MgcpRequest;
 import org.restcomm.media.control.mgcp.tx.Action;
-import org.restcomm.media.control.mgcp.tx.cmd.ActionSelector;
-import org.restcomm.media.control.mgcp.tx.cmd.CreateConnectionCmd;
-import org.restcomm.media.control.mgcp.tx.cmd.DeleteConnectionCmd;
-import org.restcomm.media.control.mgcp.tx.cmd.ModifyConnectionCmd;
-import org.restcomm.media.control.mgcp.tx.cmd.NotificationRequestCmd;
-import org.restcomm.media.control.mgcp.tx.cmd.NotifyCmd;
-import org.restcomm.media.network.UdpManager;
+import org.restcomm.media.network.deprecated.RtpPortManager;
+import org.restcomm.media.network.deprecated.UdpManager;
 import org.restcomm.media.scheduler.Scheduler;
 import org.restcomm.media.scheduler.ServiceScheduler;
 import org.restcomm.media.spi.utils.Text;
@@ -48,7 +43,7 @@ public class ActionSelectorTest {
         mediaScheduler = new ServiceScheduler();
         mediaScheduler.start();
         
-        udpInterface = new UdpManager(scheduler);
+        udpInterface = new UdpManager(scheduler, new RtpPortManager(), new RtpPortManager());
         udpInterface.setBindAddress("localhost");
         scheduler.start();
         udpInterface.start();

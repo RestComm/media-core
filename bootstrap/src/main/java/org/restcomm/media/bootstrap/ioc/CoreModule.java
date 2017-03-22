@@ -46,7 +46,7 @@ import org.restcomm.media.bootstrap.ioc.provider.DtmfGeneratorFactoryProvider.Dt
 import org.restcomm.media.bootstrap.ioc.provider.DtmfGeneratorPoolProvider.DtmfGeneratorPoolType;
 import org.restcomm.media.bootstrap.ioc.provider.mgcp.Mgcp2ControllerProvider;
 import org.restcomm.media.core.configuration.MediaServerConfiguration;
-import org.restcomm.media.network.UdpManager;
+import org.restcomm.media.network.deprecated.UdpManager;
 import org.restcomm.media.resource.player.audio.RemoteStreamProvider;
 import org.restcomm.media.rtp.crypto.DtlsSrtpServerProvider;
 import org.restcomm.media.scheduler.Clock;

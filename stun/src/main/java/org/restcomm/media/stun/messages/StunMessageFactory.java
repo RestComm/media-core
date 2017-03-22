@@ -8,7 +8,7 @@
 
 package org.restcomm.media.stun.messages;
 
-import org.restcomm.media.network.TransportAddress;
+import org.restcomm.media.network.deprecated.TransportAddress;
 import org.restcomm.media.stun.messages.attributes.StunAttributeFactory;
 import org.restcomm.media.stun.messages.attributes.address.XorMappedAddressAttribute;
 

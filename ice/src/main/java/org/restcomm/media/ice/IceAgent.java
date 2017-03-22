@@ -40,7 +40,7 @@ import org.restcomm.media.ice.harvest.HarvestException;
 import org.restcomm.media.ice.harvest.HarvestManager;
 import org.restcomm.media.ice.harvest.NoCandidatesGatheredException;
 import org.restcomm.media.ice.network.stun.ConnectivityCheckServer;
-import org.restcomm.media.network.PortManager;
+import org.restcomm.media.network.deprecated.RtpPortManager;
 
 /**
  * Agent responsible for ICE negotiation.
@@ -224,7 +224,7 @@ public abstract class IceAgent implements IceAuthenticator {
 	 * @throws HarvestException
 	 *             An error occurred while harvesting candidates
 	 */
-	public void harvest(PortManager portManager) throws HarvestException, NoCandidatesGatheredException {
+	public void harvest(RtpPortManager portManager) throws HarvestException, NoCandidatesGatheredException {
 		// Initialize the selector if necessary
 		if (this.selector == null || !this.selector.isOpen()) {
 			try {

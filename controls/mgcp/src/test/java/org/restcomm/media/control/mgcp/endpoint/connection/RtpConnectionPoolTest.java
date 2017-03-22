@@ -28,7 +28,8 @@ import org.restcomm.media.control.mgcp.connection.RtpConnectionFactory;
 import org.restcomm.media.control.mgcp.connection.RtpConnectionImpl;
 import org.restcomm.media.control.mgcp.connection.RtpConnectionPool;
 import org.restcomm.media.core.configuration.DtlsConfiguration;
-import org.restcomm.media.network.UdpManager;
+import org.restcomm.media.network.deprecated.RtpPortManager;
+import org.restcomm.media.network.deprecated.UdpManager;
 import org.restcomm.media.rtp.ChannelsManager;
 import org.restcomm.media.rtp.crypto.AlgorithmCertificate;
 import org.restcomm.media.rtp.crypto.CipherSuite;
@@ -70,7 +71,7 @@ public class RtpConnectionPoolTest {
         this.clock = new WallClock();
         this.mediaScheduler = new PriorityQueueScheduler();
         this.taskScheduler = new ServiceScheduler(clock);
-        this.udpManager = new UdpManager(taskScheduler);
+        this.udpManager = new UdpManager(taskScheduler, new RtpPortManager(), new RtpPortManager());
         this.connectionFactory = new ChannelsManager(udpManager, dtlsServerProvider);
         this.dspFactory = new DspFactoryImpl();
         

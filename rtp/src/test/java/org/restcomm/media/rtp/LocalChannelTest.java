@@ -38,7 +38,8 @@ import org.restcomm.media.component.audio.AudioComponent;
 import org.restcomm.media.component.audio.AudioMixer;
 import org.restcomm.media.component.audio.Sine;
 import org.restcomm.media.component.audio.SpectraAnalyzer;
-import org.restcomm.media.network.UdpManager;
+import org.restcomm.media.network.deprecated.RtpPortManager;
+import org.restcomm.media.network.deprecated.UdpManager;
 import org.restcomm.media.rtp.ChannelsManager;
 import org.restcomm.media.rtp.LocalDataChannel;
 import org.restcomm.media.rtp.crypto.DtlsSrtpServer;
@@ -100,7 +101,7 @@ public class LocalChannelTest {
         mediaScheduler.setClock(clock);
         mediaScheduler.start();
 
-        udpManager = new UdpManager(scheduler);
+        udpManager = new UdpManager(scheduler, new RtpPortManager(), new RtpPortManager());
         scheduler.start();
         udpManager.start();
 

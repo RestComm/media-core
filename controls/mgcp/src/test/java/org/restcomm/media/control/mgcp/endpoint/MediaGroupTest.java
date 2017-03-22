@@ -43,11 +43,10 @@ import org.restcomm.media.control.mgcp.connection.LocalConnectionFactory;
 import org.restcomm.media.control.mgcp.connection.LocalConnectionPool;
 import org.restcomm.media.control.mgcp.connection.RtpConnectionFactory;
 import org.restcomm.media.control.mgcp.connection.RtpConnectionPool;
-import org.restcomm.media.control.mgcp.endpoint.BaseMixerEndpointImpl;
-import org.restcomm.media.control.mgcp.endpoint.IvrEndpoint;
 import org.restcomm.media.control.mgcp.resources.ResourcesPool;
 import org.restcomm.media.core.configuration.DtlsConfiguration;
-import org.restcomm.media.network.UdpManager;
+import org.restcomm.media.network.deprecated.RtpPortManager;
+import org.restcomm.media.network.deprecated.UdpManager;
 import org.restcomm.media.resource.dtmf.DetectorImpl;
 import org.restcomm.media.resource.dtmf.DtmfDetectorFactory;
 import org.restcomm.media.resource.dtmf.DtmfDetectorPool;
@@ -134,7 +133,7 @@ public class MediaGroupTest {
         mediaScheduler.setClock(clock);
         mediaScheduler.start();
 
-        udpManager = new UdpManager(scheduler);
+        udpManager = new UdpManager(scheduler, new RtpPortManager(), new RtpPortManager());
         udpManager.setBindAddress("127.0.0.1");
         scheduler.start();
         udpManager.start();

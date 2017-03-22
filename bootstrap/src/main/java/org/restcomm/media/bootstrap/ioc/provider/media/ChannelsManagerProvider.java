@@ -25,7 +25,7 @@ import java.util.Iterator;
 
 import org.restcomm.media.core.configuration.CodecType;
 import org.restcomm.media.core.configuration.MediaServerConfiguration;
-import org.restcomm.media.network.UdpManager;
+import org.restcomm.media.network.deprecated.UdpManager;
 import org.restcomm.media.rtp.ChannelsManager;
 import org.restcomm.media.rtp.crypto.DtlsSrtpServerProvider;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
