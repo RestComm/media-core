@@ -53,8 +53,8 @@ public class NettyNetworkManager implements SynchronousNetworkManager<Channel>, 
     static final long SHUTDOWN_TIMEOUT = 5L;
     static final int N_THREADS = Runtime.getRuntime().availableProcessors();
 
-    private final EventLoopGroup eventGroup;
-    private final Bootstrap bootstrap;
+    protected final EventLoopGroup eventGroup;
+    protected final Bootstrap bootstrap;
     private final AtomicBoolean open;
 
     public NettyNetworkManager() {
@@ -66,7 +66,6 @@ public class NettyNetworkManager implements SynchronousNetworkManager<Channel>, 
     }
 
     public NettyNetworkManager(Bootstrap bootstrap) {
-        bootstrap.validate();
         this.bootstrap = bootstrap;
         this.eventGroup = bootstrap.group();
         this.open = new AtomicBoolean(true);

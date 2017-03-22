@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
+ * Copyright 2011-2017, Telestax Inc and individual contributors
  * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
@@ -18,36 +18,22 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
+        
 package org.restcomm.media.bootstrap.ioc.provider.mgcp;
 
-import org.restcomm.media.control.mgcp.network.nio.MgcpChannel;
-import org.restcomm.media.control.mgcp.network.nio.MgcpPacketHandler;
-import org.restcomm.media.network.deprecated.UdpManager;
-import org.restcomm.media.network.deprecated.channel.NetworkGuard;
-import org.restcomm.media.network.deprecated.channel.RestrictedNetworkGuard;
+import org.restcomm.media.control.mgcp.network.netty.MgcpChannelInboundHandler;
 
-import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpChannelProvider implements Provider<MgcpChannel> {
-
-    private final MgcpPacketHandler mgcpHandler;
-    private final NetworkGuard networkGuard;
-
-    @Inject
-    public MgcpChannelProvider(UdpManager networkManager, MgcpPacketHandler mgcpHandler) {
-        this.networkGuard = new RestrictedNetworkGuard(networkManager.getLocalBindAddress(), networkManager.getLocalSubnet());
-        this.mgcpHandler = mgcpHandler;
-    }
+public class MgcpChannelInboundHandlerProvider implements Provider<MgcpChannelInboundHandler> {
 
     @Override
-    public MgcpChannel get() {
-        return new MgcpChannel(this.networkGuard, this.mgcpHandler);
+    public MgcpChannelInboundHandler get() {
+        return new MgcpChannelInboundHandler();
     }
 
 }

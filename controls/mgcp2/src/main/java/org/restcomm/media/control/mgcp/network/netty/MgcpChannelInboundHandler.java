@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
+ * Copyright 2011-2017, Telestax Inc and individual contributors
  * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
@@ -19,9 +19,8 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.control.mgcp.network;
+package org.restcomm.media.control.mgcp.network.netty;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Iterator;
 import java.util.Set;
@@ -31,41 +30,31 @@ import org.restcomm.media.control.mgcp.message.MessageDirection;
 import org.restcomm.media.control.mgcp.message.MgcpMessage;
 import org.restcomm.media.control.mgcp.message.MgcpMessageObserver;
 import org.restcomm.media.control.mgcp.message.MgcpMessageSubject;
-import org.restcomm.media.network.deprecated.channel.MultiplexedNetworkChannel;
-import org.restcomm.media.network.deprecated.channel.NetworkGuard;
 
 import com.google.common.collect.Sets;
 
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.SimpleChannelInboundHandler;
+
 /**
- * UDP channel that handles MGCP traffic.
+ * Inbound handler that receives incoming MGCP messages and injects them in the MGCP stack for processing.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpChannel extends MultiplexedNetworkChannel implements MgcpMessageSubject, MgcpMessageObserver {
+public class MgcpChannelInboundHandler extends SimpleChannelInboundHandler<MgcpMessageEnvelope> implements MgcpMessageSubject {
 
-    private static final Logger log = Logger.getLogger(MgcpChannel.class);
+    private static final Logger log = Logger.getLogger(MgcpChannelInboundHandler.class);
 
-    // Packet Handlers
-    private final MgcpPacketHandler mgcpHandler;
-
-    // Message Observers
     private final Set<MgcpMessageObserver> observers;
 
-    public MgcpChannel(NetworkGuard networkGuard, MgcpPacketHandler packetHandler) {
-        super(networkGuard, packetHandler);
-
-        // Packet Handlers
-        this.mgcpHandler = packetHandler;
-        this.mgcpHandler.observe(this);
-
-        // Observers
+    public MgcpChannelInboundHandler() {
         this.observers = Sets.newConcurrentHashSet();
     }
 
     @Override
-    protected Logger log() {
-        return log;
+    protected void channelRead0(ChannelHandlerContext ctx, MgcpMessageEnvelope msg) throws Exception {
+        notify(this, (InetSocketAddress) msg.sender(), (InetSocketAddress) msg.recipient(), msg.content(), MessageDirection.INCOMING);
     }
 
     @Override
@@ -93,21 +82,6 @@ public class MgcpChannel extends MultiplexedNetworkChannel implements MgcpMessag
                 observer.onMessage(from, to, message, direction);
             }
         }
-    }
-
-    @Override
-    public void onMessage(InetSocketAddress from, InetSocketAddress to, MgcpMessage message, MessageDirection direction) {
-        // Forward message to registered observers
-        notify(this, from, to, message, direction);
-    }
-
-    public void send(InetSocketAddress to, MgcpMessage message) throws IOException {
-        if (log.isDebugEnabled()) {
-            log.debug("Outgoing MGCP message to " + to.toString() + ":\n\n" + message.toString() + "\n");
-        }
-
-        final byte[] data = message.toString().getBytes();
-        send(data, to);
     }
 
 }

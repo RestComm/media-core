@@ -19,7 +19,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.control.mgcp.network;
+package org.restcomm.media.control.mgcp.network.nio;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -35,7 +35,7 @@ import org.restcomm.media.control.mgcp.message.MgcpMessageObserver;
 import org.restcomm.media.control.mgcp.message.MgcpMessageParser;
 import org.restcomm.media.control.mgcp.message.MgcpRequest;
 import org.restcomm.media.control.mgcp.message.MgcpResponse;
-import org.restcomm.media.control.mgcp.network.MgcpPacketHandler;
+import org.restcomm.media.control.mgcp.network.nio.MgcpPacketHandler;
 import org.restcomm.media.network.deprecated.channel.PacketHandlerException;
 
 /**

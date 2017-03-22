@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
+ * Copyright 2011-2017, Telestax Inc and individual contributors
  * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
@@ -19,28 +19,21 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
         
-package org.restcomm.media.bootstrap.ioc.provider;
+package org.restcomm.media.control.mgcp.network.netty;
 
-import org.restcomm.media.control.mgcp.message.MgcpMessageParser;
-import org.restcomm.media.control.mgcp.network.MgcpPacketHandler;
+import org.restcomm.media.network.netty.NettyNetworkManager;
 
-import com.google.inject.Provider;
+import io.netty.bootstrap.Bootstrap;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpPacketHandlerProvider implements Provider<MgcpPacketHandler> {
+public class MgcpNetworkManager extends NettyNetworkManager {
 
-    private final MgcpMessageParser parser;
-    
-    public MgcpPacketHandlerProvider() {
-        this.parser = new MgcpMessageParser();
+    public MgcpNetworkManager(Bootstrap bootstrap, MgcpChannelInitializer initializer) {
+        super(bootstrap);
+        super.bootstrap.handler(initializer);
     }
     
-    @Override
-    public MgcpPacketHandler get() {
-        return new MgcpPacketHandler(this.parser);
-    }
-
 }

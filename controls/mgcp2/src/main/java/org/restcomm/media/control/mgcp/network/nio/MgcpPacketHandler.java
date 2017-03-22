@@ -19,7 +19,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.control.mgcp.network;
+package org.restcomm.media.control.mgcp.network.nio;
 
 import java.net.InetSocketAddress;
 import java.util.Iterator;
@@ -44,7 +44,9 @@ import com.google.common.collect.Sets;
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
+ * @deprecated Use <code>org.restcomm.media.control.mgcp.network.netty</code> package
  */
+@Deprecated
 public class MgcpPacketHandler implements PacketHandler, MgcpMessageSubject {
     
     private static final Logger log = Logger.getLogger(MgcpPacketHandler.class);
