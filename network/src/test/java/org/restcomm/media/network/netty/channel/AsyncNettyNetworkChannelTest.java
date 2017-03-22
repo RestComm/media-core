@@ -21,14 +21,8 @@
 
 package org.restcomm.media.network.netty.channel;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -40,6 +34,12 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 import org.restcomm.media.network.netty.NettyNetworkManager;
 
 import com.google.common.util.concurrent.FutureCallback;
@@ -48,16 +48,16 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelPromise;
+import io.netty.channel.DefaultChannelProgressivePromise;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
-import io.netty.handler.codec.ByteToMessageCodec;
-import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.handler.codec.MessageToMessageDecoder;
 import io.netty.util.concurrent.EventExecutor;
 
@@ -65,6 +65,8 @@ import io.netty.util.concurrent.EventExecutor;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({Channel.class, NioDatagramChannel.class, DatagramChannel.class})
 public class AsyncNettyNetworkChannelTest {
 
     private DatagramChannel remotePeer;
@@ -97,41 +99,12 @@ public class AsyncNettyNetworkChannelTest {
         }
     }
 
-    // @SuppressWarnings({ "unchecked", "rawtypes" })
-    // @Test
-    // public void testOpenAsync() throws Exception {
-    // // given
-    // final Channel channel = mock(Channel.class);
-    // final NettyNetworkManager networkManager = mock(NettyNetworkManager.class);
-    // final AsyncNettyNetworkChannel<Object> networkChannel = new AsyncNettyNetworkChannel<>(networkManager);
-    // final FutureCallback<Void> callback = mock(FutureCallback.class);
-    // final ArgumentCaptor<NettyNetworkChannelCallbackListener> managerCaptor = ArgumentCaptor
-    // .forClass(NettyNetworkChannelCallbackListener.class);
-    //
-    // // when
-    // when(channel.isOpen()).thenReturn(true);
-    // when(channel.localAddress()).thenReturn(null);
-    // when(channel.remoteAddress()).thenReturn(null);
-    // doNothing().when(networkManager).openChannel(managerCaptor.capture());
-    // networkManager.open
-    //
-    // networkChannel.open(callback);
-    // managerCaptor.getValue().onSuccess(channel);
-    //
-    // // then
-    // verify(networkManager, times(1)).openChannel(managerCaptor.getValue());
-    // verify(callback, only()).onSuccess(null);
-    //
-    // assertTrue(networkChannel.isOpen());
-    // assertFalse(networkChannel.isBound());
-    // assertFalse(networkChannel.isConnected());
-    // }
-
     @SuppressWarnings("unchecked")
     @Test
     public void testLifecycle() {
         // given
         final SocketAddress localAddress = new InetSocketAddress("127.0.0.1", 2427);
+        final SocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 2727);
 
         final ChannelHandler channelHandler = mock(ChannelHandler.class);
         this.eventGroup = new NioEventLoopGroup();
@@ -141,6 +114,8 @@ public class AsyncNettyNetworkChannelTest {
 
         final FutureCallback<Void> openCallback = mock(FutureCallback.class);
         final FutureCallback<Void> bindCallback = mock(FutureCallback.class);
+        final FutureCallback<Void> connectCallback = mock(FutureCallback.class);
+        final FutureCallback<Void> disconnectCallback = mock(FutureCallback.class);
         final FutureCallback<Void> closeCallback = mock(FutureCallback.class);
 
         // when - open
@@ -157,6 +132,24 @@ public class AsyncNettyNetworkChannelTest {
 
         // then
         verify(bindCallback, timeout(100)).onSuccess(null);
+        assertTrue(networkChannel.isOpen());
+        assertTrue(networkChannel.isBound());
+        assertFalse(networkChannel.isConnected());
+
+        // when - connect
+        networkChannel.connect(remoteAddress, connectCallback);
+
+        // then
+        verify(connectCallback, timeout(100)).onSuccess(null);
+        assertTrue(networkChannel.isOpen());
+        assertTrue(networkChannel.isBound());
+        assertTrue(networkChannel.isConnected());
+
+        // when - disconnect
+        networkChannel.disconnect(disconnectCallback);
+
+        // then
+        verify(disconnectCallback, timeout(100)).onSuccess(null);
         assertTrue(networkChannel.isOpen());
         assertTrue(networkChannel.isBound());
         assertFalse(networkChannel.isConnected());
@@ -337,238 +330,162 @@ public class AsyncNettyNetworkChannelTest {
 
     }
 
-    // @SuppressWarnings({ "unchecked", "rawtypes" })
-    // @Test
-    // public void testOpenAsyncFailure() throws Exception {
-    // // given
-    // final Channel channel = mock(Channel.class);
-    // final NettyNetworkManager networkManager = mock(NettyNetworkManager.class);
-    // final AsynchronousNettyNetworkChannel<Object> networkChannel = new AsynchronousNettyNetworkChannel<>(networkManager);
-    // final FutureCallback<Void> callback = mock(FutureCallback.class);
-    // final ArgumentCaptor<NettyNetworkChannelCallbackListener> managerCaptor = ArgumentCaptor
-    // .forClass(NettyNetworkChannelCallbackListener.class);
-    // final Exception exception = new RuntimeException("Testing purposes!");
-    //
-    // // when
-    // when(channel.isOpen()).thenReturn(true);
-    // when(channel.localAddress()).thenReturn(null);
-    // when(channel.remoteAddress()).thenReturn(null);
-    // doNothing().when(networkManager).openChannel(managerCaptor.capture());
-    //
-    // networkChannel.open(callback);
-    // managerCaptor.getValue().onFailure(exception);
-    //
-    // // then
-    // verify(networkManager, times(1)).openChannel(managerCaptor.getValue());
-    // verify(callback, only()).onFailure(exception);
-    //
-    // assertFalse(networkChannel.isOpen());
-    // assertFalse(networkChannel.isBound());
-    // assertFalse(networkChannel.isConnected());
-    // }
-    //
-    // @Test
-    // public void testBindSync() throws Exception {
-    // // given
-    // final SocketAddress localAddress = new InetSocketAddress("127.0.0.1", 2427);
-    // final Channel channel = mock(Channel.class);
-    // final NettyNetworkManager networkManager = mock(NettyNetworkManager.class);
-    // final AsynchronousNettyNetworkChannel<Object> networkChannel = new AsynchronousNettyNetworkChannel<>(networkManager);
-    //
-    // // when
-    // when(channel.isOpen()).thenReturn(true);
-    // when(channel.localAddress()).thenReturn(localAddress);
-    // when(channel.remoteAddress()).thenReturn(null);
-    // when(channel.bind(localAddress)).thenReturn(mock(ChannelFuture.class));
-    // when(networkManager.openChannel()).thenReturn(channel);
-    //
-    // networkChannel.open();
-    // networkChannel.bind(localAddress);
-    //
-    // // then
-    // verify(networkManager, times(1)).openChannel();
-    // verify(channel, times(1)).bind(localAddress);
-    // assertTrue(networkChannel.isOpen());
-    // assertTrue(networkChannel.isBound());
-    // assertFalse(networkChannel.isConnected());
-    // }
-    //
-    // @Test(expected = IOException.class)
-    // public void testBindSyncFailure() throws Exception {
-    // // given
-    // final SocketAddress localAddress = new InetSocketAddress("127.0.0.1", 2427);
-    // final Channel channel = mock(Channel.class);
-    // final NettyNetworkManager networkManager = mock(NettyNetworkManager.class);
-    // final AsynchronousNettyNetworkChannel<Object> networkChannel = new AsynchronousNettyNetworkChannel<>(networkManager);
-    // final Exception exception = new RuntimeException("Testing purposes!");
-    //
-    // // when
-    // when(channel.isOpen()).thenReturn(true);
-    // when(channel.localAddress()).thenReturn(localAddress);
-    // when(channel.remoteAddress()).thenReturn(null);
-    // when(channel.bind(localAddress)).thenThrow(exception);
-    // when(networkManager.openChannel()).thenReturn(channel);
-    //
-    // networkChannel.open();
-    // networkChannel.bind(localAddress);
-    // }
-    //
-    // @SuppressWarnings("unchecked")
-    // @Test
-    // public void testBindAsync() throws Exception {
-    // // given
-    // final SocketAddress localAddress = new InetSocketAddress("127.0.0.1", 2427);
-    // final Channel channel = mock(Channel.class);
-    // final NettyNetworkManager networkManager = mock(NettyNetworkManager.class);
-    // final AsynchronousNettyNetworkChannel<Object> networkChannel = new AsynchronousNettyNetworkChannel<>(networkManager);
-    // this.executor = new DefaultEventExecutor();
-    // final ChannelPromise promise = new DefaultChannelPromise(channel, executor);
-    // final FutureCallback<Void> callback = mock(FutureCallback.class);
-    //
-    // // when
-    // when(networkManager.openChannel()).thenReturn(channel);
-    // when(channel.isOpen()).thenReturn(true);
-    // when(channel.localAddress()).thenReturn(localAddress);
-    // when(channel.remoteAddress()).thenReturn(null);
-    // when(channel.bind(localAddress)).thenReturn(promise);
-    // promise.setSuccess();
-    //
-    // networkChannel.open();
-    // networkChannel.bind(localAddress, callback);
-    //
-    // // then
-    // verify(networkManager, times(1)).openChannel();
-    // verify(channel, times(1)).bind(localAddress);
-    // verify(callback, timeout(50)).onSuccess(null);
-    //
-    // assertTrue(networkChannel.isOpen());
-    // assertTrue(networkChannel.isBound());
-    // assertFalse(networkChannel.isConnected());
-    // }
-    //
-    // @SuppressWarnings("unchecked")
-    // @Test
-    // public void testBindAsyncFailure() throws Exception {
-    // // given
-    // final SocketAddress localAddress = new InetSocketAddress("127.0.0.1", 2427);
-    // final Channel channel = mock(Channel.class);
-    // final NettyNetworkManager networkManager = mock(NettyNetworkManager.class);
-    // final AsynchronousNettyNetworkChannel<Object> networkChannel = new AsynchronousNettyNetworkChannel<>(networkManager);
-    // this.executor = new DefaultEventExecutor();
-    // final ChannelPromise promise = new DefaultChannelPromise(channel, executor);
-    // final FutureCallback<Void> callback = mock(FutureCallback.class);
-    // final Exception exception = new RuntimeException("Testing purposes!");
-    //
-    // // when
-    // when(networkManager.openChannel()).thenReturn(channel);
-    // when(channel.isOpen()).thenReturn(true);
-    // when(channel.localAddress()).thenReturn(localAddress);
-    // when(channel.remoteAddress()).thenReturn(null);
-    // when(channel.bind(localAddress)).thenReturn(promise);
-    // promise.setFailure(exception);
-    //
-    // networkChannel.open();
-    // networkChannel.bind(localAddress, callback);
-    //
-    // // then
-    // verify(networkManager, times(1)).openChannel();
-    // verify(channel, times(1)).bind(localAddress);
-    // verify(callback, only()).onFailure(exception);
-    //
-    // assertTrue(networkChannel.isOpen());
-    // assertTrue(networkChannel.isBound());
-    // assertFalse(networkChannel.isConnected());
-    // }
-    //
-    // @Test
-    // public void testConnectSync() throws Exception {
-    // // given
-    // final SocketAddress localAddress = new InetSocketAddress("127.0.0.1", 2427);
-    // final SocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 2727);
-    // final Channel channel = mock(Channel.class);
-    // final NettyNetworkManager networkManager = mock(NettyNetworkManager.class);
-    // final AsynchronousNettyNetworkChannel<Object> networkChannel = new AsynchronousNettyNetworkChannel<>(networkManager);
-    //
-    // // when
-    // when(networkManager.openChannel()).thenReturn(channel);
-    // when(channel.isOpen()).thenReturn(true);
-    // when(channel.localAddress()).thenReturn(localAddress);
-    // when(channel.remoteAddress()).thenReturn(remoteAddress);
-    // when(channel.bind(localAddress)).thenReturn(mock(ChannelFuture.class));
-    // when(channel.connect(remoteAddress)).thenReturn(mock(ChannelFuture.class));
-    //
-    // networkChannel.open();
-    // networkChannel.bind(localAddress);
-    // networkChannel.connect(remoteAddress);
-    //
-    // // then
-    // verify(networkManager, times(1)).openChannel();
-    // verify(channel, times(1)).bind(localAddress);
-    // verify(channel, times(1)).connect(remoteAddress);
-    // assertTrue(networkChannel.isOpen());
-    // assertTrue(networkChannel.isBound());
-    // assertTrue(networkChannel.isConnected());
-    // }
-    //
-    // @Test(expected = IOException.class)
-    // public void testConnectSyncFailure() throws Exception {
-    // // given
-    // final SocketAddress localAddress = new InetSocketAddress("127.0.0.1", 2427);
-    // final SocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 2727);
-    // final Channel channel = mock(Channel.class);
-    // final NettyNetworkManager networkManager = mock(NettyNetworkManager.class);
-    // final AsynchronousNettyNetworkChannel<Object> networkChannel = new AsynchronousNettyNetworkChannel<>(networkManager);
-    // final Exception exception = new RuntimeException("Testing purposes!");
-    //
-    // // when
-    // when(networkManager.openChannel()).thenReturn(channel);
-    // when(channel.isOpen()).thenReturn(true);
-    // when(channel.localAddress()).thenReturn(localAddress);
-    // when(channel.remoteAddress()).thenReturn(remoteAddress);
-    // when(channel.bind(localAddress)).thenReturn(mock(ChannelFuture.class));
-    // when(channel.connect(remoteAddress)).thenThrow(exception);
-    //
-    // networkChannel.open();
-    // networkChannel.bind(localAddress);
-    // networkChannel.connect(remoteAddress);
-    // }
-    //
-    // @SuppressWarnings("unchecked")
-    // @Test
-    // public void testConnectAsync() throws Exception {
-    // // given
-    // final SocketAddress localAddress = new InetSocketAddress("127.0.0.1", 2427);
-    // final SocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 2727);
-    // final Channel channel = mock(Channel.class);
-    // final NettyNetworkManager networkManager = mock(NettyNetworkManager.class);
-    // final AsynchronousNettyNetworkChannel<Object> networkChannel = new AsynchronousNettyNetworkChannel<>(networkManager);
-    // this.executor = new DefaultEventExecutor();
-    // final ChannelPromise promise = new DefaultChannelPromise(channel, executor);
-    // final FutureCallback<Void> callback = mock(FutureCallback.class);
-    //
-    // // when
-    // when(networkManager.openChannel()).thenReturn(channel);
-    // when(channel.isOpen()).thenReturn(true);
-    // when(channel.localAddress()).thenReturn(localAddress);
-    // when(channel.remoteAddress()).thenReturn(remoteAddress);
-    // when(channel.bind(localAddress)).thenReturn(promise);
-    // when(channel.connect(remoteAddress)).thenReturn(promise);
-    // promise.setSuccess();
-    //
-    // networkChannel.open();
-    // networkChannel.bind(localAddress);
-    // networkChannel.connect(remoteAddress, callback);
-    //
-    // // then
-    // verify(networkManager, times(1)).openChannel();
-    // verify(channel, times(1)).bind(localAddress);
-    // verify(callback, timeout(50)).onSuccess(null);
-    //
-    // assertTrue(networkChannel.isOpen());
-    // assertTrue(networkChannel.isBound());
-    // assertTrue(networkChannel.isConnected());
-    // }
-    //
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testSendToRemoteWhenDisconnected() throws Exception {
+        // given
+        final String message = "hello";
+        final SocketAddress localAddress = new InetSocketAddress("127.0.0.1", 2427);
+
+        final ChannelHandler channelHandler = new ObjectChannelHandler();
+        this.eventGroup = new NioEventLoopGroup();
+        final Bootstrap bootstrap = new Bootstrap().group(eventGroup).handler(channelHandler).channel(NioDatagramChannel.class);
+        final NettyNetworkManager networkManager = new NettyNetworkManager(bootstrap);
+        final AsyncNettyNetworkChannel<Object> networkChannel = new AsyncNettyNetworkChannel<>(networkManager);
+
+        final FutureCallback<Void> openCallback = mock(FutureCallback.class);
+        final FutureCallback<Void> bindCallback = mock(FutureCallback.class);
+        final FutureCallback<Void> sendCallback = mock(FutureCallback.class);
+        final FutureCallback<Void> closeCallback = mock(FutureCallback.class);
+
+        // when
+        networkChannel.open(openCallback);
+        verify(openCallback, timeout(100)).onSuccess(null);
+
+        networkChannel.bind(localAddress, bindCallback);
+        verify(bindCallback, timeout(100)).onSuccess(null);
+
+        networkChannel.send(Unpooled.copiedBuffer(message.getBytes()), sendCallback);
+        networkChannel.close(closeCallback);
+
+        // then
+        verify(sendCallback, times(1)).onFailure(any(IllegalStateException.class));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testSendToSpecificRemoteWhenConnected() throws Exception {
+        // given
+        final String message = "hello";
+        final SocketAddress localAddress = new InetSocketAddress("127.0.0.1", 2427);
+        final SocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 2727);
+
+        final ChannelHandler channelHandler = new ObjectChannelHandler();
+        this.eventGroup = new NioEventLoopGroup();
+        final Bootstrap bootstrap = new Bootstrap().group(eventGroup).handler(channelHandler).channel(NioDatagramChannel.class);
+        final NettyNetworkManager networkManager = new NettyNetworkManager(bootstrap);
+        final AsyncNettyNetworkChannel<Object> networkChannel = new AsyncNettyNetworkChannel<>(networkManager);
+
+        final FutureCallback<Void> openCallback = mock(FutureCallback.class);
+        final FutureCallback<Void> bindCallback = mock(FutureCallback.class);
+        final FutureCallback<Void> connectCallback = mock(FutureCallback.class);
+        final FutureCallback<Void> sendCallback = mock(FutureCallback.class);
+        final FutureCallback<Void> closeCallback = mock(FutureCallback.class);
+
+        // when
+        networkChannel.open(openCallback);
+        verify(openCallback, timeout(100)).onSuccess(null);
+
+        networkChannel.bind(localAddress, bindCallback);
+        verify(bindCallback, timeout(100)).onSuccess(null);
+
+        networkChannel.connect(remoteAddress, connectCallback);
+        verify(connectCallback, timeout(100)).onSuccess(null);
+
+        networkChannel.send(Unpooled.copiedBuffer(message.getBytes()), remoteAddress, sendCallback);
+        networkChannel.close(closeCallback);
+
+        // then
+        verify(sendCallback, times(1)).onFailure(any(IllegalStateException.class));
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @Test
+    public void testOpenFailure() {
+        // given
+        this.eventGroup = new NioEventLoopGroup();
+        final NettyNetworkManager networkManager = mock(NettyNetworkManager.class);
+        final AsyncNettyNetworkChannel<Object> networkChannel = new AsyncNettyNetworkChannel<>(networkManager);
+        final FutureCallback<Void> openCallback = mock(FutureCallback.class);
+        final Exception exception = new RuntimeException("Testing purposes!");
+
+        // when - open
+        doAnswer(new Answer() {
+
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                final FutureCallback callback = invocation.getArgumentAt(0, FutureCallback.class);
+                callback.onFailure(exception);
+                return null;
+            }
+
+        }).when(networkManager).openChannel(any(FutureCallback.class));
+        networkChannel.open(openCallback);
+
+        // then
+        verify(openCallback, timeout(100)).onFailure(exception);
+        assertFalse(networkChannel.isOpen());
+        assertFalse(networkChannel.isBound());
+        assertFalse(networkChannel.isConnected());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testBindFailure() {
+        // given
+        final SocketAddress localAddress = new InetSocketAddress("127.0.0.1", 2427);
+
+        final ChannelFuture channelBindFuture = mock(ChannelFuture.class);
+        final ChannelFuture channelCloseFuture = mock(ChannelFuture.class);
+        final Channel channel = mock(Channel.class);
+        final ChannelHandler channelHandler = mock(ChannelHandler.class);
+
+        this.eventGroup = new NioEventLoopGroup();
+        final Bootstrap bootstrap = new Bootstrap().group(eventGroup).handler(channelHandler).channel(NioDatagramChannel.class);
+        final NettyNetworkManager networkManager = new NettyNetworkManager(bootstrap);
+        final NettyNetworkManager networkManagerSpy = spy(networkManager);
+        final AsyncNettyNetworkChannel<Object> networkChannel = new AsyncNettyNetworkChannel<>(networkManagerSpy);
+
+        final FutureCallback<Void> openCallback = mock(FutureCallback.class);
+        final FutureCallback<Void> bindCallback = mock(FutureCallback.class);
+        final Exception exception = new RuntimeException("Testing purposes!");
+
+        when(channel.bind(localAddress)).thenReturn(channelBindFuture);
+        doAnswer(new Answer<Void>() {
+
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                final FutureCallback<Channel> callback = invocation.getArgumentAt(0, FutureCallback.class);
+                callback.onSuccess(channel);
+                return null;
+            }
+
+        }).when(networkManagerSpy).openChannel(any(FutureCallback.class));
+        doAnswer(new Answer<Void>() {
+
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                final ChannelFutureListener listener = invocation.getArgumentAt(0, ChannelFutureListener.class);
+                final ChannelPromise promise = new DefaultChannelProgressivePromise(channel, mock(EventExecutor.class));
+                promise.setFailure(exception);
+                listener.operationComplete(promise);
+                return null;
+            }
+
+        }).when(channelBindFuture).addListener(any(ChannelFutureListener.class));
+        when(channel.close()).thenReturn(channelCloseFuture);
+
+        // when - open
+        networkChannel.open(openCallback);
+        networkChannel.bind(localAddress, bindCallback);
+
+        // then
+        verify(bindCallback, timeout(100)).onFailure(exception);
+        assertFalse(networkChannel.isOpen());
+        assertFalse(networkChannel.isBound());
+        assertFalse(networkChannel.isConnected());
+    }
+
     // @SuppressWarnings("unchecked")
     // @Test
     // public void testConnectAsyncFailure() throws Exception {

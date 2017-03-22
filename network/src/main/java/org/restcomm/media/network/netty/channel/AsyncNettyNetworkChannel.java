@@ -46,7 +46,11 @@ public class AsyncNettyNetworkChannel<M> implements AsynchronousNetworkChannel<M
     private final NettyNetworkChannelFsm fsm;
 
     public AsyncNettyNetworkChannel(NettyNetworkManager networkManager) {
-        this.context = new NettyNetworkChannelGlobalContext(networkManager);
+        this(new NettyNetworkChannelGlobalContext(networkManager));
+    }
+
+    public AsyncNettyNetworkChannel(NettyNetworkChannelGlobalContext context) {
+        this.context = context;
         this.fsm = NettyNetworkChannelFsmBuilder.INSTANCE.build(this.context);
         this.fsm.start();
     }
@@ -68,7 +72,16 @@ public class AsyncNettyNetworkChannel<M> implements AsynchronousNetworkChannel<M
 
     @Override
     public boolean isBound() {
-        return NettyNetworkChannelState.BOUND.equals(this.fsm.getCurrentState());
+        final NettyNetworkChannelState state = this.fsm.getCurrentState();
+        switch (state) {
+            case BOUND:
+            case CONNECTING:
+            case CONNECTED:
+                return true;
+
+            default:
+                return false;
+        }
     }
 
     @Override
