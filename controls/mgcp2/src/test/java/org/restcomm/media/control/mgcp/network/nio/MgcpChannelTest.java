@@ -19,7 +19,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.control.mgcp.network;
+package org.restcomm.media.control.mgcp.network.nio;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -39,8 +39,8 @@ import org.junit.Test;
 import org.restcomm.media.control.mgcp.message.MessageDirection;
 import org.restcomm.media.control.mgcp.message.MgcpMessage;
 import org.restcomm.media.control.mgcp.message.MgcpMessageObserver;
-import org.restcomm.media.control.mgcp.network.MgcpChannel;
-import org.restcomm.media.control.mgcp.network.MgcpPacketHandler;
+import org.restcomm.media.control.mgcp.network.nio.MgcpChannel;
+import org.restcomm.media.control.mgcp.network.nio.MgcpPacketHandler;
 import org.restcomm.media.network.deprecated.UdpManager;
 import org.restcomm.media.network.deprecated.channel.NetworkGuard;
 

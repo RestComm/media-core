@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
+ * Copyright 2011-2017, Telestax Inc and individual contributors
  * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
@@ -21,11 +21,10 @@
 
 package org.restcomm.media.bootstrap.ioc.provider.mgcp;
 
-import org.restcomm.media.control.mgcp.network.nio.MgcpChannel;
-import org.restcomm.media.control.mgcp.network.nio.MgcpPacketHandler;
-import org.restcomm.media.network.deprecated.UdpManager;
-import org.restcomm.media.network.deprecated.channel.NetworkGuard;
-import org.restcomm.media.network.deprecated.channel.RestrictedNetworkGuard;
+import org.restcomm.media.control.mgcp.network.netty.AsyncMgcpChannel;
+import org.restcomm.media.control.mgcp.network.netty.MgcpChannelInboundHandler;
+import org.restcomm.media.control.mgcp.network.netty.MgcpNetworkManager;
+import org.restcomm.media.network.netty.channel.NettyNetworkChannelGlobalContext;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -34,20 +33,21 @@ import com.google.inject.Provider;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpChannelProvider implements Provider<MgcpChannel> {
+public class AsyncMgcpChannelProvider implements Provider<AsyncMgcpChannel> {
 
-    private final MgcpPacketHandler mgcpHandler;
-    private final NetworkGuard networkGuard;
+    private final MgcpNetworkManager networkManager;
+    private final MgcpChannelInboundHandler inboundHandler;
 
     @Inject
-    public MgcpChannelProvider(UdpManager networkManager, MgcpPacketHandler mgcpHandler) {
-        this.networkGuard = new RestrictedNetworkGuard(networkManager.getLocalBindAddress(), networkManager.getLocalSubnet());
-        this.mgcpHandler = mgcpHandler;
+    public AsyncMgcpChannelProvider(MgcpNetworkManager networkManager, MgcpChannelInboundHandler inboundHandler) {
+        this.networkManager = networkManager;
+        this.inboundHandler = inboundHandler;
     }
 
     @Override
-    public MgcpChannel get() {
-        return new MgcpChannel(this.networkGuard, this.mgcpHandler);
+    public AsyncMgcpChannel get() {
+        final NettyNetworkChannelGlobalContext context = new NettyNetworkChannelGlobalContext(networkManager);
+        return new AsyncMgcpChannel(context, this.inboundHandler);
     }
 
 }

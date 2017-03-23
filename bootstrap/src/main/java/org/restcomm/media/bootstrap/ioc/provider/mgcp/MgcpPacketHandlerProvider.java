@@ -18,36 +18,29 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
+        
 package org.restcomm.media.bootstrap.ioc.provider.mgcp;
 
-import org.restcomm.media.control.mgcp.network.nio.MgcpChannel;
+import org.restcomm.media.control.mgcp.message.MgcpMessageParser;
 import org.restcomm.media.control.mgcp.network.nio.MgcpPacketHandler;
-import org.restcomm.media.network.deprecated.UdpManager;
-import org.restcomm.media.network.deprecated.channel.NetworkGuard;
-import org.restcomm.media.network.deprecated.channel.RestrictedNetworkGuard;
 
-import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpChannelProvider implements Provider<MgcpChannel> {
+public class MgcpPacketHandlerProvider implements Provider<MgcpPacketHandler> {
 
-    private final MgcpPacketHandler mgcpHandler;
-    private final NetworkGuard networkGuard;
-
-    @Inject
-    public MgcpChannelProvider(UdpManager networkManager, MgcpPacketHandler mgcpHandler) {
-        this.networkGuard = new RestrictedNetworkGuard(networkManager.getLocalBindAddress(), networkManager.getLocalSubnet());
-        this.mgcpHandler = mgcpHandler;
+    private final MgcpMessageParser parser;
+    
+    public MgcpPacketHandlerProvider() {
+        this.parser = new MgcpMessageParser();
     }
-
+    
     @Override
-    public MgcpChannel get() {
-        return new MgcpChannel(this.networkGuard, this.mgcpHandler);
+    public MgcpPacketHandler get() {
+        return new MgcpPacketHandler(this.parser);
     }
 
 }

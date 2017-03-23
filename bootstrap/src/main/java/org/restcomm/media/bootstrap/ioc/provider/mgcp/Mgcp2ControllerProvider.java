@@ -24,10 +24,9 @@ package org.restcomm.media.bootstrap.ioc.provider.mgcp;
 import org.restcomm.media.control.mgcp.command.MgcpCommandProvider;
 import org.restcomm.media.control.mgcp.controller.MgcpController;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointManager;
-import org.restcomm.media.control.mgcp.network.MgcpChannel;
+import org.restcomm.media.control.mgcp.network.netty.AsyncMgcpChannel;
 import org.restcomm.media.control.mgcp.transaction.MgcpTransactionManager;
 import org.restcomm.media.core.configuration.MediaServerConfiguration;
-import org.restcomm.media.network.deprecated.UdpManager;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -40,18 +39,16 @@ public class Mgcp2ControllerProvider implements Provider<MgcpController> {
 
     private final String address;
     private final int port;
-    private final MgcpChannel channel;
-    private final UdpManager networkManager;
+    private final AsyncMgcpChannel channel;
     private final MgcpTransactionManager transactions;
     private final MgcpEndpointManager endpoints;
     private final MgcpCommandProvider commands;
 
     @Inject
-    public Mgcp2ControllerProvider(MediaServerConfiguration config, UdpManager networkManager, MgcpChannel channel, MgcpTransactionManager transactions, MgcpEndpointManager endpoints, MgcpCommandProvider commands) {
+    public Mgcp2ControllerProvider(MediaServerConfiguration config, AsyncMgcpChannel channel, MgcpTransactionManager transactions, MgcpEndpointManager endpoints, MgcpCommandProvider commands) {
         this.address = config.getControllerConfiguration().getAddress();
         this.port = config.getControllerConfiguration().getPort();
         this.channel = channel;
-        this.networkManager = networkManager;
         this.transactions = transactions;
         this.endpoints = endpoints;
         this.commands = commands;
@@ -59,7 +56,7 @@ public class Mgcp2ControllerProvider implements Provider<MgcpController> {
 
     @Override
     public MgcpController get() {
-        return new MgcpController(this.address, this.port, this.networkManager, this.channel, this.transactions, this.endpoints, this.commands);
+        return new MgcpController(this.address, this.port, this.channel, this.transactions, this.endpoints, this.commands);
     }
 
 }

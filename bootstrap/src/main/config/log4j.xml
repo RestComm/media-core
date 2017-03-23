@@ -28,19 +28,19 @@
 		</layout>
 	</appender>
 
-	<category name="org.mobicents.media.server">
+	<category name="org.restcomm.media">
 		<priority value="INFO" />
 	</category>
 
-	<category name="org.mobicents.media.control.mgcp">
+	<category name="org.restcomm.media.control.mgcp">
 		<priority value="INFO" />
 	</category>
 
-	<category name="org.mobicents.media.server.impl.rtp">
+	<category name="org.restcomm.media.rtp">
 		<priority value="INFO" />
 	</category>
 
-	<category name="org.mobicents.media.server.impl.rtcp">
+	<category name="org.restcomm.media.rtcp">
 		<priority value="INFO" />
 	</category>
 
