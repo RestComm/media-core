@@ -50,6 +50,7 @@ public class MgcpControllerFsmBuilder {
 
         this.builder.externalTransition().from(MgcpControllerState.ACTIVATING).to(MgcpControllerState.ACTIVATED).on(MgcpControllerEvent.CHANNEL_BOUND);
         this.builder.externalTransition().from(MgcpControllerState.ACTIVATING).to(MgcpControllerState.DEACTIVATING).on(MgcpControllerEvent.DEACTIVATE);
+        this.builder.externalTransition().from(MgcpControllerState.ACTIVATED).to(MgcpControllerState.DEACTIVATING).on(MgcpControllerEvent.DEACTIVATE);
 
         this.builder.defineSequentialStatesOn(MgcpControllerState.DEACTIVATING, MgcpControllerState.CLOSING_CHANNEL);
         this.builder.onEntry(MgcpControllerState.CLOSING_CHANNEL).perform(new CloseChannelAction());

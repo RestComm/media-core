@@ -55,12 +55,12 @@ public class CloseChannelAction extends AnonymousAction<MgcpControllerFsm, MgcpC
 
         @Override
         public void onSuccess(Void result) {
-            this.fsm.fire(MgcpControllerEvent.CHANNEL_CLOSED);
+            this.fsm.fire(MgcpControllerEvent.DEACTIVATED);
         }
 
         @Override
         public void onFailure(Throwable t) {
-            this.fsm.fire(MgcpControllerEvent.CHANNEL_CLOSED);
+            this.fsm.fire(MgcpControllerEvent.DEACTIVATED);
         }
     }
 
