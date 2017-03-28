@@ -21,23 +21,23 @@
 
 package org.restcomm.media.control.mgcp.controller.fsm.transition;
 
-import com.google.common.util.concurrent.FutureCallback;
+import java.net.SocketAddress;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class ActivateContext implements MgcpControllerTransitionContext {
+public class BindChannelContext implements MgcpControllerTransitionContext {
 
-    private final FutureCallback<Void> callback;
+    private final SocketAddress address;
 
-    public ActivateContext(FutureCallback<Void> callback) {
+    public BindChannelContext(SocketAddress address) {
         super();
-        this.callback = callback;
+        this.address = address;
     }
 
-    public FutureCallback<Void> getCallback() {
-        return callback;
+    public SocketAddress getAddress() {
+        return address;
     }
 
 }

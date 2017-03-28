@@ -42,9 +42,29 @@ public class BindChannelAction extends AnonymousAction<MgcpControllerFsm, MgcpCo
 
     @Override
     public void execute(MgcpControllerState from, MgcpControllerState to, MgcpControllerEvent event, MgcpControllerTransitionContext context, MgcpControllerFsm stateMachine) {
-        final FutureCallback<Void> callback = context.getCallback();
-        final SocketAddress localAddress = context.getLocalAddress();
-        stateMachine.getContext().getChannel().bind(localAddress, callback);
+        final SocketAddress address = stateMachine.getContext().getBindAddress();
+        final BindChannelCallback callback = new BindChannelCallback(stateMachine);
+        stateMachine.getContext().getChannel().bind(address, callback);
+    }
+    
+    private class BindChannelCallback implements FutureCallback<Void> {
+
+        private final MgcpControllerFsm fsm;
+
+        public BindChannelCallback(MgcpControllerFsm fsm) {
+            super();
+            this.fsm = fsm;
+        }
+
+        @Override
+        public void onSuccess(Void result) {
+            this.fsm.fire(MgcpControllerEvent.CHANNEL_BOUND);
+        }
+
+        @Override
+        public void onFailure(Throwable t) {
+            this.fsm.fire(MgcpControllerEvent.DEACTIVATE);
+        }
     }
 
 }

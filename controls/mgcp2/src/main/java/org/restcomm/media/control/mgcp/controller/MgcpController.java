@@ -28,11 +28,10 @@ import org.restcomm.media.control.mgcp.command.MgcpCommand;
 import org.restcomm.media.control.mgcp.command.MgcpCommandProvider;
 import org.restcomm.media.control.mgcp.controller.fsm.MgcpControllerEvent;
 import org.restcomm.media.control.mgcp.controller.fsm.MgcpControllerFsm;
+import org.restcomm.media.control.mgcp.controller.fsm.MgcpControllerFsmBuilder;
 import org.restcomm.media.control.mgcp.controller.fsm.MgcpControllerFsmImpl;
 import org.restcomm.media.control.mgcp.controller.fsm.MgcpControllerGlobalContext;
 import org.restcomm.media.control.mgcp.controller.fsm.MgcpControllerState;
-import org.restcomm.media.control.mgcp.controller.fsm.transition.ActivateContext;
-import org.restcomm.media.control.mgcp.controller.fsm.transition.DeactivateContext;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.restcomm.media.control.mgcp.exception.DuplicateMgcpTransactionException;
 import org.restcomm.media.control.mgcp.exception.MgcpTransactionNotFoundException;
@@ -68,8 +67,7 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
     private final MgcpControllerGlobalContext context;
     private final MgcpControllerFsm fsm;
 
-    public MgcpController(String address, int port, AsyncMgcpChannel channel, MgcpTransactionManager transactions,
-            MgcpEndpointManager endpoints, MgcpCommandProvider commands) {
+    public MgcpController(String address, int port, AsyncMgcpChannel channel, MgcpTransactionManager transactions, MgcpEndpointManager endpoints, MgcpCommandProvider commands) {
         // MGCP Components
         this.transactions = transactions;
         this.endpoints = endpoints;
@@ -79,7 +77,7 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
         this.context = new MgcpControllerGlobalContext();
         this.context.setBindAddress(new InetSocketAddress(address, port));
         this.context.setChannel(channel);
-        this.fsm = new MgcpControllerFsmImpl(this.context);
+        this.fsm = MgcpControllerFsmBuilder.INSTANCE.build(this.context);
         this.fsm.start();
     }
 
@@ -97,7 +95,7 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
             this.transactions.observe(this);
             this.endpoints.observe(this);
 
-            this.fsm.fire(MgcpControllerEvent.ACTIVATE, new ActivateContext(new ActivateCallback()));
+            this.fsm.fire(MgcpControllerEvent.ACTIVATE);
         }
     }
 
@@ -109,7 +107,7 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
             this.transactions.forget(this);
             this.endpoints.observe(this);
 
-            this.fsm.fire(MgcpControllerEvent.DEACTIVATE, new DeactivateContext(new DeactivateCallback()));
+            this.fsm.fire(MgcpControllerEvent.DEACTIVATE);
         } else {
             throw new IllegalStateException("Controller is already inactive");
         }
@@ -214,37 +212,19 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
         response.setMessage(message);
         this.context.getChannel().send(response, to, new SendChannelCallback());
     }
-
-    private final class ActivateCallback implements FutureCallback<Void> {
+    
+    private class SendChannelCallback implements FutureCallback<Void> {
 
         @Override
         public void onSuccess(Void result) {
-            if (log.isInfoEnabled()) {
-                log.info("MGCP Controller activated successfully.");
-            }
+            // TODO Auto-generated method stub
+            
         }
 
         @Override
         public void onFailure(Throwable t) {
-            log.error("MGCP Controller could not be activated.", t);
-        }
-
-    }
-
-    private final class DeactivateCallback implements FutureCallback<Void> {
-        
-        @Override
-        public void onSuccess(Void result) {
-            if (log.isInfoEnabled()) {
-                log.info("MGCP Controller deactivated successfully.");
-            }
-        }
-        
-        @Override
-        public void onFailure(Throwable t) {
-            log.error("MGCP Controller could not be deactivated.", t);
-        }
-        
-    }
+            // TODO Auto-generated method stub
+            
+        }}
 
 }

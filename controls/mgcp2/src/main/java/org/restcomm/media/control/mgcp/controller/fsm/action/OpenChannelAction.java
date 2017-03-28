@@ -40,8 +40,27 @@ public class OpenChannelAction extends AnonymousAction<MgcpControllerFsm, MgcpCo
 
     @Override
     public void execute(MgcpControllerState from, MgcpControllerState to, MgcpControllerEvent event, MgcpControllerTransitionContext context, MgcpControllerFsm stateMachine) {
-        final FutureCallback<Void> callback = context.getCallback();
-        stateMachine.getContext().getChannel().open(callback);
+        stateMachine.getContext().getChannel().open(new OpenChannelCallback(stateMachine));
+    }
+
+    private class OpenChannelCallback implements FutureCallback<Void> {
+
+        private final MgcpControllerFsm fsm;
+
+        public OpenChannelCallback(MgcpControllerFsm fsm) {
+            super();
+            this.fsm = fsm;
+        }
+
+        @Override
+        public void onSuccess(Void result) {
+            this.fsm.fire(MgcpControllerEvent.CHANNEL_OPENED);
+        }
+
+        @Override
+        public void onFailure(Throwable t) {
+            this.fsm.fire(MgcpControllerEvent.DEACTIVATE);
+        }
     }
 
 }

@@ -40,8 +40,28 @@ public class CloseChannelAction extends AnonymousAction<MgcpControllerFsm, MgcpC
 
     @Override
     public void execute(MgcpControllerState from, MgcpControllerState to, MgcpControllerEvent event, MgcpControllerTransitionContext context, MgcpControllerFsm stateMachine) {
-        final FutureCallback<Void> callback = context.getCallback();
+        final CloseChannelCallback callback = new CloseChannelCallback(stateMachine);
         stateMachine.getContext().getChannel().close(callback);
+    }
+    
+    private class CloseChannelCallback implements FutureCallback<Void> {
+
+        private final MgcpControllerFsm fsm;
+
+        public CloseChannelCallback(MgcpControllerFsm fsm) {
+            super();
+            this.fsm = fsm;
+        }
+
+        @Override
+        public void onSuccess(Void result) {
+            this.fsm.fire(MgcpControllerEvent.CHANNEL_CLOSED);
+        }
+
+        @Override
+        public void onFailure(Throwable t) {
+            this.fsm.fire(MgcpControllerEvent.CHANNEL_CLOSED);
+        }
     }
 
 }

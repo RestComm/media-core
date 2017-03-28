@@ -58,8 +58,7 @@ public class RestCommMediaServer implements MediaServer {
     private volatile long ttl;
 
     @Inject
-    public RestCommMediaServer(PriorityQueueScheduler mediaScheduler, Scheduler taskScheduler, UdpManager udpManager,
-            ServerManager controller) {
+    public RestCommMediaServer(PriorityQueueScheduler mediaScheduler, Scheduler taskScheduler, UdpManager udpManager, ServerManager controller) {
         // Core Components
         this.mediaScheduler = mediaScheduler;
         this.taskScheduler = taskScheduler;

@@ -39,7 +39,7 @@ public class MgcpControllerFsmBuilder {
     private final StateMachineBuilder<MgcpControllerFsm, MgcpControllerState, MgcpControllerEvent, MgcpControllerTransitionContext> builder;
 
     private MgcpControllerFsmBuilder() {
-        this.builder = StateMachineBuilderFactory.create(MgcpControllerFsm.class, MgcpControllerState.class, MgcpControllerEvent.class, MgcpControllerTransitionContext.class, MgcpControllerGlobalContext.class);
+        this.builder = StateMachineBuilderFactory.<MgcpControllerFsm, MgcpControllerState, MgcpControllerEvent, MgcpControllerTransitionContext> create(MgcpControllerFsmImpl.class, MgcpControllerState.class, MgcpControllerEvent.class, MgcpControllerTransitionContext.class, MgcpControllerGlobalContext.class);
 
         this.builder.externalTransition().from(MgcpControllerState.UNINITIALIZED).to(MgcpControllerState.ACTIVATING).on(MgcpControllerEvent.ACTIVATE);
 
@@ -48,7 +48,7 @@ public class MgcpControllerFsmBuilder {
         this.builder.localTransition().from(MgcpControllerState.OPENING_CHANNEL).to(MgcpControllerState.BINDING_CHANNEL).on(MgcpControllerEvent.CHANNEL_OPENED);
         this.builder.onEntry(MgcpControllerState.BINDING_CHANNEL).perform(new BindChannelAction());
 
-        this.builder.externalTransition().from(MgcpControllerState.ACTIVATING).to(MgcpControllerState.ACTIVATED).on(MgcpControllerEvent.ACTIVATED);
+        this.builder.externalTransition().from(MgcpControllerState.ACTIVATING).to(MgcpControllerState.ACTIVATED).on(MgcpControllerEvent.CHANNEL_BOUND);
         this.builder.externalTransition().from(MgcpControllerState.ACTIVATING).to(MgcpControllerState.DEACTIVATING).on(MgcpControllerEvent.DEACTIVATE);
 
         this.builder.defineSequentialStatesOn(MgcpControllerState.DEACTIVATING, MgcpControllerState.CLOSING_CHANNEL);

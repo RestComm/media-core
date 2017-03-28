@@ -29,6 +29,6 @@ package org.restcomm.media.control.mgcp.controller.fsm;
  */
 public enum MgcpControllerEvent {
 
-    ACTIVATE, CHANNEL_OPENED, CHANNEL_BOUND, ACTIVATED, DEACTIVATE, CHANNEL_CLOSED, DEACTIVATED
+    ACTIVATE, CHANNEL_OPENED, CHANNEL_BOUND, DEACTIVATE, CHANNEL_CLOSED, DEACTIVATED
 
 }
