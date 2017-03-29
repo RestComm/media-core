@@ -49,9 +49,9 @@ import org.restcomm.media.control.mgcp.message.MgcpRequest;
 import org.restcomm.media.control.mgcp.message.MgcpRequestType;
 import org.restcomm.media.control.mgcp.message.MgcpResponse;
 import org.restcomm.media.control.mgcp.message.MgcpResponseCode;
-import org.restcomm.media.control.mgcp.network.nio.MgcpChannel;
-import org.restcomm.media.control.mgcp.transaction.MgcpTransactionManager;
-import org.restcomm.media.network.deprecated.UdpManager;
+import org.restcomm.media.control.mgcp.network.netty.AsyncMgcpChannel;
+
+import com.google.common.util.concurrent.FutureCallback;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -59,206 +59,210 @@ import org.restcomm.media.network.deprecated.UdpManager;
  */
 public class MgcpControllerTest {
 
-//    @Test
-//    public void testIncomingRequest() throws DuplicateMgcpTransactionException {
-//        // given
-//        final String address = "127.0.0.1";
-//        final int port = 2427;
-//        final int transactionId = 147483653;
-//        final InetSocketAddress from = new InetSocketAddress("127.0.0.1", 2727);
-//        final InetSocketAddress to = new InetSocketAddress("127.0.0.1", 2427);
-//        final MessageDirection direction = MessageDirection.INCOMING;
-//        final MgcpRequest request = mock(MgcpRequest.class);
-//        final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
-//        final MgcpCommand command = mock(MgcpCommand.class);
-//        final MgcpChannel channel = mock(MgcpChannel.class);
-//        final UdpManager networkManager = mock(UdpManager.class);
-//        final MgcpTransactionManager transactions = mock(MgcpTransactionManager.class);
-//        final MgcpEndpointManager endpoints = mock(MgcpEndpointManager.class);
-//        final MgcpController controller = new MgcpController(address, port, channel, transactions, endpoints, commands);
-//
-//        // when
-//        when(request.isRequest()).thenReturn(true);
-//        when(request.getRequestType()).thenReturn(MgcpRequestType.CRCX);
-//        when(request.getTransactionId()).thenReturn(transactionId);
-//        when(commands.provide(request.getRequestType(), transactionId, request.getParameters())).thenReturn(command);
-//
-//        controller.onMessage(from, to, request, direction);
-//
-//        // then
-//        verify(transactions, times(1)).process(from, to, request, command, direction);
-//    }
-//
-//    @Test
-//    public void testIncomingDuplicateRequest() throws DuplicateMgcpTransactionException, IOException {
-//        // given
-//        final String address = "127.0.0.1";
-//        final int port = 2427;
-//        final int transactionId = 147483653;
-//        final InetSocketAddress from = new InetSocketAddress("127.0.0.1", 2727);
-//        final InetSocketAddress to = new InetSocketAddress("127.0.0.1", 2427);
-//        final MessageDirection direction = MessageDirection.INCOMING;
-//        final MgcpRequest request = mock(MgcpRequest.class);
-//        final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
-//        final MgcpCommand command = mock(MgcpCommand.class);
-//        final MgcpChannel channel = mock(MgcpChannel.class);
-//        final MgcpTransactionManager transactions = mock(MgcpTransactionManager.class);
-//        final MgcpEndpointManager endpoints = mock(MgcpEndpointManager.class);
-//        final MgcpController controller = new MgcpController(address, port, channel, transactions, endpoints, commands);
-//
-//        // when
-//        when(request.isRequest()).thenReturn(true);
-//        when(request.getRequestType()).thenReturn(MgcpRequestType.CRCX);
-//        when(request.getTransactionId()).thenReturn(transactionId);
-//        when(commands.provide(request.getRequestType(), transactionId, request.getParameters())).thenReturn(command);
-//        doThrow(new DuplicateMgcpTransactionException("")).when(transactions).process(from, to, request, command, direction);
-//
-//        doAnswer(new Answer<Object>() {
-//
-//            @Override
-//            public Object answer(InvocationOnMock invocation) throws Throwable {
-//                // then
-//                MgcpResponse obj = invocation.getArgumentAt(1, MgcpResponse.class);
-//                Assert.assertEquals(MgcpResponseCode.TRANSACTION_BEING_EXECUTED.code(), obj.getCode());
-//                return null;
-//            }
-//        }).when(channel).send(eq(to), any(MgcpResponse.class));
-//
-//        controller.onMessage(from, to, request, direction);
-//
-//        // then
-//        verify(transactions, times(1)).process(from, to, request, command, direction);
-//        verify(channel, times(1)).send(eq(to), any(MgcpResponse.class));
-//    }
-//
-//    @Test
-//    public void testIncomingResponse() throws MgcpTransactionNotFoundException {
-//        // given
-//        final String address = "127.0.0.1";
-//        final int port = 2427;
-//        final InetSocketAddress from = new InetSocketAddress("127.0.0.1", 2727);
-//        final InetSocketAddress to = new InetSocketAddress("127.0.0.1", 2427);
-//        final MessageDirection direction = MessageDirection.INCOMING;
-//        final MgcpResponse response = mock(MgcpResponse.class);
-//        final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
-//        final MgcpChannel channel = mock(MgcpChannel.class);
-//        final MgcpTransactionManager transactions = mock(MgcpTransactionManager.class);
-//        final MgcpEndpointManager endpoints = mock(MgcpEndpointManager.class);
-//        final MgcpController controller = new MgcpController(address, port, channel, transactions, endpoints, commands);
-//
-//        // when
-//        controller.onMessage(from, to, response, direction);
-//
-//        // then
-//        verify(transactions, times(1)).process(from, to, response, direction);
-//    }
-//
-//    @Test
-//    public void testOutgoingRequest() throws DuplicateMgcpTransactionException, IOException {
-//        // given
-//        final String address = "127.0.0.1";
-//        final int port = 2427;
-//        final int transactionId = 147483653;
-//        final InetSocketAddress from = new InetSocketAddress("127.0.0.1", 2427);
-//        final InetSocketAddress to = new InetSocketAddress("127.0.0.1", 2727);
-//        final MessageDirection direction = MessageDirection.OUTGOING;
-//        final MgcpRequest request = mock(MgcpRequest.class);
-//        final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
-//        final MgcpCommand command = mock(MgcpCommand.class);
-//        final MgcpChannel channel = mock(MgcpChannel.class);
-//        final MgcpTransactionManager transactions = mock(MgcpTransactionManager.class);
-//        final MgcpEndpointManager endpoints = mock(MgcpEndpointManager.class);
-//        final MgcpController controller = new MgcpController(address, port, channel, transactions, endpoints, commands);
-//
-//        // when
-//        when(request.isRequest()).thenReturn(true);
-//        when(request.getRequestType()).thenReturn(MgcpRequestType.CRCX);
-//        when(request.getTransactionId()).thenReturn(transactionId);
-//        when(commands.provide(request.getRequestType(), transactionId, request.getParameters())).thenReturn(command);
-//
-//        controller.onMessage(from, to, request, direction);
-//
-//        // then
-//        verify(transactions, times(1)).process(from, to, request, null, direction);
-//        verify(channel, times(1)).send(to, request);
-//    }
-//
-//    @Test
-//    public void testOutgoingDuplicateRequest() throws DuplicateMgcpTransactionException, IOException {
-//        // given
-//        final String address = "127.0.0.1";
-//        final int port = 2427;
-//        final int transactionId = 147483653;
-//        final InetSocketAddress from = new InetSocketAddress("127.0.0.1", 2427);
-//        final InetSocketAddress to = new InetSocketAddress("127.0.0.1", 2727);
-//        final MessageDirection direction = MessageDirection.OUTGOING;
-//        final MgcpRequest request = mock(MgcpRequest.class);
-//        final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
-//        final MgcpCommand command = mock(MgcpCommand.class);
-//        final MgcpChannel channel = mock(MgcpChannel.class);
-//        final MgcpTransactionManager transactions = mock(MgcpTransactionManager.class);
-//        final MgcpEndpointManager endpoints = mock(MgcpEndpointManager.class);
-//        final MgcpController controller = new MgcpController(address, port, channel, transactions, endpoints, commands);
-//
-//        // when
-//        when(request.isRequest()).thenReturn(true);
-//        when(request.getRequestType()).thenReturn(MgcpRequestType.CRCX);
-//        when(request.getTransactionId()).thenReturn(transactionId);
-//        when(commands.provide(request.getRequestType(), transactionId, request.getParameters())).thenReturn(command);
-//        doThrow(new DuplicateMgcpTransactionException("")).when(transactions).process(from, to, request, null, direction);
-//
-//        controller.onMessage(from, to, request, direction);
-//
-//        // then
-//        verify(transactions, times(1)).process(from, to, request, null, direction);
-//        verify(channel, never()).send(to, request);
-//    }
-//
-//    @Test
-//    public void testOutgoingResponse() throws MgcpTransactionNotFoundException, IOException {
-//        // given
-//        final String address = "127.0.0.1";
-//        final int port = 2427;
-//        final InetSocketAddress from = new InetSocketAddress("127.0.0.1", 2427);
-//        final InetSocketAddress to = new InetSocketAddress("127.0.0.1", 2727);
-//        final MessageDirection direction = MessageDirection.OUTGOING;
-//        final MgcpResponse response = mock(MgcpResponse.class);
-//        final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
-//        final MgcpChannel channel = mock(MgcpChannel.class);
-//        final MgcpTransactionManager transactions = mock(MgcpTransactionManager.class);
-//        final MgcpEndpointManager endpoints = mock(MgcpEndpointManager.class);
-//        final MgcpController controller = new MgcpController(address, port, channel, transactions, endpoints, commands);
-//
-//        // when
-//        controller.onMessage(from, to, response, direction);
-//
-//        // then
-//        verify(transactions, times(1)).process(from, to, response, direction);
-//        verify(channel, times(1)).send(to, response);
-//    }
-//
-//    @Test
-//    public void testOutgoingResponseWithUnknownTransaction() throws MgcpTransactionNotFoundException, IOException {
-//        // given
-//        final String address = "127.0.0.1";
-//        final int port = 2427;
-//        final InetSocketAddress from = new InetSocketAddress("127.0.0.1", 2427);
-//        final InetSocketAddress to = new InetSocketAddress("127.0.0.1", 2727);
-//        final MessageDirection direction = MessageDirection.OUTGOING;
-//        final MgcpResponse response = mock(MgcpResponse.class);
-//        final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
-//        final MgcpChannel channel = mock(MgcpChannel.class);
-//        final MgcpTransactionManager transactions = mock(MgcpTransactionManager.class);
-//        final MgcpEndpointManager endpoints = mock(MgcpEndpointManager.class);
-//        final MgcpController controller = new MgcpController(address, port, channel, transactions, endpoints, commands);
-//
-//        // when
-//        doThrow(new MgcpTransactionNotFoundException("")).when(transactions).process(from, to, response, direction);
-//        controller.onMessage(from, to, response, direction);
-//
-//        // then
-//        verify(transactions, times(1)).process(from, to, response, direction);
-//        verify(channel, never()).send(to, response);
-//    }
+    @Test
+    public void testIncomingRequest() throws DuplicateMgcpTransactionException {
+        // given
+        final String address = "127.0.0.1";
+        final int port = 2427;
+        final int transactionId = 147483653;
+        final InetSocketAddress from = new InetSocketAddress("127.0.0.1", 2727);
+        final InetSocketAddress to = new InetSocketAddress("127.0.0.1", 2427);
+        final MessageDirection direction = MessageDirection.INCOMING;
+        final MgcpRequest request = mock(MgcpRequest.class);
+        final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
+        final MgcpCommand command = mock(MgcpCommand.class);
+        final AsyncMgcpChannel channel = mock(AsyncMgcpChannel.class);
+        final MgcpTransactionManager transactions = mock(MgcpTransactionManager.class);
+        final MgcpEndpointManager endpoints = mock(MgcpEndpointManager.class);
+        final MgcpController controller = new MgcpController(address, port, channel, transactions, endpoints, commands);
+
+        // when
+        when(request.isRequest()).thenReturn(true);
+        when(request.getRequestType()).thenReturn(MgcpRequestType.CRCX);
+        when(request.getTransactionId()).thenReturn(transactionId);
+        when(commands.provide(request.getRequestType(), transactionId, request.getParameters())).thenReturn(command);
+
+        controller.onMessage(from, to, request, direction);
+
+        // then
+        verify(transactions, times(1)).process(from, to, request, command, direction);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testIncomingDuplicateRequest() throws DuplicateMgcpTransactionException, IOException {
+        // given
+        final String address = "127.0.0.1";
+        final int port = 2427;
+        final int transactionId = 147483653;
+        final InetSocketAddress from = new InetSocketAddress("127.0.0.1", 2727);
+        final InetSocketAddress to = new InetSocketAddress("127.0.0.1", 2427);
+        final MessageDirection direction = MessageDirection.INCOMING;
+        final MgcpRequest request = mock(MgcpRequest.class);
+        final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
+        final MgcpCommand command = mock(MgcpCommand.class);
+        final AsyncMgcpChannel channel = mock(AsyncMgcpChannel.class);
+        final MgcpTransactionManager transactions = mock(MgcpTransactionManager.class);
+        final MgcpEndpointManager endpoints = mock(MgcpEndpointManager.class);
+        final MgcpController controller = new MgcpController(address, port, channel, transactions, endpoints, commands);
+
+        // when
+        when(request.isRequest()).thenReturn(true);
+        when(request.getRequestType()).thenReturn(MgcpRequestType.CRCX);
+        when(request.getTransactionId()).thenReturn(transactionId);
+        when(commands.provide(request.getRequestType(), transactionId, request.getParameters())).thenReturn(command);
+        doThrow(new DuplicateMgcpTransactionException("")).when(transactions).process(from, to, request, command, direction);
+
+        doAnswer(new Answer<Object>() {
+
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                // then
+                MgcpResponse obj = invocation.getArgumentAt(0, MgcpResponse.class);
+                Assert.assertEquals(MgcpResponseCode.TRANSACTION_BEING_EXECUTED.code(), obj.getCode());
+                return null;
+            }
+        }).when(channel).send(any(MgcpResponse.class), eq(to), any(FutureCallback.class));
+
+        controller.onMessage(from, to, request, direction);
+
+        // then
+        verify(transactions, times(1)).process(from, to, request, command, direction);
+        verify(channel, times(1)).send(any(MgcpResponse.class), eq(to), any(FutureCallback.class));
+    }
+
+    @Test
+    public void testIncomingResponse() throws MgcpTransactionNotFoundException {
+        // given
+        final String address = "127.0.0.1";
+        final int port = 2427;
+        final InetSocketAddress from = new InetSocketAddress("127.0.0.1", 2727);
+        final InetSocketAddress to = new InetSocketAddress("127.0.0.1", 2427);
+        final MessageDirection direction = MessageDirection.INCOMING;
+        final MgcpResponse response = mock(MgcpResponse.class);
+        final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
+        final AsyncMgcpChannel channel = mock(AsyncMgcpChannel.class);
+        final MgcpTransactionManager transactions = mock(MgcpTransactionManager.class);
+        final MgcpEndpointManager endpoints = mock(MgcpEndpointManager.class);
+        final MgcpController controller = new MgcpController(address, port, channel, transactions, endpoints, commands);
+
+        // when
+        controller.onMessage(from, to, response, direction);
+
+        // then
+        verify(transactions, times(1)).process(from, to, response, direction);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testOutgoingRequest() throws DuplicateMgcpTransactionException, IOException {
+        // given
+        final String address = "127.0.0.1";
+        final int port = 2427;
+        final int transactionId = 147483653;
+        final InetSocketAddress from = new InetSocketAddress("127.0.0.1", 2427);
+        final InetSocketAddress to = new InetSocketAddress("127.0.0.1", 2727);
+        final MessageDirection direction = MessageDirection.OUTGOING;
+        final MgcpRequest request = mock(MgcpRequest.class);
+        final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
+        final MgcpCommand command = mock(MgcpCommand.class);
+        final AsyncMgcpChannel channel = mock(AsyncMgcpChannel.class);
+        final MgcpTransactionManager transactions = mock(MgcpTransactionManager.class);
+        final MgcpEndpointManager endpoints = mock(MgcpEndpointManager.class);
+        final MgcpController controller = new MgcpController(address, port, channel, transactions, endpoints, commands);
+
+        // when
+        when(request.isRequest()).thenReturn(true);
+        when(request.getRequestType()).thenReturn(MgcpRequestType.CRCX);
+        when(request.getTransactionId()).thenReturn(transactionId);
+        when(commands.provide(request.getRequestType(), transactionId, request.getParameters())).thenReturn(command);
+
+        controller.onMessage(from, to, request, direction);
+
+        // then
+        verify(transactions, times(1)).process(from, to, request, null, direction);
+        verify(channel, times(1)).send(eq(request), eq(to), any(FutureCallback.class));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testOutgoingDuplicateRequest() throws DuplicateMgcpTransactionException, IOException {
+        // given
+        final String address = "127.0.0.1";
+        final int port = 2427;
+        final int transactionId = 147483653;
+        final InetSocketAddress from = new InetSocketAddress("127.0.0.1", 2427);
+        final InetSocketAddress to = new InetSocketAddress("127.0.0.1", 2727);
+        final MessageDirection direction = MessageDirection.OUTGOING;
+        final MgcpRequest request = mock(MgcpRequest.class);
+        final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
+        final MgcpCommand command = mock(MgcpCommand.class);
+        final AsyncMgcpChannel channel = mock(AsyncMgcpChannel.class);
+        final MgcpTransactionManager transactions = mock(MgcpTransactionManager.class);
+        final MgcpEndpointManager endpoints = mock(MgcpEndpointManager.class);
+        final MgcpController controller = new MgcpController(address, port, channel, transactions, endpoints, commands);
+
+        // when
+        when(request.isRequest()).thenReturn(true);
+        when(request.getRequestType()).thenReturn(MgcpRequestType.CRCX);
+        when(request.getTransactionId()).thenReturn(transactionId);
+        when(commands.provide(request.getRequestType(), transactionId, request.getParameters())).thenReturn(command);
+        doThrow(new DuplicateMgcpTransactionException("")).when(transactions).process(from, to, request, null, direction);
+
+        controller.onMessage(from, to, request, direction);
+
+        // then
+        verify(transactions, times(1)).process(from, to, request, null, direction);
+        verify(channel, never()).send(eq(request), eq(to), any(FutureCallback.class));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testOutgoingResponse() throws MgcpTransactionNotFoundException, IOException {
+        // given
+        final String address = "127.0.0.1";
+        final int port = 2427;
+        final InetSocketAddress from = new InetSocketAddress("127.0.0.1", 2427);
+        final InetSocketAddress to = new InetSocketAddress("127.0.0.1", 2727);
+        final MessageDirection direction = MessageDirection.OUTGOING;
+        final MgcpResponse response = mock(MgcpResponse.class);
+        final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
+        final AsyncMgcpChannel channel = mock(AsyncMgcpChannel.class);
+        final MgcpTransactionManager transactions = mock(MgcpTransactionManager.class);
+        final MgcpEndpointManager endpoints = mock(MgcpEndpointManager.class);
+        final MgcpController controller = new MgcpController(address, port, channel, transactions, endpoints, commands);
+
+        // when
+        controller.onMessage(from, to, response, direction);
+
+        // then
+        verify(transactions, times(1)).process(from, to, response, direction);
+        verify(channel, times(1)).send(eq(response), eq(to), any(FutureCallback.class));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testOutgoingResponseWithUnknownTransaction() throws MgcpTransactionNotFoundException, IOException {
+        // given
+        final String address = "127.0.0.1";
+        final int port = 2427;
+        final InetSocketAddress from = new InetSocketAddress("127.0.0.1", 2427);
+        final InetSocketAddress to = new InetSocketAddress("127.0.0.1", 2727);
+        final MessageDirection direction = MessageDirection.OUTGOING;
+        final MgcpResponse response = mock(MgcpResponse.class);
+        final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
+        final AsyncMgcpChannel channel = mock(AsyncMgcpChannel.class);
+        final MgcpTransactionManager transactions = mock(MgcpTransactionManager.class);
+        final MgcpEndpointManager endpoints = mock(MgcpEndpointManager.class);
+        final MgcpController controller = new MgcpController(address, port, channel, transactions, endpoints, commands);
+
+        // when
+        doThrow(new MgcpTransactionNotFoundException("")).when(transactions).process(from, to, response, direction);
+        controller.onMessage(from, to, response, direction);
+
+        // then
+        verify(transactions, times(1)).process(from, to, response, direction);
+        verify(channel, never()).send(eq(response), eq(to), any(FutureCallback.class));
+    }
 
 }

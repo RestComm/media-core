@@ -1,0 +1,21 @@
+@startuml
+[*] --> ACTIVATING
+
+state ACTIVATING {
+[*] --> OPENING_CHANNEL
+OPENING_CHANNEL --> BINDING_CHANNEL : channel_opened
+}
+
+ACTIVATING --> ACTIVATED : activated
+ACTIVATING --> DEACTIVATING : deactivate
+
+ACTIVATED --> DEACTIVATING : deactivate
+
+
+state DEACTIVATING {
+[*] --> CLOSING_CHANNEL
+}
+
+DEACTIVATING --> DEACTIVATED : deactivated
+DEACTIVATED --> [*]
+@enduml

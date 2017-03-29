@@ -29,6 +29,7 @@ import org.restcomm.media.bootstrap.ioc.MgcpModule;
 import org.restcomm.media.bootstrap.ioc.provider.mgcp.MgcpEndpointManagerProvider;
 import org.restcomm.media.control.mgcp.command.MgcpCommandProvider;
 import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
+import org.restcomm.media.control.mgcp.network.netty.AsyncMgcpChannel;
 import org.restcomm.media.control.mgcp.pkg.MgcpSignalProvider;
 import org.restcomm.media.core.configuration.MediaServerConfiguration;
 import org.restcomm.media.spi.ServerManager;
@@ -90,6 +91,19 @@ public class MgcpModuleTest {
         // when
         MgcpSignalProvider obj = injector.getInstance(MgcpSignalProvider.class);
 
+        // then
+        Assert.assertNotNull(obj);
+    }
+    
+    @Test
+    public void testAsyncMgcpChannelBinding() {
+        // given
+        final MediaServerConfiguration config = new MediaServerConfiguration();
+        final Injector injector = Guice.createInjector(new MgcpModule(), new MediaModule(), new CoreModule(config));
+        
+        // when
+        AsyncMgcpChannel obj = injector.getInstance(AsyncMgcpChannel.class);
+        
         // then
         Assert.assertNotNull(obj);
     }

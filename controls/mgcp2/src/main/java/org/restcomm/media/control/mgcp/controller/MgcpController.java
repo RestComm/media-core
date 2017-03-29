@@ -26,6 +26,12 @@ import java.net.InetSocketAddress;
 import org.apache.log4j.Logger;
 import org.restcomm.media.control.mgcp.command.MgcpCommand;
 import org.restcomm.media.control.mgcp.command.MgcpCommandProvider;
+import org.restcomm.media.control.mgcp.controller.fsm.MgcpControllerEvent;
+import org.restcomm.media.control.mgcp.controller.fsm.MgcpControllerFsm;
+import org.restcomm.media.control.mgcp.controller.fsm.MgcpControllerFsmBuilder;
+import org.restcomm.media.control.mgcp.controller.fsm.MgcpControllerFsmImpl;
+import org.restcomm.media.control.mgcp.controller.fsm.MgcpControllerGlobalContext;
+import org.restcomm.media.control.mgcp.controller.fsm.MgcpControllerState;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.restcomm.media.control.mgcp.exception.DuplicateMgcpTransactionException;
 import org.restcomm.media.control.mgcp.exception.MgcpTransactionNotFoundException;
@@ -37,7 +43,6 @@ import org.restcomm.media.control.mgcp.message.MgcpResponse;
 import org.restcomm.media.control.mgcp.message.MgcpResponseCode;
 import org.restcomm.media.control.mgcp.network.netty.AsyncMgcpChannel;
 import org.restcomm.media.control.mgcp.transaction.MgcpTransactionManager;
-import org.restcomm.media.network.netty.channel.AsyncNettyNetworkChannel;
 import org.restcomm.media.spi.ControlProtocol;
 import org.restcomm.media.spi.Endpoint;
 import org.restcomm.media.spi.EndpointInstaller;
@@ -54,27 +59,26 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
     private static final Logger log = Logger.getLogger(MgcpController.class);
 
     // MGCP Components
-    private final AsyncMgcpChannel channel;
     private final MgcpTransactionManager transactions;
     private final MgcpEndpointManager endpoints;
     private final MgcpCommandProvider commands;
 
     // MGCP Controller State
-    private final String address;
-    private final int port;
-    private boolean active;
+    private final MgcpControllerGlobalContext context;
+    private final MgcpControllerFsm fsm;
 
     public MgcpController(String address, int port, AsyncMgcpChannel channel, MgcpTransactionManager transactions, MgcpEndpointManager endpoints, MgcpCommandProvider commands) {
         // MGCP Components
-        this.channel = channel;
         this.transactions = transactions;
         this.endpoints = endpoints;
         this.commands = commands;
 
         // MGCP Controller State
-        this.address = address;
-        this.port = port;
-        this.active = false;
+        this.context = new MgcpControllerGlobalContext();
+        this.context.setBindAddress(new InetSocketAddress(address, port));
+        this.context.setChannel(channel);
+        this.fsm = MgcpControllerFsmBuilder.INSTANCE.build(this.context);
+        this.fsm.start();
     }
 
     @Override
@@ -84,48 +88,26 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
 
     @Override
     public void activate() throws IllegalStateException {
-        if (this.active) {
+        if (isActive()) {
             throw new IllegalStateException("Controller is already active");
         } else {
-            // Open MGCP channel and bind it to configured address
-            this.channel.open(new OpenChannelCallback());
-            this.channel.bind(new InetSocketAddress(this.address, this.port), new BindChannelCallback());
-
-            if (log.isInfoEnabled()) {
-                log.info("Opened MGCP channel at " + this.address + ":" + this.port);
-            }
-
-            // Register as observer to other components to receive notifications
-            this.channel.observe(this);
+            this.context.getChannel().observe(this);
             this.transactions.observe(this);
             this.endpoints.observe(this);
-            this.active = true;
 
-            if (log.isInfoEnabled()) {
-                log.info("MGCP controller is active");
-            }
+            this.fsm.fire(MgcpControllerEvent.ACTIVATE);
         }
     }
 
     @Override
     public void deactivate() throws IllegalStateException {
-        if (this.active) {
-            // TODO stop resources
-            this.channel.close(new CloseChannelCallback());
-            this.channel.forget(this);
-            
-            if (log.isInfoEnabled()) {
-                log.info("MGCP channel is closed");
-            }
-            
+        if (isActive()) {
+            // TODO elegant cleanup of existing resources
+            this.context.getChannel().forget(this);
             this.transactions.forget(this);
-            this.endpoints.forget(this);
-            // TODO clear transactions
-            this.active = false;
-            
-            if (log.isInfoEnabled()) {
-                log.info("MGCP controller is inactive");
-            }
+            this.endpoints.observe(this);
+
+            this.fsm.fire(MgcpControllerEvent.DEACTIVATE);
         } else {
             throw new IllegalStateException("Controller is already inactive");
         }
@@ -133,7 +115,7 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
 
     @Override
     public boolean isActive() {
-        return this.active;
+        return MgcpControllerState.ACTIVATED.equals(this.fsm.getCurrentState());
     }
 
     @Override
@@ -172,7 +154,8 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
 
     private void onIncomingRequest(InetSocketAddress from, InetSocketAddress to, MgcpRequest request) {
         // Get command to be executed
-        MgcpCommand command = this.commands.provide(request.getRequestType(), request.getTransactionId(), request.getParameters());
+        MgcpCommand command = this.commands.provide(request.getRequestType(), request.getTransactionId(),
+                request.getParameters());
 
         try {
             // Start transaction that will execute the command
@@ -196,7 +179,7 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
             // Start transaction
             this.transactions.process(from, to, request, null, MessageDirection.OUTGOING);
             // Send request to call agent
-            this.channel.send(request, to, new SendChannelCallback());
+            this.context.getChannel().send(request, to, new SendChannelCallback());
         } catch (DuplicateMgcpTransactionException e) {
             log.error(e.getMessage() + ". Request wont' be sent to call agent.");
         }
@@ -216,7 +199,7 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
             // Close transaction
             this.transactions.process(from, to, response, MessageDirection.OUTGOING);
             // Send response to call agent
-            this.channel.send(response, to, new SendChannelCallback());
+            this.context.getChannel().send(response, to, new SendChannelCallback());
         } catch (MgcpTransactionNotFoundException e) {
             log.error(e.getMessage() + ". Response won't be sent to call agent.");
         }
@@ -227,10 +210,10 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
         response.setTransactionId(transactionId);
         response.setCode(code);
         response.setMessage(message);
-        this.channel.send(response, to, new SendChannelCallback());
+        this.context.getChannel().send(response, to, new SendChannelCallback());
     }
     
-    private final class OpenChannelCallback implements FutureCallback<Void> {
+    private class SendChannelCallback implements FutureCallback<Void> {
 
         @Override
         public void onSuccess(Void result) {
@@ -240,59 +223,8 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
 
         @Override
         public void onFailure(Throwable t) {
-            // TODO Auto-generated method stub
+            log.warn("Could not send MGCP message to remote peer.", t);
             
-        }
-        
-    }
-
-    private final class BindChannelCallback implements FutureCallback<Void> {
-        
-        @Override
-        public void onSuccess(Void result) {
-            // TODO Auto-generated method stub
-            
-        }
-        
-        @Override
-        public void onFailure(Throwable t) {
-            // TODO Auto-generated method stub
-            
-        }
-        
-    }
-
-    private final class SendChannelCallback implements FutureCallback<Void> {
-        
-        @Override
-        public void onSuccess(Void result) {
-            // TODO Auto-generated method stub
-            
-        }
-        
-        @Override
-        public void onFailure(Throwable t) {
-            // TODO Auto-generated method stub
-            log.error("Could not send MGCP message", t);
-            
-        }
-        
-    }
-
-    private final class CloseChannelCallback implements FutureCallback<Void> {
-        
-        @Override
-        public void onSuccess(Void result) {
-            // TODO Auto-generated method stub
-            
-        }
-        
-        @Override
-        public void onFailure(Throwable t) {
-            // TODO Auto-generated method stub
-            
-        }
-        
-    }
+        }}
 
 }
