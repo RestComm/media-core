@@ -161,20 +161,24 @@
     <profiles>
         <profile>
             <id>maven-release</id>
-	    <modules>
-		<module>spi</module>
-		<module>concurrent</module>
-		<module>scheduler</module>
-		<module>codecs</module>
-		<module>component</module>
-		<module>io</module>
-		<module>resources</module>
-		<module>core</module>
-		<module>controls</module>
-		<module>client</module>
-		<module>docs</module>
-		<module>bootstrap</module>
-	    </modules>
+    <modules>
+        <module>spi</module>
+        <module>concurrent</module>
+        <module>scheduler</module>
+        <module>codecs</module>
+        <module>component</module>
+        <module>network</module>
+        <module>ice</module>
+        <module>stun</module>
+        <module>rtp</module>
+        <module>sdp</module>
+        <module>resources</module>
+        <module>core</module>
+        <module>client</module>
+        <module>controls</module>
+        <module>docs</module>
+        <module>bootstrap</module>
+    </modules>
             <build>
                 <plugins>
                     <plugin>
