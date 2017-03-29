@@ -64,7 +64,7 @@ public class MgcpEndpointInstallerProvider implements Provider<List<MgcpEndpoint
         final MgcpControllerConfiguration controller = this.configuration.getControllerConfiguration();
         final Iterator<MgcpEndpointConfiguration> iterator = controller.getEndpoints();
         final List<MgcpEndpointProvider<? extends MgcpEndpoint>> providers = new ArrayList<>(controller.countEndpoints());
-        final String domain = this.configuration.getControllerConfiguration().getAddress();
+        final String domain = this.configuration.getControllerConfiguration().getAddress() + ":" + this.configuration.getControllerConfiguration().getPort();
         
         while (iterator.hasNext()) {
             final MgcpEndpointConfiguration endpoint = iterator.next();
