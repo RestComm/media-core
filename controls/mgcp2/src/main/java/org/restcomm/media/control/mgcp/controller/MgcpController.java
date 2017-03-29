@@ -223,7 +223,7 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
 
         @Override
         public void onFailure(Throwable t) {
-            // TODO Auto-generated method stub
+            log.warn("Could not send MGCP message to remote peer.", t);
             
         }}
 

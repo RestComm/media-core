@@ -90,7 +90,7 @@ public class NettyNetworkChannelFsmBuilder {
     }
 
     public NettyNetworkChannelFsm build(NettyNetworkChannelGlobalContext context) {
-        return this.builder.newStateMachine(NettyNetworkChannelState.UNINITIALIZED, StateMachineConfiguration.getInstance().enableDebugMode(true), context);
+        return this.builder.newStateMachine(NettyNetworkChannelState.UNINITIALIZED, StateMachineConfiguration.getInstance().enableDebugMode(false), context);
     }
 
 }
