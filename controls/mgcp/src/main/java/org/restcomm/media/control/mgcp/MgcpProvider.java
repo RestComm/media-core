@@ -152,7 +152,7 @@ public class MgcpProvider {
             this.transport.register(this.dataChannel);
             
             if (log.isInfoEnabled()) {
-                log.info("Opened MGCP channel at " + address.getAddress().toString());
+                log.info("Opened MGCP channel at " + address.toString());
             }
         } catch (Exception e) {
             log.error("Could not open MGCP channel properly.", e);

@@ -85,18 +85,6 @@ public class NettyNetworkManagerTest {
         }
     }
 
-    @SuppressWarnings("resource")
-    @Test(expected = IllegalStateException.class)
-    public void testInvalidBootstrap() throws Exception {
-        // given
-        final Bootstrap bootstrap = mock(Bootstrap.class);
-
-        // when
-        when(bootstrap.validate()).thenThrow(new IllegalStateException("Testing purposes!"));
-
-        new NettyNetworkManager(bootstrap);
-    }
-
     @Test
     public void testCloseSync() throws Exception {
         // given
