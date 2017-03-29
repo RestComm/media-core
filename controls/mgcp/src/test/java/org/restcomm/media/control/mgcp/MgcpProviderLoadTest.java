@@ -37,6 +37,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.restcomm.media.concurrent.ConcurrentMap;
 import org.restcomm.media.control.mgcp.message.MgcpRequest;
@@ -55,6 +56,7 @@ import org.restcomm.media.spi.utils.Text;
  *
  * @author yulian oifa
  */
+@Ignore
 public class MgcpProviderLoadTest {
 	
     private Clock clock = new WallClock();
