@@ -38,7 +38,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.restcomm.media.client.mgcp</groupId>
-			<artifactId>driver</artifactId>
+			<artifactId>mgcp-driver</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

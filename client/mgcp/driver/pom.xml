@@ -8,7 +8,7 @@
     </parent>
 
         <groupId>org.restcomm.media.client.mgcp</groupId>
-        <artifactId>driver</artifactId>
+        <artifactId>mgcp-driver</artifactId>
         <name>RestComm MGCP Driver</name>
 
 	<developers>
