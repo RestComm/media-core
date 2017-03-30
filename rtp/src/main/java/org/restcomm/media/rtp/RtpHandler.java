@@ -27,6 +27,8 @@ import org.apache.log4j.Logger;
 import org.restcomm.media.network.deprecated.channel.PacketHandler;
 import org.restcomm.media.network.deprecated.channel.PacketHandlerException;
 import org.restcomm.media.rtcp.RtcpHeader;
+import org.restcomm.media.rtp.jitter.FixedJitterBuffer;
+import org.restcomm.media.rtp.jitter.JitterBuffer;
 import org.restcomm.media.rtp.rfc2833.DtmfInput;
 import org.restcomm.media.rtp.secure.DtlsHandler;
 import org.restcomm.media.rtp.statistics.RtpStatistics;
@@ -73,7 +75,7 @@ public class RtpHandler implements PacketHandler {
 		this.oobClock = oobClock;
 		
 		this.jitterBufferSize = jitterBufferSize;
-		this.jitterBuffer = new JitterBuffer(this.rtpClock, this.jitterBufferSize);
+		this.jitterBuffer = new FixedJitterBuffer(this.rtpClock, this.jitterBufferSize);
 		
 		this.rtpInput = new RTPInput(scheduler, jitterBuffer);
 		this.jitterBuffer.setListener(this.rtpInput);
@@ -121,7 +123,7 @@ public class RtpHandler implements PacketHandler {
 	}
 	
 	public void useJitterBuffer(boolean useBuffer) {
-		this.jitterBuffer.setBufferInUse(useBuffer);
+		this.jitterBuffer.setInUse(useBuffer);
 	}
 	
 	/**
@@ -132,7 +134,6 @@ public class RtpHandler implements PacketHandler {
 	 */
 	public void setFormatMap(final RTPFormats rtpFormats) {
 		this.rtpFormats = rtpFormats;
-		this.jitterBuffer.setFormats(rtpFormats);
 	}
 	
 	public RTPFormats getFormatMap() {
@@ -162,6 +163,7 @@ public class RtpHandler implements PacketHandler {
 	public void reset() {
 		this.deactivate();
 		this.dtmfInput.reset();
+		this.jitterBuffer.restart();
 		
 		if(this.secure) {
 			disableSrtp();
@@ -268,12 +270,6 @@ public class RtpHandler implements PacketHandler {
 			buffer.clear();
 			buffer.put(packet, offset, dataLength);
 			buffer.flip();
-		}
-		
-		// Restart jitter buffer for first received packet
-		if(this.statistics.getRtpPacketsReceived() == 0) {
-			logger.info("Restarting jitter buffer");
-			this.jitterBuffer.restart();
 		}
 		
 		// For RTP keep-alive purposes
