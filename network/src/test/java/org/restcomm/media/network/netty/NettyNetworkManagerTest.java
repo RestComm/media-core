@@ -127,7 +127,7 @@ public class NettyNetworkManagerTest {
         networkManager.close(callback);
 
         // then
-        verify(callback, after((int) NettyNetworkManager.SHUTDOWN_TIMEOUT)).onSuccess(null);
+        verify(callback, timeout((NettyNetworkManager.SHUTDOWN_TIMEOUT + 1) * 1000)).onSuccess(null);
         assertTrue(eventLoopGroup.isShutdown());
     }
 
