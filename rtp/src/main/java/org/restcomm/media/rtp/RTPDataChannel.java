@@ -32,6 +32,7 @@ import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.network.deprecated.ProtocolHandler;
 import org.restcomm.media.network.deprecated.UdpManager;
 import org.restcomm.media.rtp.crypto.DtlsSrtpServerProvider;
+import org.restcomm.media.rtp.jitter.FixedJitterBuffer;
 import org.restcomm.media.rtp.rfc2833.DtmfInput;
 import org.restcomm.media.rtp.rfc2833.DtmfOutput;
 import org.restcomm.media.rtp.secure.DtlsHandler;
@@ -110,7 +111,7 @@ public class RTPDataChannel {
 	private volatile long rxCount;
 	private volatile long txCount;
 
-	private JitterBuffer rxBuffer;
+	private FixedJitterBuffer rxBuffer;
 
 	private Formats formats = new Formats();
 
@@ -153,7 +154,7 @@ public class RTPDataChannel {
 		rtpClock = new RtpClock(channelsManager.getClock());
 		oobClock = new RtpClock(channelsManager.getClock());
 
-		rxBuffer = new JitterBuffer(rtpClock, jitterBufferSize);
+		rxBuffer = new FixedJitterBuffer(rtpClock, jitterBufferSize);
 
 		scheduler = channelsManager.getScheduler();
 		udpManager = channelsManager.getUdpManager();
@@ -306,10 +307,10 @@ public class RTPDataChannel {
 
 		// bind data channel
 		if (!isLocal) {
-			this.rxBuffer.setBufferInUse(true);
+			this.rxBuffer.setInUse(true);
 			udpManager.bind(rtpChannel, PORT_ANY);
 		} else {
-			this.rxBuffer.setBufferInUse(false);
+			this.rxBuffer.setInUse(false);
 			udpManager.bindLocal(rtpChannel, PORT_ANY);
 		}
 		this.rtpChannelBound = true;
@@ -326,7 +327,7 @@ public class RTPDataChannel {
 	}
 
 	public void bind(DatagramChannel channel) throws IOException {
-		this.rxBuffer.setBufferInUse(true);
+		this.rxBuffer.setInUse(true);
 		this.rtpChannel = channel;
 		if (this.isWebRtc) {
 			this.webRtcHandler.setChannel(this.rtpChannel);
@@ -450,7 +451,6 @@ public class RTPDataChannel {
 
 		this.rtpHandler.flush();
 		this.rtpFormats = rtpFormats;
-		this.rxBuffer.setFormats(rtpFormats);
 	}
 
 	protected void send(Frame frame) {

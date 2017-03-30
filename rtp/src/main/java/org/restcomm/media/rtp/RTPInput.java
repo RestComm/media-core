@@ -25,6 +25,7 @@ package org.restcomm.media.rtp;
 import org.apache.log4j.Logger;
 import org.restcomm.media.component.AbstractSource;
 import org.restcomm.media.component.audio.AudioInput;
+import org.restcomm.media.rtp.jitter.JitterBuffer;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.spi.dsp.Processor;
 import org.restcomm.media.spi.format.AudioFormat;
@@ -62,9 +63,9 @@ public class RTPInput extends AbstractSource implements BufferListener {
 	/**
      * Creates new receiver.
      */
-    protected RTPInput(PriorityQueueScheduler scheduler,JitterBuffer rxBuffer) {
+    protected RTPInput(PriorityQueueScheduler scheduler,JitterBuffer jitterBuffer) {
         super("rtpinput", scheduler,PriorityQueueScheduler.INPUT_QUEUE);
-        this.rxBuffer=rxBuffer;        
+        this.rxBuffer=jitterBuffer;        
         input=new AudioInput(1,packetSize);
         this.connect(input);        
     }
