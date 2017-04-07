@@ -312,6 +312,7 @@ public class GenericMgcpEndpoint implements MgcpEndpoint {
     protected void deactivate() throws IllegalStateException {
         if (this.active.get()) {
             this.active.set(false);
+            cancelSignals();
             onDeactivated();
             
             if(log.isDebugEnabled()) {
@@ -391,13 +392,7 @@ public class GenericMgcpEndpoint implements MgcpEndpoint {
          */
         if (request.countSignals() == 0) {
             // List is empty. Cancel all ongoing events.
-            Iterator<String> keys = this.signals.keySet().iterator();
-            while (keys.hasNext()) {
-                MgcpSignal ongoing = this.signals.get(keys.next());
-                if (ongoing != null) {
-                    ongoing.cancel();
-                }
-            }
+            cancelSignals();
         } else {
             // Execute signals listed in RQNT and cancel remaining
             List<String> retained = new ArrayList<>(request.countSignals());
@@ -457,6 +452,16 @@ public class GenericMgcpEndpoint implements MgcpEndpoint {
                 log.debug("Canceling signal " + ongoing.toString() + " on endpoint " + getEndpointId().toString());
             }
             ongoing.cancel();
+        }
+    }
+    
+    /**
+     * Cancels any ongoing signal.
+     */
+    private void cancelSignals() {
+        Iterator<String> keys = this.signals.keySet().iterator();
+        while (keys.hasNext()) {
+            cancelSignal(keys.next());
         }
     }
 
