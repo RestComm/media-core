@@ -411,7 +411,14 @@ public class GenericMgcpEndpoint implements MgcpEndpoint {
                         
                         // Register and execute signal IF NOT duplicate
                         MgcpSignal original = this.signals.putIfAbsent(signalName, signal);
-                        if(original == null) {
+
+                        // Cancel ongoing signal if different from new signal
+                        if(original != null && !original.equals(signal)) {
+                            original.cancel();
+                        }
+                        
+                        // Execute new signal if there is no ongoing equivalent signal
+                        if(original == null || !original.equals(signal)) {
                             signal.observe(this);
                             signal.execute();
                         }
