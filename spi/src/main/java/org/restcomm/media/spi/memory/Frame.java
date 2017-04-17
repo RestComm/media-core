@@ -44,9 +44,11 @@ public class Frame {
     private volatile boolean eom;
     private volatile Format format;
     private volatile String header;
-    
-    protected AtomicBoolean inPartition=new AtomicBoolean(false);
-    
+
+    private long playoutOffset = -1;
+
+    protected AtomicBoolean inPartition = new AtomicBoolean(false);
+
     protected Frame(Partition partition, byte[] data) {
         this.partition = partition;
         this.data = data;
@@ -58,15 +60,15 @@ public class Frame {
         this.sn = 0;
         this.eom = false;
     }
-    
+
     public String getHeader() {
         return header;
     }
-    
+
     public void setHeader(String header) {
         this.header = header;
     }
-    
+
     public int getOffset() {
         return offset;
     }
@@ -74,7 +76,7 @@ public class Frame {
     public void setOffset(int offset) {
         this.offset = offset;
     }
-    
+
     public int getLength() {
         return length;
     }
@@ -98,12 +100,12 @@ public class Frame {
     public long getDuration() {
         return duration;
     }
-    
+
     public void setDuration(long duration) {
         this.duration = duration;
     }
 
-    public long getSequenceNumber(){
+    public long getSequenceNumber() {
         return sn;
     }
 
@@ -125,10 +127,18 @@ public class Frame {
 
     public void setFormat(Format format) {
         this.format = format;
-    }    
+    }
 
     public void recycle() {
         partition.recycle(this);
+    }
+
+    public long getPlayoutOffset() {
+        return playoutOffset;
+    }
+
+    public void setPlayoutOffset(long playoutOffset) {
+        this.playoutOffset = playoutOffset;
     }
 
     @Override
@@ -143,6 +153,7 @@ public class Frame {
         frame.format = format;
         frame.timestamp = timestamp;
         frame.header = header;
+        frame.playoutOffset = playoutOffset;
         return frame;
     }
 }
