@@ -30,66 +30,69 @@ import org.restcomm.media.spi.listener.TooManyListenersException;
  * @author kulikov
  */
 public interface DtmfDetector extends MediaSink {
+
     /**
      * Default level of the DTMF tone in decibells.
      */
-    public final static int DEFAULT_SIGNAL_LEVEL = -30;
-    /**
-     * Default interdigit time interval in millisconds.
-     */
-    public final static int DEFAULT_INTERDIGIT_INTERVAL = 500;
+    int DEFAULT_SIGNAL_LEVEL = -30;
 
     /**
-     * The time the system will wait between DTMF digits. 
-     * If this value is reached, the system fires dtmf event.
-     * 
-     * @param interval the time interval in millisconds.
+     * Default tone duration in milliseconds.
      */
-    public void setInterdigitInterval(int interval);
+    int DEFAULT_SIGNAL_DURATION = 80;
 
     /**
-     * The time the system will wait between DTMF digits. 
-     * If this value is reached, the system fires dtmf event.
-     * 
-     * @return  the time interval in millisconds.
+     * Default interdigit time interval in milliseconds.
      */
-    public int getInterdigitInterval();
+    int DEFAULT_INTERDIGIT_INTERVAL = 500;
 
     /**
-     * Describes the power level of the tone, expressed in dBm0
+     * The time the system will wait between DTMF digits. If this value is reached, the system fires DTMF event.
      * 
-     * @param level the value in dBm0
+     * @param interval the time interval in milliseconds.
      */
-    public void setVolume(int level);
+    void setInterdigitInterval(int interval);
+
+    /**
+     * The time the system will wait between DTMF digits. If this value is reached, the system fires DTMF event.
+     * 
+     * @return the time interval in milliseconds.
+     */
+    int getInterdigitInterval();
 
     /**
      * Describes the power level of the tone, expressed in dBm0
      * 
      * @return the value in dBm0
      */
-    public int getVolume();
-    
+    int getVolume();
+
     /**
      * Starts media processing.
      */
-    public void activate();
-    
+    @Override
+    void activate();
+
     /**
      * Terminates media processing.
      */
-    public void deactivate();
-    
+    @Override
+    void deactivate();
+
     /**
      * Flushes buffer.
      */
-    public void flushBuffer();
-    
+    void flushBuffer();
+
     /**
      * Clears buffer content.
      */
-    public void clearDigits();
-    
-    public void addListener(DtmfDetectorListener listener) throws TooManyListenersException;
-    public void removeListener(DtmfDetectorListener listener);
-    public void clearAllListeners();
+    void clearDigits();
+
+    void addListener(DtmfDetectorListener listener) throws TooManyListenersException;
+
+    void removeListener(DtmfDetectorListener listener);
+
+    void clearAllListeners();
+
 }

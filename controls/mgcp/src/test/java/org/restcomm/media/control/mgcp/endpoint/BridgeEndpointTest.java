@@ -37,7 +37,6 @@ import org.restcomm.media.control.mgcp.connection.LocalConnectionFactory;
 import org.restcomm.media.control.mgcp.connection.LocalConnectionPool;
 import org.restcomm.media.control.mgcp.connection.RtpConnectionFactory;
 import org.restcomm.media.control.mgcp.connection.RtpConnectionPool;
-import org.restcomm.media.control.mgcp.endpoint.BridgeEndpoint;
 import org.restcomm.media.control.mgcp.endpoint.connection.RTPEnvironment;
 import org.restcomm.media.control.mgcp.resources.ResourcesPool;
 import org.restcomm.media.resource.dtmf.DtmfDetectorFactory;
@@ -138,7 +137,7 @@ public class BridgeEndpointTest extends RTPEnvironment {
         this.playerPool = new AudioPlayerPool(0, playerFactory);
         this.recorderFactory = new AudioRecorderFactory(mediaScheduler);
         this.recorderPool = new AudioRecorderPool(0, recorderFactory);
-        this.dtmfDetectorFactory = new DtmfDetectorFactory(mediaScheduler);
+        this.dtmfDetectorFactory = new DtmfDetectorFactory(mediaScheduler, -36, 80);
         this.dtmfDetectorPool = new DtmfDetectorPool(0, dtmfDetectorFactory);
         this.dtmfGeneratorFactory = new DtmfGeneratorFactory(mediaScheduler);
         this.dtmfGeneratorPool = new DtmfGeneratorPool(0, dtmfGeneratorFactory);
@@ -183,10 +182,6 @@ public class BridgeEndpointTest extends RTPEnvironment {
 		dtmfDetectorRTP1 = (DtmfDetector) endpointRTP1.getResource(MediaType.AUDIO, ComponentType.DTMF_DETECTOR);
 		dtmfDetectorLocal1 = (DtmfDetector) endpointLocal1.getResource(MediaType.AUDIO, ComponentType.DTMF_DETECTOR);
 		dtmfDetectorLocal2 = (DtmfDetector) endpointLocal2.getResource(MediaType.AUDIO, ComponentType.DTMF_DETECTOR);
-		
-		dtmfDetectorRTP1.setVolume(-36);
-		dtmfDetectorLocal1.setVolume(-36);
-		dtmfDetectorLocal2.setVolume(-36);
 		
 		tonesReceivedAtRTP1 = new ConcurrentLinkedQueue<String>();
 		tonesReceivedAtLocal1 = new ConcurrentLinkedQueue<String>();
