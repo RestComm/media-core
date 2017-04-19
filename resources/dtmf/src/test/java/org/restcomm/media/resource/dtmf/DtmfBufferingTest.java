@@ -4,28 +4,21 @@
  */
 package org.restcomm.media.resource.dtmf;
 
-import java.io.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
-
 import org.restcomm.media.component.audio.AudioComponent;
 import org.restcomm.media.component.audio.AudioMixer;
 import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.component.oob.OOBMixer;
-import org.restcomm.media.resource.dtmf.DetectorImpl;
-import org.restcomm.media.resource.dtmf.GeneratorImpl;
 import org.restcomm.media.scheduler.Clock;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.WallClock;
 import org.restcomm.media.spi.dtmf.DtmfDetectorListener;
 import org.restcomm.media.spi.dtmf.DtmfEvent;
 import org.restcomm.media.spi.listener.TooManyListenersException;
-import org.restcomm.media.spi.memory.Frame;
 
 /**
  *
@@ -49,17 +42,6 @@ public class DtmfBufferingTest implements DtmfDetectorListener {
     
     private String tone;
     
-    public DtmfBufferingTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
-    
     @Before
     public void setUp() throws TooManyListenersException {
         clock = new WallClock();
@@ -72,9 +54,7 @@ public class DtmfBufferingTest implements DtmfDetectorListener {
         generator.setToneDuration(100);
         generator.setVolume(-20);
         
-        detector = new DetectorImpl("dtmf", scheduler);
-        detector.setVolume(-35);
-        detector.setDuration(40);
+        detector = new DetectorImpl("dtmf", -35, 40, scheduler);
         
         audioMixer=new AudioMixer(scheduler);
         

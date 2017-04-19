@@ -72,70 +72,81 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector, PooledOb
         formats.add(linear);
     }
 
-    /**
-     * The default duration of the DTMF tone.
-     */
-    private final static int TONE_DURATION = 80;
     public final static String[][] events = new String[][] { { "1", "2", "3", "A" }, { "4", "5", "6", "B" }, { "7", "8", "9", "C" }, { "*", "0", "#", "D" } };
-    // private final static String[] evtID = new String[]{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "#", "*"};
     private final static String[] oobEvtID = new String[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "#", "A", "B", "C", "D" };
 
     private final static int[] lowFreq = new int[] { 697, 770, 852, 941 };
     private final static int[] highFreq = new int[] { 1209, 1336, 1477, 1633 };
 
-    private GoertzelFilter[] lowFreqFilters = new GoertzelFilter[4];
-    private GoertzelFilter[] highFreqFilters = new GoertzelFilter[4];
+    private final GoertzelFilter[] lowFreqFilters = new GoertzelFilter[4];
+    private final GoertzelFilter[] highFreqFilters = new GoertzelFilter[4];
 
-    private double threshold = 0;
+    private final double threshold;
 
-    private int level;
-    private int offset = 0;
+    private final int level;
+    private int offset;
 
-    private int toneDuration = TONE_DURATION;
-    private int N = 8 * toneDuration;
+    private final int toneDuration;
+    private final int N;
+    private final double scale;
 
-    private double scale = (double) toneDuration / (double) 1000;
+    private final double p[];
+    private final double P[];
 
-    private double p[] = new double[4];
-    private double P[] = new double[4];
-
-    private double[] signal;
+    private final double[] signal;
     private double maxAmpl;
 
-    private DtmfBuffer dtmfBuffer;
+    private final DtmfBuffer dtmfBuffer;
 
-    private Listeners<DtmfDetectorListener> listeners = new Listeners<DtmfDetectorListener>();
+    private final Listeners<DtmfDetectorListener> listeners;
 
-    private EventSender eventSender;
-    private PriorityQueueScheduler scheduler;
+    private final EventSender eventSender;
+    private final PriorityQueueScheduler scheduler;
 
-    private AudioOutput output;
-    private OOBOutput oobOutput;
-    private OOBDetector oobDetector;
+    private final AudioOutput output;
+    private final OOBOutput oobOutput;
+    private final OOBDetector oobDetector;
 
     private static final Logger logger = Logger.getLogger(DetectorImpl.class);
 
-    public DetectorImpl(String name, PriorityQueueScheduler scheduler) {
+    public DetectorImpl(String name, int toneVolume, int toneDuration, PriorityQueueScheduler scheduler) {
         super(name);
-
+        
+        // Media Components
         this.scheduler = scheduler;
+        
+        this.output = new AudioOutput(scheduler, ComponentType.DTMF_DETECTOR.getType());
+        this.oobOutput = new OOBOutput(scheduler, ComponentType.DTMF_DETECTOR.getType());
+        this.output.join(this);
 
-        dtmfBuffer = new DtmfBuffer(this);
-        eventSender = new EventSender();
-
-        signal = new double[N];
+        this.oobDetector = new OOBDetector();
+        this.oobOutput.join(oobDetector);
+        
+        // DTMF Components
+        this.dtmfBuffer = new DtmfBuffer(this);
+        this.eventSender = new EventSender();
+        this.listeners = new Listeners<DtmfDetectorListener>();
+        
+        // Detector Configuration
+        this.level = toneVolume;
+        this.threshold = Math.pow(Math.pow(10, this.level), 0.1) * Short.MAX_VALUE;
+        this.toneDuration = toneDuration;
+        this.scale = toneDuration / 1000.0;
+        this.N = 8 * toneDuration;
+        this.signal = new double[N];
         for (int i = 0; i < 4; i++) {
-            lowFreqFilters[i] = new GoertzelFilter(lowFreq[i], N, scale);
-            highFreqFilters[i] = new GoertzelFilter(highFreq[i], N, scale);
+            this.lowFreqFilters[i] = new GoertzelFilter(lowFreq[i], N, scale);
+            this.highFreqFilters[i] = new GoertzelFilter(highFreq[i], N, scale);
         }
-        this.level = DEFAULT_SIGNAL_LEVEL;
-
-        output = new AudioOutput(scheduler, ComponentType.DTMF_DETECTOR.getType());
-        oobOutput = new OOBOutput(scheduler, ComponentType.DTMF_DETECTOR.getType());
-        output.join(this);
-
-        oobDetector = new OOBDetector();
-        oobOutput.join(oobDetector);
+        
+        // Runtime Detection
+        this.p = new double[4];
+        this.P = new double[4];
+        this.offset = 0;
+    }
+    
+    public DetectorImpl(String name, PriorityQueueScheduler scheduler) {
+        this(name, DEFAULT_SIGNAL_LEVEL, DEFAULT_SIGNAL_DURATION, scheduler);
     }
 
     public AudioOutput getAudioOutput() {
@@ -162,21 +173,8 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector, PooledOb
         oobOutput.stop();
     }
 
-    public void setDuration(int duartion) {
-        this.toneDuration = duartion;
-    }
-
     public int getDuration() {
         return this.toneDuration;
-    }
-
-    @Override
-    public void setVolume(int level) {
-        this.level = level;
-        threshold = Math.pow(Math.pow(10, level), 0.1) * Short.MAX_VALUE;
-    }
-
-    public void setLasy(boolean isLazy) {
     }
 
     @Override

@@ -21,6 +21,7 @@
 
 package org.restcomm.media.bootstrap.ioc.provider;
 
+import org.restcomm.media.core.configuration.MediaServerConfiguration;
 import org.restcomm.media.resource.dtmf.DetectorImpl;
 import org.restcomm.media.resource.dtmf.DtmfDetectorFactory;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
@@ -37,15 +38,19 @@ import com.google.inject.TypeLiteral;
 public class DtmfDetectorFactoryProvider implements Provider<DtmfDetectorFactory> {
 
     private final PriorityQueueScheduler mediaScheduler;
+    private final MediaServerConfiguration configuration;
 
     @Inject
-    public DtmfDetectorFactoryProvider(PriorityQueueScheduler mediaScheduler) {
+    public DtmfDetectorFactoryProvider(MediaServerConfiguration configuration, PriorityQueueScheduler mediaScheduler) {
         this.mediaScheduler = mediaScheduler;
+        this.configuration = configuration;
     }
 
     @Override
     public DtmfDetectorFactory get() {
-        return new DtmfDetectorFactory(this.mediaScheduler);
+        final int volume = this.configuration.getResourcesConfiguration().getDtmfDetectorDbi();
+        final int duration = this.configuration.getResourcesConfiguration().getDtmfDetectorToneDuration();
+        return new DtmfDetectorFactory(this.mediaScheduler, volume, duration);
     }
 
     public static final class DtmfDetectorFactoryType extends TypeLiteral<PooledObjectFactory<DetectorImpl>> {

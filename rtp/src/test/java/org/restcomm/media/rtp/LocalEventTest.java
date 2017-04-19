@@ -44,8 +44,6 @@ import org.restcomm.media.component.oob.OOBSplitter;
 import org.restcomm.media.network.deprecated.RtpPortManager;
 import org.restcomm.media.network.deprecated.UdpManager;
 import org.restcomm.media.resource.dtmf.DetectorImpl;
-import org.restcomm.media.rtp.ChannelsManager;
-import org.restcomm.media.rtp.LocalDataChannel;
 import org.restcomm.media.rtp.crypto.DtlsSrtpServer;
 import org.restcomm.media.rtp.crypto.DtlsSrtpServerProvider;
 import org.restcomm.media.scheduler.Clock;
@@ -120,9 +118,7 @@ public class LocalEventTest implements DtmfDetectorListener {
         channelsManager = new ChannelsManager(udpManager, mockedDtlsServerProvider);
         channelsManager.setScheduler(mediaScheduler);
         
-        detector = new DetectorImpl("dtmf", mediaScheduler);
-        detector.setVolume(-35);
-        detector.setDuration(40);
+        detector = new DetectorImpl("dtmf", -35, 40, mediaScheduler);
         detector.addListener(this);
         
         channel1 = channelsManager.getLocalChannel();

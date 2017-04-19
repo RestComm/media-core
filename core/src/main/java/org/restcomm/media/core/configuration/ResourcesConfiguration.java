@@ -29,18 +29,21 @@ package org.restcomm.media.core.configuration;
 public class ResourcesConfiguration {
 
     public static final int DTMF_DETECTOR_DBI = -35;
+    public static final int DTMF_DETECTOR_TONE_DURATION = 80;
     public static final int DTMF_GENERATOR_TONE_VOLUME = -20;
     public static final int DTMF_GENERATOR_TONE_DURATION = 80;
     public static final int PLAYER_CACHE_SIZE = 0;
     public static final boolean PLAYER_CACHE_ENABLED = false;
 
     private int dtmfDetectorDbi;
+    private int dtmfDetectorToneDuration;
     private int dtmfGeneratorToneVolume;
     private int dtmfGeneratorToneDuration;
     private int playerCacheSize;
 
     public ResourcesConfiguration() {
         this.dtmfDetectorDbi = DTMF_DETECTOR_DBI;
+        this.dtmfDetectorToneDuration = DTMF_DETECTOR_TONE_DURATION;
         this.dtmfGeneratorToneVolume = DTMF_GENERATOR_TONE_VOLUME;
         this.dtmfGeneratorToneDuration = DTMF_GENERATOR_TONE_DURATION;
         this.playerCacheSize = PLAYER_CACHE_SIZE;
@@ -55,6 +58,17 @@ public class ResourcesConfiguration {
             throw new IllegalArgumentException("DTMF Detector Dbi must be negative and greater than -36");
         }
         this.dtmfDetectorDbi = dtmfDetectorDbi;
+    }
+    
+    public int getDtmfDetectorToneDuration() {
+        return dtmfDetectorToneDuration;
+    }
+
+    public void setDtmfDetectorToneDuration(int dtmfDetectorToneDuration) {
+        if (dtmfDetectorToneDuration < 0) {
+            throw new IllegalArgumentException("DTMF Detector Tone Duration cannot be negative");
+        }
+        this.dtmfDetectorToneDuration = dtmfDetectorToneDuration;
     }
 
     public int getDtmfGeneratorToneVolume() {

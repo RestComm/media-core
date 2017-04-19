@@ -24,6 +24,7 @@ package org.restcomm.media.resource.dtmf;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.spi.dtmf.DtmfDetector;
 import org.restcomm.media.spi.pooling.PooledObjectFactory;
 
 /**
@@ -36,27 +37,23 @@ public class DtmfDetectorFactory implements PooledObjectFactory<DetectorImpl> {
     /** Global ID generator for DTMF detectors */
     private static final AtomicInteger ID = new AtomicInteger(1);
 
-    /** Default volume for detectors **/
-    private static final int DEFAULT_DETECTOR_DBI = -35;
-
     private final PriorityQueueScheduler mediaScheduler;
-    private int volume;
+    private final int volume;
+    private final int duration;
 
-    public DtmfDetectorFactory(PriorityQueueScheduler mediaScheduler, int volume) {
+    public DtmfDetectorFactory(PriorityQueueScheduler mediaScheduler, int volume, int duration) {
         this.mediaScheduler = mediaScheduler;
         this.volume = volume;
+        this.duration = duration;
     }
 
     public DtmfDetectorFactory(PriorityQueueScheduler mediaScheduler) {
-        this.mediaScheduler = mediaScheduler;
-        this.volume = DEFAULT_DETECTOR_DBI;
+        this(mediaScheduler, DtmfDetector.DEFAULT_SIGNAL_LEVEL, DtmfDetector.DEFAULT_SIGNAL_DURATION);
     }
 
     @Override
     public DetectorImpl produce() {
-        DetectorImpl detector = new DetectorImpl("detector-" + ID.getAndIncrement(), mediaScheduler);
-        detector.setVolume(this.volume);
-        return detector;
+        return new DetectorImpl("detector-" + ID.getAndIncrement(), this.volume, this.duration, mediaScheduler);
     }
 
 }
