@@ -16,11 +16,15 @@ configAudioCache() {
 
 configDtmfDetector() {
     readonly dbi=${1--30}
+    readonly duration=${2-80}
 
-    echo "Configuring DTMF Detector [Dbi=$dbi]"
+    echo "Configuring DTMF Detector [Dbi=$dbi, Tone Duration=$duration]"
 
-    xmlstarlet ed --inplace --pf -u "/mediaserver/resources/dtmfDetector/@dbi" -v "$dbi" $MS_HOME/conf/mediaserver.xml
+    xmlstarlet ed --inplace --pf \
+        -u "/mediaserver/resources/dtmfDetector/@dbi" -v "$dbi" \
+        -u "/mediaserver/resources/dtmfDetector/@toneDuration" -v "$duration" \
+        $MS_HOME/conf/mediaserver.xml
 }
 
 configAudioCache $AUDIO_CACHE_ENABLED $AUDIO_CACHE_SIZE
-configDtmfDetector $DTMF_DETECTOR_DBI
+configDtmfDetector $DTMF_DETECTOR_DBI $DTMF_DETECTOR_TONE_DURATION
