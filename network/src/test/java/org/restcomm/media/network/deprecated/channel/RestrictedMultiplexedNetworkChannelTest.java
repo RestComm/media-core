@@ -34,7 +34,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.restcomm.media.network.deprecated.channel.MultiplexedNetworkChannel;
 import org.restcomm.media.network.deprecated.channel.NetworkChannel;
-import org.restcomm.media.network.deprecated.channel.NetworkGuard;
 import org.restcomm.media.network.deprecated.channel.PacketHandler;
 
 import static org.mockito.Mockito.*;

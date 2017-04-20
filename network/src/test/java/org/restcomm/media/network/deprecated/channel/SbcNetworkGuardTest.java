@@ -27,7 +27,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.restcomm.media.network.deprecated.channel.NetworkChannel;
-import org.restcomm.media.network.deprecated.channel.NetworkGuard;
 import org.restcomm.media.network.deprecated.channel.SbcNetworkGuard;
 
 /**

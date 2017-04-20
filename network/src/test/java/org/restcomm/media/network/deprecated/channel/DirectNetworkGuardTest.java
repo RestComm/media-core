@@ -28,7 +28,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.restcomm.media.network.deprecated.channel.DirectNetworkGuard;
 import org.restcomm.media.network.deprecated.channel.NetworkChannel;
-import org.restcomm.media.network.deprecated.channel.NetworkGuard;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
