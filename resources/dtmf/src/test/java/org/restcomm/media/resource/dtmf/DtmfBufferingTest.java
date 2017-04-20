@@ -54,7 +54,7 @@ public class DtmfBufferingTest implements DtmfDetectorListener {
         generator.setToneDuration(100);
         generator.setVolume(-20);
         
-        detector = new DetectorImpl("dtmf", -35, 40, scheduler);
+        detector = new DetectorImpl("dtmf", -35, 40, 100, scheduler);
         
         audioMixer=new AudioMixer(scheduler);
         

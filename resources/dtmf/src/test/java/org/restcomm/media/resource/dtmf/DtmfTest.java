@@ -54,7 +54,7 @@ public class DtmfTest implements DtmfDetectorListener {
         generator.setToneDuration(500);
         generator.setVolume(-20);
         
-        detector = new DetectorImpl("dtmf", -35, 40, scheduler);
+        detector = new DetectorImpl("dtmf", -35, 40, 500, scheduler);
         
         detector.addListener(this);
         

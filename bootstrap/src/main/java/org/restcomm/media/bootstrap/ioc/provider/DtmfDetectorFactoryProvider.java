@@ -50,7 +50,8 @@ public class DtmfDetectorFactoryProvider implements Provider<DtmfDetectorFactory
     public DtmfDetectorFactory get() {
         final int volume = this.configuration.getResourcesConfiguration().getDtmfDetectorDbi();
         final int duration = this.configuration.getResourcesConfiguration().getDtmfDetectorToneDuration();
-        return new DtmfDetectorFactory(this.mediaScheduler, volume, duration);
+        final int interval = this.configuration.getResourcesConfiguration().getDtmfDetectorToneInterval();
+        return new DtmfDetectorFactory(this.mediaScheduler, volume, duration, interval);
     }
 
     public static final class DtmfDetectorFactoryType extends TypeLiteral<PooledObjectFactory<DetectorImpl>> {

@@ -49,13 +49,6 @@ public interface DtmfDetector extends MediaSink {
     /**
      * The time the system will wait between DTMF digits. If this value is reached, the system fires DTMF event.
      * 
-     * @param interval the time interval in milliseconds.
-     */
-    void setInterdigitInterval(int interval);
-
-    /**
-     * The time the system will wait between DTMF digits. If this value is reached, the system fires DTMF event.
-     * 
      * @return the time interval in milliseconds.
      */
     int getInterdigitInterval();

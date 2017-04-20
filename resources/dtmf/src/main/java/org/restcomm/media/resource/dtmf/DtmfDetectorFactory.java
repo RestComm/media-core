@@ -40,20 +40,22 @@ public class DtmfDetectorFactory implements PooledObjectFactory<DetectorImpl> {
     private final PriorityQueueScheduler mediaScheduler;
     private final int volume;
     private final int duration;
+    private final int interval;
 
-    public DtmfDetectorFactory(PriorityQueueScheduler mediaScheduler, int volume, int duration) {
+    public DtmfDetectorFactory(PriorityQueueScheduler mediaScheduler, int volume, int duration, int interval) {
         this.mediaScheduler = mediaScheduler;
         this.volume = volume;
         this.duration = duration;
+        this.interval = interval;
     }
 
     public DtmfDetectorFactory(PriorityQueueScheduler mediaScheduler) {
-        this(mediaScheduler, DtmfDetector.DEFAULT_SIGNAL_LEVEL, DtmfDetector.DEFAULT_SIGNAL_DURATION);
+        this(mediaScheduler, DtmfDetector.DEFAULT_SIGNAL_LEVEL, DtmfDetector.DEFAULT_SIGNAL_DURATION, DtmfDetector.DEFAULT_INTERDIGIT_INTERVAL);
     }
 
     @Override
     public DetectorImpl produce() {
-        return new DetectorImpl("detector-" + ID.getAndIncrement(), this.volume, this.duration, mediaScheduler);
+        return new DetectorImpl("detector-" + ID.getAndIncrement(), this.volume, this.duration, this.interval, mediaScheduler);
     }
 
 }

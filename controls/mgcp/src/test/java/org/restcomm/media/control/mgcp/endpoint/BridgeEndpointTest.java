@@ -137,7 +137,7 @@ public class BridgeEndpointTest extends RTPEnvironment {
         this.playerPool = new AudioPlayerPool(0, playerFactory);
         this.recorderFactory = new AudioRecorderFactory(mediaScheduler);
         this.recorderPool = new AudioRecorderPool(0, recorderFactory);
-        this.dtmfDetectorFactory = new DtmfDetectorFactory(mediaScheduler, -36, 80);
+        this.dtmfDetectorFactory = new DtmfDetectorFactory(mediaScheduler, -36, 80, 500);
         this.dtmfDetectorPool = new DtmfDetectorPool(0, dtmfDetectorFactory);
         this.dtmfGeneratorFactory = new DtmfGeneratorFactory(mediaScheduler);
         this.dtmfGeneratorPool = new DtmfGeneratorPool(0, dtmfGeneratorFactory);
