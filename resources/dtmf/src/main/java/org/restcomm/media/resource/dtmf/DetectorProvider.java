@@ -37,17 +37,19 @@ public class DetectorProvider implements DtmfDetectorProvider {
     private final AtomicInteger id;
     private final int volume;
     private final int duration;
+    private final int interval;
 
-    public DetectorProvider(PriorityQueueScheduler scheduler, int volume, int duration) {
+    public DetectorProvider(PriorityQueueScheduler scheduler, int volume, int duration, int interval) {
         this.scheduler = scheduler;
         this.id = new AtomicInteger(0);
         this.volume = volume;
         this.duration = duration;
+        this.interval = interval;
     }
 
     @Override
     public DtmfDetector provide() {
-        DetectorImpl detector = new DetectorImpl(nextId(), this.volume, this.duration, this.scheduler);
+        DetectorImpl detector = new DetectorImpl(nextId(), this.volume, this.duration, this.interval, this.scheduler);
         return detector;
     }
 

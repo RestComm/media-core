@@ -149,7 +149,7 @@ public class RTPEventTest implements DtmfDetectorListener {
         channelsManager = new ChannelsManager(udpManager, mockedDtlsServerProvider);
         channelsManager.setScheduler(mediaScheduler);
         
-        detector = new DetectorImpl("dtmf", -35, 40, mediaScheduler);
+        detector = new DetectorImpl("dtmf", -35, 40, 100, mediaScheduler);
         detector.addListener(this);
         
         channel = channelsManager.getChannel();

@@ -49,7 +49,8 @@ public class DtmfDetectorProviderProvider implements Provider<DtmfDetectorProvid
     public DtmfDetectorProvider get() {
         int volume = this.configuration.getResourcesConfiguration().getDtmfDetectorDbi();
         int duration = this.configuration.getResourcesConfiguration().getDtmfDetectorToneDuration();
-        return new DetectorProvider(scheduler, volume, duration);
+        int interval = this.configuration.getResourcesConfiguration().getDtmfDetectorToneInterval();
+        return new DetectorProvider(scheduler, volume, duration, interval);
     }
 
 }

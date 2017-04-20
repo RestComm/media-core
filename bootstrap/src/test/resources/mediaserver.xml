@@ -50,7 +50,7 @@
 				<cacheEnabled>true</cacheEnabled>
 			</cache>
 		</player>
-		<dtmfDetector dbi="-25" toneDuration="80" />
+		<dtmfDetector dbi="-25" toneDuration="100" toneInterval="400" />
 		<dtmfGenerator toneVolume="-25" toneDuration="100" />
 	</resources>
 	

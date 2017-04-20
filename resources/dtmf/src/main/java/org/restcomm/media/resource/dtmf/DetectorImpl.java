@@ -87,6 +87,7 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector, PooledOb
     private int offset;
 
     private final int toneDuration;
+    private final int toneInterval;
     private final int N;
     private final double scale;
 
@@ -95,6 +96,9 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector, PooledOb
 
     private final double[] signal;
     private double maxAmpl;
+    private String lastTone;
+    private long elapsedTime;
+    private volatile boolean waiting;
 
     private final DtmfBuffer dtmfBuffer;
 
@@ -109,7 +113,7 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector, PooledOb
 
     private static final Logger logger = Logger.getLogger(DetectorImpl.class);
 
-    public DetectorImpl(String name, int toneVolume, int toneDuration, PriorityQueueScheduler scheduler) {
+    public DetectorImpl(String name, int toneVolume, int toneDuration, int toneInterval, PriorityQueueScheduler scheduler) {
         super(name);
         
         // Media Components
@@ -124,6 +128,7 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector, PooledOb
         
         // DTMF Components
         this.dtmfBuffer = new DtmfBuffer(this);
+        this.dtmfBuffer.setInterdigitInterval(toneInterval);
         this.eventSender = new EventSender();
         this.listeners = new Listeners<DtmfDetectorListener>();
         
@@ -131,6 +136,7 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector, PooledOb
         this.level = toneVolume;
         this.threshold = Math.pow(Math.pow(10, this.level), 0.1) * Short.MAX_VALUE;
         this.toneDuration = toneDuration;
+        this.toneInterval = toneInterval;
         this.scale = toneDuration / 1000.0;
         this.N = 8 * toneDuration;
         this.signal = new double[N];
@@ -143,10 +149,13 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector, PooledOb
         this.p = new double[4];
         this.P = new double[4];
         this.offset = 0;
+        this.lastTone = "";
+        this.elapsedTime = 0;
+        this.waiting = false;
     }
     
     public DetectorImpl(String name, PriorityQueueScheduler scheduler) {
-        this(name, DEFAULT_SIGNAL_LEVEL, DEFAULT_SIGNAL_DURATION, scheduler);
+        this(name, DEFAULT_SIGNAL_LEVEL, DEFAULT_SIGNAL_DURATION, DEFAULT_INTERDIGIT_INTERVAL, scheduler);
     }
 
     public AudioOutput getAudioOutput() {
@@ -161,6 +170,9 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector, PooledOb
     public void activate() {
         this.offset = 0;
         this.maxAmpl = 0;
+        this.lastTone = "";
+        this.elapsedTime = 0;
+        this.waiting = false;
 
         this.dtmfBuffer.clear();
         output.start();
@@ -184,6 +196,22 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector, PooledOb
 
     @Override
     public void onMediaTransfer(Frame buffer) throws IOException {
+        // If Detector is in WAITING state, then drop packets
+        // until a period of data (based on frame duration accumulation) elapses.
+        if (waiting) {
+            this.elapsedTime += buffer.getDuration();
+            this.waiting = (this.elapsedTime < this.toneInterval * 1000000);
+
+            if (waiting) {
+                return;
+            } else {
+                if (logger.isTraceEnabled()) {
+                    logger.trace(
+                            "Waiting: " + waiting + " [last tone=" + this.lastTone + ", elapsed time=" + elapsedTime + "]");
+                }
+            }
+        }
+        
         byte[] data = buffer.getData();
 
         int M = buffer.getLength();
@@ -202,7 +230,7 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector, PooledOb
             if (offset == N) {
                 offset = 0;
 
-                // and if max amplitude of signal is greater theshold
+                // and if max amplitude of signal is greater threshold
                 // try to detect tone.
                 if (maxAmpl >= threshold) {
                     maxAmpl = 0;
@@ -212,8 +240,19 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector, PooledOb
 
                     String tone = getTone(p, P);
 
-                    if (tone != null)
+                    if (tone != null) {
+                        // Keep reference to latest identified tone
+                        this.elapsedTime = 0;
+                        this.lastTone = tone;
+                        this.waiting = true;
+
+                        if (logger.isTraceEnabled()) {
+                            logger.trace("Waiting: " + waiting + " [last tone=" + this.lastTone + ", elapsed time=" + elapsedTime + "]");
+                        }
+
+                        // Push tone into DTMF buffer
                         dtmfBuffer.push(tone);
+                    }
                 }
             }
         }
@@ -295,21 +334,9 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector, PooledOb
         return formats;
     }
 
-    public String getMask() {
-        return null;
-    }
-
-    public void setMask(String mask) {
-    }
-
-    @Override
-    public void setInterdigitInterval(int interval) {
-        dtmfBuffer.setInterdigitInterval(interval);
-    }
-
     @Override
     public int getInterdigitInterval() {
-        return dtmfBuffer.getInterdigitInterval();
+        return this.toneInterval;
     }
 
     protected void fireEvent(String tone) {
