@@ -19,28 +19,24 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.network.deprecated.channel;
+package org.restcomm.media.network.netty.filter;
 
 import java.net.InetSocketAddress;
 
+import io.netty.channel.Channel;
+
 /**
- * Guards a {@link NetworkChannel} by deciding whether remote sources are secure or not. The channel must not handle packets
- * that the Guard deems insecure.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
- * @deprecated use {@link org.restcomm.media.network.netty.filter.NetworkGuard}
  */
-@Deprecated
-public interface NetworkGuard {
+public class DirectNetworkGuard implements NetworkGuard {
 
-    /**
-     * Decides whether a remote peer is secure or not.
-     * 
-     * @param channel The channel who received the packet.
-     * @param source The address of the remote peer.
-     * @return Returns true if source is considered secure; otherwise, returns false.
-     */
-    boolean isSecure(NetworkChannel channel, InetSocketAddress source);
+    @Override
+    public boolean isSecure(Channel channel, InetSocketAddress source) {
+        if (channel.isActive()) {
+            return channel.remoteAddress().equals(source);
+        }
+        return false;
+    }
 
 }

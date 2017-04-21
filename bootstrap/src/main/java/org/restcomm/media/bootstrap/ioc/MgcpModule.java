@@ -27,6 +27,7 @@ import org.restcomm.media.bootstrap.ioc.provider.mgcp.AsyncMgcpChannelProvider;
 import org.restcomm.media.bootstrap.ioc.provider.mgcp.DynamicMgcpPackageManagerProvider;
 import org.restcomm.media.bootstrap.ioc.provider.mgcp.GlobalMgcpEventProviderProvider;
 import org.restcomm.media.bootstrap.ioc.provider.mgcp.GlobalMgcpTransactionManagerProvider;
+import org.restcomm.media.bootstrap.ioc.provider.mgcp.LocalNetworkGuardProvider;
 import org.restcomm.media.bootstrap.ioc.provider.mgcp.MediaGroupProviderProvider;
 import org.restcomm.media.bootstrap.ioc.provider.mgcp.Mgcp2ControllerProvider;
 import org.restcomm.media.bootstrap.ioc.provider.mgcp.MgcpChannelInboundHandlerProvider;
@@ -57,12 +58,14 @@ import org.restcomm.media.control.mgcp.pkg.r.RtpEventProvider;
 import org.restcomm.media.control.mgcp.transaction.MgcpTransactionManager;
 import org.restcomm.media.control.mgcp.transaction.MgcpTransactionManagerProvider;
 import org.restcomm.media.control.mgcp.transaction.MgcpTransactionNumberspace;
+import org.restcomm.media.network.netty.filter.NetworkGuard;
 import org.restcomm.media.spi.ServerManager;
 
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
+import com.google.inject.name.Names;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -92,6 +95,7 @@ public class MgcpModule extends AbstractModule {
         bind(MediaGroupProvider.class).toProvider(MediaGroupProviderProvider.class).in(Singleton.class);
         bind(ListeningScheduledExecutorService.class).toProvider(ListeningScheduledExecutorServiceProvider.class).in(Singleton.class);
         bind(ListeningExecutorService.class).to(ListeningScheduledExecutorService.class);
+        bind(NetworkGuard.class).annotatedWith(Names.named("mgcpNetworkGuard")).toProvider(LocalNetworkGuardProvider.class).in(Singleton.class);
     }
 
 }

@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
+ * Copyright 2011-2017, Telestax Inc and individual contributors
  * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
@@ -18,33 +18,34 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
-package org.restcomm.media.network.deprecated.channel;
+        
+package org.restcomm.media.network.netty.filter;
 
 import java.net.InetSocketAddress;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.restcomm.media.network.deprecated.channel.DirectNetworkGuard;
-import org.restcomm.media.network.deprecated.channel.NetworkChannel;
+
+import io.netty.channel.Channel;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
 public class DirectNetworkGuardTest {
+    
 
     @Test
     public void testSecureSource() {
         // given
         final InetSocketAddress remoteAddress = new InetSocketAddress("192.168.1.22", 2727);
-        final NetworkChannel channel = Mockito.mock(NetworkChannel.class);
+        final Channel channel = Mockito.mock(Channel.class);
         final NetworkGuard guard = new DirectNetworkGuard();
 
         // when
-        Mockito.when(channel.isConnected()).thenReturn(true);
-        Mockito.when(channel.getRemoteAddress()).thenReturn(remoteAddress);
+        Mockito.when(channel.isActive()).thenReturn(true);
+        Mockito.when(channel.remoteAddress()).thenReturn(remoteAddress);
 
         final boolean secure = guard.isSecure(channel, remoteAddress);
 
@@ -57,12 +58,12 @@ public class DirectNetworkGuardTest {
         // given
         final InetSocketAddress remoteAddress = new InetSocketAddress("192.168.1.22", 2727);
         final InetSocketAddress unknownRemoteAddress = new InetSocketAddress("232.122.55.20", 2727);
-        final NetworkChannel channel = Mockito.mock(NetworkChannel.class);
+        final Channel channel = Mockito.mock(Channel.class);
         final NetworkGuard guard = new DirectNetworkGuard();
 
         // when
-        Mockito.when(channel.isConnected()).thenReturn(true);
-        Mockito.when(channel.getRemoteAddress()).thenReturn(remoteAddress);
+        Mockito.when(channel.isActive()).thenReturn(true);
+        Mockito.when(channel.remoteAddress()).thenReturn(remoteAddress);
 
         final boolean secure = guard.isSecure(channel, unknownRemoteAddress);
 
@@ -71,14 +72,14 @@ public class DirectNetworkGuardTest {
     }
 
     @Test
-    public void testInsecureSourceWithDisconnectedChannel() {
+    public void testInsecureSourceWithDisActiveChannel() {
         // given
         final InetSocketAddress remoteAddress = new InetSocketAddress("192.168.1.22", 2727);
-        final NetworkChannel channel = Mockito.mock(NetworkChannel.class);
+        final Channel channel = Mockito.mock(Channel.class);
         final NetworkGuard guard = new DirectNetworkGuard();
 
         // when
-        Mockito.when(channel.isConnected()).thenReturn(false);
+        Mockito.when(channel.isActive()).thenReturn(false);
 
         final boolean secure = guard.isSecure(channel, remoteAddress);
 

@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
+ * Copyright 2011-2017, Telestax Inc and individual contributors
  * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
@@ -19,21 +19,21 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.network.deprecated.channel;
+package org.restcomm.media.network.netty.filter;
 
 import java.net.InetSocketAddress;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.restcomm.media.network.deprecated.channel.NetworkChannel;
-import org.restcomm.media.network.deprecated.channel.RestrictedNetworkGuard;
+
+import io.netty.channel.Channel;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RestrictedNetworkGuardTest {
+public class LocalNetworkGuardTest {
 
     @Test
     public void testSecureSource() {
@@ -41,8 +41,8 @@ public class RestrictedNetworkGuardTest {
         final String subnet = "255.255.255.0";
         final String network = "192.168.1.0";
         final InetSocketAddress remoteAddress = new InetSocketAddress("192.168.1.22", 2727);
-        final NetworkChannel channel = Mockito.mock(NetworkChannel.class);
-        final NetworkGuard guard = new RestrictedNetworkGuard(network, subnet);
+        final Channel channel = Mockito.mock(Channel.class);
+        final NetworkGuard guard = new LocalNetworkGuard(network, subnet);
 
         // when
         final boolean secure = guard.isSecure(channel, remoteAddress);
@@ -57,8 +57,8 @@ public class RestrictedNetworkGuardTest {
         final String subnet = "255.255.255.0";
         final String network = "192.168.1.0";
         final InetSocketAddress remoteAddress = new InetSocketAddress("192.168.2.4", 2727);
-        final NetworkChannel channel = Mockito.mock(NetworkChannel.class);
-        final NetworkGuard guard = new RestrictedNetworkGuard(network, subnet);
+        final Channel channel = Mockito.mock(Channel.class);
+        final NetworkGuard guard = new LocalNetworkGuard(network, subnet);
 
         // when
         final boolean secure = guard.isSecure(channel, remoteAddress);

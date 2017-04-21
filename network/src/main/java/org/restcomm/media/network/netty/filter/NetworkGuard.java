@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
+ * Copyright 2011-2017, Telestax Inc and individual contributors
  * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
@@ -19,19 +19,21 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.network.deprecated.channel;
+package org.restcomm.media.network.netty.filter;
 
 import java.net.InetSocketAddress;
 
+import org.restcomm.media.network.api.NetworkChannel;
+
+import io.netty.channel.Channel;
+
 /**
- * Guards a {@link NetworkChannel} by deciding whether remote sources are secure or not. The channel must not handle packets
- * that the Guard deems insecure.
+ * Guards a {@link NetworkChannel} by deciding whether remote sources are secure or not. The channel must drop packets that the
+ * Filter deems insecure.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
- * @deprecated use {@link org.restcomm.media.network.netty.filter.NetworkGuard}
  */
-@Deprecated
 public interface NetworkGuard {
 
     /**
@@ -41,6 +43,6 @@ public interface NetworkGuard {
      * @param source The address of the remote peer.
      * @return Returns true if source is considered secure; otherwise, returns false.
      */
-    boolean isSecure(NetworkChannel channel, InetSocketAddress source);
+    boolean isSecure(Channel channel, InetSocketAddress source);
 
 }

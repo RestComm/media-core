@@ -83,10 +83,20 @@ public class AsyncNettyNetworkChannel<M> implements AsynchronousNetworkChannel<M
                 return false;
         }
     }
+    
+    @Override
+    public SocketAddress getLocalAddress() {
+        return isBound() ? this.context.getLocalAddress() : null;
+    }
 
     @Override
     public boolean isConnected() {
         return NettyNetworkChannelState.CONNECTED.equals(this.fsm.getCurrentState());
+    }
+    
+    @Override
+    public SocketAddress getRemoteAddress() {
+        return isConnected() ? this.context.getRemoteAddress() : null;
     }
 
     @Override
