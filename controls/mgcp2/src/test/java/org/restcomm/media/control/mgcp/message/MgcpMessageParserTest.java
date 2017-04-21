@@ -61,6 +61,33 @@ public class MgcpMessageParserTest {
         assertEquals("mobicents/ivr/$@127.0.0.1:2427", request.getParameter(MgcpParameterType.SECOND_ENDPOINT));
     }
 
+    /**
+     * Patch for https://github.com/RestComm/mediaserver/pull/420
+     */
+    @Test
+    public void testParseCrcxRequestWithWhitespaceBetweenParameters() throws MgcpParseException {
+        // given
+        StringBuilder builder = new StringBuilder();
+        builder.append("CRCX 147483653 mobicents/bridge/$@127.0.0.1:2427 MGCP 1.0").append(System.lineSeparator());
+        builder.append("C: 1").append(System.lineSeparator());
+        builder.append("M: sendrecv").append(System.lineSeparator());
+        builder.append("N: restcomm@127.0.0.1:2727").append(System.lineSeparator());
+        builder.append("Z2: mobicents/ivr/$@127.0.0.1:2427");
+        MgcpMessageParser parser = new MgcpMessageParser();
+        
+        // when
+        MgcpRequest request = parser.parseRequest(builder.toString());
+        
+        // then
+        assertEquals(MgcpRequestType.CRCX, request.getRequestType());
+        assertEquals(147483653, request.getTransactionId());
+        assertEquals("mobicents/bridge/$@127.0.0.1:2427", request.getEndpointId());
+        assertEquals("1", request.getParameter(MgcpParameterType.CALL_ID));
+        assertEquals("sendrecv", request.getParameter(MgcpParameterType.MODE));
+        assertEquals("restcomm@127.0.0.1:2727", request.getParameter(MgcpParameterType.NOTIFIED_ENTITY));
+        assertEquals("mobicents/ivr/$@127.0.0.1:2427", request.getParameter(MgcpParameterType.SECOND_ENDPOINT));
+    }
+
     @Test
     public void testParseCrcxRequestWithSdp() throws MgcpParseException {
         // given
