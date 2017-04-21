@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2017, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
@@ -18,39 +18,25 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
-package org.restcomm.media.network.common.filter;
+
+package org.restcomm.media.network.netty.filter;
 
 import java.net.InetSocketAddress;
 
-import org.restcomm.media.network.api.NetworkChannel;
-import org.restcomm.media.network.api.NetworkFilter;
-
-import io.netty.handler.ipfilter.IpFilterRule;
-import io.netty.handler.ipfilter.IpFilterRuleType;
+import io.netty.channel.Channel;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class SbcNetworkFilter implements NetworkFilter, IpFilterRule {
+public class DirectNetworkGuard implements NetworkGuard {
 
     @Override
-    public boolean isSecure(NetworkChannel<?> channel, InetSocketAddress source) {
-        // TODO Auto-generated method stub
+    public boolean isSecure(Channel channel, InetSocketAddress source) {
+        if (channel.isActive()) {
+            return channel.remoteAddress().equals(source);
+        }
         return false;
-    }
-
-    @Override
-    public boolean matches(InetSocketAddress remoteAddress) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public IpFilterRuleType ruleType() {
-        // TODO Auto-generated method stub
-        return null;
     }
 
 }

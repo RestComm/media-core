@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
+ * Copyright 2011-2017, Telestax Inc and individual contributors
  * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
@@ -19,35 +19,37 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.network.deprecated.netty.handler;
+package org.restcomm.media.network.netty.handler;
+
+import org.restcomm.media.network.netty.filter.NetworkGuard;
 
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.ReferenceCountUtil;
 
 /**
- * Handles a server-side channel that ignores all incoming data.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class DiscardServerHandler extends ChannelInboundHandlerAdapter {
+public class NetworkFilter extends SimpleChannelInboundHandler<DatagramPacket> {
 
-    @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        try {
-            // Do something
-        } finally {
-            // Discard the received data silently.
-            ReferenceCountUtil.release(msg);
-        }
+    private final NetworkGuard guard;
+
+    public NetworkFilter(NetworkGuard guard) {
+        super(false);
+        this.guard = guard;
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        // Close the connection when an exception is raised.
-        cause.printStackTrace();
-        ctx.close();
+    protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket msg) throws Exception {
+        boolean secure = guard.isSecure(ctx.channel(), msg.sender());
+        if (secure) {
+            // Allow the packet to pass to next handler in pipeline for processing
+            ctx.fireChannelRead(msg);
+        } else {
+            ReferenceCountUtil.release(msg);
+        }
     }
 
 }

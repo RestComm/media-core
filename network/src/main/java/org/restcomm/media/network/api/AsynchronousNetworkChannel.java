@@ -38,10 +38,14 @@ public interface AsynchronousNetworkChannel<M> {
     void close(FutureCallback<Void> callback);
 
     boolean isBound();
+    
+    SocketAddress getLocalAddress();
 
     void bind(SocketAddress localAddress, FutureCallback<Void> callback);
 
     boolean isConnected();
+    
+    SocketAddress getRemoteAddress();
 
     void connect(SocketAddress remoteAddress, FutureCallback<Void> callback);
 

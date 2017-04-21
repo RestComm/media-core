@@ -19,9 +19,13 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.network.api;
+package org.restcomm.media.network.netty.filter;
 
 import java.net.InetSocketAddress;
+
+import org.restcomm.media.network.api.NetworkChannel;
+
+import io.netty.channel.Channel;
 
 /**
  * Guards a {@link NetworkChannel} by deciding whether remote sources are secure or not. The channel must drop packets that the
@@ -30,7 +34,7 @@ import java.net.InetSocketAddress;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface NetworkFilter {
+public interface NetworkGuard {
 
     /**
      * Decides whether a remote peer is secure or not.
@@ -39,6 +43,6 @@ public interface NetworkFilter {
      * @param source The address of the remote peer.
      * @return Returns true if source is considered secure; otherwise, returns false.
      */
-    boolean isSecure(NetworkChannel<?> channel, InetSocketAddress source);
+    boolean isSecure(Channel channel, InetSocketAddress source);
 
 }
