@@ -45,6 +45,8 @@ public class Frame {
     private volatile Format format;
     private volatile String header;
     
+    private long playoutOffset = -1;
+    
     protected AtomicBoolean inPartition=new AtomicBoolean(false);
     
     protected Frame(Partition partition, byte[] data) {
@@ -131,6 +133,14 @@ public class Frame {
         partition.recycle(this);
     }
 
+    public long getPlayoutOffset() {
+        return playoutOffset;
+    }
+
+    public void setPlayoutOffset(long playoutOffset) {
+        this.playoutOffset = playoutOffset;
+    }
+    
     @Override
     public Frame clone() {
         Frame frame = Memory.allocate(data.length);
@@ -143,6 +153,7 @@ public class Frame {
         frame.format = format;
         frame.timestamp = timestamp;
         frame.header = header;
+        frame.playoutOffset = playoutOffset;
         return frame;
     }
 }
