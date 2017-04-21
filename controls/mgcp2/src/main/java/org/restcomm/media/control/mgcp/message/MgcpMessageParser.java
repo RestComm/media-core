@@ -141,7 +141,7 @@ public class MgcpMessageParser {
                     // Add parameter
                     int separatorIndex = line.indexOf(":");
                     MgcpParameterType type = MgcpParameterType.fromCode(line.substring(0, separatorIndex));
-                    message.addParameter(type, line.substring(separatorIndex + 1));
+                    message.addParameter(type, line.substring(separatorIndex + 1).trim());
                 }
             }
         }
