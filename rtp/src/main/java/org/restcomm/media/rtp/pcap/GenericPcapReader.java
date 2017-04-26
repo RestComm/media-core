@@ -21,19 +21,26 @@
         
 package org.restcomm.media.rtp.pcap;
 
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelInitializer;
+import java.io.DataInputStream;
+import java.io.IOException;
+
+import net.ripe.hadoop.pcap.PcapReader;
+import net.ripe.hadoop.pcap.packet.Packet;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class PcapChannelInitializer extends ChannelInitializer<Channel> {
+public class GenericPcapReader extends PcapReader {
+    
+    public final static String PAYLOAD = "payload";
 
-    @Override
-    protected void initChannel(Channel ch) throws Exception {
-        // TODO Auto-generated method stub
-        
+    public GenericPcapReader(DataInputStream is) throws IOException {
+        super(is);
     }
     
+    protected void processPacketPayload(Packet packet, byte[] payload) {
+        packet.put(PAYLOAD, payload);
+    }
+
 }

@@ -40,8 +40,8 @@ import net.ripe.hadoop.pcap.packet.Packet;
  */
 public class PcapFile implements Closeable {
 
-    private static final String PCAP_REGEX = ".+p?cap(.gz(ip)?)?";
-    private static final String GZIP_REGEX = ".gz(ip)?";
+    private static final String PCAP_REGEX = ".+\\.p?cap(.gz(ip)?)?";
+    private static final String GZIP_REGEX = ".+\\.gz(ip)?";
 
     private final URL path;
     private final boolean compressed;
@@ -56,13 +56,17 @@ public class PcapFile implements Closeable {
         this.path = path;
         this.compressed = path.toString().matches(GZIP_REGEX);
     }
+    
+    public URL getPath() {
+        return path;
+    }
 
     public void open() throws IOException {
         this.inputStream = this.path.openStream();
         if (this.compressed) {
             this.inputStream = new GZIPInputStream(inputStream);
         }
-        this.reader = new RtpPcapReader(new DataInputStream(inputStream));
+        this.reader = new GenericPcapReader(new DataInputStream(inputStream));
     }
 
     public Packet read() {
@@ -76,7 +80,7 @@ public class PcapFile implements Closeable {
     }
     
     public boolean isComplete() {
-        return this.reader.iterator().hasNext();
+        return !this.reader.iterator().hasNext();
     }
 
     @Override

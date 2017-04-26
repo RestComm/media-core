@@ -18,29 +18,28 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
+
 package org.restcomm.media.rtp.pcap;
 
-import java.io.DataInputStream;
-import java.io.IOException;
-
-import net.ripe.hadoop.pcap.PcapReader;
-import net.ripe.hadoop.pcap.packet.Packet;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelInitializer;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpPcapReader extends PcapReader {
-    
-    public final static String RTP_PAYLOAD = "rtp_payload";
+public class AsyncPcapChannelHandler extends ChannelInitializer<Channel> {
 
-    public RtpPcapReader(DataInputStream is) throws IOException {
-        super(is);
+    private final PcapPacketEncoder encoder;
+
+    public AsyncPcapChannelHandler(PcapPacketEncoder encoder) {
+        super();
+        this.encoder = encoder;
     }
-    
-    protected void processPacketPayload(Packet packet, byte[] payload) {
-        packet.put(RTP_PAYLOAD, payload);
+
+    @Override
+    protected void initChannel(Channel ch) throws Exception {
+        ch.pipeline().addFirst(this.encoder);
     }
 
 }

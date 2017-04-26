@@ -45,9 +45,9 @@ import net.ripe.hadoop.pcap.packet.Packet;
  * @author Ivelin Ivanov <ivelin.ivanov@telestax.com>
  *
  */
-public class PcapRtpPlayer {
+public class PcapPlayer {
 
-    private static final Logger log = Logger.getLogger(PcapRtpPlayer.class);
+    private static final Logger log = Logger.getLogger(PcapPlayerTest.class);
 
     // Core Components
     private final ListeningScheduledExecutorService scheduler;
@@ -60,7 +60,7 @@ public class PcapRtpPlayer {
     private final PcapPlayerContext context;
     private Future<?> playerFuture;
 
-    public PcapRtpPlayer(AsyncPcapChannel channel, ListeningScheduledExecutorService scheduler) {
+    public PcapPlayer(AsyncPcapChannel channel, ListeningScheduledExecutorService scheduler) {
         // Core Components
         this.scheduler = scheduler;
 
@@ -121,12 +121,20 @@ public class PcapRtpPlayer {
             if (this.playerFuture != null) {
                 this.playerFuture.cancel(false);
             }
+
             // Close file
             try {
                 this.context.getPcapFile().close();
             } catch (IOException e) {
                 log.warn("Could not close PCAP file " + context.getPcapFile().toString(), e);
             }
+            if (log.isDebugEnabled()) {
+                log.debug("Stopped playing PCAP " + context.getPcapFile().getPath());
+            }
+
+            // Reset execution context
+            this.context.reset();
+
         }
     }
 
@@ -150,8 +158,7 @@ public class PcapRtpPlayer {
 
                 // Update statistics
                 context.setSuspendedPcapPacket(null);
-                context.setLastPacketTimestamp((long) packet.get(Packet.TIMESTAMP));
-                context.setLastPacketPlaybackTimestamp((long) packet.get(Packet.TIMESTAMP_MICROS));
+                context.setLastPacketTimestamp((long) packet.get(Packet.TIMESTAMP) * 1000000L + (long) packet.get(Packet.TIMESTAMP_MICROS));
 
                 if (pcap.isComplete()) {
                     // Stop playing if no more packets are available
@@ -161,12 +168,11 @@ public class PcapRtpPlayer {
                     Packet nextPacket = pcap.read();
                     context.setSuspendedPcapPacket(nextPacket);
 
-                    long nowMicros = System.nanoTime() / 1000;
+//                    long nowMicros = System.nanoTime() / 1000;
                     long nextPacketTimestampSeconds = (long) nextPacket.get(Packet.TIMESTAMP);
                     long nextPacketTimestampMicros = (long) nextPacket.get(Packet.TIMESTAMP_MICROS);
                     long nextPacketTimestamp = nextPacketTimestampSeconds * 1000000L + nextPacketTimestampMicros;
-                    suspensionTime = ((nextPacketTimestamp - context.getLastPacketTimestamp())
-                            - (nowMicros - context.getLastPacketPlaybackTimestamp()));
+                    suspensionTime = nextPacketTimestamp - context.getLastPacketTimestamp();
 
                     if (log.isDebugEnabled()) {
                         log.debug("Suspending PCAP packet playback for " + suspensionTime
@@ -210,6 +216,10 @@ public class PcapRtpPlayer {
                 log.trace("Failed to send PCAP RTP packet to remote peer", t);
             }
         }
+    }
+
+    public boolean isPlaying() {
+        return this.playing.get();
     }
 
 }
