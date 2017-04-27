@@ -158,7 +158,8 @@ public class PcapPlayer {
 
                 // Update statistics
                 context.setSuspendedPcapPacket(null);
-                context.setLastPacketTimestamp((long) packet.get(Packet.TIMESTAMP) * 1000000L + (long) packet.get(Packet.TIMESTAMP_MICROS));
+                context.setLastPacketPlaybackTimestamp((long) packet.get(Packet.TIMESTAMP) * 1000000L + (long) packet.get(Packet.TIMESTAMP_MICROS));
+                context.setLastPacketTimestamp(System.nanoTime() / 1000L);
             }
             return suspensionTime;
         }
@@ -193,10 +194,21 @@ public class PcapPlayer {
                 Packet nextPacket = pcap.read();
                 context.setSuspendedPcapPacket(nextPacket);
 
-                long nextPacketTimestampSeconds = (long) nextPacket.get(Packet.TIMESTAMP);
-                long nextPacketTimestampMicros = (long) nextPacket.get(Packet.TIMESTAMP_MICROS);
-                long nextPacketTimestamp = nextPacketTimestampSeconds * 1000000L + nextPacketTimestampMicros;
-                long suspensionTime = nextPacketTimestamp - context.getLastPacketTimestamp();
+                long nextPacketPlaybackTimestampSeconds = (long) nextPacket.get(Packet.TIMESTAMP);
+                long nextPacketPlaybackTimestampMicros = (long) nextPacket.get(Packet.TIMESTAMP_MICROS);
+                long nextPacketPlaybackTimestamp = nextPacketPlaybackTimestampSeconds * 1000000L + nextPacketPlaybackTimestampMicros;
+                long nextPacketTimestamp = System.nanoTime() / 1000L;
+                
+                long timestampWindowframe = nextPacketTimestamp - context.getLastPacketTimestamp();
+                log.info("timestampWindowframe = " + nextPacketTimestamp + " - " + context.getLastPacketTimestamp() + " = " + timestampWindowframe);
+                long playbackWindowframe = nextPacketPlaybackTimestamp - context.getLastPacketPlaybackTimestamp();
+                log.info("playbackWindowframe = " + nextPacketPlaybackTimestamp + " - " + context.getLastPacketPlaybackTimestamp() + " = " + playbackWindowframe);
+                long suspensionTime = playbackWindowframe - timestampWindowframe;
+                log.info("suspensionTime = " + playbackWindowframe + " - " + timestampWindowframe + " = " + suspensionTime);
+                double latencyCompensation = suspensionTime * context.getLatencyCompensationFactor();
+                log.info("latencyCompensation = " + suspensionTime + " * " + context.getLatencyCompensationFactor() + " = " + latencyCompensation);
+                suspensionTime -= latencyCompensation;
+                log.info("REAL suspensionTime = " + suspensionTime + " - " + latencyCompensation + " = " + suspensionTime);
                 
                 scheduleRead(suspensionTime, TimeUnit.MICROSECONDS);
             }

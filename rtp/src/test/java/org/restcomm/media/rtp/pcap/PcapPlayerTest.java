@@ -98,7 +98,7 @@ public class PcapPlayerTest {
         
         URL pcap = PcapPlayerTest.class.getResource(filepath);
         player.play(pcap);
-        Thread.sleep(5000);
+        Thread.sleep(9000);
         Assert.assertTrue(player.isPlaying());
     }
     

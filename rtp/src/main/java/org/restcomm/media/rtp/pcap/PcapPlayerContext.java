@@ -55,12 +55,15 @@ public class PcapPlayerContext {
      */
     private Packet suspendedPcapPacket;
 
+    private double latencyCompensationFactor;
+
     public PcapPlayerContext() {
         this.pcapFile = null;
         this.pcapInputStream = null;
         this.lastPacketTimestamp = 0;
         this.lastPacketPlaybackTimestamp = -1 * 0xFFFFFFFFL;
         this.suspendedPcapPacket = null;
+        this.latencyCompensationFactor = 0.15;
     }
 
     public PcapFile getPcapFile() {
@@ -101,6 +104,14 @@ public class PcapPlayerContext {
 
     public void setSuspendedPcapPacket(Packet suspendedPcapPacket) {
         this.suspendedPcapPacket = suspendedPcapPacket;
+    }
+
+    public double getLatencyCompensationFactor() {
+        return latencyCompensationFactor;
+    }
+
+    public void setLatencyCompensationFactor(double latencyCompensationFactor) {
+        this.latencyCompensationFactor = latencyCompensationFactor;
     }
 
     public void reset() {
