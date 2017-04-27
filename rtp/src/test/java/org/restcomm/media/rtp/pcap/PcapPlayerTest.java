@@ -55,7 +55,7 @@ public class PcapPlayerTest {
     
     @Before
     public void before() {
-        ScheduledThreadPoolExecutor executor = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(3);
+        ScheduledThreadPoolExecutor executor = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(5);
         executor.prestartAllCoreThreads();
         executor.setRemoveOnCancelPolicy(true);
         scheduler = MoreExecutors.listeningDecorator(executor);

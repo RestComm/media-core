@@ -88,6 +88,9 @@ public class PcapPlayer {
     }
 
     private void scheduleRead(long time, TimeUnit unit) {
+        if (log.isDebugEnabled()) {
+            log.debug("Scheduled PCAP packet playback for " + time + " " + unit.name());
+        }
         ListenableScheduledFuture<Long> future = this.scheduler.schedule(new PlayerWorker(), time, unit);
         Futures.addCallback(future, new PlayerWorkerCallback(), this.scheduler);
     }
@@ -110,8 +113,7 @@ public class PcapPlayer {
         } else {
             Packet packet = pcap.read();
             this.context.setSuspendedPcapPacket(packet);
-            ListenableScheduledFuture<Long> future = this.scheduler.schedule(new PlayerWorker(), 0L, TimeUnit.MICROSECONDS);
-            Futures.addCallback(future, new PlayerWorkerCallback(), this.scheduler);
+            scheduleRead(0L, TimeUnit.MICROSECONDS);
         }
     }
 
@@ -150,8 +152,6 @@ public class PcapPlayer {
         public Long call() {
             long suspensionTime = -1L;
             if (playing.get()) {
-                PcapFile pcap = context.getPcapFile();
-
                 // Send scheduled packet over the wire
                 Packet packet = context.getSuspendedPcapPacket();
                 channel.send(packet, this.sendCallback);
@@ -159,26 +159,6 @@ public class PcapPlayer {
                 // Update statistics
                 context.setSuspendedPcapPacket(null);
                 context.setLastPacketTimestamp((long) packet.get(Packet.TIMESTAMP) * 1000000L + (long) packet.get(Packet.TIMESTAMP_MICROS));
-
-                if (pcap.isComplete()) {
-                    // Stop playing if no more packets are available
-                    stop();
-                } else {
-                    // Schedule next packet
-                    Packet nextPacket = pcap.read();
-                    context.setSuspendedPcapPacket(nextPacket);
-
-//                    long nowMicros = System.nanoTime() / 1000;
-                    long nextPacketTimestampSeconds = (long) nextPacket.get(Packet.TIMESTAMP);
-                    long nextPacketTimestampMicros = (long) nextPacket.get(Packet.TIMESTAMP_MICROS);
-                    long nextPacketTimestamp = nextPacketTimestampSeconds * 1000000L + nextPacketTimestampMicros;
-                    suspensionTime = nextPacketTimestamp - context.getLastPacketTimestamp();
-
-                    if (log.isDebugEnabled()) {
-                        log.debug("Suspending PCAP packet playback for " + suspensionTime
-                                + " microseconds in order to simulate recorded pcap packet timestamp difference.");
-                    }
-                }
             }
             return suspensionTime;
         }
@@ -189,7 +169,7 @@ public class PcapPlayer {
 
         @Override
         public void onSuccess(Long result) {
-            scheduleRead(result, TimeUnit.MICROSECONDS);
+            // TODO do something here
         }
 
         @Override
@@ -202,12 +182,32 @@ public class PcapPlayer {
     }
 
     private final class ChannelSendCallback implements FutureCallback<Void> {
+        
+        private void scheduleNextRead() {
+            PcapFile pcap = context.getPcapFile();
+            if (pcap.isComplete()) {
+                // Stop playing if no more packets are available
+                stop();
+            } else {
+                // Schedule next packet
+                Packet nextPacket = pcap.read();
+                context.setSuspendedPcapPacket(nextPacket);
+
+                long nextPacketTimestampSeconds = (long) nextPacket.get(Packet.TIMESTAMP);
+                long nextPacketTimestampMicros = (long) nextPacket.get(Packet.TIMESTAMP_MICROS);
+                long nextPacketTimestamp = nextPacketTimestampSeconds * 1000000L + nextPacketTimestampMicros;
+                long suspensionTime = nextPacketTimestamp - context.getLastPacketTimestamp();
+                
+                scheduleRead(suspensionTime, TimeUnit.MICROSECONDS);
+            }
+        }
 
         @Override
         public void onSuccess(Void result) {
             if (log.isTraceEnabled()) {
                 log.trace("Sent PCAP RTP packet to remote peer");
             }
+            scheduleNextRead();
         }
 
         @Override
@@ -215,6 +215,7 @@ public class PcapPlayer {
             if (log.isTraceEnabled()) {
                 log.trace("Failed to send PCAP RTP packet to remote peer", t);
             }
+            scheduleNextRead();
         }
     }
 
