@@ -55,7 +55,14 @@ public class PcapPlayerContext {
      */
     private Packet suspendedPcapPacket;
 
+    /**
+     * By taking into account network or app latency, the use can weight this factor that can be used to reduce transmission
+     * time thus meeting the PCAP playback timings.
+     */
     private double latencyCompensationFactor;
+
+    private int packetsSent;
+    private int octetsSent;
 
     public PcapPlayerContext() {
         this.pcapFile = null;
@@ -64,6 +71,9 @@ public class PcapPlayerContext {
         this.lastPacketPlaybackTimestamp = -1 * 0xFFFFFFFFL;
         this.suspendedPcapPacket = null;
         this.latencyCompensationFactor = 0.15;
+
+        this.packetsSent = 0;
+        this.octetsSent = 0;
     }
 
     public PcapFile getPcapFile() {
@@ -114,12 +124,27 @@ public class PcapPlayerContext {
         this.latencyCompensationFactor = latencyCompensationFactor;
     }
 
+    public int getPacketsSent() {
+        return packetsSent;
+    }
+
+    public int getOctetsSent() {
+        return octetsSent;
+    }
+
+    public void packetSent(Packet packet) {
+        this.packetsSent++;
+        this.octetsSent += (int) packet.get(Packet.UDP_LENGTH);
+    }
+
     public void reset() {
         this.pcapFile = null;
         this.pcapInputStream = null;
         this.lastPacketTimestamp = 0;
         this.lastPacketPlaybackTimestamp = -1 * 0xFFFFFFFFL;
         this.suspendedPcapPacket = null;
+        this.packetsSent = 0;
+        this.octetsSent = 0;
     }
 
 }

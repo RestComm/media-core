@@ -18,7 +18,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
+
 package org.restcomm.media.rtp.pcap;
 
 import static org.mockito.Mockito.mock;
@@ -27,8 +27,10 @@ import static org.mockito.Mockito.verify;
 
 import java.net.InetSocketAddress;
 import java.net.URL;
+import java.nio.channels.DatagramChannel;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -50,44 +52,101 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
  *
  */
 public class PcapPlayerTest {
-    
+
+    private ScheduledThreadPoolExecutor executor;
     private ListeningScheduledExecutorService scheduler;
-    
+    private NioEventLoopGroup eventGroup;
+    private Bootstrap bootstrap;
+    private NettyNetworkManager networkManager;
+    private AsyncPcapChannel channel;
+    private PcapPlayer player;
+    private DatagramChannel remotePeer;
+
     @Before
     public void before() {
-        ScheduledThreadPoolExecutor executor = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(5);
-        executor.prestartAllCoreThreads();
-        executor.setRemoveOnCancelPolicy(true);
-        scheduler = MoreExecutors.listeningDecorator(executor);
+        this.executor = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(5);
+        this.executor.prestartAllCoreThreads();
+        this.executor.setRemoveOnCancelPolicy(true);
+
+        this.scheduler = MoreExecutors.listeningDecorator(executor);
+
+        this.eventGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors(), scheduler);
+        this.bootstrap = new Bootstrap().channel(NioDatagramChannel.class).group(eventGroup);
+
+        this.networkManager = new NettyNetworkManager(bootstrap);
     }
-    
+
+    @SuppressWarnings("unchecked")
     @After
     public void after() {
-        scheduler.shutdown();
-        scheduler = null;
+        if (player != null) {
+            if (player.isPlaying()) {
+                player.stop();
+            }
+            player = null;
+        }
+
+        if (channel != null) {
+            if (channel.isOpen()) {
+                channel.close(mock(FutureCallback.class));
+            }
+            channel = null;
+        }
+
+        this.networkManager = null;
+        this.bootstrap = null;
+        
+        if(this.eventGroup != null) {
+            if(!this.eventGroup.isShutdown()) {
+                this.eventGroup.shutdownGracefully(0L, 0L, TimeUnit.NANOSECONDS);
+            }
+            this.eventGroup = null;
+        }
+        
+        if(this.scheduler != null) {
+            if(!this.scheduler.isShutdown()) {
+                scheduler.shutdown();
+            }
+            scheduler = null;
+        }
+        
+        if(this.executor != null) {
+            if(!this.executor.isShutdown()) {
+                this.executor.shutdown();
+            }
+            this.executor = null;
+        }
     }
-    
+
     @SuppressWarnings("unchecked")
     @Test
     public void testPlayToneOneOutOfBand() throws Exception {
         // given
-        InetSocketAddress localAddress = new InetSocketAddress("127.0.0.1", 64001);
+        int rtpEventPacketCount = 35;
+        int rtpEventPacketLength = 24;
+        int rtpPacketCount = 39;
+        int rtpPacketLength = 180;
+        long rtpStreamDuration = 900;
+        int totalOctets = (rtpEventPacketLength * rtpEventPacketCount) + (rtpPacketCount * rtpPacketLength);
+        int totalPackets = rtpEventPacketCount + rtpPacketCount;
+        InetSocketAddress localAddress = new InetSocketAddress("127.0.0.1", 64000);
         InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 65000);
-        
-        final String filepath = "dtmf-oob-two-hash.cap.gz";
-        final NioEventLoopGroup eventGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors(), scheduler);
-        final PcapPacketEncoder packetEncoder = new PcapPacketEncoder();
-        final AsyncPcapChannelHandler channelInitializer = new AsyncPcapChannelHandler(packetEncoder);
-        final Bootstrap bootstrap = new Bootstrap().channel(NioDatagramChannel.class).group(eventGroup).handler(channelInitializer);
-        final NettyNetworkManager networkManager = new NettyNetworkManager(bootstrap);
-        final NettyNetworkChannelGlobalContext context = new NettyNetworkChannelGlobalContext(networkManager);
-        final AsyncPcapChannel channel = new AsyncPcapChannel(context);
-        final PcapPlayer player = new PcapPlayer(channel, scheduler);
-        
+
+        String filepath = "dtmf-oob-one-hash.cap.gz";
+        PcapPacketEncoder packetEncoder = new PcapPacketEncoder();
+        AsyncPcapChannelHandler channelInitializer = new AsyncPcapChannelHandler(packetEncoder);
+        bootstrap.handler(channelInitializer);
+        NettyNetworkChannelGlobalContext context = new NettyNetworkChannelGlobalContext(networkManager);
+        channel = new AsyncPcapChannel(context);
+        player = new PcapPlayer(channel, scheduler);
+
         FutureCallback<Void> openCallback = mock(FutureCallback.class);
         FutureCallback<Void> bindCallback = mock(FutureCallback.class);
         FutureCallback<Void> connectCallback = mock(FutureCallback.class);
         
+//        remotePeer = DatagramChannel.open();
+//        remotePeer.bind(remoteAddress);
+
         // when
         channel.open(openCallback);
         verify(openCallback, timeout(100)).onSuccess(null);
@@ -95,12 +154,16 @@ public class PcapPlayerTest {
         verify(bindCallback, timeout(100)).onSuccess(null);
         channel.connect(remoteAddress, connectCallback);
         verify(connectCallback, timeout(100)).onSuccess(null);
-        
+
         URL pcap = PcapPlayerTest.class.getResource(filepath);
         player.play(pcap);
-        Thread.sleep(9000);
+
+        // then
         Assert.assertTrue(player.isPlaying());
+        Thread.sleep(rtpStreamDuration);
+        Assert.assertFalse(player.isPlaying());
+        Assert.assertEquals(totalPackets, player.countPacketsSent());
+        Assert.assertEquals(totalOctets, player.countOctetsSent());
     }
-    
 
 }

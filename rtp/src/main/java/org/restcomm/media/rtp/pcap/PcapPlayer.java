@@ -24,7 +24,6 @@ package org.restcomm.media.rtp.pcap;
 import java.io.IOException;
 import java.net.URL;
 import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -47,7 +46,7 @@ import net.ripe.hadoop.pcap.packet.Packet;
  */
 public class PcapPlayer {
 
-    private static final Logger log = Logger.getLogger(PcapPlayerTest.class);
+    private static final Logger log = Logger.getLogger(PcapPlayer.class);
 
     // Core Components
     private final ListeningScheduledExecutorService scheduler;
@@ -58,7 +57,6 @@ public class PcapPlayer {
     // Execution Context
     private final AtomicBoolean playing;
     private final PcapPlayerContext context;
-    private Future<?> playerFuture;
 
     public PcapPlayer(AsyncPcapChannel channel, ListeningScheduledExecutorService scheduler) {
         // Core Components
@@ -91,7 +89,8 @@ public class PcapPlayer {
         if (log.isDebugEnabled()) {
             log.debug("Scheduled PCAP packet playback for " + time + " " + unit.name());
         }
-        ListenableScheduledFuture<Long> future = this.scheduler.schedule(new PlayerWorker(), time, unit);
+
+        ListenableScheduledFuture<Packet> future = this.scheduler.schedule(new PlayerWorker(), time, TimeUnit.MICROSECONDS);
         Futures.addCallback(future, new PlayerWorkerCallback(), this.scheduler);
     }
 
@@ -99,6 +98,9 @@ public class PcapPlayer {
         if (this.playing.get()) {
             throw new IllegalStateException("PCAP Player is busy.");
         }
+        
+        // Reset execution context
+        this.context.reset();
 
         // Load pcap and store it in context
         PcapFile pcap = loadFile(filepath);
@@ -119,11 +121,6 @@ public class PcapPlayer {
 
     public void stop() {
         if (this.playing.compareAndSet(true, false)) {
-            // Stop reading from file
-            if (this.playerFuture != null) {
-                this.playerFuture.cancel(false);
-            }
-
             // Close file
             try {
                 this.context.getPcapFile().close();
@@ -133,14 +130,10 @@ public class PcapPlayer {
             if (log.isDebugEnabled()) {
                 log.debug("Stopped playing PCAP " + context.getPcapFile().getPath());
             }
-
-            // Reset execution context
-            this.context.reset();
-
         }
     }
 
-    private final class PlayerWorker implements Callable<Long> {
+    private final class PlayerWorker implements Callable<Packet> {
 
         private final ChannelSendCallback sendCallback;
 
@@ -149,11 +142,11 @@ public class PcapPlayer {
         }
 
         @Override
-        public Long call() {
-            long suspensionTime = -1L;
+        public Packet call() {
+            Packet packet = null;
             if (playing.get()) {
                 // Send scheduled packet over the wire
-                Packet packet = context.getSuspendedPcapPacket();
+                packet = context.getSuspendedPcapPacket();
                 channel.send(packet, this.sendCallback);
 
                 // Update statistics
@@ -161,16 +154,24 @@ public class PcapPlayer {
                 context.setLastPacketPlaybackTimestamp((long) packet.get(Packet.TIMESTAMP) * 1000000L + (long) packet.get(Packet.TIMESTAMP_MICROS));
                 context.setLastPacketTimestamp(System.nanoTime() / 1000L);
             }
-            return suspensionTime;
+            return packet;
         }
 
     }
 
-    private final class PlayerWorkerCallback implements FutureCallback<Long> {
+    private final class PlayerWorkerCallback implements FutureCallback<Packet> {
 
         @Override
-        public void onSuccess(Long result) {
-            // TODO do something here
+        public void onSuccess(Packet result) {
+            if(result != null) {
+                context.packetSent(result);
+                if(log.isTraceEnabled()) {
+                    int packetsSent = context.getPacketsSent();
+                    int octetsSent = context.getOctetsSent();
+                    URL pcapPath = context.getPcapFile().getPath();
+                    log.info("PCAP Playback Statistics for "+ pcapPath.toString() +" [packets_sent = " + packetsSent + ", octets sent=" + octetsSent+"]");
+                }
+            }
         }
 
         @Override
@@ -183,11 +184,14 @@ public class PcapPlayer {
     }
 
     private final class ChannelSendCallback implements FutureCallback<Void> {
-        
+
         private void scheduleNextRead() {
             PcapFile pcap = context.getPcapFile();
             if (pcap.isComplete()) {
                 // Stop playing if no more packets are available
+                if(log.isDebugEnabled()) {
+                    log.debug("Reached end of PCAP " + pcap.getPath().toString() + ". Player will stop.");
+                }
                 stop();
             } else {
                 // Schedule next packet
@@ -198,18 +202,13 @@ public class PcapPlayer {
                 long nextPacketPlaybackTimestampMicros = (long) nextPacket.get(Packet.TIMESTAMP_MICROS);
                 long nextPacketPlaybackTimestamp = nextPacketPlaybackTimestampSeconds * 1000000L + nextPacketPlaybackTimestampMicros;
                 long nextPacketTimestamp = System.nanoTime() / 1000L;
-                
+
                 long timestampWindowframe = nextPacketTimestamp - context.getLastPacketTimestamp();
-                log.info("timestampWindowframe = " + nextPacketTimestamp + " - " + context.getLastPacketTimestamp() + " = " + timestampWindowframe);
                 long playbackWindowframe = nextPacketPlaybackTimestamp - context.getLastPacketPlaybackTimestamp();
-                log.info("playbackWindowframe = " + nextPacketPlaybackTimestamp + " - " + context.getLastPacketPlaybackTimestamp() + " = " + playbackWindowframe);
                 long suspensionTime = playbackWindowframe - timestampWindowframe;
-                log.info("suspensionTime = " + playbackWindowframe + " - " + timestampWindowframe + " = " + suspensionTime);
                 double latencyCompensation = suspensionTime * context.getLatencyCompensationFactor();
-                log.info("latencyCompensation = " + suspensionTime + " * " + context.getLatencyCompensationFactor() + " = " + latencyCompensation);
                 suspensionTime -= latencyCompensation;
-                log.info("REAL suspensionTime = " + suspensionTime + " - " + latencyCompensation + " = " + suspensionTime);
-                
+
                 scheduleRead(suspensionTime, TimeUnit.MICROSECONDS);
             }
         }
@@ -219,7 +218,9 @@ public class PcapPlayer {
             if (log.isTraceEnabled()) {
                 log.trace("Sent PCAP RTP packet to remote peer");
             }
-            scheduleNextRead();
+            if (playing.get()) {
+                scheduleNextRead();
+            }
         }
 
         @Override
@@ -227,12 +228,22 @@ public class PcapPlayer {
             if (log.isTraceEnabled()) {
                 log.trace("Failed to send PCAP RTP packet to remote peer", t);
             }
-            scheduleNextRead();
+            if (playing.get()) {
+                scheduleNextRead();
+            }
         }
     }
 
     public boolean isPlaying() {
         return this.playing.get();
+    }
+    
+    public int countPacketsSent() {
+        return context.getPacketsSent();
+    }
+    
+    public int countOctetsSent() {
+        return context.getOctetsSent();
     }
 
 }
