@@ -209,7 +209,7 @@ public class PcapPlayer {
                 double latencyCompensation = suspensionTime * context.getLatencyCompensationFactor();
                 suspensionTime -= latencyCompensation;
 
-                scheduleRead(suspensionTime, TimeUnit.MICROSECONDS);
+                scheduleRead(Math.max(0, suspensionTime), TimeUnit.MICROSECONDS);
             }
         }
 

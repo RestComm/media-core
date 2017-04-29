@@ -25,7 +25,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.net.URL;
 import java.nio.channels.DatagramChannel;
 import java.util.concurrent.Executors;
@@ -96,6 +98,14 @@ public class PcapPlayerTest {
             }
             channel = null;
         }
+        
+        if(remotePeer != null) {
+            try {
+                remotePeer.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
         this.networkManager = null;
         this.bootstrap = null;
@@ -121,6 +131,17 @@ public class PcapPlayerTest {
             this.executor = null;
         }
     }
+    
+    private DatagramChannel openRemotePeer(SocketAddress address) throws IOException {
+        DatagramChannel datagramChannel = DatagramChannel.open();
+        try {
+            datagramChannel.bind(address);
+        } catch (Exception e) {
+            datagramChannel.close();
+            throw e;
+        }
+        return datagramChannel;
+    }
 
     @SuppressWarnings("unchecked")
     @Test
@@ -142,15 +163,13 @@ public class PcapPlayerTest {
         bootstrap.handler(channelInitializer);
         NettyNetworkChannelGlobalContext context = new NettyNetworkChannelGlobalContext(networkManager);
         channel = new AsyncPcapChannel(context);
+        remotePeer = openRemotePeer(remoteAddress);
         player = new PcapPlayer(channel, scheduler);
 
         FutureCallback<Void> openCallback = mock(FutureCallback.class);
         FutureCallback<Void> bindCallback = mock(FutureCallback.class);
         FutureCallback<Void> connectCallback = mock(FutureCallback.class);
         
-//        remotePeer = DatagramChannel.open();
-//        remotePeer.bind(remoteAddress);
-
         // when
         channel.open(openCallback);
         verify(openCallback, timeout(100)).onSuccess(null);
