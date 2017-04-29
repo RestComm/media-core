@@ -21,6 +21,11 @@
 		</dependency>
 		<dependency>
 			<groupId>org.restcomm.media</groupId>
+			<artifactId>pcap</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.restcomm.media</groupId>
 			<artifactId>sdp</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -59,20 +64,7 @@
 			<artifactId>commons-net</artifactId>
 			<version>3.3</version>
 		</dependency>
-		<!-- Hadoop Pcap project home: https://github.com/RIPE-NCC/hadoop-pcap -->
-		<dependency>
-			<groupId>net.ripe.hadoop.pcap</groupId>
-			<artifactId>hadoop-pcap-lib</artifactId>
-			<version>1.1</version>
-		</dependency>
 	</dependencies>
-
-	<repositories>
-		<repository>
-			<id>hadoop-pcap</id>
-			<url>http://dl.bintray.com/hadoop-pcap/hadoop-pcap</url>
-		</repository>
-	</repositories>
 
 	<build>
 		<plugins>

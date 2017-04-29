@@ -19,7 +19,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.rtp.pcap;
+package org.restcomm.media.pcap;
 
 import org.restcomm.media.network.netty.channel.AsyncNettyNetworkChannel;
 import org.restcomm.media.network.netty.channel.NettyNetworkChannelGlobalContext;

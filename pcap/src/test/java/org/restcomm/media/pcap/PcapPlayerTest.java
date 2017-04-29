@@ -19,7 +19,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.rtp.pcap;
+package org.restcomm.media.pcap;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
@@ -38,6 +38,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.restcomm.media.network.netty.NettyNetworkManager;
 import org.restcomm.media.network.netty.channel.NettyNetworkChannelGlobalContext;
+import org.restcomm.media.pcap.AsyncPcapChannel;
+import org.restcomm.media.pcap.AsyncPcapChannelHandler;
+import org.restcomm.media.pcap.PcapPacketEncoder;
+import org.restcomm.media.pcap.PcapPlayer;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
