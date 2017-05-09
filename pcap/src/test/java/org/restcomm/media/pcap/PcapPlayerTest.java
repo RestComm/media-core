@@ -145,7 +145,7 @@ public class PcapPlayerTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testPlayToneOneOutOfBand() throws Exception {
+    public void testPlayHashRfc2833() throws Exception {
         // given
         int rtpEventPacketCount = 35;
         int rtpEventPacketLength = 24;
@@ -181,6 +181,52 @@ public class PcapPlayerTest {
         URL pcap = PcapPlayerTest.class.getResource(filepath);
         player.play(pcap);
 
+        // then
+        Assert.assertTrue(player.isPlaying());
+        Thread.sleep(rtpStreamDuration);
+        Assert.assertFalse(player.isPlaying());
+        Assert.assertEquals(totalPackets, player.countPacketsSent());
+        Assert.assertEquals(totalOctets, player.countOctetsSent());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testPlayHashThenHashRfc2833() throws Exception {
+        // given
+        int rtpEventPacketCount = 72;
+        int rtpEventPacketLength = 24;
+        int rtpPacketCount = 429;
+        int rtpPacketLength = 180;
+        long rtpStreamDuration = 9000;
+        int totalOctets = (rtpEventPacketLength * rtpEventPacketCount) + (rtpPacketCount * rtpPacketLength);
+        int totalPackets = rtpEventPacketCount + rtpPacketCount;
+        InetSocketAddress localAddress = new InetSocketAddress("127.0.0.1", 64000);
+        InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 65000);
+        
+        String filepath = "dtmf-oob-two-hash.cap.gz";
+        PcapPacketEncoder packetEncoder = new PcapPacketEncoder();
+        AsyncPcapChannelHandler channelInitializer = new AsyncPcapChannelHandler(packetEncoder);
+        bootstrap.handler(channelInitializer);
+        NettyNetworkChannelGlobalContext context = new NettyNetworkChannelGlobalContext(networkManager);
+        channel = new AsyncPcapChannel(context);
+        remotePeer = openRemotePeer(remoteAddress);
+        player = new PcapPlayer(channel, scheduler);
+        
+        FutureCallback<Void> openCallback = mock(FutureCallback.class);
+        FutureCallback<Void> bindCallback = mock(FutureCallback.class);
+        FutureCallback<Void> connectCallback = mock(FutureCallback.class);
+        
+        // when
+        channel.open(openCallback);
+        verify(openCallback, timeout(100)).onSuccess(null);
+        channel.bind(localAddress, bindCallback);
+        verify(bindCallback, timeout(100)).onSuccess(null);
+        channel.connect(remoteAddress, connectCallback);
+        verify(connectCallback, timeout(100)).onSuccess(null);
+        
+        URL pcap = PcapPlayerTest.class.getResource(filepath);
+        player.play(pcap);
+        
         // then
         Assert.assertTrue(player.isPlaying());
         Thread.sleep(rtpStreamDuration);
