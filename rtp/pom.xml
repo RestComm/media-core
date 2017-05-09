@@ -21,6 +21,11 @@
 		</dependency>
 		<dependency>
 			<groupId>org.restcomm.media</groupId>
+			<artifactId>pcap</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.restcomm.media</groupId>
 			<artifactId>sdp</artifactId>
 			<version>${project.version}</version>
 		</dependency>
