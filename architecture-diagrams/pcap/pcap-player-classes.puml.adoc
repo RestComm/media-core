@@ -1,0 +1,20 @@
+@startuml
+class PcapFile
+class PcapPacket
+class PcapPlayer
+class PcapPlayerWorker
+class PcapChannel
+class PcapChannelInitializer
+class RtpPcapEncoder
+abstract class AsyncNetworkChannel
+interface Scheduler
+
+AsyncNetworkChannel <|-- PcapChannel
+PcapChannel -> PcapChannelInitializer : setup pipeline
+PcapChannelInitializer --> RtpPcapEncoder
+PcapChannel <-- PcapPlayer : send
+(PcapChannel,PcapPlayer) . PcapPacket
+PcapPlayer --> PcapFile : read
+PcapPlayer -> Scheduler : schedule read
+(PcapPlayer,Scheduler) .. PcapPlayerWorker
+@enduml
