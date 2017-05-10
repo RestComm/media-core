@@ -23,7 +23,9 @@ package org.restcomm.media.resource.player.audio;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.log4j.Logger;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.spi.dsp.DspFactory;
 import org.restcomm.media.spi.player.Player;
 import org.restcomm.media.spi.player.PlayerProvider;
 
@@ -35,18 +37,28 @@ import org.restcomm.media.spi.player.PlayerProvider;
  */
 public class AudioPlayerProvider implements PlayerProvider {
 
+    private static final Logger log = Logger.getLogger(AudioPlayerProvider.class);
+
     private final PriorityQueueScheduler scheduler;
     private final RemoteStreamProvider remoteStreamProvider;
     private final AtomicInteger id;
+    private DspFactory dsp;
 
-    public AudioPlayerProvider(PriorityQueueScheduler scheduler, RemoteStreamProvider remoteStreamProvider) {
+    public AudioPlayerProvider(PriorityQueueScheduler scheduler, RemoteStreamProvider remoteStreamProvider, DspFactory dsp) {
         this.scheduler = scheduler;
         this.remoteStreamProvider = remoteStreamProvider;
+        this.dsp = dsp;
         this.id = new AtomicInteger(0);
     }
 
     public Player provide() {
-        return new AudioPlayerImpl(nextId(), this.scheduler, remoteStreamProvider);
+        AudioPlayerImpl player = new AudioPlayerImpl(nextId(), this.scheduler, remoteStreamProvider);
+        try {
+            player.setDsp(this.dsp.newProcessor());
+        } catch (InstantiationException | ClassNotFoundException | IllegalAccessException e) {
+            log.warn("Could not set DSP for newly provided Audio Player. Transcoding wont be possible!");
+        }
+        return player;
     }
 
     private String nextId() {
