@@ -235,4 +235,50 @@ public class PcapPlayerTest {
         Assert.assertEquals(totalOctets, player.countOctetsSent());
     }
 
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testGigasetN510IpProRfc2833() throws Exception {
+        // given
+        int rtpEventPacketCount = 70;
+        int rtpEventPacketLength = 24;
+        int rtpPacketCount = 2494;
+        int rtpPacketLength = 180;
+        long rtpStreamDuration = 50000;
+        int totalOctets = (rtpEventPacketLength * rtpEventPacketCount) + (rtpPacketCount * rtpPacketLength);
+        int totalPackets = rtpEventPacketCount + rtpPacketCount;
+        InetSocketAddress localAddress = new InetSocketAddress("127.0.0.1", 64000);
+        InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 65000);
+        
+        String filepath = "gigaset-n510-ip-pro-rfc2833.pcap";
+        PcapPacketEncoder packetEncoder = new PcapPacketEncoder();
+        AsyncPcapChannelHandler channelInitializer = new AsyncPcapChannelHandler(packetEncoder);
+        bootstrap.handler(channelInitializer);
+        NettyNetworkChannelGlobalContext context = new NettyNetworkChannelGlobalContext(networkManager);
+        channel = new AsyncPcapChannel(context);
+        remotePeer = openRemotePeer(remoteAddress);
+        player = new PcapPlayer(channel, scheduler);
+        
+        FutureCallback<Void> openCallback = mock(FutureCallback.class);
+        FutureCallback<Void> bindCallback = mock(FutureCallback.class);
+        FutureCallback<Void> connectCallback = mock(FutureCallback.class);
+        
+        // when
+        channel.open(openCallback);
+        verify(openCallback, timeout(100)).onSuccess(null);
+        channel.bind(localAddress, bindCallback);
+        verify(bindCallback, timeout(100)).onSuccess(null);
+        channel.connect(remoteAddress, connectCallback);
+        verify(connectCallback, timeout(100)).onSuccess(null);
+        
+        URL pcap = PcapPlayerTest.class.getResource(filepath);
+        player.play(pcap);
+        
+        // then
+        Assert.assertTrue(player.isPlaying());
+        Thread.sleep(rtpStreamDuration);
+        Assert.assertFalse(player.isPlaying());
+        Assert.assertEquals(totalPackets, player.countPacketsSent());
+        Assert.assertEquals(totalOctets, player.countOctetsSent());
+    }
+
 }
