@@ -41,6 +41,7 @@ import org.restcomm.media.rtcp.RtcpSdes;
 import org.restcomm.media.rtcp.RtcpSdesChunk;
 import org.restcomm.media.rtcp.RtcpSenderReport;
 import org.restcomm.media.rtp.RtpPacket;
+import org.restcomm.media.rtp.secure.DtlsPacket;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -155,6 +156,29 @@ public class RtpDemultiplexerTest {
         assertEquals(6 * 4 + 4, sdes.getLength());
         RtcpSdesChunk[] chunks = sdes.getSdesChunks();
         assertEquals(1, chunks.length);
+    }
+
+    @Test
+    public void testDtlsPacketRecognition() throws Exception {
+        // given
+        final URL pcapUrl = RtpDemultiplexer.class.getResource("dtls-packet.pcap");
+        this.pcapFile = new PcapFile(pcapUrl);
+        final RtpDemultiplexer demultiplexer = new RtpDemultiplexer();
+        final EmbeddedChannel channel = new EmbeddedChannel(demultiplexer);
+        
+        // when
+        pcapFile.open();
+        final Packet pcapPacket = pcapFile.read();
+        byte[] data = (byte[]) pcapPacket.get(GenericPcapReader.PAYLOAD);
+        
+        final ByteBuf buffer = Unpooled.wrappedBuffer(data);
+        final boolean wrote = channel.writeInbound(buffer);
+        final Object packet = channel.readInbound();
+        
+        // then
+        assertTrue(wrote);
+        assertNotNull(packet);
+        assertTrue(packet instanceof DtlsPacket);
     }
 
 }
