@@ -46,6 +46,10 @@ import io.netty.util.ReferenceCountUtil;
 public class RtpDemultiplexer extends SimpleChannelInboundHandler<ByteBuf> {
 
     private static final Logger log = Logger.getLogger(RtpDemultiplexer.class);
+    
+    public RtpDemultiplexer() {
+        super(false);
+    }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws Exception {

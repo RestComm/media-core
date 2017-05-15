@@ -24,6 +24,7 @@ package org.restcomm.media.rtp.netty;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -42,7 +43,6 @@ import org.restcomm.media.rtcp.RtcpSdesChunk;
 import org.restcomm.media.rtcp.RtcpSenderReport;
 import org.restcomm.media.rtp.RtpPacket;
 import org.restcomm.media.rtp.secure.DtlsPacket;
-import org.restcomm.media.stun.messages.StunMessage;
 import org.restcomm.media.stun.messages.StunRequest;
 
 import io.netty.buffer.ByteBuf;
@@ -167,16 +167,16 @@ public class RtpDemultiplexerTest {
         this.pcapFile = new PcapFile(pcapUrl);
         final RtpDemultiplexer demultiplexer = new RtpDemultiplexer();
         final EmbeddedChannel channel = new EmbeddedChannel(demultiplexer);
-        
+
         // when
         pcapFile.open();
         final Packet pcapPacket = pcapFile.read();
         byte[] data = (byte[]) pcapPacket.get(GenericPcapReader.PAYLOAD);
-        
+
         final ByteBuf buffer = Unpooled.wrappedBuffer(data);
         final boolean wrote = channel.writeInbound(buffer);
         final Object packet = channel.readInbound();
-        
+
         // then
         assertTrue(wrote);
         assertNotNull(packet);
@@ -204,6 +204,28 @@ public class RtpDemultiplexerTest {
         assertTrue(wrote);
         assertNotNull(packet);
         assertTrue(packet instanceof DtlsPacket);
+    }
+
+    @Test
+    public void testUnsupportedPacketRecognition() throws Exception {
+        // given
+        final URL pcapUrl = RtpDemultiplexer.class.getResource("mgcp-packet.pcap");
+        this.pcapFile = new PcapFile(pcapUrl);
+        final RtpDemultiplexer demultiplexer = new RtpDemultiplexer();
+        final EmbeddedChannel channel = new EmbeddedChannel(demultiplexer);
+
+        // when
+        pcapFile.open();
+        final Packet pcapPacket = pcapFile.read();
+        byte[] data = (byte[]) pcapPacket.get(GenericPcapReader.PAYLOAD);
+
+        final ByteBuf buffer = Unpooled.wrappedBuffer(data);
+        final boolean wrote = channel.writeInbound(buffer);
+        final Object packet = channel.readInbound();
+
+        // then
+        assertFalse(wrote);
+        assertNull(packet);
     }
 
 }
