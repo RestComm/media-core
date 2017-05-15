@@ -32,7 +32,6 @@ import org.restcomm.media.stun.messages.StunMessage;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.ReferenceCountUtil;
 
 /**
@@ -44,17 +43,16 @@ import io.netty.util.ReferenceCountUtil;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpDemultiplexer extends SimpleChannelInboundHandler<DatagramPacket> {
+public class RtpDemultiplexer extends SimpleChannelInboundHandler<ByteBuf> {
 
     private static final Logger log = Logger.getLogger(RtpDemultiplexer.class);
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket msg) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws Exception {
         // Differentiate between RTP, STUN and DTLS packets in the pipeline
         // https://tools.ietf.org/html/rfc5764#section-5.1.2
-        final ByteBuf buffer = msg.content();
-        final int offset = buffer.arrayOffset();
-        final byte b0 = buffer.getByte(offset);
+        final int offset = msg.arrayOffset();
+        final byte b0 = msg.getByte(offset);
         final int b0Int = b0 & 0xff;
 
         if (b0Int < 2) {
@@ -67,16 +65,13 @@ public class RtpDemultiplexer extends SimpleChannelInboundHandler<DatagramPacket
             // Unsupported packet type. Drop it.
             ReferenceCountUtil.release(msg);
             if (log.isDebugEnabled()) {
-                final String sender = msg.sender().getHostString();
-                final String recipient = msg.recipient().getHostString();
-                log.debug("Dropped unsupported packet type " + b0Int + " coming from " + sender + " to " + recipient);
+                log.debug("Channel " + ctx.channel().localAddress() + " dropped unsupported packet type " + b0Int);
             }
         }
     }
 
-    private void handleStunPacket(ChannelHandlerContext ctx, DatagramPacket msg) {
+    private void handleStunPacket(ChannelHandlerContext ctx, ByteBuf buffer) {
         // Retrieve data from network
-        final ByteBuf buffer = msg.content();
         final byte[] data = buffer.array();
         final int length = buffer.readableBytes();
         final int offset = buffer.arrayOffset();
@@ -87,17 +82,13 @@ public class RtpDemultiplexer extends SimpleChannelInboundHandler<DatagramPacket
             ctx.fireChannelRead(stunPacket);
         } catch (StunException e) {
             // Drop packet as we could not decode it
-            ReferenceCountUtil.release(msg);
-
-            final String sender = msg.sender().getHostString();
-            final String recipient = msg.recipient().getHostString();
-            log.warn("Dropped STUN packet coming from " + sender + " to " + recipient, e);
+            ReferenceCountUtil.release(buffer);
+            log.warn("Channel " + ctx.channel().localAddress() + "could not decode incoming STUN packet", e);
         }
     }
 
-    private void handleDtlsPacket(ChannelHandlerContext ctx, DatagramPacket msg) {
+    private void handleDtlsPacket(ChannelHandlerContext ctx, ByteBuf buffer) {
         // Retrieve data from network
-        final ByteBuf buffer = msg.content();
         final int length = buffer.readableBytes();
         final int offset = buffer.arrayOffset();
 
@@ -109,10 +100,8 @@ public class RtpDemultiplexer extends SimpleChannelInboundHandler<DatagramPacket
         ctx.fireChannelRead(dtlsPacket);
     }
 
-    private void handleRtpPacket(ChannelHandlerContext ctx, DatagramPacket msg) {
+    private void handleRtpPacket(ChannelHandlerContext ctx, ByteBuf buffer) {
         // Retrieve data from network
-        final ByteBuf buffer = msg.content();
-        final int length = buffer.readableBytes();
         final int offset = buffer.arrayOffset();
         
         /*
