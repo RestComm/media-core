@@ -42,6 +42,8 @@ import org.restcomm.media.rtcp.RtcpSdesChunk;
 import org.restcomm.media.rtcp.RtcpSenderReport;
 import org.restcomm.media.rtp.RtpPacket;
 import org.restcomm.media.rtp.secure.DtlsPacket;
+import org.restcomm.media.stun.messages.StunMessage;
+import org.restcomm.media.stun.messages.StunRequest;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -114,26 +116,26 @@ public class RtpDemultiplexerTest {
         this.pcapFile = new PcapFile(pcapUrl);
         final RtpDemultiplexer demultiplexer = new RtpDemultiplexer();
         final EmbeddedChannel channel = new EmbeddedChannel(demultiplexer);
-        
+
         // when
         pcapFile.open();
         final Packet pcapPacket = pcapFile.read();
         byte[] data = (byte[]) pcapPacket.get(GenericPcapReader.PAYLOAD);
-        
+
         final ByteBuf buffer = Unpooled.wrappedBuffer(data);
         final boolean wrote = channel.writeInbound(buffer);
         final Object packet = channel.readInbound();
-        
+
         // then
         assertTrue(wrote);
         assertNotNull(packet);
         assertTrue(packet instanceof RtcpPacket);
-        
+
         RtcpPacket rtcpPacket = (RtcpPacket) packet;
         assertEquals(RtcpPacketType.RTCP_REPORT, rtcpPacket.getPacketType());
         assertEquals(2, rtcpPacket.getPacketCount());
         assertEquals(56, rtcpPacket.getSize());
-        
+
         RtcpSenderReport senderReport = rtcpPacket.getSenderReport();
         assertNotNull(senderReport);
         assertEquals(RtcpHeader.RTCP_SR, senderReport.getPacketType());
@@ -147,7 +149,7 @@ public class RtpDemultiplexerTest {
         assertEquals(4163341216L, senderReport.getRtpTs());
         assertEquals(0, senderReport.getPsent());
         assertEquals(0, senderReport.getOsent());
-        
+
         RtcpSdes sdes = rtcpPacket.getSdes();
         assertEquals(2, sdes.getVersion());
         assertFalse(sdes.isPadding());
@@ -159,9 +161,9 @@ public class RtpDemultiplexerTest {
     }
 
     @Test
-    public void testDtlsPacketRecognition() throws Exception {
+    public void testStunPacketRecognition() throws Exception {
         // given
-        final URL pcapUrl = RtpDemultiplexer.class.getResource("dtls-packet.pcap");
+        final URL pcapUrl = RtpDemultiplexer.class.getResource("stun-packet.pcap");
         this.pcapFile = new PcapFile(pcapUrl);
         final RtpDemultiplexer demultiplexer = new RtpDemultiplexer();
         final EmbeddedChannel channel = new EmbeddedChannel(demultiplexer);
@@ -175,6 +177,29 @@ public class RtpDemultiplexerTest {
         final boolean wrote = channel.writeInbound(buffer);
         final Object packet = channel.readInbound();
         
+        // then
+        assertTrue(wrote);
+        assertNotNull(packet);
+        assertTrue(packet instanceof StunRequest);
+    }
+
+    @Test
+    public void testDtlsPacketRecognition() throws Exception {
+        // given
+        final URL pcapUrl = RtpDemultiplexer.class.getResource("dtls-packet.pcap");
+        this.pcapFile = new PcapFile(pcapUrl);
+        final RtpDemultiplexer demultiplexer = new RtpDemultiplexer();
+        final EmbeddedChannel channel = new EmbeddedChannel(demultiplexer);
+
+        // when
+        pcapFile.open();
+        final Packet pcapPacket = pcapFile.read();
+        byte[] data = (byte[]) pcapPacket.get(GenericPcapReader.PAYLOAD);
+
+        final ByteBuf buffer = Unpooled.wrappedBuffer(data);
+        final boolean wrote = channel.writeInbound(buffer);
+        final Object packet = channel.readInbound();
+
         // then
         assertTrue(wrote);
         assertNotNull(packet);
