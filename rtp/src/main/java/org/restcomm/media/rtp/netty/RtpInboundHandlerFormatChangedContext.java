@@ -21,38 +21,23 @@
 
 package org.restcomm.media.rtp.netty;
 
-import org.restcomm.media.rtp.RtpPacket;
-
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.util.ReferenceCountUtil;
+import org.restcomm.media.sdp.format.RTPFormats;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpPacketFilter extends SimpleChannelInboundHandler<RtpPacket> {
+public class RtpInboundHandlerFormatChangedContext implements RtpInboundHandlerTransactionContext {
 
-    public RtpPacketFilter() {
-        super(false);
+    private final RTPFormats formats;
+
+    public RtpInboundHandlerFormatChangedContext(RTPFormats formats) {
+        super();
+        this.formats = formats;
     }
 
-    @Override
-    protected void channelRead0(ChannelHandlerContext ctx, RtpPacket msg) throws Exception {
-        // Drop message is packet does not contain any payload
-        int payloadLength = msg.getPayloadLength();
-        if (payloadLength <= 0) {
-            ReferenceCountUtil.release(msg);
-            return;
-        }
-
-        // Drop message if RTP version is unsupported
-        int version = msg.getVersion();
-        if (RtpPacket.VERSION != version) {
-            ReferenceCountUtil.release(msg);
-            return;
-        }
-
+    public RTPFormats getFormats() {
+        return formats;
     }
 
 }

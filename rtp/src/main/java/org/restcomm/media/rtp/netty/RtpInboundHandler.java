@@ -26,13 +26,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.log4j.Logger;
 import org.restcomm.media.rtp.RTPInput;
 import org.restcomm.media.rtp.RtpChannel;
-import org.restcomm.media.rtp.RtpClock;
 import org.restcomm.media.rtp.RtpPacket;
 import org.restcomm.media.rtp.jitter.JitterBuffer;
 import org.restcomm.media.rtp.rfc2833.DtmfInput;
 import org.restcomm.media.rtp.statistics.RtpStatistics;
+import org.restcomm.media.scheduler.Clock;
 import org.restcomm.media.sdp.format.RTPFormat;
 import org.restcomm.media.sdp.format.RTPFormats;
+import org.restcomm.media.spi.ConnectionMode;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -47,75 +48,55 @@ public class RtpInboundHandler extends SimpleChannelInboundHandler<RtpPacket> {
 
     private static final Logger log = Logger.getLogger(RtpInboundHandler.class);
 
-    // RTP Components
-    private final RtpClock rtpClock;
-    private final RtpStatistics statistics;
-    private final JitterBuffer jitterBuffer;
-    private final RTPInput rtpInput;
-    private final DtmfInput dtmfInput;
+    private final RtpInboundHandlerGlobalContext context;
+    private final RtpInboundHandlerFsm fsm;
 
-    // Handler Context
-    private RTPFormats rtpFormats;
-    private final AtomicBoolean loopable;
-    private final AtomicBoolean receivable;
+    public RtpInboundHandler(RtpInboundHandlerGlobalContext context) {
+        this.context = context;
+        this.fsm = RtpInboundHandlerFsmBuilder.INSTANCE.build(context);
+        this.fsm.start();
+    }
 
-    public RtpInboundHandler(RtpClock rtpClock, RtpStatistics statistics, JitterBuffer jitterBuffer, RTPInput rtpInput, DtmfInput dtmfInput) {
-        super();
+    public void activate() {
+        this.fsm.fire(RtpInboundHandlerEvent.ACTIVATE);
+    }
 
-        // RTP Components
-        this.rtpClock = rtpClock;
-        this.statistics = statistics;
-        this.rtpInput = rtpInput;
-        this.dtmfInput = dtmfInput;
-        this.jitterBuffer = jitterBuffer;
-        this.jitterBuffer.setListener(this.rtpInput);
+    public void deactivate() {
+        this.fsm.fire(RtpInboundHandlerEvent.DEACTIVATE);
+    }
 
-        // Handler Context
-        this.rtpFormats = new RTPFormats();
-        this.loopable = new AtomicBoolean(false);
-        this.receivable = new AtomicBoolean(false);
+    public void updateMode(ConnectionMode mode) {
+        RtpInboundHandlerUpdateModeContext txContext = new RtpInboundHandlerUpdateModeContext(mode);
+        this.fsm.fire(RtpInboundHandlerEvent.MODE_CHANGED, txContext);
     }
-    
-    public boolean isLoopable() {
-        return this.loopable.get();
-    }
-    
-    public void setLoopable(boolean loopable) {
-        this.loopable.set(loopable);
-    }
-    
-    public boolean isReceivable() {
-        return this.receivable.get();
-    }
-    
-    public void setReceivable(boolean receivable) {
-        this.receivable.set(receivable);
-    }
-    
+
     public void useJitterBuffer(boolean use) {
-        this.jitterBuffer.setInUse(use);
+        this.context.getJitterBuffer().setInUse(use);
     }
-    
+
     public RTPInput getRtpInput() {
-        return rtpInput;
+        return context.getRtpInput();
     }
-    
+
     public DtmfInput getDtmfInput() {
-        return dtmfInput;
-    }
-    
-    public RTPFormats getRtpFormats() {
-        return rtpFormats;
-    }
-    
-    public void setRtpFormats(RTPFormats rtpFormats) {
-        this.rtpFormats = rtpFormats;
+        return context.getDtmfInput();
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RtpPacket msg) throws Exception {
+        // Process incoming packet
+        RtpInboundHandlerPacketReceivedContext txContext = new RtpInboundHandlerPacketReceivedContext(msg);
+        this.fsm.fire(RtpInboundHandlerEvent.PACKET_RECEIVED, txContext);
+        
+        // Send packet back if channel is operation in NETWORK_LOOPBACK mode
+        if(context.isLoopable()) {
+            ctx.channel().writeAndFlush(msg);
+        }
+        
+
+        /////////////////////////////////////////////////////////////////////////////////////////
         // For RTP keep-alive purposes
-        this.statistics.setLastHeartbeat(this.rtpClock.getWallClock().getTime());
+        this.statistics.setLastHeartbeat(this.clock.getTime());
 
         // RTP v0 packets are used in some applications. Discarded since we do not handle them.
         int version = msg.getVersion();
@@ -140,7 +121,7 @@ public class RtpInboundHandler extends SimpleChannelInboundHandler<RtpPacket> {
         boolean hasData = (msg.getBuffer().limit() > 0);
         if (!hasData) {
             if (log.isDebugEnabled()) {
-                log.debug("RTP Channel " + this.statistics.getSsrc() + " dropped packet because it was empty.");
+                log.debug("RTP Channel " + this.statistics.getSsrc() + " dropped packet because payload was empty.");
             }
             return;
         }
