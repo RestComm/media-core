@@ -21,18 +21,10 @@
 
 package org.restcomm.media.rtp.netty;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.apache.log4j.Logger;
 import org.restcomm.media.rtp.RTPInput;
-import org.restcomm.media.rtp.RtpChannel;
 import org.restcomm.media.rtp.RtpPacket;
-import org.restcomm.media.rtp.jitter.JitterBuffer;
 import org.restcomm.media.rtp.rfc2833.DtmfInput;
-import org.restcomm.media.rtp.statistics.RtpStatistics;
-import org.restcomm.media.scheduler.Clock;
-import org.restcomm.media.sdp.format.RTPFormat;
-import org.restcomm.media.sdp.format.RTPFormats;
 import org.restcomm.media.spi.ConnectionMode;
 
 import io.netty.channel.ChannelHandlerContext;
@@ -84,35 +76,20 @@ public class RtpInboundHandler extends SimpleChannelInboundHandler<RtpPacket> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RtpPacket msg) throws Exception {
-        // Process incoming packet
-        RtpInboundHandlerPacketReceivedContext txContext = new RtpInboundHandlerPacketReceivedContext(msg);
-        this.fsm.fire(RtpInboundHandlerEvent.PACKET_RECEIVED, txContext);
-        
-        // Send packet back if channel is operation in NETWORK_LOOPBACK mode
-        if(context.isLoopable()) {
-            ctx.channel().writeAndFlush(msg);
-        }
-        
-
-        /////////////////////////////////////////////////////////////////////////////////////////
-        // For RTP keep-alive purposes
-        this.statistics.setLastHeartbeat(this.clock.getTime());
-
         // RTP v0 packets are used in some applications. Discarded since we do not handle them.
         int version = msg.getVersion();
         if (version == 0) {
             if (log.isDebugEnabled()) {
-                log.debug("RTP Channel " + this.statistics.getSsrc() + " dropped RTP v0 packet.");
+                log.debug("RTP Channel " + this.context.getStatistics().getSsrc() + " dropped RTP v0 packet.");
             }
             return;
         }
 
         // Check if channel can receive traffic
-        boolean canReceive = (this.receivable.get() || this.loopable.get());
+        boolean canReceive = (context.isReceivable() || context.isLoopable());
         if (!canReceive) {
             if (log.isDebugEnabled()) {
-                log.debug("RTP Channel " + this.statistics.getSsrc()
-                        + " dropped packet because channel mode does not allow to receive traffic.");
+                log.debug("RTP Channel " + this.context.getStatistics().getSsrc() + " dropped packet because channel mode does not allow to receive traffic.");
             }
             return;
         }
@@ -121,36 +98,18 @@ public class RtpInboundHandler extends SimpleChannelInboundHandler<RtpPacket> {
         boolean hasData = (msg.getBuffer().limit() > 0);
         if (!hasData) {
             if (log.isDebugEnabled()) {
-                log.debug("RTP Channel " + this.statistics.getSsrc() + " dropped packet because payload was empty.");
+                log.debug("RTP Channel " + this.context.getStatistics().getSsrc() + " dropped packet because payload was empty.");
             }
             return;
         }
 
         // Process incoming packet
-        if (this.loopable.get()) {
-            // Update channel statistics
-            this.statistics.onRtpReceive(msg);
-            this.statistics.onRtpSent(msg);
+        RtpInboundHandlerPacketReceivedContext txContext = new RtpInboundHandlerPacketReceivedContext(msg);
+        this.fsm.fire(RtpInboundHandlerEvent.PACKET_RECEIVED, txContext);
 
-            // Send back same packet (looping)
+        // Send packet back if channel is operating in NETWORK_LOOPBACK mode
+        if (context.isLoopable()) {
             ctx.channel().writeAndFlush(msg);
-        } else {
-            // Update channel statistics
-            this.statistics.onRtpReceive(msg);
-
-            // Write packet
-            int payloadType = msg.getPayloadType();
-            RTPFormat format = this.rtpFormats.find(payloadType);
-            if (format != null) {
-                if (RtpChannel.DTMF_FORMAT.matches(format.getFormat())) {
-                    this.dtmfInput.write(msg);
-                } else {
-                    this.jitterBuffer.write(msg, format);
-                }
-            } else {
-                log.warn("RTP Channel " + this.statistics.getSsrc() + " dropped packet because payload type " + payloadType
-                        + " is unknown.");
-            }
         }
     }
 

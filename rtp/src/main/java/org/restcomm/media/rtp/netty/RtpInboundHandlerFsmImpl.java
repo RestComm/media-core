@@ -45,8 +45,7 @@ public class RtpInboundHandlerFsmImpl extends AbstractRtpInboundHandlerFsm {
     }
 
     @Override
-    public void enterActivated(RtpInboundHandlerState from, RtpInboundHandlerState to, RtpInboundHandlerEvent event,
-            RtpInboundHandlerTransactionContext context) {
+    public void enterActivated(RtpInboundHandlerState from, RtpInboundHandlerState to, RtpInboundHandlerEvent event, RtpInboundHandlerTransactionContext context) {
         this.context.getRtpInput().activate();
         this.context.getDtmfInput().activate();
     }
@@ -58,12 +57,12 @@ public class RtpInboundHandlerFsmImpl extends AbstractRtpInboundHandlerFsm {
         this.context.getDtmfInput().reset();
         this.context.getJitterBuffer().restart();
     }
-    
+
     @Override
     public void onModeChanged(RtpInboundHandlerState from, RtpInboundHandlerState to, RtpInboundHandlerEvent event, RtpInboundHandlerTransactionContext context) {
         final RtpInboundHandlerUpdateModeContext txContext = (RtpInboundHandlerUpdateModeContext) context;
         final ConnectionMode mode = txContext.getMode();
-        
+
         switch (mode) {
             case INACTIVE:
             case SEND_ONLY:
@@ -93,10 +92,9 @@ public class RtpInboundHandlerFsmImpl extends AbstractRtpInboundHandlerFsm {
                 break;
         }
     }
-    
+
     @Override
-    public void onFormatChanged(RtpInboundHandlerState from, RtpInboundHandlerState to, RtpInboundHandlerEvent event,
-            RtpInboundHandlerTransactionContext context) {
+    public void onFormatChanged(RtpInboundHandlerState from, RtpInboundHandlerState to, RtpInboundHandlerEvent event, RtpInboundHandlerTransactionContext context) {
         final RtpInboundHandlerFormatChangedContext txContext = (RtpInboundHandlerFormatChangedContext) context;
         final RTPFormats formats = txContext.getFormats();
         this.context.setFormats(formats);
@@ -112,11 +110,10 @@ public class RtpInboundHandlerFsmImpl extends AbstractRtpInboundHandlerFsm {
 
         // RTP keep-alive
         statistics.setLastHeartbeat(this.context.getClock().getTime());
-
+        
         // Consume packet
         if (format == null) {
-            log.warn("RTP Channel " + statistics.getSsrc() + " dropped packet because payload type " + payloadType
-                    + " is unknown.");
+            log.warn("RTP Channel " + statistics.getSsrc() + " dropped packet because payload type " + payloadType + " is unknown.");
         } else {
             if (RtpChannel.DTMF_FORMAT.matches(format.getFormat())) {
                 this.context.getDtmfInput().write(packet);
@@ -124,6 +121,9 @@ public class RtpInboundHandlerFsmImpl extends AbstractRtpInboundHandlerFsm {
                 this.context.getJitterBuffer().write(packet, format);
             }
         }
+        
+        // Update statistics
+        statistics.onRtpReceive(packet);
     }
 
 }
