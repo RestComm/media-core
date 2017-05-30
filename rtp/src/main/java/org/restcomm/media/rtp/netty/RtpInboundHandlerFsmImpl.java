@@ -111,19 +111,20 @@ public class RtpInboundHandlerFsmImpl extends AbstractRtpInboundHandlerFsm {
         // RTP keep-alive
         statistics.setLastHeartbeat(this.context.getClock().getTime());
         
-        // Consume packet
         if (format == null) {
+            // Drop packet with unknown format
             log.warn("RTP Channel " + statistics.getSsrc() + " dropped packet because payload type " + payloadType + " is unknown.");
         } else {
+            // Consume packet
             if (RtpChannel.DTMF_FORMAT.matches(format.getFormat())) {
                 this.context.getDtmfInput().write(packet);
             } else {
                 this.context.getJitterBuffer().write(packet, format);
             }
+
+            // Update statistics
+            statistics.onRtpReceive(packet);
         }
-        
-        // Update statistics
-        statistics.onRtpReceive(packet);
     }
 
 }

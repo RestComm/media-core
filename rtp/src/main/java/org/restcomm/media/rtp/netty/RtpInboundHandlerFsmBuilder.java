@@ -37,7 +37,7 @@ public class RtpInboundHandlerFsmBuilder {
     private final StateMachineBuilder<RtpInboundHandlerFsm, RtpInboundHandlerState, RtpInboundHandlerEvent, RtpInboundHandlerTransactionContext> builder;
 
     public RtpInboundHandlerFsmBuilder() {
-        this.builder = StateMachineBuilderFactory.<RtpInboundHandlerFsm, RtpInboundHandlerState, RtpInboundHandlerEvent, RtpInboundHandlerTransactionContext> create(RtpInboundHandlerFsmImpl.class, RtpInboundHandlerState.class, RtpInboundHandlerEvent.class, RtpInboundHandlerTransactionContext.class);
+        this.builder = StateMachineBuilderFactory.<RtpInboundHandlerFsm, RtpInboundHandlerState, RtpInboundHandlerEvent, RtpInboundHandlerTransactionContext> create(RtpInboundHandlerFsmImpl.class, RtpInboundHandlerState.class, RtpInboundHandlerEvent.class, RtpInboundHandlerTransactionContext.class, RtpInboundHandlerGlobalContext.class);
 
         this.builder.internalTransition().within(RtpInboundHandlerState.IDLE).on(RtpInboundHandlerEvent.MODE_CHANGED).callMethod("onModeChanged");
         this.builder.internalTransition().within(RtpInboundHandlerState.IDLE).on(RtpInboundHandlerEvent.FORMAT_CHANGED).callMethod("onFormatChanged");
