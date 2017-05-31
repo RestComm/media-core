@@ -21,77 +21,76 @@
 
 package org.restcomm.media.rtp.netty;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.junit.Test;
 import org.restcomm.media.rtp.RtpPacket;
 import org.restcomm.media.rtp.crypto.PacketTransformer;
-import org.restcomm.media.rtp.secure.SrtpPacket;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.EmptyByteBuf;
 import io.netty.channel.embedded.EmbeddedChannel;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class SrtpDecoderTest {
+public class SrtpEncoderTest {
 
     @Test
-    public void testDecode() {
+    public void testEncode() {
         // given
-        final SrtpPacket srtpPacket = mock(SrtpPacket.class);
+        final RtpPacket rtpPacket = mock(RtpPacket.class);
         final PacketTransformer transformer = mock(PacketTransformer.class);
-        final SrtpDecoder decoder = new SrtpDecoder(transformer);
+        final SrtpEncoder decoder = new SrtpEncoder(transformer);
         final EmbeddedChannel channel = new EmbeddedChannel(decoder);
-        
+
         final byte[] encodedPayload = "encoded".getBytes();
         final byte[] decodedPayload = "decoded".getBytes();
-        
-        when(srtpPacket.getRawData()).thenReturn(encodedPayload);
-        when(transformer.reverseTransform(encodedPayload, 0, encodedPayload.length)).thenReturn(decodedPayload);
-        
+
+        when(rtpPacket.getRawData()).thenReturn(decodedPayload);
+        when(transformer.transform(decodedPayload)).thenReturn(encodedPayload);
+
         // when
-        channel.writeInbound(srtpPacket);
-        Object inboundObject = channel.readInbound();
-        
+        channel.writeOutbound(rtpPacket);
+        Object outboundObject = channel.readOutbound();
+
         // then
-        verify(transformer).reverseTransform(eq(encodedPayload), any(Integer.class), any(Integer.class));
-        verify(srtpPacket).wrap(decodedPayload);
-        assertNotNull(inboundObject);
-        assertTrue(inboundObject instanceof RtpPacket);
+        verify(transformer).transform(decodedPayload);
+        assertNotNull(outboundObject);
+        assertTrue(outboundObject instanceof ByteBuf);
+        byte[] data = new byte[encodedPayload.length];
+        ((ByteBuf) outboundObject).getBytes(0, data);
+        assertEquals(new String(encodedPayload), new String(data));
     }
 
     @Test
-    public void testDecodeFailure() {
+    public void testEncodeFailure() {
         // given
-        final SrtpPacket srtpPacket = mock(SrtpPacket.class);
+        final RtpPacket rtpPacket = mock(RtpPacket.class);
         final PacketTransformer transformer = mock(PacketTransformer.class);
-        final SrtpDecoder decoder = new SrtpDecoder(transformer);
+        final SrtpEncoder decoder = new SrtpEncoder(transformer);
         final EmbeddedChannel channel = new EmbeddedChannel(decoder);
-        
-        final byte[] encodedPayload = "encoded".getBytes();
-        final byte[] decodedPayload = null;
-        
-        when(srtpPacket.getRawData()).thenReturn(encodedPayload);
-        when(transformer.reverseTransform(encodedPayload, 0, encodedPayload.length)).thenReturn(decodedPayload);
-        
+
+        final byte[] encodedPayload = null;
+        final byte[] decodedPayload = "decoded".getBytes();
+
+        when(rtpPacket.getRawData()).thenReturn(decodedPayload);
+        when(transformer.transform(decodedPayload)).thenReturn(encodedPayload);
+
         // when
-        channel.writeInbound(srtpPacket);
-        Object inboundObject = channel.readInbound();
-        
+        channel.writeOutbound(rtpPacket);
+        Object outboundObject = channel.readOutbound();
+
         // then
-        verify(transformer).reverseTransform(eq(encodedPayload), any(Integer.class), any(Integer.class));
-        verify(srtpPacket, never()).wrap(decodedPayload);
-        assertNull(inboundObject);
+        verify(transformer).transform(decodedPayload);
+        assertNotNull(outboundObject);
+        assertTrue(outboundObject instanceof EmptyByteBuf);
     }
-    
-    
+
 }

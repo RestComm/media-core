@@ -21,46 +21,41 @@
 
 package org.restcomm.media.rtp.netty;
 
-import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.restcomm.media.rtp.RtpPacket;
 import org.restcomm.media.rtp.crypto.PacketTransformer;
-import org.restcomm.media.rtp.secure.SrtpPacket;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.MessageToMessageDecoder;
+import io.netty.handler.codec.MessageToByteEncoder;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class SrtpDecoder extends MessageToMessageDecoder<SrtpPacket> {
-    
-    private static final Logger log = Logger.getLogger(SrtpDecoder.class);
+public class SrtpEncoder extends MessageToByteEncoder<RtpPacket> {
 
-    private final PacketTransformer decoder;
+    private static final Logger log = Logger.getLogger(SrtpEncoder.class);
 
-    public SrtpDecoder(PacketTransformer decoder) {
+    private final PacketTransformer encoder;
+
+    public SrtpEncoder(PacketTransformer encoder) {
         super();
-        this.decoder = decoder;
+        this.encoder = encoder;
     }
 
     @Override
-    protected void decode(ChannelHandlerContext ctx, SrtpPacket msg, List<Object> out) throws Exception {
-        // Decode payload
-        byte[] rawData = msg.getRawData();
-        byte[] decoded = this.decoder.reverseTransform(rawData, 0, rawData.length);
-        
-        if(decoded == null || decoded.length == 0) {
-            // Failed to decode data. Drop packet.
-            log.warn("Channel " + ctx.channel().localAddress() + " could not decode incoming SRTP packet.");
+    protected void encode(ChannelHandlerContext ctx, RtpPacket msg, ByteBuf out) throws Exception {
+        // Encode RTP packet
+        final byte[] rawData = msg.getRawData();
+        final byte[] encoded = this.encoder.transform(rawData);
+
+        if (encoded == null || encoded.length == 0) {
+            // Failed to encode packet. Drop it.
+            log.warn("Channel " + ctx.channel().localAddress() + " could not encode outgoing SRTP packet.");
         } else {
-            // Data decoded successfully
-            msg.wrap(decoded);
-            
-            // Pass decoded RTP packet to next handler
-            out.add((RtpPacket) msg);
+            // Send encoded packet over the wire
+            out.writeBytes(encoded);
         }
     }
 

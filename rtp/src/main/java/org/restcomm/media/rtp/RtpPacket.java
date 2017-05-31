@@ -89,6 +89,13 @@ public class RtpPacket implements Serializable {
     public ByteBuffer getBuffer() {
         return buffer;
     }
+    
+    public byte[] getRawData() {
+        byte[] data = new byte[getLength()];
+        this.buffer.rewind();
+        this.buffer.get(data);
+        return data;
+    }
 
     /**
      * Verion field.
@@ -303,7 +310,7 @@ public class RtpPacket implements Serializable {
         getPayload(buff, 0);
     }
     
-    public void setPayload(byte[] data) {
+    public void wrap(byte[] data) {
         this.buffer.clear();
         this.buffer.put(data);
         this.buffer.flip();
