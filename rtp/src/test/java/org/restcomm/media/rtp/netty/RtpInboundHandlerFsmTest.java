@@ -21,12 +21,15 @@
 
 package org.restcomm.media.rtp.netty;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import org.junit.After;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 import org.restcomm.media.rtp.RTPInput;
 import org.restcomm.media.rtp.RtpPacket;
 import org.restcomm.media.rtp.jitter.JitterBuffer;
@@ -35,7 +38,6 @@ import org.restcomm.media.rtp.statistics.RtpStatistics;
 import org.restcomm.media.scheduler.Clock;
 import org.restcomm.media.sdp.format.AVProfile;
 import org.restcomm.media.sdp.format.RTPFormat;
-import org.restcomm.media.spi.ConnectionMode;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -68,7 +70,6 @@ public class RtpInboundHandlerFsmTest {
 
         // when
         fsm.start();
-        fsm.fire(RtpInboundHandlerEvent.ACTIVATE);
 
         // then
         verify(rtpInput).activate();
@@ -80,37 +81,6 @@ public class RtpInboundHandlerFsmTest {
         // then
         verify(rtpInput).deactivate();
         verify(dtmfInput).deactivate();
-    }
-
-    @Test
-    public void testFormatChangedWhenIdle() {
-        // given
-        final RtpInboundHandlerGlobalContext context = mock(RtpInboundHandlerGlobalContext.class);
-        this.fsm = RtpInboundHandlerFsmBuilder.INSTANCE.build(context);
-
-        // when
-        fsm.start();
-        fsm.fire(RtpInboundHandlerEvent.FORMAT_CHANGED, new RtpInboundHandlerFormatChangedContext(AVProfile.audio));
-
-        // then
-        verify(context).setFormats(AVProfile.audio);
-        assertEquals(RtpInboundHandlerState.IDLE, fsm.getCurrentState());
-    }
-
-    @Test
-    public void testConnectionModeChangedWhenIdle() {
-        // given
-        final RtpInboundHandlerGlobalContext context = mock(RtpInboundHandlerGlobalContext.class);
-        this.fsm = RtpInboundHandlerFsmBuilder.INSTANCE.build(context);
-
-        // when
-        fsm.start();
-        fsm.fire(RtpInboundHandlerEvent.MODE_CHANGED, new RtpInboundHandlerUpdateModeContext(ConnectionMode.NETWORK_LOOPBACK));
-
-        // then
-        verify(context).setLoopable(true);
-        verify(context).setReceivable(false);
-        assertEquals(RtpInboundHandlerState.IDLE, fsm.getCurrentState());
     }
     
     @Test
@@ -133,7 +103,6 @@ public class RtpInboundHandlerFsmTest {
         context.setFormats(AVProfile.audio);
         context.setReceivable(true);
         context.setLoopable(false);
-        fsm.fire(RtpInboundHandlerEvent.ACTIVATE);
         fsm.fireImmediate(RtpInboundHandlerEvent.PACKET_RECEIVED, new RtpInboundHandlerPacketReceivedContext(packet));
 
         // then
@@ -161,7 +130,6 @@ public class RtpInboundHandlerFsmTest {
         context.setFormats(AVProfile.audio);
         context.setReceivable(true);
         context.setLoopable(false);
-        fsm.fire(RtpInboundHandlerEvent.ACTIVATE);
         fsm.fireImmediate(RtpInboundHandlerEvent.PACKET_RECEIVED, new RtpInboundHandlerPacketReceivedContext(packet));
         
         // then
@@ -189,7 +157,6 @@ public class RtpInboundHandlerFsmTest {
         context.setFormats(AVProfile.audio);
         context.setReceivable(true);
         context.setLoopable(false);
-        fsm.fire(RtpInboundHandlerEvent.ACTIVATE);
         fsm.fireImmediate(RtpInboundHandlerEvent.PACKET_RECEIVED, new RtpInboundHandlerPacketReceivedContext(packet));
         
         // then

@@ -26,8 +26,6 @@ import org.restcomm.media.rtp.RtpChannel;
 import org.restcomm.media.rtp.RtpPacket;
 import org.restcomm.media.rtp.statistics.RtpStatistics;
 import org.restcomm.media.sdp.format.RTPFormat;
-import org.restcomm.media.sdp.format.RTPFormats;
-import org.restcomm.media.spi.ConnectionMode;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -56,48 +54,6 @@ public class RtpInboundHandlerFsmImpl extends AbstractRtpInboundHandlerFsm {
         this.context.getDtmfInput().deactivate();
         this.context.getDtmfInput().reset();
         this.context.getJitterBuffer().restart();
-    }
-
-    @Override
-    public void onModeChanged(RtpInboundHandlerState from, RtpInboundHandlerState to, RtpInboundHandlerEvent event, RtpInboundHandlerTransactionContext context) {
-        final RtpInboundHandlerUpdateModeContext txContext = (RtpInboundHandlerUpdateModeContext) context;
-        final ConnectionMode mode = txContext.getMode();
-
-        switch (mode) {
-            case INACTIVE:
-            case SEND_ONLY:
-                this.context.setLoopable(false);
-                this.context.setReceivable(false);
-                break;
-
-            case RECV_ONLY:
-                this.context.setLoopable(false);
-                this.context.setReceivable(true);
-                break;
-
-            case SEND_RECV:
-            case CONFERENCE:
-                this.context.setLoopable(false);
-                this.context.setReceivable(true);
-                break;
-
-            case NETWORK_LOOPBACK:
-                this.context.setLoopable(true);
-                this.context.setReceivable(false);
-                break;
-
-            default:
-                this.context.setLoopable(false);
-                this.context.setReceivable(false);
-                break;
-        }
-    }
-
-    @Override
-    public void onFormatChanged(RtpInboundHandlerState from, RtpInboundHandlerState to, RtpInboundHandlerEvent event, RtpInboundHandlerTransactionContext context) {
-        final RtpInboundHandlerFormatChangedContext txContext = (RtpInboundHandlerFormatChangedContext) context;
-        final RTPFormats formats = txContext.getFormats();
-        this.context.setFormats(formats);
     }
 
     @Override

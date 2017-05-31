@@ -29,6 +29,6 @@ package org.restcomm.media.rtp.netty;
  */
 public enum RtpInboundHandlerState {
 
-    IDLE, ACTIVATED, DEACTIVATED;
+    ACTIVATED, DEACTIVATED;
 
 }

@@ -36,17 +36,10 @@ public class RtpInboundHandlerFsmBuilder {
 
     private final StateMachineBuilder<RtpInboundHandlerFsm, RtpInboundHandlerState, RtpInboundHandlerEvent, RtpInboundHandlerTransactionContext> builder;
 
-    public RtpInboundHandlerFsmBuilder() {
+    private RtpInboundHandlerFsmBuilder() {
         this.builder = StateMachineBuilderFactory.<RtpInboundHandlerFsm, RtpInboundHandlerState, RtpInboundHandlerEvent, RtpInboundHandlerTransactionContext> create(RtpInboundHandlerFsmImpl.class, RtpInboundHandlerState.class, RtpInboundHandlerEvent.class, RtpInboundHandlerTransactionContext.class, RtpInboundHandlerGlobalContext.class);
 
-        this.builder.internalTransition().within(RtpInboundHandlerState.IDLE).on(RtpInboundHandlerEvent.MODE_CHANGED).callMethod("onModeChanged");
-        this.builder.internalTransition().within(RtpInboundHandlerState.IDLE).on(RtpInboundHandlerEvent.FORMAT_CHANGED).callMethod("onFormatChanged");
-        this.builder.externalTransition().from(RtpInboundHandlerState.IDLE).to(RtpInboundHandlerState.ACTIVATED).on(RtpInboundHandlerEvent.ACTIVATE);
-        this.builder.externalTransition().from(RtpInboundHandlerState.IDLE).toFinal(RtpInboundHandlerState.DEACTIVATED).on(RtpInboundHandlerEvent.DEACTIVATE);
-        
         this.builder.onEntry(RtpInboundHandlerState.ACTIVATED).callMethod("enterActivated");
-        this.builder.internalTransition().within(RtpInboundHandlerState.ACTIVATED).on(RtpInboundHandlerEvent.MODE_CHANGED).callMethod("onModeChanged");
-        this.builder.internalTransition().within(RtpInboundHandlerState.ACTIVATED).on(RtpInboundHandlerEvent.FORMAT_CHANGED).callMethod("onFormatChanged");
         this.builder.internalTransition().within(RtpInboundHandlerState.ACTIVATED).on(RtpInboundHandlerEvent.PACKET_RECEIVED).callMethod("onPacketReceived");
         this.builder.externalTransition().from(RtpInboundHandlerState.ACTIVATED).toFinal(RtpInboundHandlerState.DEACTIVATED).on(RtpInboundHandlerEvent.DEACTIVATE);
         this.builder.onExit(RtpInboundHandlerState.ACTIVATED).callMethod("exitActivated");
@@ -56,7 +49,7 @@ public class RtpInboundHandlerFsmBuilder {
     }
 
     public RtpInboundHandlerFsm build(RtpInboundHandlerGlobalContext context) {
-        return this.builder.newStateMachine(RtpInboundHandlerState.IDLE, context);
+        return this.builder.newStateMachine(RtpInboundHandlerState.ACTIVATED, context);
     }
 
 }

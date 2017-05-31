@@ -29,6 +29,6 @@ package org.restcomm.media.rtp.netty;
  */
 public enum RtpInboundHandlerEvent {
 
-    ACTIVATE, MODE_CHANGED, FORMAT_CHANGED, PACKET_RECEIVED, DEACTIVATE;
+    ACTIVATE, PACKET_RECEIVED, DEACTIVATE;
 
 }

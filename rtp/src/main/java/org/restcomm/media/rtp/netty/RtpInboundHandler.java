@@ -25,6 +25,7 @@ import org.apache.log4j.Logger;
 import org.restcomm.media.rtp.RTPInput;
 import org.restcomm.media.rtp.RtpPacket;
 import org.restcomm.media.rtp.rfc2833.DtmfInput;
+import org.restcomm.media.sdp.format.RTPFormats;
 import org.restcomm.media.spi.ConnectionMode;
 
 import io.netty.channel.ChannelHandlerContext;
@@ -46,20 +47,57 @@ public class RtpInboundHandler extends SimpleChannelInboundHandler<RtpPacket> {
     public RtpInboundHandler(RtpInboundHandlerGlobalContext context) {
         this.context = context;
         this.fsm = RtpInboundHandlerFsmBuilder.INSTANCE.build(context);
-        this.fsm.start();
     }
 
     public void activate() {
-        this.fsm.fire(RtpInboundHandlerEvent.ACTIVATE);
+        if(!this.isActive()) {
+            this.fsm.start();
+        }
     }
 
     public void deactivate() {
-        this.fsm.fire(RtpInboundHandlerEvent.DEACTIVATE);
+        if(this.isActive()) {
+            this.fsm.fire(RtpInboundHandlerEvent.DEACTIVATE);
+        }
     }
-
+    
+    public boolean isActive() {
+        return RtpInboundHandlerState.ACTIVATED.equals(this.fsm.getCurrentState());
+    }
+    
     public void updateMode(ConnectionMode mode) {
-        RtpInboundHandlerUpdateModeContext txContext = new RtpInboundHandlerUpdateModeContext(mode);
-        this.fsm.fire(RtpInboundHandlerEvent.MODE_CHANGED, txContext);
+        switch (mode) {
+            case INACTIVE:
+            case SEND_ONLY:
+                this.context.setLoopable(false);
+                this.context.setReceivable(false);
+                break;
+
+            case RECV_ONLY:
+                this.context.setLoopable(false);
+                this.context.setReceivable(true);
+                break;
+
+            case SEND_RECV:
+            case CONFERENCE:
+                this.context.setLoopable(false);
+                this.context.setReceivable(true);
+                break;
+
+            case NETWORK_LOOPBACK:
+                this.context.setLoopable(true);
+                this.context.setReceivable(false);
+                break;
+
+            default:
+                this.context.setLoopable(false);
+                this.context.setReceivable(false);
+                break;
+        }
+    }
+    
+    public void setFormatMap(RTPFormats formats) {
+        this.context.setFormats(formats);
     }
 
     public void useJitterBuffer(boolean use) {
@@ -95,7 +133,7 @@ public class RtpInboundHandler extends SimpleChannelInboundHandler<RtpPacket> {
         }
 
         // Check if packet is not empty
-        boolean hasData = (msg.getBuffer().limit() > 0);
+        boolean hasData = (msg.getLength() > 0);
         if (!hasData) {
             if (log.isDebugEnabled()) {
                 log.debug("RTP Channel " + this.context.getStatistics().getSsrc() + " dropped packet because payload was empty.");

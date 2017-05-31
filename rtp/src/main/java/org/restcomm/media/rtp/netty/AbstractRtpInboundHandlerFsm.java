@@ -50,18 +50,6 @@ public class AbstractRtpInboundHandlerFsm extends AbstractStateMachine<RtpInboun
     }
 
     @Override
-    public void onModeChanged(RtpInboundHandlerState from, RtpInboundHandlerState to, RtpInboundHandlerEvent event,
-            RtpInboundHandlerTransactionContext context) {
-    }
-
-    @Override
-    public void onFormatChanged(RtpInboundHandlerState from, RtpInboundHandlerState to, RtpInboundHandlerEvent event,
-            RtpInboundHandlerTransactionContext context) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
     public void onPacketReceived(RtpInboundHandlerState from, RtpInboundHandlerState to, RtpInboundHandlerEvent event,
             RtpInboundHandlerTransactionContext context) {
     }

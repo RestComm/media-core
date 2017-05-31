@@ -1,8 +1,6 @@
 @startuml
-[*] --> IDLE
-IDLE -> IDLE : mode_changed/format_changed
-IDLE --> ACTIVATED : activate
-ACTIVATED -> ACTIVATED : mode_changed/format_changed/packet_received
+[*] --> ACTIVATED
+ACTIVATED -> ACTIVATED : packet_received
 ACTIVATED --> DEACTIVATED : deactivate
 DEACTIVATED --> [*]
 @enduml
