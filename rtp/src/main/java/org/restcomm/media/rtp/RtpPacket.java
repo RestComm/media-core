@@ -89,7 +89,7 @@ public class RtpPacket implements Serializable {
     public ByteBuffer getBuffer() {
         return buffer;
     }
-    
+
     /**
      * Verion field.
      *
@@ -298,6 +298,16 @@ public class RtpPacket implements Serializable {
         buffer.position(FIXED_HEADER_SIZE);
         buffer.get(buff, offset, buffer.limit() - FIXED_HEADER_SIZE);
     }
+    
+    public void getPayload(byte[] buff) {
+        getPayload(buff, 0);
+    }
+    
+    public void setPayload(byte[] data) {
+        this.buffer.clear();
+        this.buffer.put(data);
+        this.buffer.flip();
+    }
 
     /**
      * Encapsulates data into the packet for transmission via RTP.
@@ -464,6 +474,10 @@ public class RtpPacket implements Serializable {
     public int getLength()
     {
         return buffer.limit();
+    }
+    
+    public int getOffset() {
+        return this.buffer.position();
     }
     
     /**

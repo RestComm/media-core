@@ -21,8 +21,12 @@
         
 package org.restcomm.media.rtp.netty;
 
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import org.junit.After;
 import org.junit.Test;
@@ -33,7 +37,6 @@ import org.restcomm.media.rtp.rfc2833.DtmfInput;
 import org.restcomm.media.rtp.statistics.RtpStatistics;
 import org.restcomm.media.scheduler.Clock;
 import org.restcomm.media.sdp.format.AVProfile;
-import org.restcomm.media.sdp.format.RTPFormat;
 import org.restcomm.media.spi.ConnectionMode;
 
 import io.netty.channel.embedded.EmbeddedChannel;
