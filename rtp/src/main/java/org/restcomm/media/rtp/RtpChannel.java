@@ -103,7 +103,7 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener, IceE
 
     // Media formats
     protected final static AudioFormat LINEAR_FORMAT = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
-    protected final static AudioFormat DTMF_FORMAT = FormatFactory.createAudioFormat("telephone-event", 8000);
+    public final static AudioFormat DTMF_FORMAT = FormatFactory.createAudioFormat("telephone-event", 8000);
     static {
         DTMF_FORMAT.setOptions(new Text("0-15"));
     }

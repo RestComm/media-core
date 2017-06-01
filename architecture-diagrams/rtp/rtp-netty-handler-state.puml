@@ -1,0 +1,6 @@
+@startuml
+[*] --> ACTIVATED
+ACTIVATED -> ACTIVATED : packet_received
+ACTIVATED --> DEACTIVATED : deactivate
+DEACTIVATED --> [*]
+@enduml
