@@ -1,0 +1,38 @@
+@startuml
+class RtpDemultiplexer
+class RtpInboundHandler
+class RtpInput
+class DtmfInput
+interface JitterBuffer
+class FixedJitterBuffer
+class RtpOutboundHandler
+class RtpOutput
+class DtmfOutput
+class MgcpRemoteConnection
+class RtpSession
+class RtpSessionContext
+class RtpStatistics
+abstract class AsyncNettyNetworkChannel
+class RtpChannel
+
+MgcpRemoteConnection *--> RtpSession : open close
+RtpSession -> RtpChannel : send receive
+RtpSession *--> RtpSessionContext
+RtpSessionContext *--> RtpStatistics
+
+AsyncNettyNetworkChannel <|-- RtpChannel
+RtpChannel --> RtpDemultiplexer : read
+RtpChannel <-- RtpOutboundHandler : write
+
+RtpDemultiplexer --> RtpInboundHandler : RtpPacket
+RtpInboundHandler --> DtmfInput : write
+RtpInboundHandler --> JitterBuffer : write
+JitterBuffer <|-- FixedJitterBuffer
+RtpInput -> JitterBuffer : read
+
+RtpOutboundHandler <-- DtmfOutput : write
+RtpOutboundHandler <-- RtpOutput : write
+
+RtpStatistics <- RtpInboundHandler : update
+RtpStatistics <- RtpOutboundHandler : update
+@enduml
