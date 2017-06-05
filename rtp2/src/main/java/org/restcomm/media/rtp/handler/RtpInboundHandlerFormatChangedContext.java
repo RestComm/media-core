@@ -18,29 +18,26 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
-package org.restcomm.media.rtp;
 
-import org.restcomm.media.network.netty.NettyNetworkManager;
-import org.restcomm.media.network.netty.channel.AsyncNettyNetworkChannel;
-import org.restcomm.media.network.netty.channel.NettyNetworkChannelGlobalContext;
+package org.restcomm.media.rtp.handler;
+
+import org.restcomm.media.sdp.format.RTPFormats;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpChannel extends AsyncNettyNetworkChannel<RtpPacket>{
+public class RtpInboundHandlerFormatChangedContext implements RtpInboundHandlerTransactionContext {
 
-    public RtpChannel(NettyNetworkChannelGlobalContext context) {
-        super(context);
-        // TODO Auto-generated constructor stub
+    private final RTPFormats formats;
+
+    public RtpInboundHandlerFormatChangedContext(RTPFormats formats) {
+        super();
+        this.formats = formats;
     }
 
-    public RtpChannel(NettyNetworkManager networkManager) {
-        super(networkManager);
-        // TODO Auto-generated constructor stub
+    public RTPFormats getFormats() {
+        return formats;
     }
 
-    
-    
 }

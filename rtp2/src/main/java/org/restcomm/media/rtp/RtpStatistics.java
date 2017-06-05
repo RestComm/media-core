@@ -24,6 +24,8 @@ package org.restcomm.media.rtp;
 import org.restcomm.media.scheduler.Clock;
 
 /**
+ * Exposes statistics of an RTP session.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */

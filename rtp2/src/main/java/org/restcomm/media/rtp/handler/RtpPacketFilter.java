@@ -18,29 +18,41 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
-package org.restcomm.media.rtp;
 
-import org.restcomm.media.network.netty.NettyNetworkManager;
-import org.restcomm.media.network.netty.channel.AsyncNettyNetworkChannel;
-import org.restcomm.media.network.netty.channel.NettyNetworkChannelGlobalContext;
+package org.restcomm.media.rtp.handler;
+
+import org.restcomm.media.rtp.RtpPacket;
+
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.util.ReferenceCountUtil;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpChannel extends AsyncNettyNetworkChannel<RtpPacket>{
+public class RtpPacketFilter extends SimpleChannelInboundHandler<RtpPacket> {
 
-    public RtpChannel(NettyNetworkChannelGlobalContext context) {
-        super(context);
-        // TODO Auto-generated constructor stub
+    public RtpPacketFilter() {
+        super(false);
     }
 
-    public RtpChannel(NettyNetworkManager networkManager) {
-        super(networkManager);
-        // TODO Auto-generated constructor stub
+    @Override
+    protected void channelRead0(ChannelHandlerContext ctx, RtpPacket msg) throws Exception {
+        // Drop message is packet does not contain any payload
+        int payloadLength = msg.getPayloadLength();
+        if (payloadLength <= 0) {
+            ReferenceCountUtil.release(msg);
+            return;
+        }
+
+        // Drop message if RTP version is unsupported
+        int version = msg.getVersion();
+        if (RtpPacket.VERSION != version) {
+            ReferenceCountUtil.release(msg);
+            return;
+        }
+
     }
 
-    
-    
 }

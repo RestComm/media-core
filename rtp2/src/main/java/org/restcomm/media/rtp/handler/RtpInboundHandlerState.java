@@ -18,29 +18,17 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
-package org.restcomm.media.rtp;
 
-import org.restcomm.media.network.netty.NettyNetworkManager;
-import org.restcomm.media.network.netty.channel.AsyncNettyNetworkChannel;
-import org.restcomm.media.network.netty.channel.NettyNetworkChannelGlobalContext;
+package org.restcomm.media.rtp.handler;
 
 /**
+ * Set of states that form the {@link RtpInboundHandler} finite state machine.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpChannel extends AsyncNettyNetworkChannel<RtpPacket>{
+public enum RtpInboundHandlerState {
 
-    public RtpChannel(NettyNetworkChannelGlobalContext context) {
-        super(context);
-        // TODO Auto-generated constructor stub
-    }
+    ACTIVATED, DEACTIVATED;
 
-    public RtpChannel(NettyNetworkManager networkManager) {
-        super(networkManager);
-        // TODO Auto-generated constructor stub
-    }
-
-    
-    
 }
