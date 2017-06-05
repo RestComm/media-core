@@ -367,9 +367,17 @@ public class RtpPacket implements Serializable {
      */
     private long readUnsignedIntAsLong(int off) {
         buffer.position(off);
-        long value = (((long) (buffer.get() & 0xff) << 24) | ((long) (buffer.get() & 0xff) << 16)
-                | ((long) (buffer.get() & 0xff) << 8) | ((long) (buffer.get() & 0xff))) & 0xFFFFFFFFL;
+        long value = (((long) (buffer.get() & 0xff) << 24) 
+                | ((long) (buffer.get() & 0xff) << 16)
+                | ((long) (buffer.get() & 0xff) << 8) 
+                | ((long) (buffer.get() & 0xff))) & 0xFFFFFFFFL;
         buffer.rewind();
         return value;
+    }
+    
+    public byte[] toRaw() {
+        byte[] data = new byte[getLength()];
+        this.buffer.get(data);
+        return data;
     }
 }
