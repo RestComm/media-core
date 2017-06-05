@@ -51,7 +51,7 @@ public class RtpInboundHandlerGlobalContext {
     private final AtomicBoolean loopable;
     private final AtomicBoolean receivable;
 
-    RtpInboundHandlerGlobalContext(Clock clock, RtpStatistics statistics, JitterBuffer jitterBuffer, RtpInput rtpInput, DtmfInput dtmfInput) {
+    public RtpInboundHandlerGlobalContext(Clock clock, RtpStatistics statistics, JitterBuffer jitterBuffer, RtpInput rtpInput, DtmfInput dtmfInput) {
         // RTP Components
         this.clock = clock;
         this.statistics = statistics;
