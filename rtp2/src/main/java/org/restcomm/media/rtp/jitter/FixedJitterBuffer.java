@@ -22,7 +22,6 @@
 
 package org.restcomm.media.rtp.jitter;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
@@ -32,6 +31,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
+import org.restcomm.media.rtp.RtpClock;
 import org.restcomm.media.rtp.RtpPacket;
 import org.restcomm.media.sdp.format.RTPFormat;
 import org.restcomm.media.spi.memory.Frame;
@@ -192,16 +192,6 @@ public class FixedJitterBuffer implements JitterBuffer {
         this.useBuffer = useBuffer;
     }
 
-    /**
-     * Assigns listener for this buffer.
-     * 
-     * @param listener the listener object.
-     */
-    @Override
-    public void setListener(BufferListener listener) {
-        this.listener = listener;
-    }
-
     private void safeWrite(RtpPacket packet, RTPFormat format) {
         if (this.format == null || this.format.getID() != format.getID()) {
             this.format = format;
@@ -213,7 +203,7 @@ public class FixedJitterBuffer implements JitterBuffer {
         // if this is first packet then synchronize clock
         if (isn == -1) {
             rtpClock.synchronize(packet.getTimestamp());
-            isn = packet.getSeqNumber();
+            isn = packet.getSequenceNumber();
             initJitter(packet);
         } else {
             estimateJitter(packet);
@@ -228,7 +218,7 @@ public class FixedJitterBuffer implements JitterBuffer {
         if (packet.getTimestamp() < this.arrivalDeadLine) {
             if (log.isTraceEnabled()) {
                 log.trace("drop packet: dead line=" + arrivalDeadLine + ", packet time=" + packet.getTimestamp() + ", seq="
-                        + packet.getSeqNumber() + ", payload length=" + packet.getPayloadLength() + ", format="
+                        + packet.getSequenceNumber() + ", payload length=" + packet.getPayloadLength() + ", format="
                         + this.format.toString());
             }
             dropCount++;
@@ -245,7 +235,7 @@ public class FixedJitterBuffer implements JitterBuffer {
         Frame f = Memory.allocate(packet.getPayloadLength());
         // put packet into buffer irrespective of its sequence number
         f.setHeader(null);
-        f.setSequenceNumber(packet.getSeqNumber());
+        f.setSequenceNumber(packet.getSequenceNumber());
         // here time is in milliseconds
         f.setTimestamp(rtpClock.convertToAbsoluteTime(packet.getTimestamp()));
         f.setOffset(0);
