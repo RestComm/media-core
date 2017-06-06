@@ -62,6 +62,7 @@
         <module>ice</module>
         <module>stun</module>
         <module>rtp</module>
+        <module>rtp2</module>
         <module>pcap</module>
         <module>sdp</module>
         <module>resources</module>
@@ -172,6 +173,7 @@
         <module>ice</module>
         <module>stun</module>
         <module>rtp</module>
+        <module>rtp2</module>
         <module>pcap</module>
         <module>sdp</module>
         <module>resources</module>
