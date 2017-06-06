@@ -1,0 +1,16 @@
+@startuml
+state SETUP {
+[*] --> BINDING
+BINDING --> CONNECTING
+CONNECTING --> [*]
+}
+
+[*] --> SETUP
+SETUP --> OPEN : open
+SETUP --> CLOSED : close
+OPEN -> NEGOTIATING : negotiate
+OPEN --> CLOSED : close
+NEGOTIATING -> OPEN : open
+NEGOTIATING --> CLOSED : close
+CLOSED --> [*]
+@enduml
