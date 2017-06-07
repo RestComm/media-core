@@ -18,15 +18,34 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
+
 package org.restcomm.media.rtp.session;
+
+import com.google.common.util.concurrent.FutureCallback;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum RtpSessionEvent {
-    
-    OPEN, ALLOCATED, BOUND, OPENED, NEGOTIATE, NEGOTIATED_FORMATS, CONNECTED, NEGOTIATED, CLOSE
+public class RtpSessionAllocateCallback implements FutureCallback<Void> {
+
+    private final RtpSessionFsm fsm;
+    private final RtpSessionOpenContext context;
+
+    public RtpSessionAllocateCallback(RtpSessionFsm fsm, RtpSessionOpenContext context) {
+        this.fsm = fsm;
+        this.context = context;
+    }
+
+    @Override
+    public void onSuccess(Void result) {
+        // RTP Channel opened successfully
+        this.fsm.fire(RtpSessionEvent.ALLOCATED, this.context);
+    }
+
+    @Override
+    public void onFailure(Throwable t) {
+        this.fsm.fire(RtpSessionEvent.CLOSE);
+    }
 
 }

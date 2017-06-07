@@ -31,27 +31,51 @@ import org.squirrelframework.foundation.fsm.StateMachine;
  */
 public interface RtpSessionFsm extends StateMachine<RtpSessionFsm, RtpSessionState, RtpSessionEvent, RtpSessionTransactionContext> {
 
+    void enterOpening(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context);
+    
+    void exitOpening(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context);
+
+    void enterAllocating(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context);
+    
+    void exitAllocating(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context);
+
     void enterBinding(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context);
 
     void exitBinding(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context);
 
+    void enterOpened(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context);
+    
+    void exitOpened(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context);
+
+    void enterOpen(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context);
+    
+    void exitOpen(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context);
+
+    void enterNegotiating(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context);
+    
+    void exitNegotiating(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context);
+
+    void enterNegotiatingFormats(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context);
+    
+    void exitNegotiatingFormats(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context);
+
     void enterConnecting(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context);
 
     void exitConnecting(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context);
-
-    void enterOpen(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context);
-
-    void exitOpen(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context);
+    
+    void enterNegotiated(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context);
+    
+    void exitNegotiated(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context);
+    
+    void enterEstablished(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context);
+    
+    void exitEstablished(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context);
 
     void onModeUpdate(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context);
 
     void onIncomingPacket(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context);
 
     void onOutgoingPacket(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context);
-
-    void enterNegotiating(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context);
-
-    void exitNegotiating(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context);
 
     void enterClosed(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context);
 

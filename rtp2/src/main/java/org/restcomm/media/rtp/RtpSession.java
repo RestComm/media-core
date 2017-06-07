@@ -24,9 +24,11 @@ package org.restcomm.media.rtp;
 import org.restcomm.media.rtp.session.RtpSessionEvent;
 import org.restcomm.media.rtp.session.RtpSessionFsm;
 import org.restcomm.media.rtp.session.RtpSessionFsmBuilder;
-import org.restcomm.media.rtp.session.RtpSessionModeUpdateContext;
-import org.restcomm.media.rtp.session.RtpSessionOutgoingPacketContext;
+import org.restcomm.media.rtp.session.RtpSessionState;
+import org.restcomm.media.sdp.SessionDescription;
 import org.restcomm.media.spi.ConnectionMode;
+
+import com.google.common.util.concurrent.FutureCallback;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -42,23 +44,31 @@ public class RtpSession {
         this.fsm = RtpSessionFsmBuilder.INSTANCE.build(this.context);
     }
 
+    public void open(SessionDescription sdp, FutureCallback<Void> callback) {
+        // TODO
+        this.fsm.fire(RtpSessionEvent.OPEN);
+    }
+
+    public void close(FutureCallback<Void> callback) {
+        // TODO
+        this.fsm.fire(RtpSessionEvent.CLOSE);
+    }
+
     public void updateMode(ConnectionMode mode) {
-        RtpSessionModeUpdateContext txContext = new RtpSessionModeUpdateContext(mode);
-        this.fsm.fire(RtpSessionEvent.MODE_UPDATE, txContext);
+        if (!RtpSessionState.CLOSED.equals(this.fsm.getCurrentState())) {
+            this.context.setMode(mode);
+            // TODO update input/output ???
+        }
     }
 
     public void incomingRtp(RtpPacket packet) {
-        RtpSessionOutgoingPacketContext txContext = new RtpSessionOutgoingPacketContext(packet);
-        this.fsm.fire(RtpSessionEvent.INCOMING_PACKET, txContext);
+        // RtpSessionOutgoingPacketContext txContext = new RtpSessionOutgoingPacketContext(packet);
+        // this.fsm.fire(RtpSessionEvent.INCOMING_PACKET, txContext);
     }
 
     public void outgoingRtp(RtpPacket packet) {
-        RtpSessionOutgoingPacketContext txContext = new RtpSessionOutgoingPacketContext(packet);
-        this.fsm.fire(RtpSessionEvent.OUTGOING_PACKET, txContext);
-    }
-
-    public void close() {
-        this.fsm.fire(RtpSessionEvent.CLOSE);
+        // RtpSessionOutgoingPacketContext txContext = new RtpSessionOutgoingPacketContext(packet);
+        // this.fsm.fire(RtpSessionEvent.OUTGOING_PACKET, txContext);
     }
 
 }

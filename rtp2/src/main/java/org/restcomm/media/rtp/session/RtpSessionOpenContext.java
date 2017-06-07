@@ -31,12 +31,12 @@ import org.restcomm.media.rtp.RtpChannel;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpSessionBindContext implements RtpSessionTransactionContext {
+public class RtpSessionOpenContext implements RtpSessionTransactionContext {
 
     private final RtpChannel channel;
     private final SocketAddress address;
 
-    public RtpSessionBindContext(RtpChannel channel, SocketAddress address) {
+    public RtpSessionOpenContext(RtpChannel channel, SocketAddress address) {
         super();
         this.channel = channel;
         this.address = address;

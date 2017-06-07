@@ -30,14 +30,16 @@ import com.google.common.util.concurrent.FutureCallback;
 public class RtpSessionBindCallback implements FutureCallback<Void> {
 
     private final RtpSessionFsm fsm;
+    private final RtpSessionTransactionContext context;
 
-    public RtpSessionBindCallback(RtpSessionFsm fsm) {
+    public RtpSessionBindCallback(RtpSessionFsm fsm, RtpSessionTransactionContext context) {
         this.fsm = fsm;
+        this.context = context;
     }
 
     @Override
     public void onSuccess(Void result) {
-        fsm.fire(RtpSessionEvent.BOUND);
+        fsm.fire(RtpSessionEvent.BOUND, this.context);
     }
 
     @Override

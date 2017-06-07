@@ -40,16 +40,24 @@ public class RtpSessionFsmBuilder {
     private RtpSessionFsmBuilder() {
         this.builder = StateMachineBuilderFactory.<RtpSessionFsm, RtpSessionState, RtpSessionEvent, RtpSessionTransactionContext>create(RtpSessionFsmImpl.class, RtpSessionState.class, RtpSessionEvent.class, RtpSessionTransactionContext.class, RtpSessionContext.class);
 
-        this.builder.defineSequentialStatesOn(RtpSessionState.SETUP, RtpSessionState.BINDING, RtpSessionState.CONNECTING);
-        this.builder.externalTransition().from(RtpSessionState.SETUP).toFinal(RtpSessionState.CLOSED).on(RtpSessionEvent.CLOSE);
+        this.builder.externalTransition().from(RtpSessionState.IDLE).to(RtpSessionState.OPENING).on(RtpSessionEvent.OPEN);
         
+        this.builder.onEntry(RtpSessionState.OPENING).callMethod("enterOpening");
+        this.builder.defineSequentialStatesOn(RtpSessionState.OPENING, RtpSessionState.ALLOCATING, RtpSessionState.BINDING, RtpSessionState.OPENED);
+        this.builder.externalTransition().from(RtpSessionState.OPENING).to(RtpSessionState.OPEN).on(RtpSessionEvent.OPENED);
+        this.builder.externalTransition().from(RtpSessionState.OPENING).toFinal(RtpSessionState.CLOSED).on(RtpSessionEvent.CLOSE);
+        this.builder.onExit(RtpSessionState.OPENING).callMethod("exitOpening");
+        
+        this.builder.onEntry(RtpSessionState.ALLOCATING).callMethod("enterAllocating");
+        this.builder.localTransition().from(RtpSessionState.ALLOCATING).to(RtpSessionState.BINDING).on(RtpSessionEvent.ALLOCATED);
+        this.builder.onExit(RtpSessionState.ALLOCATING).callMethod("exitAllocating");
+
         this.builder.onEntry(RtpSessionState.BINDING).callMethod("enterBinding");
-        this.builder.localTransition().from(RtpSessionState.BINDING).to(RtpSessionState.CONNECTING).on(RtpSessionEvent.CONNECT);
+        this.builder.localTransition().from(RtpSessionState.BINDING).toFinal(RtpSessionState.OPENED).on(RtpSessionEvent.BOUND);
         this.builder.onExit(RtpSessionState.BINDING).callMethod("exitBinding");
 
-        this.builder.onEntry(RtpSessionState.CONNECTING).callMethod("enterConnecting");
-        this.builder.localTransition().from(RtpSessionState.CONNECTING).to(RtpSessionState.OPEN).on(RtpSessionEvent.OPEN);
-        this.builder.onExit(RtpSessionState.CONNECTING).callMethod("exitConnecting");
+        this.builder.onEntry(RtpSessionState.OPENED).callMethod("enterOpened");
+        this.builder.onExit(RtpSessionState.OPENED).callMethod("exitOpened");
 
         this.builder.onEntry(RtpSessionState.OPEN).callMethod("enterOpen");
         this.builder.externalTransition().from(RtpSessionState.OPEN).to(RtpSessionState.NEGOTIATING).on(RtpSessionEvent.NEGOTIATE);
@@ -57,15 +65,29 @@ public class RtpSessionFsmBuilder {
         this.builder.onExit(RtpSessionState.OPEN).callMethod("exitOpen");
 
         this.builder.onEntry(RtpSessionState.NEGOTIATING).callMethod("enterNegotiating");
+        this.builder.defineSequentialStatesOn(RtpSessionState.NEGOTIATING, RtpSessionState.NEGOTIATING_FORMATS, RtpSessionState.CONNECTING, RtpSessionState.NEGOTIATIED);
         this.builder.externalTransition().from(RtpSessionState.NEGOTIATING).to(RtpSessionState.OPEN).on(RtpSessionEvent.OPEN);
         this.builder.externalTransition().from(RtpSessionState.NEGOTIATING).toFinal(RtpSessionState.CLOSED).on(RtpSessionEvent.CLOSE);
         this.builder.onExit(RtpSessionState.NEGOTIATING).callMethod("exitNegotiating");
+
+        this.builder.onEntry(RtpSessionState.NEGOTIATING_FORMATS).callMethod("enterNegotiatingFormats");
+        this.builder.localTransition().from(RtpSessionState.NEGOTIATING_FORMATS).to(RtpSessionState.CONNECTING).on(RtpSessionEvent.NEGOTIATED_FORMATS);
+        this.builder.onExit(RtpSessionState.NEGOTIATING_FORMATS).callMethod("exitNegotiatingFormats");
+
+        this.builder.onEntry(RtpSessionState.CONNECTING).callMethod("enterConnecting");
+        this.builder.localTransition().from(RtpSessionState.CONNECTING).toFinal(RtpSessionState.NEGOTIATIED).on(RtpSessionEvent.CONNECTED);
+        this.builder.onExit(RtpSessionState.CONNECTING).callMethod("exitConnecting");
+        
+        this.builder.onEntry(RtpSessionState.ESTABLISHED).callMethod("enterEstablished");
+        this.builder.externalTransition().from(RtpSessionState.ESTABLISHED).to(RtpSessionState.NEGOTIATING).on(RtpSessionEvent.NEGOTIATE);
+        this.builder.externalTransition().from(RtpSessionState.ESTABLISHED).toFinal(RtpSessionState.CLOSED).on(RtpSessionEvent.CLOSE);
+        this.builder.onExit(RtpSessionState.ESTABLISHED).callMethod("exitEstablished");
         
         this.builder.onEntry(RtpSessionState.CLOSED).callMethod("enterClosed");
     }
 
     public RtpSessionFsm build(RtpSessionContext context) {
-        return this.builder.newStateMachine(RtpSessionState.SETUP, context);
+        return this.builder.newStateMachine(RtpSessionState.IDLE, context);
     }
 
 }

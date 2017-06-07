@@ -21,6 +21,8 @@
 
 package org.restcomm.media.rtp;
 
+import java.net.SocketAddress;
+
 import org.restcomm.media.sdp.format.RTPFormats;
 import org.restcomm.media.spi.ConnectionMode;
 
@@ -35,6 +37,8 @@ public class RtpSessionContext {
     private final RtpStatistics statistics;
     private final RTPFormats supportedFormats;
 
+    private SocketAddress localAddress;
+    private SocketAddress remoteAddress;
     private RTPFormats negotiatedFormats;
     private ConnectionMode mode;
 
@@ -72,7 +76,7 @@ public class RtpSessionContext {
     public void setNegotiatedFormats(RTPFormats negotiatedFormats) {
         this.negotiatedFormats = negotiatedFormats;
     }
-    
+
     public boolean isFormatSupported(int payloadType) {
         return this.negotiatedFormats.contains(payloadType);
     }
@@ -83,6 +87,22 @@ public class RtpSessionContext {
 
     public void setMode(ConnectionMode mode) {
         this.mode = mode;
+    }
+
+    public SocketAddress getLocalAddress() {
+        return localAddress;
+    }
+
+    public void setLocalAddress(SocketAddress localAddress) {
+        this.localAddress = localAddress;
+    }
+
+    public SocketAddress getRemoteAddress() {
+        return remoteAddress;
+    }
+
+    public void setRemoteAddress(SocketAddress remoteAddress) {
+        this.remoteAddress = remoteAddress;
     }
 
 }
