@@ -19,24 +19,30 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.rtp;
+package org.restcomm.media.rtp.session;
 
-import org.restcomm.media.network.netty.NettyNetworkManager;
-import org.restcomm.media.network.netty.channel.AsyncNettyNetworkChannel;
-import org.restcomm.media.network.netty.channel.NettyNetworkChannelGlobalContext;
+import com.google.common.util.concurrent.FutureCallback;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpChannel extends AsyncNettyNetworkChannel<RtpPacket> {
+public class RtpSessionBindCallback implements FutureCallback<Void> {
 
-    public RtpChannel(NettyNetworkChannelGlobalContext context) {
-        super(context);
+    private final RtpSessionFsm fsm;
+
+    public RtpSessionBindCallback(RtpSessionFsm fsm) {
+        this.fsm = fsm;
     }
 
-    public RtpChannel(NettyNetworkManager networkManager) {
-        super(networkManager);
+    @Override
+    public void onSuccess(Void result) {
+        fsm.fire(RtpSessionEvent.BOUND);
+    }
+
+    @Override
+    public void onFailure(Throwable t) {
+        fsm.fire(RtpSessionEvent.CLOSE);
     }
 
 }

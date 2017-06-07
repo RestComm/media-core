@@ -21,22 +21,14 @@
 
 package org.restcomm.media.rtp;
 
-import org.restcomm.media.network.netty.NettyNetworkManager;
-import org.restcomm.media.network.netty.channel.AsyncNettyNetworkChannel;
-import org.restcomm.media.network.netty.channel.NettyNetworkChannelGlobalContext;
-
 /**
+ * List of supported media types.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpChannel extends AsyncNettyNetworkChannel<RtpPacket> {
+public enum MediaType {
 
-    public RtpChannel(NettyNetworkChannelGlobalContext context) {
-        super(context);
-    }
-
-    public RtpChannel(NettyNetworkManager networkManager) {
-        super(networkManager);
-    }
+    AUDIO, VIDEO, DATA;
 
 }

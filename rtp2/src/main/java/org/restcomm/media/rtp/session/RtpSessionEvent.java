@@ -18,25 +18,15 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
-package org.restcomm.media.rtp;
-
-import org.restcomm.media.network.netty.NettyNetworkManager;
-import org.restcomm.media.network.netty.channel.AsyncNettyNetworkChannel;
-import org.restcomm.media.network.netty.channel.NettyNetworkChannelGlobalContext;
+        
+package org.restcomm.media.rtp.session;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpChannel extends AsyncNettyNetworkChannel<RtpPacket> {
-
-    public RtpChannel(NettyNetworkChannelGlobalContext context) {
-        super(context);
-    }
-
-    public RtpChannel(NettyNetworkManager networkManager) {
-        super(networkManager);
-    }
+public enum RtpSessionEvent {
+    
+    BOUND, CONNECT, CONNECTED, OPEN, MODE_UPDATE, INCOMING_PACKET, OUTGOING_PACKET, NEGOTIATE, CLOSE;
 
 }

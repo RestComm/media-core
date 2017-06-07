@@ -19,24 +19,14 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.rtp;
-
-import org.restcomm.media.network.netty.NettyNetworkManager;
-import org.restcomm.media.network.netty.channel.AsyncNettyNetworkChannel;
-import org.restcomm.media.network.netty.channel.NettyNetworkChannelGlobalContext;
+package org.restcomm.media.rtp.session;
 
 /**
+ * Groups classes that define transaction contexts for the RTP Session FSM.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpChannel extends AsyncNettyNetworkChannel<RtpPacket> {
-
-    public RtpChannel(NettyNetworkChannelGlobalContext context) {
-        super(context);
-    }
-
-    public RtpChannel(NettyNetworkManager networkManager) {
-        super(networkManager);
-    }
+public interface RtpSessionTransactionContext {
 
 }

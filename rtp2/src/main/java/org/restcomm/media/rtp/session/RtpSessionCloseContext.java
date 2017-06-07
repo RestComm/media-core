@@ -19,24 +19,24 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.rtp;
+package org.restcomm.media.rtp.session;
 
-import org.restcomm.media.network.netty.NettyNetworkManager;
-import org.restcomm.media.network.netty.channel.AsyncNettyNetworkChannel;
-import org.restcomm.media.network.netty.channel.NettyNetworkChannelGlobalContext;
+import org.restcomm.media.rtp.RtpChannel;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpChannel extends AsyncNettyNetworkChannel<RtpPacket> {
+public class RtpSessionCloseContext {
 
-    public RtpChannel(NettyNetworkChannelGlobalContext context) {
-        super(context);
+    private final RtpChannel channel;
+
+    public RtpSessionCloseContext(RtpChannel channel) {
+        this.channel = channel;
     }
 
-    public RtpChannel(NettyNetworkManager networkManager) {
-        super(networkManager);
+    public RtpChannel getChannel() {
+        return channel;
     }
 
 }
