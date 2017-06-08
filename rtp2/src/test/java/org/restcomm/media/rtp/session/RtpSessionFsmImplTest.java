@@ -105,6 +105,85 @@ public class RtpSessionFsmImplTest {
     }
 
     @Test
+    public void testNegotiatingFormatsState() {
+        // given
+        final long ssrc = 12345L;
+        final MediaType mediaType = MediaType.AUDIO;
+        final WallClock clock = new WallClock();
+        final RtpChannel channel = mock(RtpChannel.class);
+        final RtpStatistics statistics = new RtpStatistics(clock, ssrc);
+        final RTPFormats formats = AVProfile.audio;
+        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
+        final RtpSessionFsmImpl fsm = spy(new RtpSessionFsmImpl(context));
+        
+        final RTPFormats offeredFormats = new RTPFormats(2);
+        offeredFormats.add(AVProfile.audio.find(8));
+        offeredFormats.add(AVProfile.audio.find(101));
+        final SocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
+        final long remoteSsrc = 54321L;
+
+        doNothing().when(fsm).fire(any(RtpSessionEvent.class), any(RtpSessionTransactionContext.class));
+        
+        // when
+        RtpSessionNegotiateContext negotiateContext = new RtpSessionNegotiateContext(channel, offeredFormats, remoteAddress, remoteSsrc);
+        fsm.enterNegotiatingFormats(RtpSessionState.NEGOTIATING, RtpSessionState.NEGOTIATING_FORMATS, RtpSessionEvent.NEGOTIATE, negotiateContext);
+        
+        // then
+        RTPFormats negotiatedFormats = context.getNegotiatedFormats();
+        assertEquals(2, negotiatedFormats.size());
+        assertNotNull(negotiatedFormats.getRTPFormat(8));
+        assertNotNull(negotiatedFormats.getRTPFormat(101));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testConnectingState() {
+        // given
+        final long ssrc = 12345L;
+        final MediaType mediaType = MediaType.AUDIO;
+        final WallClock clock = new WallClock();
+        final RtpChannel channel = mock(RtpChannel.class);
+        final RtpStatistics statistics = new RtpStatistics(clock, ssrc);
+        final RTPFormats formats = AVProfile.audio;
+        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
+        final RtpSessionFsmImpl fsm = new RtpSessionFsmImpl(context);
+        
+        final RTPFormats offeredFormats = new RTPFormats(2);
+        offeredFormats.add(AVProfile.audio.find(8));
+        offeredFormats.add(AVProfile.audio.find(101));
+        final SocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
+        final long remoteSsrc = 54321L;
+        
+        // when
+        RtpSessionNegotiateContext negotiateContext = new RtpSessionNegotiateContext(channel, offeredFormats, remoteAddress, remoteSsrc);
+        fsm.enterConnecting(RtpSessionState.NEGOTIATING_FORMATS, RtpSessionState.CONNECTING, RtpSessionEvent.NEGOTIATED_FORMATS, negotiateContext);
+        
+        // then
+        verify(channel).connect(eq(remoteAddress), any(FutureCallback.class));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testClosedState() {
+        // given
+        final long ssrc = 12345L;
+        final MediaType mediaType = MediaType.AUDIO;
+        final WallClock clock = new WallClock();
+        final RtpChannel channel = mock(RtpChannel.class);
+        final RtpStatistics statistics = new RtpStatistics(clock, ssrc);
+        final RTPFormats formats = AVProfile.audio;
+        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
+        final RtpSessionFsmImpl fsm = new RtpSessionFsmImpl(context);
+        
+        // when
+        RtpSessionCloseContext closeContext = new RtpSessionCloseContext(channel);
+        fsm.enterClosed(RtpSessionState.ESTABLISHED, RtpSessionState.CLOSED, RtpSessionEvent.CLOSE, closeContext);
+        
+        // then
+        verify(channel).close(any(FutureCallback.class));
+    }
+
+    @Test
     @SuppressWarnings("unchecked")
     public void testInboundSession() {
         // given
@@ -181,6 +260,14 @@ public class RtpSessionFsmImplTest {
         assertNotNull(negotiatedFormats.getRTPFormat(101));
         assertEquals(remoteAddress, context.getRemoteAddress());
         assertEquals(RtpSessionState.ESTABLISHED, fsm.getCurrentState());
+        
+        // when
+        RtpSessionCloseContext closeContext = new RtpSessionCloseContext(channel);
+        fsm.fire(RtpSessionEvent.CLOSE, closeContext);
+        
+        // then
+        verify(channel).close(any(FutureCallback.class));
+        assertEquals(RtpSessionState.CLOSED, fsm.getCurrentState());
     }
 
 }

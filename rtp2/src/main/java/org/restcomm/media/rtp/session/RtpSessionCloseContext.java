@@ -27,7 +27,7 @@ import org.restcomm.media.rtp.RtpChannel;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpSessionCloseContext {
+public class RtpSessionCloseContext implements RtpSessionTransactionContext {
 
     private final RtpChannel channel;
 
