@@ -21,11 +21,9 @@
 
 package org.restcomm.media.rtp;
 
-import org.restcomm.media.rtp.session.RtpSessionEvent;
-import org.restcomm.media.rtp.session.RtpSessionFsm;
-import org.restcomm.media.rtp.session.RtpSessionFsmBuilder;
-import org.restcomm.media.rtp.session.RtpSessionState;
-import org.restcomm.media.sdp.SessionDescription;
+import java.net.SocketAddress;
+
+import org.restcomm.media.sdp.fields.MediaDescriptionField;
 import org.restcomm.media.spi.ConnectionMode;
 
 import com.google.common.util.concurrent.FutureCallback;
@@ -34,41 +32,22 @@ import com.google.common.util.concurrent.FutureCallback;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpSession {
+public interface RtpSession {
+    
+    long getSsrc();
+    
+    MediaType getMediaType();
 
-    private final RtpSessionFsm fsm;
-    private final RtpSessionContext context;
+    void open(SocketAddress address, FutureCallback<Void> callback);
+    
+    void negotiate(MediaDescriptionField sdp, FutureCallback<Void> callback);
 
-    public RtpSession(RtpSessionContext context) {
-        this.context = context;
-        this.fsm = RtpSessionFsmBuilder.INSTANCE.build(this.context);
-    }
+    void close(FutureCallback<Void> callback);
 
-    public void open(SessionDescription sdp, FutureCallback<Void> callback) {
-        // TODO
-        this.fsm.fire(RtpSessionEvent.OPEN);
-    }
+    void updateMode(ConnectionMode mode);
 
-    public void close(FutureCallback<Void> callback) {
-        // TODO
-        this.fsm.fire(RtpSessionEvent.CLOSE);
-    }
+    void incomingRtp(RtpPacket packet);
 
-    public void updateMode(ConnectionMode mode) {
-        if (!RtpSessionState.CLOSED.equals(this.fsm.getCurrentState())) {
-            this.context.setMode(mode);
-            // TODO update input/output ???
-        }
-    }
-
-    public void incomingRtp(RtpPacket packet) {
-        // RtpSessionOutgoingPacketContext txContext = new RtpSessionOutgoingPacketContext(packet);
-        // this.fsm.fire(RtpSessionEvent.INCOMING_PACKET, txContext);
-    }
-
-    public void outgoingRtp(RtpPacket packet) {
-        // RtpSessionOutgoingPacketContext txContext = new RtpSessionOutgoingPacketContext(packet);
-        // this.fsm.fire(RtpSessionEvent.OUTGOING_PACKET, txContext);
-    }
+    void outgoingRtp(RtpPacket packet);
 
 }

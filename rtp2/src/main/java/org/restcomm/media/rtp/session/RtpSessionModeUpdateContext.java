@@ -23,15 +23,18 @@ package org.restcomm.media.rtp.session;
 
 import org.restcomm.media.spi.ConnectionMode;
 
+import com.google.common.util.concurrent.FutureCallback;
+
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpSessionModeUpdateContext implements RtpSessionTransactionContext {
+public class RtpSessionModeUpdateContext extends RtpSessionBaseTransactionContext {
 
     private final ConnectionMode mode;
 
-    public RtpSessionModeUpdateContext(ConnectionMode mode) {
+    public RtpSessionModeUpdateContext(ConnectionMode mode, FutureCallback<Void> callback) {
+        super(callback);
         this.mode = mode;
     }
 

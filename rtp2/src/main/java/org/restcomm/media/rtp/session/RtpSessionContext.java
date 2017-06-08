@@ -19,10 +19,12 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.rtp;
+package org.restcomm.media.rtp.session;
 
 import java.net.SocketAddress;
 
+import org.restcomm.media.rtp.MediaType;
+import org.restcomm.media.rtp.RtpStatistics;
 import org.restcomm.media.sdp.format.RTPFormats;
 import org.restcomm.media.spi.ConnectionMode;
 

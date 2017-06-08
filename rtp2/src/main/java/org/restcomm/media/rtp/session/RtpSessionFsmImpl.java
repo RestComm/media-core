@@ -25,7 +25,6 @@ import java.net.SocketAddress;
 
 import org.apache.log4j.Logger;
 import org.restcomm.media.rtp.RtpChannel;
-import org.restcomm.media.rtp.RtpSessionContext;
 import org.restcomm.media.sdp.format.RTPFormats;
 
 /**
@@ -42,6 +41,9 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
         this.globalContext = globalContext;
     }
 
+    /*
+     * FSM
+     */
     @Override
     public void enterAllocating(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
             RtpSessionTransactionContext context) {

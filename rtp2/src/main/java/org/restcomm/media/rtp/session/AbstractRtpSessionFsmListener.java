@@ -21,40 +21,20 @@
 
 package org.restcomm.media.rtp.session;
 
-import org.apache.log4j.Logger;
-import org.restcomm.media.rtp.RtpPacket;
-import org.restcomm.media.rtp.RtpSessionContext;
-
-import com.google.common.util.concurrent.FutureCallback;
-
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpSessionOutgoingPacketCallback implements FutureCallback<Void> {
+public abstract class AbstractRtpSessionFsmListener {
 
-    private static final Logger log = Logger.getLogger(RtpSessionOutgoingPacketCallback.class);
+    private final RtpSessionFsm fsm;
 
-    private final RtpPacket packet;
-    private final RtpSessionContext context;
-
-    public RtpSessionOutgoingPacketCallback(RtpPacket packet, RtpSessionContext context) {
-        super();
-        this.packet = packet;
-        this.context = context;
+    public AbstractRtpSessionFsmListener(RtpSessionFsm fsm) {
+        this.fsm = fsm;
     }
 
-    @Override
-    public void onSuccess(Void result) {
-        this.context.getStatistics().outgoingRtp(this.packet);
-    }
-
-    @Override
-    public void onFailure(Throwable t) {
-        if (log.isTraceEnabled()) {
-            long ssrc = this.context.getSsrc();
-            log.trace("RTP Session " + ssrc + "could not send packet " + this.packet.toString(), t);
-        }
+    public RtpSessionFsm getFsm() {
+        return fsm;
     }
 
 }

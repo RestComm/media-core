@@ -23,15 +23,18 @@ package org.restcomm.media.rtp.session;
 
 import org.restcomm.media.rtp.RtpChannel;
 
+import com.google.common.util.concurrent.FutureCallback;
+
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpSessionCloseContext implements RtpSessionTransactionContext {
+public class RtpSessionCloseContext extends RtpSessionBaseTransactionContext {
 
     private final RtpChannel channel;
 
-    public RtpSessionCloseContext(RtpChannel channel) {
+    public RtpSessionCloseContext(RtpChannel channel, FutureCallback<Void> callback) {
+        super(callback);
         this.channel = channel;
     }
 

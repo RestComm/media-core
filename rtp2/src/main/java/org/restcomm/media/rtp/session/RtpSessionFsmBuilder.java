@@ -21,7 +21,6 @@
 
 package org.restcomm.media.rtp.session;
 
-import org.restcomm.media.rtp.RtpSessionContext;
 import org.squirrelframework.foundation.fsm.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
 

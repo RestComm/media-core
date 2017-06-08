@@ -34,7 +34,6 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.restcomm.media.rtp.MediaType;
 import org.restcomm.media.rtp.RtpChannel;
-import org.restcomm.media.rtp.RtpSessionContext;
 import org.restcomm.media.rtp.RtpStatistics;
 import org.restcomm.media.scheduler.WallClock;
 import org.restcomm.media.sdp.format.AVProfile;
@@ -75,7 +74,7 @@ public class RtpSessionFsmImplTest {
 
         // when
         SocketAddress address = new InetSocketAddress("127.0.0.1", 6000);
-        RtpSessionOpenContext bindContext = new RtpSessionOpenContext(channel, address);
+        RtpSessionOpenContext bindContext = new RtpSessionOpenContext(channel, address, null);
         fsm.enterBinding(RtpSessionState.OPENING, RtpSessionState.ALLOCATING, RtpSessionEvent.OPEN, bindContext);
 
         // then
@@ -97,7 +96,7 @@ public class RtpSessionFsmImplTest {
 
         // when
         SocketAddress address = new InetSocketAddress("127.0.0.1", 6000);
-        RtpSessionOpenContext bindContext = new RtpSessionOpenContext(channel, address);
+        RtpSessionOpenContext bindContext = new RtpSessionOpenContext(channel, address, null);
         fsm.enterBinding(RtpSessionState.ALLOCATING, RtpSessionState.BINDING, RtpSessionEvent.ALLOCATED, bindContext);
 
         // then
@@ -125,7 +124,7 @@ public class RtpSessionFsmImplTest {
         doNothing().when(fsm).fire(any(RtpSessionEvent.class), any(RtpSessionTransactionContext.class));
         
         // when
-        RtpSessionNegotiateContext negotiateContext = new RtpSessionNegotiateContext(channel, offeredFormats, remoteAddress, remoteSsrc);
+        RtpSessionNegotiateContext negotiateContext = new RtpSessionNegotiateContext(channel, offeredFormats, remoteAddress, remoteSsrc, null);
         fsm.enterNegotiatingFormats(RtpSessionState.NEGOTIATING, RtpSessionState.NEGOTIATING_FORMATS, RtpSessionEvent.NEGOTIATE, negotiateContext);
         
         // then
@@ -155,7 +154,7 @@ public class RtpSessionFsmImplTest {
         final long remoteSsrc = 54321L;
         
         // when
-        RtpSessionNegotiateContext negotiateContext = new RtpSessionNegotiateContext(channel, offeredFormats, remoteAddress, remoteSsrc);
+        RtpSessionNegotiateContext negotiateContext = new RtpSessionNegotiateContext(channel, offeredFormats, remoteAddress, remoteSsrc, null);
         fsm.enterConnecting(RtpSessionState.NEGOTIATING_FORMATS, RtpSessionState.CONNECTING, RtpSessionEvent.NEGOTIATED_FORMATS, negotiateContext);
         
         // then
@@ -176,7 +175,7 @@ public class RtpSessionFsmImplTest {
         final RtpSessionFsmImpl fsm = new RtpSessionFsmImpl(context);
         
         // when
-        RtpSessionCloseContext closeContext = new RtpSessionCloseContext(channel);
+        RtpSessionCloseContext closeContext = new RtpSessionCloseContext(channel, null);
         fsm.enterClosed(RtpSessionState.ESTABLISHED, RtpSessionState.CLOSED, RtpSessionEvent.CLOSE, closeContext);
         
         // then
@@ -221,7 +220,7 @@ public class RtpSessionFsmImplTest {
 
         // when
         fsm.start();
-        RtpSessionOpenContext openContext = new RtpSessionOpenContext(channel, localAddress);
+        RtpSessionOpenContext openContext = new RtpSessionOpenContext(channel, localAddress, mock(FutureCallback.class));
         fsm.fire(RtpSessionEvent.OPEN, openContext);
 
         // then
@@ -249,7 +248,7 @@ public class RtpSessionFsmImplTest {
         }).when(channel).connect(eq(remoteAddress), any(FutureCallback.class));
         
         // when
-        RtpSessionNegotiateContext negotiateContext = new RtpSessionNegotiateContext(channel, offeredFormats, remoteAddress, remoteSsrc);
+        RtpSessionNegotiateContext negotiateContext = new RtpSessionNegotiateContext(channel, offeredFormats, remoteAddress, remoteSsrc, null);
         fsm.fire(RtpSessionEvent.NEGOTIATE, negotiateContext);
         
         // then
@@ -262,7 +261,7 @@ public class RtpSessionFsmImplTest {
         assertEquals(RtpSessionState.ESTABLISHED, fsm.getCurrentState());
         
         // when
-        RtpSessionCloseContext closeContext = new RtpSessionCloseContext(channel);
+        RtpSessionCloseContext closeContext = new RtpSessionCloseContext(channel, null);
         fsm.fire(RtpSessionEvent.CLOSE, closeContext);
         
         // then

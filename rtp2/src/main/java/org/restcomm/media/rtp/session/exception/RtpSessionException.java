@@ -19,25 +19,26 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.rtp.session;
-
-import org.restcomm.media.rtp.RtpPacket;
+package org.restcomm.media.rtp.session.exception;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpSessionIncomingPacketContext implements RtpSessionTransactionContext {
+public class RtpSessionException extends Exception {
 
-    private final RtpPacket packet;
+    private static final long serialVersionUID = -3690777763598239439L;
 
-    public RtpSessionIncomingPacketContext(RtpPacket packet) {
-        super();
-        this.packet = packet;
+    public RtpSessionException(String message, Throwable cause) {
+        super(message, cause);
     }
 
-    public RtpPacket getPacket() {
-        return packet;
+    public RtpSessionException(String message) {
+        super(message);
+    }
+
+    public RtpSessionException(Throwable cause) {
+        super(cause);
     }
 
 }

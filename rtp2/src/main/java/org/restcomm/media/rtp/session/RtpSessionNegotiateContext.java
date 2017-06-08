@@ -26,26 +26,30 @@ import java.net.SocketAddress;
 import org.restcomm.media.rtp.RtpChannel;
 import org.restcomm.media.sdp.format.RTPFormats;
 
+import com.google.common.util.concurrent.FutureCallback;
+
 /**
  * Transaction Context for {@link RtpSessionEvent#NEGOTIATE} event.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpSessionNegotiateContext implements RtpSessionTransactionContext {
+public class RtpSessionNegotiateContext extends RtpSessionBaseTransactionContext {
 
     // RTP Components
     private final RtpChannel channel;
-    
+
     // Remote Peer
     private final RTPFormats formats;
     private final SocketAddress address;
     private final long ssrc;
 
-    public RtpSessionNegotiateContext(RtpChannel channel, RTPFormats formats, SocketAddress address, long ssrc) {
+    public RtpSessionNegotiateContext(RtpChannel channel, RTPFormats formats, SocketAddress address, long ssrc, FutureCallback<Void> callback) {
+        super(callback);
+
         // RTP Components
         this.channel = channel;
-        
+
         // Remote Peer
         this.formats = formats;
         this.address = address;

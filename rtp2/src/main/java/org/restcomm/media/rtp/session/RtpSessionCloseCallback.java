@@ -18,7 +18,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
+
 package org.restcomm.media.rtp.session;
 
 import com.google.common.util.concurrent.FutureCallback;
@@ -32,13 +32,13 @@ public class RtpSessionCloseCallback implements FutureCallback<Void> {
     @Override
     public void onSuccess(Void result) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void onFailure(Throwable t) {
         // TODO Auto-generated method stub
-        
+
     }
 
 }

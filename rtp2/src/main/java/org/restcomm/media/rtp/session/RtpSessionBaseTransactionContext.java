@@ -21,41 +21,23 @@
 
 package org.restcomm.media.rtp.session;
 
-import java.net.SocketAddress;
-
-import org.restcomm.media.rtp.RtpChannel;
-
 import com.google.common.util.concurrent.FutureCallback;
 
 /**
- * Transaction context for {@link RtpSessionBindAction}.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpSessionOpenContext implements RtpSessionTransactionContext {
+public class RtpSessionBaseTransactionContext implements RtpSessionTransactionContext {
 
-    private final RtpChannel channel;
-    private final SocketAddress address;
     private final FutureCallback<Void> callback;
-    
 
-    public RtpSessionOpenContext(RtpChannel channel, SocketAddress address, FutureCallback<Void> callback) {
-        this.channel = channel;
-        this.address = address;
+    public RtpSessionBaseTransactionContext(FutureCallback<Void> callback) {
         this.callback = callback;
     }
 
-    public RtpChannel getChannel() {
-        return channel;
-    }
-
-    public SocketAddress getAddress() {
-        return address;
-    }
-    
+    @Override
     public FutureCallback<Void> getCallback() {
-        return callback;
+        return this.callback;
     }
 
 }

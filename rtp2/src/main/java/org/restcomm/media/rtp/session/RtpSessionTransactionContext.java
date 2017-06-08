@@ -21,6 +21,8 @@
 
 package org.restcomm.media.rtp.session;
 
+import com.google.common.util.concurrent.FutureCallback;
+
 /**
  * Groups classes that define transaction contexts for the RTP Session FSM.
  * 
@@ -28,5 +30,7 @@ package org.restcomm.media.rtp.session;
  *
  */
 public interface RtpSessionTransactionContext {
+    
+    FutureCallback<Void> getCallback();
 
 }

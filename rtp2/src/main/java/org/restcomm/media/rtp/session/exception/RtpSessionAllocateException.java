@@ -19,43 +19,26 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.rtp.session;
-
-import java.net.SocketAddress;
-
-import org.restcomm.media.rtp.RtpChannel;
-
-import com.google.common.util.concurrent.FutureCallback;
+package org.restcomm.media.rtp.session.exception;
 
 /**
- * Transaction context for {@link RtpSessionBindAction}.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpSessionOpenContext implements RtpSessionTransactionContext {
+public class RtpSessionAllocateException extends RtpSessionException {
 
-    private final RtpChannel channel;
-    private final SocketAddress address;
-    private final FutureCallback<Void> callback;
-    
+    private static final long serialVersionUID = -7105967726259062848L;
 
-    public RtpSessionOpenContext(RtpChannel channel, SocketAddress address, FutureCallback<Void> callback) {
-        this.channel = channel;
-        this.address = address;
-        this.callback = callback;
+    public RtpSessionAllocateException(String message, Throwable cause) {
+        super(message, cause);
     }
 
-    public RtpChannel getChannel() {
-        return channel;
+    public RtpSessionAllocateException(String message) {
+        super(message);
     }
 
-    public SocketAddress getAddress() {
-        return address;
-    }
-    
-    public FutureCallback<Void> getCallback() {
-        return callback;
+    public RtpSessionAllocateException(Throwable cause) {
+        super(cause);
     }
 
 }
