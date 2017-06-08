@@ -30,15 +30,16 @@ import com.google.common.util.concurrent.FutureCallback;
 public class RtpSessionConnectCallback implements FutureCallback<Void> {
 
     private final RtpSessionFsm fsm;
+    private final RtpSessionNegotiateContext context;
 
-    public RtpSessionConnectCallback(RtpSessionFsm fsm) {
-        super();
+    public RtpSessionConnectCallback(RtpSessionFsm fsm, RtpSessionNegotiateContext context) {
         this.fsm = fsm;
+        this.context = context;
     }
 
     @Override
     public void onSuccess(Void result) {
-        fsm.fire(RtpSessionEvent.CONNECTED);
+        fsm.fire(RtpSessionEvent.CONNECTED, context);
     }
 
     @Override

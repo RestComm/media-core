@@ -1,16 +1,25 @@
 @startuml
-state SETUP {
-[*] --> BINDING
-BINDING --> CONNECTING
-CONNECTING --> [*]
+state OPENING {
+[*] --> ALLOCATING
+ALLOCATING --> BINDING : allocated
+BINDING --> OPENED : bound
 }
 
-[*] --> SETUP
-SETUP --> OPEN : open
-SETUP --> CLOSED : close
-OPEN -> NEGOTIATING : negotiate
+state NEGOTIATING {
+[*] --> NEGOTIATING_FORMATS
+NEGOTIATING_FORMATS --> CONNECTING : negotiated_formats
+CONNECTING --> NEGOTIATED : connected
+}
+
+[*] --> IDLE
+IDLE --> OPENING : open
+IDLE --> CLOSED : close
+OPENING --> OPEN : opened
+OPENING --> CLOSED : close
+OPEN --> NEGOTIATING : negotiate
 OPEN --> CLOSED : close
-NEGOTIATING -> OPEN : open
+NEGOTIATING --> ESTABLISHED : negotiated
 NEGOTIATING --> CLOSED : close
-CLOSED --> [*]
+ESTABLISHED --> NEGOTIATING : negotiate
+ESTABLISHED --> CLOSED : close
 @enduml

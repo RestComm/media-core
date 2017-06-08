@@ -21,7 +21,10 @@
 
 package org.restcomm.media.rtp.session;
 
-import org.restcomm.media.sdp.SessionDescription;
+import java.net.SocketAddress;
+
+import org.restcomm.media.rtp.RtpChannel;
+import org.restcomm.media.sdp.format.RTPFormats;
 
 /**
  * Transaction Context for {@link RtpSessionEvent#NEGOTIATE} event.
@@ -31,15 +34,38 @@ import org.restcomm.media.sdp.SessionDescription;
  */
 public class RtpSessionNegotiateContext implements RtpSessionTransactionContext {
 
-    private final SessionDescription sdp;
+    // RTP Components
+    private final RtpChannel channel;
+    
+    // Remote Peer
+    private final RTPFormats formats;
+    private final SocketAddress address;
+    private final long ssrc;
 
-    public RtpSessionNegotiateContext(SessionDescription sdp) {
-        super();
-        this.sdp = sdp;
+    public RtpSessionNegotiateContext(RtpChannel channel, RTPFormats formats, SocketAddress address, long ssrc) {
+        // RTP Components
+        this.channel = channel;
+        
+        // Remote Peer
+        this.formats = formats;
+        this.address = address;
+        this.ssrc = ssrc;
     }
 
-    public SessionDescription getSdp() {
-        return sdp;
+    public RtpChannel getChannel() {
+        return channel;
+    }
+
+    public RTPFormats getFormats() {
+        return formats;
+    }
+
+    public SocketAddress getAddress() {
+        return address;
+    }
+
+    public long getSsrc() {
+        return ssrc;
     }
 
 }

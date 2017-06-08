@@ -65,8 +65,8 @@ public class RtpSessionFsmBuilder {
         this.builder.onExit(RtpSessionState.OPEN).callMethod("exitOpen");
 
         this.builder.onEntry(RtpSessionState.NEGOTIATING).callMethod("enterNegotiating");
-        this.builder.defineSequentialStatesOn(RtpSessionState.NEGOTIATING, RtpSessionState.NEGOTIATING_FORMATS, RtpSessionState.CONNECTING, RtpSessionState.NEGOTIATIED);
-        this.builder.externalTransition().from(RtpSessionState.NEGOTIATING).to(RtpSessionState.OPEN).on(RtpSessionEvent.OPEN);
+        this.builder.defineSequentialStatesOn(RtpSessionState.NEGOTIATING, RtpSessionState.NEGOTIATING_FORMATS, RtpSessionState.CONNECTING, RtpSessionState.NEGOTIATED);
+        this.builder.externalTransition().from(RtpSessionState.NEGOTIATING).to(RtpSessionState.ESTABLISHED).on(RtpSessionEvent.NEGOTIATED);
         this.builder.externalTransition().from(RtpSessionState.NEGOTIATING).toFinal(RtpSessionState.CLOSED).on(RtpSessionEvent.CLOSE);
         this.builder.onExit(RtpSessionState.NEGOTIATING).callMethod("exitNegotiating");
 
@@ -75,8 +75,11 @@ public class RtpSessionFsmBuilder {
         this.builder.onExit(RtpSessionState.NEGOTIATING_FORMATS).callMethod("exitNegotiatingFormats");
 
         this.builder.onEntry(RtpSessionState.CONNECTING).callMethod("enterConnecting");
-        this.builder.localTransition().from(RtpSessionState.CONNECTING).toFinal(RtpSessionState.NEGOTIATIED).on(RtpSessionEvent.CONNECTED);
+        this.builder.localTransition().from(RtpSessionState.CONNECTING).toFinal(RtpSessionState.NEGOTIATED).on(RtpSessionEvent.CONNECTED);
         this.builder.onExit(RtpSessionState.CONNECTING).callMethod("exitConnecting");
+        
+        this.builder.onEntry(RtpSessionState.NEGOTIATED).callMethod("enterNegotiated");
+        this.builder.onExit(RtpSessionState.NEGOTIATED).callMethod("exitNegotiated");
         
         this.builder.onEntry(RtpSessionState.ESTABLISHED).callMethod("enterEstablished");
         this.builder.externalTransition().from(RtpSessionState.ESTABLISHED).to(RtpSessionState.NEGOTIATING).on(RtpSessionEvent.NEGOTIATE);

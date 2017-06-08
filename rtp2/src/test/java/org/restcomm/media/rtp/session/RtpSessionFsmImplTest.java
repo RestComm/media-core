@@ -59,10 +59,10 @@ public class RtpSessionFsmImplTest {
             fsm = null;
         }
     }
-
-    @Test
+    
     @SuppressWarnings("unchecked")
-    public void testEnterBindingState() {
+    @Test
+    public void testAllocatingState() {
         // given
         final long ssrc = 12345L;
         final MediaType mediaType = MediaType.AUDIO;
@@ -76,7 +76,7 @@ public class RtpSessionFsmImplTest {
         // when
         SocketAddress address = new InetSocketAddress("127.0.0.1", 6000);
         RtpSessionOpenContext bindContext = new RtpSessionOpenContext(channel, address);
-        fsm.enterBinding(RtpSessionState.OPENING, RtpSessionState.BINDING, RtpSessionEvent.OPEN, bindContext);
+        fsm.enterBinding(RtpSessionState.OPENING, RtpSessionState.ALLOCATING, RtpSessionEvent.OPEN, bindContext);
 
         // then
         verify(channel).bind(eq(address), any(FutureCallback.class));
@@ -84,7 +84,29 @@ public class RtpSessionFsmImplTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    public void testOpenSession() {
+    public void testBindingState() {
+        // given
+        final long ssrc = 12345L;
+        final MediaType mediaType = MediaType.AUDIO;
+        final WallClock clock = new WallClock();
+        final RtpChannel channel = mock(RtpChannel.class);
+        final RtpStatistics statistics = new RtpStatistics(clock, ssrc);
+        final RTPFormats formats = AVProfile.audio;
+        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
+        final RtpSessionFsmImpl fsm = new RtpSessionFsmImpl(context);
+
+        // when
+        SocketAddress address = new InetSocketAddress("127.0.0.1", 6000);
+        RtpSessionOpenContext bindContext = new RtpSessionOpenContext(channel, address);
+        fsm.enterBinding(RtpSessionState.ALLOCATING, RtpSessionState.BINDING, RtpSessionEvent.ALLOCATED, bindContext);
+
+        // then
+        verify(channel).bind(eq(address), any(FutureCallback.class));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testInboundSession() {
         // given
         final long ssrc = 12345L;
         final MediaType mediaType = MediaType.AUDIO;
@@ -94,8 +116,7 @@ public class RtpSessionFsmImplTest {
         final RTPFormats formats = AVProfile.audio;
         final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
         this.fsm = RtpSessionFsmBuilder.INSTANCE.build(context);
-        final SocketAddress bindAddress = new InetSocketAddress("127.0.0.1", 6000);
-        
+        final SocketAddress localAddress = new InetSocketAddress("127.0.0.1", 6000);
         
         doAnswer(new Answer<Void>() {
             
@@ -117,18 +138,49 @@ public class RtpSessionFsmImplTest {
                 return null;
             }
 
-        }).when(channel).bind(eq(bindAddress), any(FutureCallback.class));
+        }).when(channel).bind(eq(localAddress), any(FutureCallback.class));
 
         // when
         fsm.start();
-        RtpSessionOpenContext openContext = new RtpSessionOpenContext(channel, bindAddress);
+        RtpSessionOpenContext openContext = new RtpSessionOpenContext(channel, localAddress);
         fsm.fire(RtpSessionEvent.OPEN, openContext);
 
         // then
         verify(channel).open(any(FutureCallback.class));
-        verify(channel).bind(eq(bindAddress), any(FutureCallback.class));
-        assertEquals(bindAddress, context.getLocalAddress());
+        verify(channel).bind(eq(localAddress), any(FutureCallback.class));
+        assertEquals(localAddress, context.getLocalAddress());
         assertEquals(RtpSessionState.OPEN, fsm.getCurrentState());
+        
+        // given
+        final RTPFormats offeredFormats = new RTPFormats(2);
+        offeredFormats.add(AVProfile.audio.find(8));
+        offeredFormats.add(AVProfile.audio.find(101));
+        final SocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
+        final long remoteSsrc = 54321L;
+        
+        doAnswer(new Answer<Void>() {
+
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                FutureCallback<Void> callback = invocation.getArgumentAt(1, FutureCallback.class);
+                callback.onSuccess(null);
+                return null;
+            }
+
+        }).when(channel).connect(eq(remoteAddress), any(FutureCallback.class));
+        
+        // when
+        RtpSessionNegotiateContext negotiateContext = new RtpSessionNegotiateContext(channel, offeredFormats, remoteAddress, remoteSsrc);
+        fsm.fire(RtpSessionEvent.NEGOTIATE, negotiateContext);
+        
+        // then
+        verify(channel).connect(eq(remoteAddress), any(FutureCallback.class));
+        RTPFormats negotiatedFormats = context.getNegotiatedFormats();
+        assertEquals(2, negotiatedFormats.size());
+        assertNotNull(negotiatedFormats.getRTPFormat(8));
+        assertNotNull(negotiatedFormats.getRTPFormat(101));
+        assertEquals(remoteAddress, context.getRemoteAddress());
+        assertEquals(RtpSessionState.ESTABLISHED, fsm.getCurrentState());
     }
 
 }

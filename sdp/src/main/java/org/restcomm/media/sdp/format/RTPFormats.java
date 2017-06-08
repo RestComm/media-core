@@ -194,6 +194,12 @@ public class RTPFormats {
 			}
 		}
 	}
+	
+	public RTPFormats intersection(RTPFormats other) {
+	    RTPFormats intersection = new RTPFormats();
+	    intersection(other, intersection);
+	    return intersection;
+	}
     
     @Override
     public String toString() {
