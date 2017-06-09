@@ -36,7 +36,7 @@ public class MgcpRequest extends MgcpMessage {
     public static final String VERSION = "MGCP 1.0";
 
     private MgcpRequestType requestType;
-    private final LocalConnectionOptions lcOptions;
+    private LocalConnectionOptions lcOptions;
     private final StringBuilder builder;
 
     public MgcpRequest() {
@@ -65,6 +65,11 @@ public class MgcpRequest extends MgcpMessage {
         return this.lcOptions;
     }
 
+    public void setLocalConnectionOptions(LocalConnectionOptions lcOptions) {
+        this.lcOptions = lcOptions;
+        this.parameters.put(MgcpParameterType.LOCAL_CONNECTION_OPTIONS, lcOptions.toString());
+    }
+
     @Override
     public boolean isRequest() {
         return true;
@@ -76,26 +81,24 @@ public class MgcpRequest extends MgcpMessage {
         this.builder.setLength(0);
 
         // Build header
-        this.builder.append(this.requestType.name()).append(" ")
-                .append(this.transactionId).append(" ")
-                .append(getEndpointId()).append(" ")
-                .append(VERSION).append(System.lineSeparator());
+        this.builder.append(this.requestType.name()).append(" ").append(this.transactionId).append(" ").append(getEndpointId())
+                .append(" ").append(VERSION).append(System.lineSeparator());
 
         // Build parameters
         Iterator<MgcpParameterType> keys = this.parameters.keySet().iterator();
         while (keys.hasNext()) {
             MgcpParameterType key = (MgcpParameterType) keys.next();
-            if(!MgcpParameterType.ENDPOINT_ID.equals(key) && !MgcpParameterType.SDP.equals(key)) {
+            if (!MgcpParameterType.ENDPOINT_ID.equals(key) && !MgcpParameterType.SDP.equals(key)) {
                 Optional<String> value = this.parameters.getString(key);
-                if(value.isPresent()) {
+                if (value.isPresent()) {
                     builder.append(key.getCode()).append(":").append(value.get()).append(System.lineSeparator());
                 }
             }
         }
-        
+
         // Print SDP (if any)
         Optional<String> sdp = this.parameters.getString(MgcpParameterType.SDP);
-        if(sdp.isPresent()) {
+        if (sdp.isPresent()) {
             builder.append(System.lineSeparator()).append(sdp.get());
         }
         return builder.toString();

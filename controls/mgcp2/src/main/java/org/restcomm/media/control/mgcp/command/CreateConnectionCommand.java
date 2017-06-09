@@ -30,8 +30,10 @@ import org.restcomm.media.control.mgcp.exception.MgcpCallNotFoundException;
 import org.restcomm.media.control.mgcp.exception.MgcpConnectionException;
 import org.restcomm.media.control.mgcp.exception.MgcpConnectionNotFoundException;
 import org.restcomm.media.control.mgcp.exception.MgcpException;
+import org.restcomm.media.control.mgcp.exception.MgcpParseException;
 import org.restcomm.media.control.mgcp.exception.UnrecognizedMgcpNamespaceException;
 import org.restcomm.media.control.mgcp.message.LocalConnectionOptions;
+import org.restcomm.media.control.mgcp.message.LocalConnectionOptionsParser;
 import org.restcomm.media.control.mgcp.message.MgcpParameterType;
 import org.restcomm.media.control.mgcp.message.MgcpResponseCode;
 import org.restcomm.media.control.mgcp.util.collections.Parameters;
@@ -56,6 +58,19 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
     public CreateConnectionCommand(int transactionId, Parameters<MgcpParameterType> parameters, MgcpEndpointManager endpointManager) {
         super(transactionId, parameters, endpointManager);
     }
+
+    private LocalConnectionOptions loadLocalConnectionOptions(Parameters<MgcpParameterType> parameters) throws MgcpCommandException {
+        // Local Connection Options
+        Optional<String> lcOptions = parameters.getString(MgcpParameterType.LOCAL_CONNECTION_OPTIONS);
+        if (!lcOptions.isPresent()) {
+            return new LocalConnectionOptions();
+        }
+        try {
+            return LocalConnectionOptionsParser.INSTANCE.parse(lcOptions.get());
+        } catch (MgcpParseException e) {
+            throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR.code(), "Could not decode Local Connection Options");
+        }
+    }    
 
     private int loadCallId(Parameters<MgcpParameterType> parameters) throws MgcpCommandException {
         // Call ID
@@ -152,8 +167,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
         // Create connection
         MgcpConnection connection = endpoint.createConnection(callId, false);
         // TODO set call agent
-        // TODO provide local connection options
-        String localDescription = connection.halfOpen(new LocalConnectionOptions());
+        String localDescription = connection.halfOpen(context.getLocalConnectionOptions());
         context.setLocalDescription(localDescription);
         connection.setMode(mode);
         return connection;
@@ -210,6 +224,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
         context.setSecondEndpointId(loadSecondEndpointId(parameters));
         context.setRemoteDescription(loadRemoteDescription(parameters));
         context.setConnectionMode(loadConnectionMode(parameters));
+        context.setLocalConnectionOptions(loadLocalConnectionOptions(parameters));
     }
 
     private void executeCommand(CrcxContext context) throws MgcpCommandException, MgcpConnectionException {
