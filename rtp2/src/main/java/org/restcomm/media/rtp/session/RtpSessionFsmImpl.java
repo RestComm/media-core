@@ -143,7 +143,7 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
 
      @Override
      public void onUpdateMode(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context) {
-         RtpSessionFsmUpdateModeContext txContext = (RtpSessionFsmUpdateModeContext) context;
+         RtpSessionUpdateModeContext txContext = (RtpSessionUpdateModeContext) context;
          
          ConnectionMode currentMode = this.globalContext.getMode();
          ConnectionMode newMode = txContext.getMode();

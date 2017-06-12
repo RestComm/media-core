@@ -85,7 +85,7 @@ public class RtpSessionImpl implements RtpSession {
     @Override
     public void open(SocketAddress address, FutureCallback<Void> callback) {
         // Register FSM listener for operation feedback
-        RtpSessionFsmOpenListener openListener = new RtpSessionFsmOpenListener(this.fsm, callback);
+        RtpSessionOpenListener openListener = new RtpSessionOpenListener(this.fsm, callback);
         this.fsm.addDeclarativeListener(openListener);
 
         // Fire event
@@ -102,7 +102,7 @@ public class RtpSessionImpl implements RtpSession {
         long ssrc = ssrcId.isEmpty() ? 0 : Long.parseLong(ssrcId);
 
         // Register FSM listener for operation feedback
-        RtpSessionFsmNegotiateListener listener = new RtpSessionFsmNegotiateListener(this.fsm, callback);
+        RtpSessionNegotiateListener listener = new RtpSessionNegotiateListener(this.fsm, callback);
         this.fsm.addDeclarativeListener(listener);
 
         // Fire event
@@ -125,22 +125,22 @@ public class RtpSessionImpl implements RtpSession {
     @Override
     public void close(FutureCallback<Void> callback) {
         // Register FSM listener for operation feedback
-        RtpSessionFsmCloseListener listener = new RtpSessionFsmCloseListener(this.fsm, callback);
+        RtpSessionCloseListener listener = new RtpSessionCloseListener(this.fsm, callback);
         this.fsm.addDeclarativeListener(listener);
         
         // Fire event
-        RtpSessionFsmCloseContext txContext = new RtpSessionFsmCloseContext(callback);
+        RtpSessionCloseContext txContext = new RtpSessionCloseContext(this.channel, callback);
         this.fsm.fire(RtpSessionEvent.CLOSE, txContext);
     }
 
     @Override
     public void updateMode(ConnectionMode mode, FutureCallback<Void> callback) {
         // Register FSM listener for operation feedback
-        RtpSessionFsmUpdateModeListener listener = new RtpSessionFsmUpdateModeListener(this.fsm, callback);
+        RtpSessionUpdateModeListener listener = new RtpSessionUpdateModeListener(this.fsm, callback);
         this.fsm.addDeclarativeListener(listener);
 
         // Fire event
-        RtpSessionFsmUpdateModeContext txContext = new RtpSessionFsmUpdateModeContext(mode, this.jitterBuffer, this.dtmfInput, this.rtpInput, this.rtpOutput, callback);
+        RtpSessionUpdateModeContext txContext = new RtpSessionUpdateModeContext(mode, this.jitterBuffer, this.dtmfInput, this.rtpInput, this.rtpOutput, callback);
         this.fsm.fire(RtpSessionEvent.UPDATE_MODE, txContext);
     }
 

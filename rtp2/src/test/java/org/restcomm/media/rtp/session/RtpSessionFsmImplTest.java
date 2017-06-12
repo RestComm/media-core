@@ -165,7 +165,7 @@ public class RtpSessionFsmImplTest {
         when(context.getMode()).thenReturn(ConnectionMode.SEND_RECV);
         
         // when
-        RtpSessionFsmUpdateModeContext txContext = new RtpSessionFsmUpdateModeContext(mode, jitterBuffer, dtmfInput, rtpInput, rtpOutput, callback);
+        RtpSessionUpdateModeContext txContext = new RtpSessionUpdateModeContext(mode, jitterBuffer, dtmfInput, rtpInput, rtpOutput, callback);
         fsm.onUpdateMode(RtpSessionState.OPEN, RtpSessionState.OPEN, RtpSessionEvent.UPDATE_MODE, txContext);
         
         // then
@@ -193,7 +193,7 @@ public class RtpSessionFsmImplTest {
         when(context.getMode()).thenReturn(ConnectionMode.SEND_RECV);
         
         // when
-        RtpSessionFsmUpdateModeContext txContext = new RtpSessionFsmUpdateModeContext(mode, jitterBuffer, dtmfInput, rtpInput, rtpOutput, callback);
+        RtpSessionUpdateModeContext txContext = new RtpSessionUpdateModeContext(mode, jitterBuffer, dtmfInput, rtpInput, rtpOutput, callback);
         fsm.onUpdateMode(RtpSessionState.OPEN, RtpSessionState.OPEN, RtpSessionEvent.UPDATE_MODE, txContext);
         
         // then
@@ -221,7 +221,7 @@ public class RtpSessionFsmImplTest {
         when(context.getMode()).thenReturn(ConnectionMode.SEND_RECV);
         
         // when
-        RtpSessionFsmUpdateModeContext txContext = new RtpSessionFsmUpdateModeContext(mode, jitterBuffer, dtmfInput, rtpInput, rtpOutput, callback);
+        RtpSessionUpdateModeContext txContext = new RtpSessionUpdateModeContext(mode, jitterBuffer, dtmfInput, rtpInput, rtpOutput, callback);
         fsm.onUpdateMode(RtpSessionState.OPEN, RtpSessionState.OPEN, RtpSessionEvent.UPDATE_MODE, txContext);
         
         // then
@@ -249,7 +249,7 @@ public class RtpSessionFsmImplTest {
         when(context.getMode()).thenReturn(ConnectionMode.INACTIVE);
         
         // when
-        RtpSessionFsmUpdateModeContext txContext = new RtpSessionFsmUpdateModeContext(mode, jitterBuffer, dtmfInput, rtpInput, rtpOutput, callback);
+        RtpSessionUpdateModeContext txContext = new RtpSessionUpdateModeContext(mode, jitterBuffer, dtmfInput, rtpInput, rtpOutput, callback);
         fsm.onUpdateMode(RtpSessionState.OPEN, RtpSessionState.OPEN, RtpSessionEvent.UPDATE_MODE, txContext);
         
         // then
@@ -277,7 +277,7 @@ public class RtpSessionFsmImplTest {
         when(context.getMode()).thenReturn(ConnectionMode.INACTIVE);
         
         // when
-        RtpSessionFsmUpdateModeContext txContext = new RtpSessionFsmUpdateModeContext(mode, jitterBuffer, dtmfInput, rtpInput, rtpOutput, callback);
+        RtpSessionUpdateModeContext txContext = new RtpSessionUpdateModeContext(mode, jitterBuffer, dtmfInput, rtpInput, rtpOutput, callback);
         fsm.onUpdateMode(RtpSessionState.OPEN, RtpSessionState.OPEN, RtpSessionEvent.UPDATE_MODE, txContext);
         
         // then
@@ -305,7 +305,7 @@ public class RtpSessionFsmImplTest {
         when(context.getMode()).thenReturn(ConnectionMode.CONFERENCE);
         
         // when
-        RtpSessionFsmUpdateModeContext txContext = new RtpSessionFsmUpdateModeContext(mode, jitterBuffer, dtmfInput, rtpInput, rtpOutput, callback);
+        RtpSessionUpdateModeContext txContext = new RtpSessionUpdateModeContext(mode, jitterBuffer, dtmfInput, rtpInput, rtpOutput, callback);
         fsm.onUpdateMode(RtpSessionState.OPEN, RtpSessionState.OPEN, RtpSessionEvent.UPDATE_MODE, txContext);
         
         // then
@@ -498,7 +498,7 @@ public class RtpSessionFsmImplTest {
         RtpSessionOpenContext openContext = new RtpSessionOpenContext(channel, localAddress, mock(FutureCallback.class));
         fsm.fire(RtpSessionEvent.OPEN, openContext);
         
-        RtpSessionFsmUpdateModeContext modeContext = new RtpSessionFsmUpdateModeContext(mode, jitterBuffer, dtmfInput, rtpInput, rtpOutput, mock(FutureCallback.class));
+        RtpSessionUpdateModeContext modeContext = new RtpSessionUpdateModeContext(mode, jitterBuffer, dtmfInput, rtpInput, rtpOutput, mock(FutureCallback.class));
         fsm.fire(RtpSessionEvent.UPDATE_MODE, modeContext);
         
         // then

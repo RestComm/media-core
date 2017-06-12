@@ -25,6 +25,7 @@ import org.restcomm.media.rtp.session.exception.RtpSessionException;
 import org.squirrelframework.foundation.exception.TransitionException;
 import org.squirrelframework.foundation.fsm.Action;
 import org.squirrelframework.foundation.fsm.annotation.OnActionExecException;
+import org.squirrelframework.foundation.fsm.annotation.OnTransitionBegin;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionComplete;
 import org.squirrelframework.foundation.fsm.annotation.OnTransitionDecline;
 
@@ -34,15 +35,15 @@ import com.google.common.util.concurrent.FutureCallback;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpSessionFsmCloseListener extends AbstractRtpSessionFsmListener {
-    
+public class RtpSessionNegotiateListener extends AbstractRtpSessionFsmListener {
+
     private final FutureCallback<Void> callback;
 
-    public RtpSessionFsmCloseListener(RtpSessionFsm fsm, FutureCallback<Void> callback) {
+    public RtpSessionNegotiateListener(RtpSessionFsm fsm, FutureCallback<Void> callback) {
         super(fsm);
         this.callback = callback;
     }
-    
+
     @Override
     protected void succeeded(Void result) {
         this.callback.onSuccess(null);
@@ -52,13 +53,26 @@ public class RtpSessionFsmCloseListener extends AbstractRtpSessionFsmListener {
     protected void failed(Throwable t) {
         this.callback.onFailure(t);
     }
-    
+
+    @OnTransitionBegin
+    public void transitionBegin(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context) {
+        if (context != null) {
+            FutureCallback<Void> originator = context.getCallback();
+            if (originator == this.callback) {
+                if (RtpSessionState.CLOSED.equals(to)) {
+                    RtpSessionException exception = new RtpSessionException("Error caused session to close prematurely.");
+                    onFailure(exception);
+                }
+            }
+        }
+    }
+
     @OnTransitionComplete
     public void transitionComplete(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context) {
         if (context != null) {
             FutureCallback<Void> originator = context.getCallback();
             if (this.callback == originator) {
-                if (RtpSessionState.CLOSED.equals(to)) {
+                if (RtpSessionState.NEGOTIATED.equals(to)) {
                     onSuccess(null);
                 }
             }
