@@ -21,30 +21,38 @@
 
 package org.restcomm.media.rtp.session;
 
-import org.restcomm.media.rtp.RtpChannel;
+import org.apache.log4j.Logger;
 import org.restcomm.media.rtp.RtpPacket;
+
+import com.google.common.util.concurrent.FutureCallback;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpSessionOutgoingRtpContext extends RtpSessionBaseTransactionContext {
+public class RtpSessionOutgoingRtpCallback implements FutureCallback<Void> {
+    
+    private final Logger log = Logger.getLogger(RtpSessionOutgoingRtpCallback.class);
 
+    private final long ssrc;
+    private final RtpSessionStatistics statistics;
     private final RtpPacket packet;
-    private final RtpChannel channel;
 
-    public RtpSessionOutgoingRtpContext(RtpPacket packet, RtpChannel channel, RtpSessionOutgoingRtpCallback callback) {
-        super(callback);
+    public RtpSessionOutgoingRtpCallback(long ssrc, RtpSessionStatistics statistics, RtpPacket packet) {
+        this.ssrc = ssrc;
+        this.statistics = statistics;
         this.packet = packet;
-        this.channel = channel;
     }
 
-    public RtpPacket getPacket() {
-        return packet;
+    @Override
+    public void onSuccess(Void result) {
+        // Update statistics
+        this.statistics.outgoingRtp(this.packet);
     }
 
-    public RtpChannel getChannel() {
-        return channel;
+    @Override
+    public void onFailure(Throwable t) {
+        log.warn("RTP session " + this.ssrc + " could not send an RTP packet to remote peer.", t);
     }
 
 }

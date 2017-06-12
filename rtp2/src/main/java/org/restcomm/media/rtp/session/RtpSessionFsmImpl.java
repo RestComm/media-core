@@ -31,9 +31,12 @@ import org.restcomm.media.rtp.RtpPacket;
 import org.restcomm.media.rtp.format.DtmfFormat;
 import org.restcomm.media.rtp.jitter.JitterBuffer;
 import org.restcomm.media.rtp.rfc2833.DtmfInput;
+import org.restcomm.media.rtp.session.exception.RtpSessionunwritableException;
 import org.restcomm.media.sdp.format.RTPFormat;
 import org.restcomm.media.sdp.format.RTPFormats;
 import org.restcomm.media.spi.ConnectionMode;
+
+import com.google.common.util.concurrent.FutureCallback;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -207,7 +210,7 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
     public void onIncomingRtp(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context) {
         RtpSessionIncomingRtpContext txContext = (RtpSessionIncomingRtpContext) context;
 
-        // Packets are only processed if session is in "receivable" mode
+        // Packets are only processed if session is in "receiver" mode
         ConnectionMode mode = this.globalContext.getMode();
         switch (mode) {
             case RECV_ONLY:
@@ -256,40 +259,36 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
     }
     
     @Override
-    public void onOutgoingRtp(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context) {
-        // TODO Auto-generated method stub
-        super.onOutgoingRtp(from, to, event, context);
+    public void onOutgoingRtp(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
+            RtpSessionTransactionContext context) {
+        RtpSessionOutgoingRtpContext txContext = (RtpSessionOutgoingRtpContext) context;
+        FutureCallback<Void> callback = txContext.getCallback();
+
+        // Packets are only processed if session is in "sender" mode
+        ConnectionMode mode = this.globalContext.getMode();
+
+        switch (mode) {
+            case SEND_ONLY:
+            case SEND_RECV:
+            case CONFERENCE:
+            case NETWORK_LOOPBACK:
+                // Send packet to remote peer
+                RtpChannel channel = txContext.getChannel();
+                RtpPacket packet = txContext.getPacket();
+                channel.send(packet, callback);
+                break;
+
+            default:
+                // Session mode does not allow to send packets
+                long ssrc = this.globalContext.getSsrc();
+                RtpSessionunwritableException exception = new RtpSessionunwritableException("RTP session " + ssrc + " cannot send packet because is operating in " + mode.name() + " mode");
+                callback.onFailure(exception);
+                break;
+        }
     }
 
-//    @Override
-//    public void onOutgoingPacket(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
-//            RtpSessionTransactionContext context) {
-//        RtpSessionOutgoingPacketContext txContext = (RtpSessionOutgoingPacketContext) context;
-//        RtpPacket packet = txContext.getPacket();
-//        ConnectionMode mode = this.globalContext.getMode();
-//
-//        switch (mode) {
-//            case SEND_ONLY:
-//            case SEND_RECV:
-//            case CONFERENCE:
-//            case NETWORK_LOOPBACK:
-//                RtpSessionOutgoingPacketCallback callback = new RtpSessionOutgoingPacketCallback(packet, this.globalContext);
-//                this.channel.send(packet, callback);
-//                break;
-//
-//            default:
-//                if (log.isDebugEnabled()) {
-//                    long ssrc = this.globalContext.getSsrc();
-//                    log.debug("RTP Session " + ssrc + " dropped outgoing packet because connection mode is " + mode
-//                            + ". Packet details:" + packet.toString());
-//                }
-//                break;
-//        }
-//    }
-
     @Override
-    public void enterClosed(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
-            RtpSessionTransactionContext context) {
+    public void enterClosed(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context) {
         RtpSessionCloseContext txContext = (RtpSessionCloseContext) context;
         RtpChannel channel = txContext.getChannel();
         RtpSessionCloseCallback callback = new RtpSessionCloseCallback();

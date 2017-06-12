@@ -401,6 +401,82 @@ public class RtpSessionFsmImplTest {
         verify(dtmfInput, never()).write(packet);
         verify(statistics, never()).incomingRtp(packet);
     }
+    
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testOutgoingRtpPacketAction() {
+        // given
+        final long ssrc = 12345L;
+        final RtpSessionStatistics statistics = mock(RtpSessionStatistics.class);
+        final RtpSessionContext context = mock(RtpSessionContext.class);
+        final RtpSessionFsmImpl fsm = spy(new RtpSessionFsmImpl(context));
+
+        final int payloadType = 0;
+        final RtpPacket packet = mock(RtpPacket.class);
+        final RtpChannel channel = mock(RtpChannel.class);
+        
+        when(packet.getPayloadType()).thenReturn(payloadType);
+        when(context.getMode()).thenReturn(ConnectionMode.SEND_RECV);
+        when(context.getStatistics()).thenReturn(statistics);
+        doAnswer(new Answer<Void>() {
+            
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                FutureCallback<Void> callback = invocation.getArgumentAt(1, FutureCallback.class);
+                callback.onSuccess(null);
+                return null;
+            }
+            
+        }).when(channel).send(eq(packet), any(FutureCallback.class));
+        
+        // when
+        RtpSessionOutgoingRtpCallback callback = new RtpSessionOutgoingRtpCallback(ssrc, statistics, packet);
+        RtpSessionOutgoingRtpContext txContext = new RtpSessionOutgoingRtpContext(packet, channel, callback);
+        
+        fsm.onOutgoingRtp(RtpSessionState.ESTABLISHED, RtpSessionState.ESTABLISHED, RtpSessionEvent.OUTGOING_RTP, txContext);
+        
+        // then
+        verify(channel).send(packet, callback);
+        verify(statistics).outgoingRtp(packet);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testOutgoingRtpPacketActionWhenChannelIsInactive() {
+        // given
+        final long ssrc = 12345L;
+        final RtpSessionStatistics statistics = mock(RtpSessionStatistics.class);
+        final RtpSessionContext context = mock(RtpSessionContext.class);
+        final RtpSessionFsmImpl fsm = spy(new RtpSessionFsmImpl(context));
+        
+        final int payloadType = 0;
+        final RtpPacket packet = mock(RtpPacket.class);
+        final RtpChannel channel = mock(RtpChannel.class);
+        
+        when(packet.getPayloadType()).thenReturn(payloadType);
+        when(context.getMode()).thenReturn(ConnectionMode.INACTIVE);
+        when(context.getStatistics()).thenReturn(statistics);
+        doAnswer(new Answer<Void>() {
+            
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                FutureCallback<Void> callback = invocation.getArgumentAt(1, FutureCallback.class);
+                callback.onSuccess(null);
+                return null;
+            }
+            
+        }).when(channel).send(eq(packet), any(FutureCallback.class));
+        
+        // when
+        RtpSessionOutgoingRtpCallback callback = new RtpSessionOutgoingRtpCallback(ssrc, statistics, packet);
+        RtpSessionOutgoingRtpContext txContext = new RtpSessionOutgoingRtpContext(packet, channel, callback);
+        
+        fsm.onOutgoingRtp(RtpSessionState.ESTABLISHED, RtpSessionState.ESTABLISHED, RtpSessionEvent.OUTGOING_RTP, txContext);
+        
+        // then
+        verify(channel, never()).send(packet, callback);
+        verify(statistics, never()).outgoingRtp(packet);
+    }
 
     @Test
     @SuppressWarnings("unchecked")

@@ -19,32 +19,26 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.rtp.session;
-
-import org.restcomm.media.rtp.RtpChannel;
-import org.restcomm.media.rtp.RtpPacket;
+package org.restcomm.media.rtp.session.exception;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpSessionOutgoingRtpContext extends RtpSessionBaseTransactionContext {
+public class RtpSessionunwritableException extends RtpSessionException {
 
-    private final RtpPacket packet;
-    private final RtpChannel channel;
+    private static final long serialVersionUID = 4816713457042599506L;
 
-    public RtpSessionOutgoingRtpContext(RtpPacket packet, RtpChannel channel, RtpSessionOutgoingRtpCallback callback) {
-        super(callback);
-        this.packet = packet;
-        this.channel = channel;
+    public RtpSessionunwritableException(String message, Throwable cause) {
+        super(message, cause);
     }
 
-    public RtpPacket getPacket() {
-        return packet;
+    public RtpSessionunwritableException(String message) {
+        super(message);
     }
 
-    public RtpChannel getChannel() {
-        return channel;
+    public RtpSessionunwritableException(Throwable cause) {
+        super(cause);
     }
 
 }
