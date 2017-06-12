@@ -132,7 +132,7 @@ public class AbstractRtpSessionFsm
     }
 
     @Override
-    public void onModeUpdate(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
+    public void onUpdateMode(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
             RtpSessionTransactionContext context) {
     }
 

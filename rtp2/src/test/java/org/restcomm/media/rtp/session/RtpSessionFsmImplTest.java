@@ -34,6 +34,10 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.restcomm.media.rtp.MediaType;
 import org.restcomm.media.rtp.RtpChannel;
+import org.restcomm.media.rtp.RtpInput;
+import org.restcomm.media.rtp.RtpOutput;
+import org.restcomm.media.rtp.jitter.JitterBuffer;
+import org.restcomm.media.rtp.rfc2833.DtmfInput;
 import org.restcomm.media.rtp.session.RtpSessionCloseContext;
 import org.restcomm.media.rtp.session.RtpSessionContext;
 import org.restcomm.media.rtp.session.RtpSessionEvent;
@@ -47,6 +51,7 @@ import org.restcomm.media.rtp.session.RtpSessionTransactionContext;
 import org.restcomm.media.scheduler.WallClock;
 import org.restcomm.media.sdp.format.AVProfile;
 import org.restcomm.media.sdp.format.RTPFormats;
+import org.restcomm.media.spi.ConnectionMode;
 
 import com.google.common.util.concurrent.FutureCallback;
 
@@ -145,6 +150,174 @@ public class RtpSessionFsmImplTest {
 
     @Test
     @SuppressWarnings("unchecked")
+    public void testUpdateModeStateWithModeSetToInactive() {
+        // given
+        final RtpSessionContext context = mock(RtpSessionContext.class);
+        final RtpSessionFsmImpl fsm = spy(new RtpSessionFsmImpl(context));
+        
+        final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
+        final RtpInput rtpInput = mock(RtpInput.class);
+        final DtmfInput dtmfInput = mock(DtmfInput.class);
+        final RtpOutput rtpOutput = mock(RtpOutput.class);
+        final ConnectionMode mode = ConnectionMode.INACTIVE;
+        final FutureCallback<Void> callback = mock(FutureCallback.class);
+        
+        when(context.getMode()).thenReturn(ConnectionMode.SEND_RECV);
+        
+        // when
+        RtpSessionFsmUpdateModeContext txContext = new RtpSessionFsmUpdateModeContext(mode, jitterBuffer, dtmfInput, rtpInput, rtpOutput, callback);
+        fsm.onUpdateMode(RtpSessionState.OPEN, RtpSessionState.OPEN, RtpSessionEvent.UPDATE_MODE, txContext);
+        
+        // then
+        verify(jitterBuffer).restart();
+        verify(rtpInput).deactivate();
+        verify(dtmfInput).deactivate();
+        verify(rtpOutput).deactivate();
+        verify(context).setMode(mode);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testUpdateModeStateWithModeSetToSendOnly() {
+        // given
+        final RtpSessionContext context = mock(RtpSessionContext.class);
+        final RtpSessionFsmImpl fsm = spy(new RtpSessionFsmImpl(context));
+        
+        final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
+        final RtpInput rtpInput = mock(RtpInput.class);
+        final DtmfInput dtmfInput = mock(DtmfInput.class);
+        final RtpOutput rtpOutput = mock(RtpOutput.class);
+        final ConnectionMode mode = ConnectionMode.SEND_ONLY;
+        final FutureCallback<Void> callback = mock(FutureCallback.class);
+        
+        when(context.getMode()).thenReturn(ConnectionMode.SEND_RECV);
+        
+        // when
+        RtpSessionFsmUpdateModeContext txContext = new RtpSessionFsmUpdateModeContext(mode, jitterBuffer, dtmfInput, rtpInput, rtpOutput, callback);
+        fsm.onUpdateMode(RtpSessionState.OPEN, RtpSessionState.OPEN, RtpSessionEvent.UPDATE_MODE, txContext);
+        
+        // then
+        verify(jitterBuffer).restart();
+        verify(rtpInput).deactivate();
+        verify(dtmfInput).deactivate();
+        verify(rtpOutput).activate();
+        verify(context).setMode(mode);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testUpdateModeStateWithModeSetToReceiveOnly() {
+        // given
+        final RtpSessionContext context = mock(RtpSessionContext.class);
+        final RtpSessionFsmImpl fsm = spy(new RtpSessionFsmImpl(context));
+        
+        final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
+        final RtpInput rtpInput = mock(RtpInput.class);
+        final DtmfInput dtmfInput = mock(DtmfInput.class);
+        final RtpOutput rtpOutput = mock(RtpOutput.class);
+        final ConnectionMode mode = ConnectionMode.RECV_ONLY;
+        final FutureCallback<Void> callback = mock(FutureCallback.class);
+        
+        when(context.getMode()).thenReturn(ConnectionMode.SEND_RECV);
+        
+        // when
+        RtpSessionFsmUpdateModeContext txContext = new RtpSessionFsmUpdateModeContext(mode, jitterBuffer, dtmfInput, rtpInput, rtpOutput, callback);
+        fsm.onUpdateMode(RtpSessionState.OPEN, RtpSessionState.OPEN, RtpSessionEvent.UPDATE_MODE, txContext);
+        
+        // then
+        verify(jitterBuffer, never()).restart();
+        verify(rtpInput).activate();
+        verify(dtmfInput).activate();
+        verify(rtpOutput, never()).activate();
+        verify(context).setMode(mode);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testUpdateModeStateWithModeSetToSendReceive() {
+        // given
+        final RtpSessionContext context = mock(RtpSessionContext.class);
+        final RtpSessionFsmImpl fsm = spy(new RtpSessionFsmImpl(context));
+        
+        final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
+        final RtpInput rtpInput = mock(RtpInput.class);
+        final DtmfInput dtmfInput = mock(DtmfInput.class);
+        final RtpOutput rtpOutput = mock(RtpOutput.class);
+        final ConnectionMode mode = ConnectionMode.SEND_RECV;
+        final FutureCallback<Void> callback = mock(FutureCallback.class);
+        
+        when(context.getMode()).thenReturn(ConnectionMode.INACTIVE);
+        
+        // when
+        RtpSessionFsmUpdateModeContext txContext = new RtpSessionFsmUpdateModeContext(mode, jitterBuffer, dtmfInput, rtpInput, rtpOutput, callback);
+        fsm.onUpdateMode(RtpSessionState.OPEN, RtpSessionState.OPEN, RtpSessionEvent.UPDATE_MODE, txContext);
+        
+        // then
+        verify(jitterBuffer, never()).restart();
+        verify(rtpInput).activate();
+        verify(dtmfInput).activate();
+        verify(rtpOutput).activate();
+        verify(context).setMode(mode);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testUpdateModeStateWithModeSetToConference() {
+        // given
+        final RtpSessionContext context = mock(RtpSessionContext.class);
+        final RtpSessionFsmImpl fsm = spy(new RtpSessionFsmImpl(context));
+        
+        final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
+        final RtpInput rtpInput = mock(RtpInput.class);
+        final DtmfInput dtmfInput = mock(DtmfInput.class);
+        final RtpOutput rtpOutput = mock(RtpOutput.class);
+        final ConnectionMode mode = ConnectionMode.CONFERENCE;
+        final FutureCallback<Void> callback = mock(FutureCallback.class);
+        
+        when(context.getMode()).thenReturn(ConnectionMode.INACTIVE);
+        
+        // when
+        RtpSessionFsmUpdateModeContext txContext = new RtpSessionFsmUpdateModeContext(mode, jitterBuffer, dtmfInput, rtpInput, rtpOutput, callback);
+        fsm.onUpdateMode(RtpSessionState.OPEN, RtpSessionState.OPEN, RtpSessionEvent.UPDATE_MODE, txContext);
+        
+        // then
+        verify(jitterBuffer, never()).restart();
+        verify(rtpInput).activate();
+        verify(dtmfInput).activate();
+        verify(rtpOutput).activate();
+        verify(context).setMode(mode);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testUpdateModeStateWithSameMode() {
+        // given
+        final RtpSessionContext context = mock(RtpSessionContext.class);
+        final RtpSessionFsmImpl fsm = spy(new RtpSessionFsmImpl(context));
+        
+        final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
+        final RtpInput rtpInput = mock(RtpInput.class);
+        final DtmfInput dtmfInput = mock(DtmfInput.class);
+        final RtpOutput rtpOutput = mock(RtpOutput.class);
+        final ConnectionMode mode = ConnectionMode.CONFERENCE;
+        final FutureCallback<Void> callback = mock(FutureCallback.class);
+        
+        when(context.getMode()).thenReturn(ConnectionMode.CONFERENCE);
+        
+        // when
+        RtpSessionFsmUpdateModeContext txContext = new RtpSessionFsmUpdateModeContext(mode, jitterBuffer, dtmfInput, rtpInput, rtpOutput, callback);
+        fsm.onUpdateMode(RtpSessionState.OPEN, RtpSessionState.OPEN, RtpSessionEvent.UPDATE_MODE, txContext);
+        
+        // then
+        verify(jitterBuffer, never()).restart();
+        verify(rtpInput, never()).activate();
+        verify(dtmfInput, never()).activate();
+        verify(rtpOutput, never()).activate();
+        verify(context, never()).setMode(mode);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
     public void testConnectingState() {
         // given
         final long ssrc = 12345L;
@@ -193,7 +366,7 @@ public class RtpSessionFsmImplTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    public void testInboundSession() {
+    public void testInboundSessionFlow() {
         // given
         final long ssrc = 12345L;
         final MediaType mediaType = MediaType.AUDIO;
@@ -276,6 +449,64 @@ public class RtpSessionFsmImplTest {
         // then
         verify(channel).close(any(FutureCallback.class));
         assertEquals(RtpSessionState.CLOSED, fsm.getCurrentState());
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testUpdateModeFlow() {
+        // given
+        final long ssrc = 12345L;
+        final MediaType mediaType = MediaType.AUDIO;
+        final WallClock clock = new WallClock();
+        final RtpChannel channel = mock(RtpChannel.class);
+        final RtpSessionStatistics statistics = new RtpSessionStatistics(clock, ssrc);
+        final RTPFormats formats = AVProfile.audio;
+        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
+        this.fsm = RtpSessionFsmBuilder.INSTANCE.build(context);
+        final SocketAddress localAddress = new InetSocketAddress("127.0.0.1", 6000);
+        
+        final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
+        final RtpInput rtpInput = mock(RtpInput.class);
+        final DtmfInput dtmfInput = mock(DtmfInput.class);
+        final RtpOutput rtpOutput = mock(RtpOutput.class);
+        final ConnectionMode mode = ConnectionMode.SEND_RECV;
+        
+        doAnswer(new Answer<Void>() {
+            
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                FutureCallback<Void> callback = invocation.getArgumentAt(0, FutureCallback.class);
+                callback.onSuccess(null);
+                return null;
+            }
+            
+        }).when(channel).open(any(FutureCallback.class));
+        
+        doAnswer(new Answer<Void>() {
+            
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                FutureCallback<Void> callback = invocation.getArgumentAt(1, FutureCallback.class);
+                callback.onSuccess(null);
+                return null;
+            }
+            
+        }).when(channel).bind(eq(localAddress), any(FutureCallback.class));
+        
+        // when
+        fsm.start();
+        RtpSessionOpenContext openContext = new RtpSessionOpenContext(channel, localAddress, mock(FutureCallback.class));
+        fsm.fire(RtpSessionEvent.OPEN, openContext);
+        
+        RtpSessionFsmUpdateModeContext modeContext = new RtpSessionFsmUpdateModeContext(mode, jitterBuffer, dtmfInput, rtpInput, rtpOutput, mock(FutureCallback.class));
+        fsm.fire(RtpSessionEvent.UPDATE_MODE, modeContext);
+        
+        // then
+        verify(jitterBuffer, never()).restart();
+        verify(rtpInput).activate();
+        verify(dtmfInput).activate();
+        verify(rtpOutput).activate();
+        assertEquals(mode, context.getMode());
     }
 
 }

@@ -21,6 +21,10 @@
 
 package org.restcomm.media.rtp.session;
 
+import org.restcomm.media.rtp.RtpInput;
+import org.restcomm.media.rtp.RtpOutput;
+import org.restcomm.media.rtp.jitter.JitterBuffer;
+import org.restcomm.media.rtp.rfc2833.DtmfInput;
 import org.restcomm.media.spi.ConnectionMode;
 
 import com.google.common.util.concurrent.FutureCallback;
@@ -29,17 +33,48 @@ import com.google.common.util.concurrent.FutureCallback;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpSessionModeUpdateContext extends RtpSessionBaseTransactionContext {
+public class RtpSessionFsmUpdateModeContext implements RtpSessionTransactionContext {
+
+    private final FutureCallback<Void> callback;
 
     private final ConnectionMode mode;
+    private final JitterBuffer jitterBuffer;
+    private final DtmfInput dtmfInput;
+    private final RtpInput rtpInput;
+    private final RtpOutput rtpOutput;
 
-    public RtpSessionModeUpdateContext(ConnectionMode mode, FutureCallback<Void> callback) {
-        super(callback);
+    public RtpSessionFsmUpdateModeContext(ConnectionMode mode, JitterBuffer jitterBuffer, DtmfInput dtmfInput, RtpInput rtpInput, RtpOutput rtpOutput, FutureCallback<Void> callback) {
+        this.callback = callback;
         this.mode = mode;
+        this.jitterBuffer = jitterBuffer;
+        this.dtmfInput = dtmfInput;
+        this.rtpInput = rtpInput;
+        this.rtpOutput = rtpOutput;
+    }
+
+    @Override
+    public FutureCallback<Void> getCallback() {
+        return this.callback;
     }
 
     public ConnectionMode getMode() {
         return mode;
+    }
+
+    public JitterBuffer getJitterBuffer() {
+        return jitterBuffer;
+    }
+
+    public DtmfInput getDtmfInput() {
+        return dtmfInput;
+    }
+
+    public RtpInput getRtpInput() {
+        return rtpInput;
+    }
+
+    public RtpOutput getRtpOutput() {
+        return rtpOutput;
     }
 
 }

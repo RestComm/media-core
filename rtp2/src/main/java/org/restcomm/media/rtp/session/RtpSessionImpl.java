@@ -26,8 +26,12 @@ import java.net.SocketAddress;
 
 import org.restcomm.media.rtp.MediaType;
 import org.restcomm.media.rtp.RtpChannel;
+import org.restcomm.media.rtp.RtpInput;
+import org.restcomm.media.rtp.RtpOutput;
 import org.restcomm.media.rtp.RtpPacket;
 import org.restcomm.media.rtp.RtpSession;
+import org.restcomm.media.rtp.jitter.JitterBuffer;
+import org.restcomm.media.rtp.rfc2833.DtmfInput;
 import org.restcomm.media.sdp.attributes.RtpMapAttribute;
 import org.restcomm.media.sdp.fields.MediaDescriptionField;
 import org.restcomm.media.sdp.format.RTPFormat;
@@ -44,15 +48,28 @@ import com.google.common.util.concurrent.FutureCallback;
  */
 public class RtpSessionImpl implements RtpSession {
 
+    // RTP Session
     private final RtpSessionContext context;
     private final RtpSessionFsm fsm;
 
+    // RTP Components
     private final RtpChannel channel;
+    private final JitterBuffer jitterBuffer;
+    private final DtmfInput dtmfInput;
+    private final RtpInput rtpInput;
+    private final RtpOutput rtpOutput;
 
-    public RtpSessionImpl(RtpChannel channel, RtpSessionContext context) {
+    public RtpSessionImpl(RtpChannel channel, RtpSessionContext context, JitterBuffer jitterBuffer, RtpInput rtpInput, DtmfInput dtmfInput, RtpOutput rtpOutput) {
+        // RTP Session
         this.context = context;
         this.fsm = RtpSessionFsmBuilder.INSTANCE.build(this.context);
+        
+        // RTP Components
         this.channel = channel;
+        this.jitterBuffer = jitterBuffer;
+        this.dtmfInput = dtmfInput;
+        this.rtpInput = rtpInput;
+        this.rtpOutput = rtpOutput;
     }
 
     @Override
@@ -118,8 +135,13 @@ public class RtpSessionImpl implements RtpSession {
 
     @Override
     public void updateMode(ConnectionMode mode, FutureCallback<Void> callback) {
-        // TODO Auto-generated method stub
+        // Register FSM listener for operation feedback
+        RtpSessionFsmUpdateModeListener listener = new RtpSessionFsmUpdateModeListener(this.fsm, callback);
+        this.fsm.addDeclarativeListener(listener);
 
+        // Fire event
+        RtpSessionFsmUpdateModeContext txContext = new RtpSessionFsmUpdateModeContext(mode, this.jitterBuffer, this.dtmfInput, this.rtpInput, this.rtpOutput, callback);
+        this.fsm.fire(RtpSessionEvent.UPDATE_MODE, txContext);
     }
 
     @Override

@@ -25,8 +25,13 @@ import java.net.SocketAddress;
 
 import org.apache.log4j.Logger;
 import org.restcomm.media.rtp.RtpChannel;
+import org.restcomm.media.rtp.RtpInput;
+import org.restcomm.media.rtp.RtpOutput;
+import org.restcomm.media.rtp.jitter.JitterBuffer;
+import org.restcomm.media.rtp.rfc2833.DtmfInput;
 import org.restcomm.media.rtp.session.RtpSessionFsmImplTest;
 import org.restcomm.media.sdp.format.RTPFormats;
+import org.restcomm.media.spi.ConnectionMode;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -46,8 +51,7 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
      * FSM
      */
     @Override
-    public void enterAllocating(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
-            RtpSessionTransactionContext context) {
+    public void enterAllocating(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context) {
         final RtpSessionOpenContext txContext = (RtpSessionOpenContext) context;
         final RtpChannel channel = txContext.getChannel();
 
@@ -57,8 +61,7 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
     }
 
     @Override
-    public void enterBinding(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
-            RtpSessionTransactionContext context) {
+    public void enterBinding(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context) {
         final RtpSessionOpenContext txContext = (RtpSessionOpenContext) context;
         final SocketAddress address = txContext.getAddress();
         final RtpChannel channel = txContext.getChannel();
@@ -69,8 +72,7 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
     }
 
     @Override
-    public void enterOpened(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
-            RtpSessionTransactionContext context) {
+    public void enterOpened(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context) {
         // RTP channel was bound successfully
         final RtpSessionOpenContext txContext = (RtpSessionOpenContext) context;
         final SocketAddress localAddress = txContext.getAddress();
@@ -80,7 +82,7 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
 
         if (log.isDebugEnabled()) {
             long ssrc = this.globalContext.getSsrc();
-            log.debug("RTP Channel " + ssrc + " is bound to " + localAddress.toString());
+            log.debug("RTP session " + ssrc + " is bound to " + localAddress.toString());
         }
 
         // Move on to OPEN state
@@ -88,8 +90,7 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
     }
 
     @Override
-    public void enterNegotiatingFormats(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
-            RtpSessionTransactionContext context) {
+    public void enterNegotiatingFormats(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context) {
         final RtpSessionNegotiateContext txContext = (RtpSessionNegotiateContext) context;
         final RTPFormats supported = this.globalContext.getSupportedFormats();
         final RTPFormats offered = txContext.getFormats();
@@ -103,7 +104,7 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
 
             if (log.isDebugEnabled()) {
                 long ssrc = this.globalContext.getSsrc();
-                log.debug("RTP Channel " + ssrc + " negotiated the formats " + negotiated.toString());
+                log.debug("RTP session " + ssrc + " negotiated the formats " + negotiated.toString());
             }
 
             // Move on to next state
@@ -112,8 +113,7 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
     }
 
     @Override
-    public void enterConnecting(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
-            RtpSessionTransactionContext context) {
+    public void enterConnecting(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context) {
         final RtpSessionNegotiateContext txContext = (RtpSessionNegotiateContext) context;
         final SocketAddress address = txContext.getAddress();
         final RtpChannel channel = txContext.getChannel();
@@ -133,7 +133,7 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
         if (log.isDebugEnabled()) {
             if (log.isDebugEnabled()) {
                 long ssrc = this.globalContext.getSsrc();
-                log.debug("RTP Channel " + ssrc + " is connected to " + remoteAddress.toString());
+                log.debug("RTP session " + ssrc + " is connected to " + remoteAddress.toString());
             }
         }
 
@@ -141,14 +141,59 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
         fire(RtpSessionEvent.NEGOTIATED);
     }
 
-    // @Override
-    // public void onModeUpdate(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext
-    // context) {
-    // RtpSessionModeUpdateContext txContext = (RtpSessionModeUpdateContext) context;
-    // ConnectionMode mode = txContext.getMode();
-    // this.globalContext.setMode(mode);
-    // }
-    //
+     @Override
+     public void onUpdateMode(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context) {
+         RtpSessionFsmUpdateModeContext txContext = (RtpSessionFsmUpdateModeContext) context;
+         
+         ConnectionMode currentMode = this.globalContext.getMode();
+         ConnectionMode newMode = txContext.getMode();
+         
+         if(!currentMode.equals(newMode)) {
+             JitterBuffer jitterBuffer = txContext.getJitterBuffer();
+             DtmfInput dtmfInput = txContext.getDtmfInput();
+             RtpInput rtpInput = txContext.getRtpInput();
+             RtpOutput rtpOutput = txContext.getRtpOutput();
+             
+             // Update mode of RTP components
+             switch (newMode) {
+                case RECV_ONLY:
+                case NETWORK_LOOPBACK:
+                    dtmfInput.activate();
+                    rtpInput.activate();
+                    rtpOutput.deactivate();
+                    break;
+                    
+                case SEND_ONLY:
+                    dtmfInput.deactivate();
+                    rtpInput.deactivate();
+                    rtpOutput.activate();
+                    jitterBuffer.restart();
+                    break;
+                    
+                case SEND_RECV:
+                case CONFERENCE:
+                    dtmfInput.activate();
+                    rtpInput.activate();
+                    rtpOutput.activate();
+                    break;
+                    
+                default:
+                    dtmfInput.deactivate();
+                    rtpInput.deactivate();
+                    rtpOutput.deactivate();
+                    jitterBuffer.restart();
+                    break;
+            }
+             
+             // Set new mode in global context
+             this.globalContext.setMode(newMode);
+             
+             if(log.isDebugEnabled()) {
+                 log.debug("RTP session " + this.globalContext.getSsrc() + " updated mode to " + newMode.name());
+             }
+         }
+     }
+    
     // @Override
     // public void onIncomingPacket(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
     // RtpSessionTransactionContext context) {
@@ -225,8 +270,7 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
     // }
 
     @Override
-    public void enterClosed(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
-            RtpSessionTransactionContext context) {
+    public void enterClosed(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context) {
         RtpSessionCloseContext txContext = (RtpSessionCloseContext) context;
         RtpChannel channel = txContext.getChannel();
         RtpSessionCloseCallback callback = new RtpSessionCloseCallback();

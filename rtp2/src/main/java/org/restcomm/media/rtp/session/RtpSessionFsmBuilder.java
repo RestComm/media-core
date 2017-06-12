@@ -59,6 +59,7 @@ public class RtpSessionFsmBuilder {
         this.builder.onExit(RtpSessionState.OPENED).callMethod("exitOpened");
 
         this.builder.onEntry(RtpSessionState.OPEN).callMethod("enterOpen");
+        this.builder.internalTransition().within(RtpSessionState.OPEN).on(RtpSessionEvent.UPDATE_MODE).callMethod("onUpdateMode");
         this.builder.externalTransition().from(RtpSessionState.OPEN).to(RtpSessionState.NEGOTIATING).on(RtpSessionEvent.NEGOTIATE);
         this.builder.externalTransition().from(RtpSessionState.OPEN).toFinal(RtpSessionState.CLOSED).on(RtpSessionEvent.CLOSE);
         this.builder.onExit(RtpSessionState.OPEN).callMethod("exitOpen");
@@ -81,6 +82,7 @@ public class RtpSessionFsmBuilder {
         this.builder.onExit(RtpSessionState.NEGOTIATED).callMethod("exitNegotiated");
         
         this.builder.onEntry(RtpSessionState.ESTABLISHED).callMethod("enterEstablished");
+        this.builder.internalTransition().within(RtpSessionState.ESTABLISHED).on(RtpSessionEvent.UPDATE_MODE).callMethod("onUpdateMode");
         this.builder.externalTransition().from(RtpSessionState.ESTABLISHED).to(RtpSessionState.NEGOTIATING).on(RtpSessionEvent.NEGOTIATE);
         this.builder.externalTransition().from(RtpSessionState.ESTABLISHED).toFinal(RtpSessionState.CLOSED).on(RtpSessionEvent.CLOSE);
         this.builder.onExit(RtpSessionState.ESTABLISHED).callMethod("exitEstablished");
