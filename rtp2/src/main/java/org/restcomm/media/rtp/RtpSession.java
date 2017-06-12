@@ -44,7 +44,7 @@ public interface RtpSession {
 
     void close(FutureCallback<Void> callback);
 
-    void updateMode(ConnectionMode mode);
+    void updateMode(ConnectionMode mode, FutureCallback<Void> callback);
 
     void incomingRtp(RtpPacket packet);
 

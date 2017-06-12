@@ -24,7 +24,6 @@ package org.restcomm.media.rtp.session;
 import java.net.SocketAddress;
 
 import org.restcomm.media.rtp.MediaType;
-import org.restcomm.media.rtp.RtpStatistics;
 import org.restcomm.media.sdp.format.RTPFormats;
 import org.restcomm.media.spi.ConnectionMode;
 
@@ -36,7 +35,7 @@ public class RtpSessionContext {
 
     private final long ssrc;
     private final MediaType mediaType;
-    private final RtpStatistics statistics;
+    private final RtpSessionStatistics statistics;
     private final RTPFormats supportedFormats;
 
     private SocketAddress localAddress;
@@ -44,7 +43,7 @@ public class RtpSessionContext {
     private RTPFormats negotiatedFormats;
     private ConnectionMode mode;
 
-    public RtpSessionContext(long ssrc, MediaType mediaType, RtpStatistics statistics, RTPFormats formats) {
+    public RtpSessionContext(long ssrc, MediaType mediaType, RtpSessionStatistics statistics, RTPFormats formats) {
         super();
         this.ssrc = ssrc;
         this.mediaType = mediaType;
@@ -63,7 +62,7 @@ public class RtpSessionContext {
         return mediaType;
     }
 
-    public RtpStatistics getStatistics() {
+    public RtpSessionStatistics getStatistics() {
         return statistics;
     }
 

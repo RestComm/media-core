@@ -25,6 +25,7 @@ import java.net.SocketAddress;
 
 import org.apache.log4j.Logger;
 import org.restcomm.media.rtp.RtpChannel;
+import org.restcomm.media.rtp.session.RtpSessionFsmImplTest;
 import org.restcomm.media.sdp.format.RTPFormats;
 
 /**
@@ -122,8 +123,7 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
     }
 
     @Override
-    public void enterNegotiated(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
-            RtpSessionTransactionContext context) {
+    public void enterNegotiated(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context) {
         final RtpSessionNegotiateContext txContext = (RtpSessionNegotiateContext) context;
         final SocketAddress remoteAddress = txContext.getAddress();
 

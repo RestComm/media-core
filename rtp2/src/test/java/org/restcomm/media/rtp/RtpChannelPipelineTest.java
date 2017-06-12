@@ -39,6 +39,7 @@ import org.restcomm.media.rtp.handler.RtpInboundHandlerGlobalContext;
 import org.restcomm.media.rtp.handler.RtpPacketEncoder;
 import org.restcomm.media.rtp.jitter.JitterBuffer;
 import org.restcomm.media.rtp.rfc2833.DtmfInput;
+import org.restcomm.media.rtp.session.RtpSessionStatistics;
 import org.restcomm.media.scheduler.Clock;
 import org.restcomm.media.scheduler.WallClock;
 import org.restcomm.media.sdp.format.AVProfile;
@@ -79,7 +80,7 @@ public class RtpChannelPipelineTest {
     public void testIncomingRtpPacket() throws Exception {
         // given
         final Clock clock = new WallClock();
-        final RtpStatistics statistics = mock(RtpStatistics.class);
+        final RtpSessionStatistics statistics = mock(RtpSessionStatistics.class);
         final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
         final RtpInput rtpInput = mock(RtpInput.class);
         final DtmfInput dtmfInput = mock(DtmfInput.class);
@@ -113,7 +114,7 @@ public class RtpChannelPipelineTest {
     public void testOutgoingRtpPacket() throws Exception {
         // given
         final Clock clock = new WallClock();
-        final RtpStatistics statistics = mock(RtpStatistics.class);
+        final RtpSessionStatistics statistics = mock(RtpSessionStatistics.class);
         final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
         final RtpInput rtpInput = mock(RtpInput.class);
         final DtmfInput dtmfInput = mock(DtmfInput.class);
@@ -146,7 +147,7 @@ public class RtpChannelPipelineTest {
     public void testLoopingRtpPacket() throws Exception {
         // given
         final Clock clock = new WallClock();
-        final RtpStatistics statistics = mock(RtpStatistics.class);
+        final RtpSessionStatistics statistics = mock(RtpSessionStatistics.class);
         final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
         final RtpInput rtpInput = mock(RtpInput.class);
         final DtmfInput dtmfInput = mock(DtmfInput.class);

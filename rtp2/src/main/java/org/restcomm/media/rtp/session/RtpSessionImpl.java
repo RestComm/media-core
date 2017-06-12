@@ -21,14 +21,20 @@
 
 package org.restcomm.media.rtp.session;
 
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 import org.restcomm.media.rtp.MediaType;
 import org.restcomm.media.rtp.RtpChannel;
 import org.restcomm.media.rtp.RtpPacket;
 import org.restcomm.media.rtp.RtpSession;
+import org.restcomm.media.sdp.attributes.RtpMapAttribute;
 import org.restcomm.media.sdp.fields.MediaDescriptionField;
+import org.restcomm.media.sdp.format.RTPFormat;
+import org.restcomm.media.sdp.format.RTPFormats;
 import org.restcomm.media.spi.ConnectionMode;
+import org.restcomm.media.spi.format.EncodingName;
+import org.restcomm.media.spi.format.Format;
 
 import com.google.common.util.concurrent.FutureCallback;
 
@@ -40,7 +46,7 @@ public class RtpSessionImpl implements RtpSession {
 
     private final RtpSessionContext context;
     private final RtpSessionFsm fsm;
-    
+
     private final RtpChannel channel;
 
     public RtpSessionImpl(RtpChannel channel, RtpSessionContext context) {
@@ -61,24 +67,57 @@ public class RtpSessionImpl implements RtpSession {
 
     @Override
     public void open(SocketAddress address, FutureCallback<Void> callback) {
+        // Register FSM listener for operation feedback
+        RtpSessionFsmOpenListener openListener = new RtpSessionFsmOpenListener(this.fsm, callback);
+        this.fsm.addDeclarativeListener(openListener);
+
+        // Fire event
         RtpSessionOpenContext txContext = new RtpSessionOpenContext(this.channel, address, callback);
         this.fsm.fire(RtpSessionEvent.OPEN, txContext);
     }
 
     @Override
     public void negotiate(MediaDescriptionField sdp, FutureCallback<Void> callback) {
-        // TODO Auto-generated method stub
+        // Gather remote session information
+        RtpMapAttribute[] formats = sdp.getFormats();
+        SocketAddress address = new InetSocketAddress(sdp.getConnection().getAddress(), sdp.getPort());
+        String ssrcId = sdp.getSsrc().getSsrcId();
+        long ssrc = ssrcId.isEmpty() ? 0 : Long.parseLong(ssrcId);
 
+        // Register FSM listener for operation feedback
+        RtpSessionFsmNegotiateListener listener = new RtpSessionFsmNegotiateListener(this.fsm, callback);
+        this.fsm.addDeclarativeListener(listener);
+
+        // Fire event
+        RtpSessionNegotiateContext txContext = new RtpSessionNegotiateContext(this.channel, getFormats(formats), address, ssrc, callback);
+        this.fsm.fire(RtpSessionEvent.NEGOTIATE, txContext);
+    }
+
+    private RTPFormats getFormats(RtpMapAttribute[] map) {
+        RTPFormats offeredFormats = new RTPFormats(map.length);
+        for (RtpMapAttribute format : map) {
+            String codec = format.getCodec();
+            int clockRate = format.getClockRate();
+            int payloadType = format.getPayloadType();
+            RTPFormat rtpFormat = new RTPFormat(payloadType, new Format(new EncodingName(codec)), clockRate);
+            offeredFormats.add(rtpFormat);
+        }
+        return offeredFormats;
     }
 
     @Override
     public void close(FutureCallback<Void> callback) {
-        // TODO Auto-generated method stub
-
+        // Register FSM listener for operation feedback
+        RtpSessionFsmCloseListener listener = new RtpSessionFsmCloseListener(this.fsm, callback);
+        this.fsm.addDeclarativeListener(listener);
+        
+        // Fire event
+        RtpSessionFsmCloseContext txContext = new RtpSessionFsmCloseContext(callback);
+        this.fsm.fire(RtpSessionEvent.CLOSE, txContext);
     }
 
     @Override
-    public void updateMode(ConnectionMode mode) {
+    public void updateMode(ConnectionMode mode, FutureCallback<Void> callback) {
         // TODO Auto-generated method stub
 
     }

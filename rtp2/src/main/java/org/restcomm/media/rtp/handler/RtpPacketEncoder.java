@@ -22,7 +22,7 @@
 package org.restcomm.media.rtp.handler;
 
 import org.restcomm.media.rtp.RtpPacket;
-import org.restcomm.media.rtp.RtpStatistics;
+import org.restcomm.media.rtp.session.RtpSessionStatistics;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -34,9 +34,9 @@ import io.netty.handler.codec.MessageToByteEncoder;
  */
 public class RtpPacketEncoder extends MessageToByteEncoder<RtpPacket> {
 
-    private final RtpStatistics statistics;
+    private final RtpSessionStatistics statistics;
 
-    public RtpPacketEncoder(RtpStatistics statistics) {
+    public RtpPacketEncoder(RtpSessionStatistics statistics) {
         super();
         this.statistics = statistics;
     }

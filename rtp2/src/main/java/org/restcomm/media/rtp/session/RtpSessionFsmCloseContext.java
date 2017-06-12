@@ -27,29 +27,18 @@ import com.google.common.util.concurrent.FutureCallback;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public abstract class AbstractRtpSessionFsmListener implements FutureCallback<Void> {
+public class RtpSessionFsmCloseContext implements RtpSessionTransactionContext {
 
-    private final RtpSessionFsm fsm;
+    private final FutureCallback<Void> callback;
 
-    public AbstractRtpSessionFsmListener(RtpSessionFsm fsm) {
+    public RtpSessionFsmCloseContext(FutureCallback<Void> callback) {
         super();
-        this.fsm = fsm;
-    }
-
-    protected abstract void succeeded(Void result);
-
-    protected abstract void failed(Throwable t);
-
-    @Override
-    public final void onSuccess(Void result) {
-        this.fsm.removeDeclarativeListener(this);
-        succeeded(result);
+        this.callback = callback;
     }
 
     @Override
-    public final void onFailure(Throwable t) {
-        this.fsm.removeDeclarativeListener(this);
-        failed(t);
+    public FutureCallback<Void> getCallback() {
+        return this.callback;
     }
 
 }

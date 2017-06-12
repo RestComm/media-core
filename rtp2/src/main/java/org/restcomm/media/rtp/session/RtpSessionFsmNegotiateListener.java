@@ -35,18 +35,18 @@ import com.google.common.util.concurrent.FutureCallback;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpSessionFsmOpenListener extends AbstractRtpSessionFsmListener {
+public class RtpSessionFsmNegotiateListener extends AbstractRtpSessionFsmListener {
 
     private final FutureCallback<Void> callback;
 
-    public RtpSessionFsmOpenListener(RtpSessionFsm fsm, FutureCallback<Void> callback) {
+    public RtpSessionFsmNegotiateListener(RtpSessionFsm fsm, FutureCallback<Void> callback) {
         super(fsm);
         this.callback = callback;
     }
 
     @Override
     protected void succeeded(Void result) {
-        this.callback.onSuccess(result);
+        this.callback.onSuccess(null);
     }
 
     @Override
@@ -54,9 +54,9 @@ public class RtpSessionFsmOpenListener extends AbstractRtpSessionFsmListener {
         this.callback.onFailure(t);
     }
 
+
     @OnTransitionBegin
-    public void transitionBegin(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
-            RtpSessionTransactionContext context) {
+    public void transitionBegin(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context) {
         if (context != null) {
             FutureCallback<Void> originator = context.getCallback();
             if (originator == this.callback) {
@@ -69,12 +69,11 @@ public class RtpSessionFsmOpenListener extends AbstractRtpSessionFsmListener {
     }
 
     @OnTransitionComplete
-    public void transitionComplete(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
-            RtpSessionTransactionContext context) {
+    public void transitionComplete(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context) {
         if (context != null) {
             FutureCallback<Void> originator = context.getCallback();
             if (this.callback == originator) {
-                if (RtpSessionState.OPENED.equals(to)) {
+                if (RtpSessionState.NEGOTIATED.equals(to)) {
                     onSuccess(null);
                 }
             }

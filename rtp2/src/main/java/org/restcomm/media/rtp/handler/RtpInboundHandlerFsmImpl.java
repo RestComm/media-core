@@ -23,8 +23,8 @@ package org.restcomm.media.rtp.handler;
 
 import org.apache.log4j.Logger;
 import org.restcomm.media.rtp.RtpPacket;
-import org.restcomm.media.rtp.RtpStatistics;
 import org.restcomm.media.rtp.format.DtmfFormat;
+import org.restcomm.media.rtp.session.RtpSessionStatistics;
 import org.restcomm.media.sdp.format.RTPFormat;
 
 /**
@@ -64,7 +64,7 @@ public class RtpInboundHandlerFsmImpl extends AbstractRtpInboundHandlerFsm {
         final RtpPacket packet = txContext.getPacket();
         final int payloadType = packet.getPayloadType();
         final RTPFormat format = this.context.getFormats().find(payloadType);
-        final RtpStatistics statistics = this.context.getStatistics();
+        final RtpSessionStatistics statistics = this.context.getStatistics();
 
         if (format == null) {
             // Drop packet with unknown format
