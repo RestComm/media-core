@@ -18,15 +18,15 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
-package org.restcomm.media.rtp.session;
+
+package org.restcomm.media.rtp;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum RtpSessionEvent {
-    
-    OPEN, ALLOCATED, BOUND, OPENED, NEGOTIATE, NEGOTIATED_FORMATS, CONNECTED, NEGOTIATED, UPDATE_MODE, INCOMING_RTP, OUTGOING_RTP, CLOSE
+public enum PacketDirection {
+
+    INCOMING, OUTGOING;
 
 }

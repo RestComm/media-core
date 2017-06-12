@@ -146,14 +146,16 @@ public class RtpSessionImpl implements RtpSession {
 
     @Override
     public void incomingRtp(RtpPacket packet) {
-        // TODO Auto-generated method stub
-
+        // Fire event
+        RtpSessionIncomingRtpContext txContext = new RtpSessionIncomingRtpContext(packet, this.jitterBuffer, this.dtmfInput);
+        this.fsm.fire(RtpSessionEvent.INCOMING_RTP, txContext);
     }
 
     @Override
     public void outgoingRtp(RtpPacket packet) {
-        // TODO Auto-generated method stub
-
+        // Fire event
+        RtpSessionOutgoingRtpContext txContext = new RtpSessionOutgoingRtpContext(packet, this.channel);
+        this.fsm.fire(RtpSessionEvent.OUTGOING_RTP, txContext);
     }
 
 }

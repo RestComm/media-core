@@ -18,15 +18,33 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
+
 package org.restcomm.media.rtp.session;
+
+import org.restcomm.media.rtp.RtpChannel;
+import org.restcomm.media.rtp.RtpPacket;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum RtpSessionEvent {
-    
-    OPEN, ALLOCATED, BOUND, OPENED, NEGOTIATE, NEGOTIATED_FORMATS, CONNECTED, NEGOTIATED, UPDATE_MODE, INCOMING_RTP, OUTGOING_RTP, CLOSE
+public class RtpSessionOutgoingRtpContext extends RtpSessionBaseTransactionContext {
+
+    private final RtpPacket packet;
+    private final RtpChannel channel;
+
+    public RtpSessionOutgoingRtpContext(RtpPacket packet, RtpChannel channel) {
+        super(null);
+        this.packet = packet;
+        this.channel = channel;
+    }
+
+    public RtpPacket getPacket() {
+        return packet;
+    }
+
+    public RtpChannel getChannel() {
+        return channel;
+    }
 
 }

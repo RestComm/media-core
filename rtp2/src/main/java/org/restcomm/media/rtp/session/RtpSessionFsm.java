@@ -73,9 +73,9 @@ public interface RtpSessionFsm extends StateMachine<RtpSessionFsm, RtpSessionSta
 
     void onUpdateMode(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context);
 
-    void onIncomingPacket(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context);
+    void onIncomingRtp(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context);
 
-    void onOutgoingPacket(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context);
+    void onOutgoingRtp(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context);
 
     void enterClosed(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context);
 

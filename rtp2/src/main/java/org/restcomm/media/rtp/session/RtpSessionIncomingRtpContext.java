@@ -18,15 +18,40 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
+
 package org.restcomm.media.rtp.session;
+
+import org.restcomm.media.rtp.RtpPacket;
+import org.restcomm.media.rtp.jitter.JitterBuffer;
+import org.restcomm.media.rtp.rfc2833.DtmfInput;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum RtpSessionEvent {
-    
-    OPEN, ALLOCATED, BOUND, OPENED, NEGOTIATE, NEGOTIATED_FORMATS, CONNECTED, NEGOTIATED, UPDATE_MODE, INCOMING_RTP, OUTGOING_RTP, CLOSE
+public class RtpSessionIncomingRtpContext extends RtpSessionBaseTransactionContext {
+
+    private final RtpPacket packet;
+    private final JitterBuffer jitterBuffer;
+    private final DtmfInput dtmfInput;
+
+    public RtpSessionIncomingRtpContext(RtpPacket packet, JitterBuffer jitterBuffer, DtmfInput dtmfInput) {
+        super(null);
+        this.packet = packet;
+        this.jitterBuffer = jitterBuffer;
+        this.dtmfInput = dtmfInput;
+    }
+
+    public RtpPacket getPacket() {
+        return packet;
+    }
+
+    public JitterBuffer getJitterBuffer() {
+        return jitterBuffer;
+    }
+
+    public DtmfInput getDtmfInput() {
+        return dtmfInput;
+    }
 
 }

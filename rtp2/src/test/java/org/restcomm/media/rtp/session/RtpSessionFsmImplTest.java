@@ -36,6 +36,7 @@ import org.restcomm.media.rtp.MediaType;
 import org.restcomm.media.rtp.RtpChannel;
 import org.restcomm.media.rtp.RtpInput;
 import org.restcomm.media.rtp.RtpOutput;
+import org.restcomm.media.rtp.RtpPacket;
 import org.restcomm.media.rtp.jitter.JitterBuffer;
 import org.restcomm.media.rtp.rfc2833.DtmfInput;
 import org.restcomm.media.rtp.session.RtpSessionCloseContext;
@@ -50,6 +51,7 @@ import org.restcomm.media.rtp.session.RtpSessionState;
 import org.restcomm.media.rtp.session.RtpSessionTransactionContext;
 import org.restcomm.media.scheduler.WallClock;
 import org.restcomm.media.sdp.format.AVProfile;
+import org.restcomm.media.sdp.format.RTPFormat;
 import org.restcomm.media.sdp.format.RTPFormats;
 import org.restcomm.media.spi.ConnectionMode;
 
@@ -150,7 +152,7 @@ public class RtpSessionFsmImplTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    public void testUpdateModeStateWithModeSetToInactive() {
+    public void testUpdateModeActionWithModeSetToInactive() {
         // given
         final RtpSessionContext context = mock(RtpSessionContext.class);
         final RtpSessionFsmImpl fsm = spy(new RtpSessionFsmImpl(context));
@@ -178,7 +180,7 @@ public class RtpSessionFsmImplTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    public void testUpdateModeStateWithModeSetToSendOnly() {
+    public void testUpdateModeActionWithModeSetToSendOnly() {
         // given
         final RtpSessionContext context = mock(RtpSessionContext.class);
         final RtpSessionFsmImpl fsm = spy(new RtpSessionFsmImpl(context));
@@ -206,7 +208,7 @@ public class RtpSessionFsmImplTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    public void testUpdateModeStateWithModeSetToReceiveOnly() {
+    public void testUpdateModeActionWithModeSetToReceiveOnly() {
         // given
         final RtpSessionContext context = mock(RtpSessionContext.class);
         final RtpSessionFsmImpl fsm = spy(new RtpSessionFsmImpl(context));
@@ -234,7 +236,7 @@ public class RtpSessionFsmImplTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    public void testUpdateModeStateWithModeSetToSendReceive() {
+    public void testUpdateModeActionWithModeSetToSendReceive() {
         // given
         final RtpSessionContext context = mock(RtpSessionContext.class);
         final RtpSessionFsmImpl fsm = spy(new RtpSessionFsmImpl(context));
@@ -262,7 +264,7 @@ public class RtpSessionFsmImplTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    public void testUpdateModeStateWithModeSetToConference() {
+    public void testUpdateModeActionWithModeSetToConference() {
         // given
         final RtpSessionContext context = mock(RtpSessionContext.class);
         final RtpSessionFsmImpl fsm = spy(new RtpSessionFsmImpl(context));
@@ -290,7 +292,7 @@ public class RtpSessionFsmImplTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    public void testUpdateModeStateWithSameMode() {
+    public void testUpdateModeActionWithSameMode() {
         // given
         final RtpSessionContext context = mock(RtpSessionContext.class);
         final RtpSessionFsmImpl fsm = spy(new RtpSessionFsmImpl(context));
@@ -314,6 +316,90 @@ public class RtpSessionFsmImplTest {
         verify(dtmfInput, never()).activate();
         verify(rtpOutput, never()).activate();
         verify(context, never()).setMode(mode);
+    }
+
+    @Test
+    public void testIncomingRtpPacketAction() {
+        // given
+        final RtpSessionStatistics statistics = mock(RtpSessionStatistics.class);
+        final RtpSessionContext context = mock(RtpSessionContext.class);
+        final RtpSessionFsmImpl fsm = spy(new RtpSessionFsmImpl(context));
+
+        final int payloadType = 0;
+        final RtpPacket packet = mock(RtpPacket.class);
+        final RTPFormat format = AVProfile.audio.find(payloadType);
+        final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
+        final DtmfInput dtmfInput = mock(DtmfInput.class);
+        
+        when(packet.getPayloadType()).thenReturn(payloadType);
+        when(context.getNegotiatedFormats()).thenReturn(AVProfile.audio);
+        when(context.getMode()).thenReturn(ConnectionMode.CONFERENCE);
+        when(context.getStatistics()).thenReturn(statistics);
+        
+        // when
+        RtpSessionIncomingRtpContext txContext = new RtpSessionIncomingRtpContext(packet, jitterBuffer, dtmfInput);
+        fsm.onIncomingRtp(RtpSessionState.ESTABLISHED, RtpSessionState.ESTABLISHED, RtpSessionEvent.INCOMING_RTP, txContext);
+        
+        // then
+        verify(jitterBuffer).write(packet, format);
+        verify(dtmfInput, never()).write(packet);
+        verify(statistics).incomingRtp(packet);
+    }
+
+    @Test
+    public void testIncomingDtmfPacketAction() {
+        // given
+        final RtpSessionStatistics statistics = mock(RtpSessionStatistics.class);
+        final RtpSessionContext context = mock(RtpSessionContext.class);
+        final RtpSessionFsmImpl fsm = spy(new RtpSessionFsmImpl(context));
+        
+        final int payloadType = 101;
+        final RtpPacket packet = mock(RtpPacket.class);
+        final RTPFormat format = AVProfile.audio.find(payloadType);
+        final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
+        final DtmfInput dtmfInput = mock(DtmfInput.class);
+        
+        when(packet.getPayloadType()).thenReturn(payloadType);
+        when(context.getNegotiatedFormats()).thenReturn(AVProfile.audio);
+        when(context.getMode()).thenReturn(ConnectionMode.CONFERENCE);
+        when(context.getStatistics()).thenReturn(statistics);
+        
+        // when
+        RtpSessionIncomingRtpContext txContext = new RtpSessionIncomingRtpContext(packet, jitterBuffer, dtmfInput);
+        fsm.onIncomingRtp(RtpSessionState.ESTABLISHED, RtpSessionState.ESTABLISHED, RtpSessionEvent.INCOMING_RTP, txContext);
+        
+        // then
+        verify(jitterBuffer, never()).write(packet, format);
+        verify(dtmfInput).write(packet);
+        verify(statistics, never()).incomingRtp(packet);
+    }
+    
+    @Test
+    public void testIncomingRtpPacketActionWhenSessionIsInactive() {
+        // given
+        final RtpSessionStatistics statistics = mock(RtpSessionStatistics.class);
+        final RtpSessionContext context = mock(RtpSessionContext.class);
+        final RtpSessionFsmImpl fsm = spy(new RtpSessionFsmImpl(context));
+
+        final int payloadType = 0;
+        final RtpPacket packet = mock(RtpPacket.class);
+        final RTPFormat format = AVProfile.audio.find(payloadType);
+        final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
+        final DtmfInput dtmfInput = mock(DtmfInput.class);
+        
+        when(packet.getPayloadType()).thenReturn(payloadType);
+        when(context.getNegotiatedFormats()).thenReturn(AVProfile.audio);
+        when(context.getMode()).thenReturn(ConnectionMode.INACTIVE);
+        when(context.getStatistics()).thenReturn(statistics);
+        
+        // when
+        RtpSessionIncomingRtpContext txContext = new RtpSessionIncomingRtpContext(packet, jitterBuffer, dtmfInput);
+        fsm.onIncomingRtp(RtpSessionState.ESTABLISHED, RtpSessionState.ESTABLISHED, RtpSessionEvent.INCOMING_RTP, txContext);
+        
+        // then
+        verify(jitterBuffer, never()).write(packet, format);
+        verify(dtmfInput, never()).write(packet);
+        verify(statistics, never()).incomingRtp(packet);
     }
 
     @Test

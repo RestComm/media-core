@@ -137,12 +137,12 @@ public class AbstractRtpSessionFsm
     }
 
     @Override
-    public void onIncomingPacket(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
+    public void onIncomingRtp(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
             RtpSessionTransactionContext context) {
     }
 
     @Override
-    public void onOutgoingPacket(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
+    public void onOutgoingRtp(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
             RtpSessionTransactionContext context) {
     }
 

@@ -83,6 +83,8 @@ public class RtpSessionFsmBuilder {
         
         this.builder.onEntry(RtpSessionState.ESTABLISHED).callMethod("enterEstablished");
         this.builder.internalTransition().within(RtpSessionState.ESTABLISHED).on(RtpSessionEvent.UPDATE_MODE).callMethod("onUpdateMode");
+        this.builder.internalTransition().within(RtpSessionState.ESTABLISHED).on(RtpSessionEvent.INCOMING_RTP).callMethod("onIncomingRtp");
+        this.builder.internalTransition().within(RtpSessionState.ESTABLISHED).on(RtpSessionEvent.OUTGOING_RTP).callMethod("onOutgoingRtp");
         this.builder.externalTransition().from(RtpSessionState.ESTABLISHED).to(RtpSessionState.NEGOTIATING).on(RtpSessionEvent.NEGOTIATE);
         this.builder.externalTransition().from(RtpSessionState.ESTABLISHED).toFinal(RtpSessionState.CLOSED).on(RtpSessionEvent.CLOSE);
         this.builder.onExit(RtpSessionState.ESTABLISHED).callMethod("exitEstablished");
