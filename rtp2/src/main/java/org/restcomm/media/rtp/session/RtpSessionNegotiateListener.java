@@ -21,6 +21,9 @@
 
 package org.restcomm.media.rtp.session;
 
+import java.net.SocketAddress;
+
+import org.restcomm.media.rtp.session.exception.RtpSessionConnectException;
 import org.restcomm.media.rtp.session.exception.RtpSessionException;
 import org.restcomm.media.rtp.session.exception.RtpSessionNegotiationException;
 import org.restcomm.media.sdp.format.RTPFormats;
@@ -88,6 +91,12 @@ public class RtpSessionNegotiateListener extends AbstractRtpSessionFsmListener {
                                 RtpSessionUnsupportedFormatsContext txContext = (RtpSessionUnsupportedFormatsContext) context;
                                 RTPFormats offeredFormats = txContext.getOfferedFormats();
                                 exception = new RtpSessionNegotiationException("Unsupported formats " + offeredFormats.toString());
+                                break;
+                                
+                            case CONNECT_FAILURE:
+                                RtpSessionConnectFailureContext connectContext = (RtpSessionConnectFailureContext) context;
+                                SocketAddress address = connectContext.getAddress();
+                                exception = new RtpSessionConnectException("Could not connect to remote peer " + address.toString());
                                 break;
 
                             default:

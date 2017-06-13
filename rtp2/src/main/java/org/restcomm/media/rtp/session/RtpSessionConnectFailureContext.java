@@ -29,27 +29,17 @@ import com.google.common.util.concurrent.FutureCallback;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpSessionConnectCallback implements FutureCallback<Void> {
+public class RtpSessionConnectFailureContext extends RtpSessionBaseTransactionContext {
 
-    private final RtpSessionFsm fsm;
-    private final RtpSessionNegotiateContext context;
+    private final SocketAddress address;
 
-    public RtpSessionConnectCallback(RtpSessionFsm fsm, RtpSessionNegotiateContext context) {
-        this.fsm = fsm;
-        this.context = context;
+    public RtpSessionConnectFailureContext(SocketAddress address, FutureCallback<Void> callback) {
+        super(callback);
+        this.address = address;
     }
 
-    @Override
-    public void onSuccess(Void result) {
-        fsm.fire(RtpSessionEvent.CONNECTED, context);
-    }
-
-    @Override
-    public void onFailure(Throwable t) {
-        final SocketAddress address = context.getAddress();
-        final FutureCallback<Void> callback = context.getCallback();
-        final RtpSessionConnectFailureContext txContext = new RtpSessionConnectFailureContext(address, callback);
-        fsm.fire(RtpSessionEvent.CONNECT_FAILURE, txContext);
+    public SocketAddress getAddress() {
+        return address;
     }
 
 }

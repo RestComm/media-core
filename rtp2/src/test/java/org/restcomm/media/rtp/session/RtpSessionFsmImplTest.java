@@ -406,7 +406,6 @@ public class RtpSessionFsmImplTest {
     @SuppressWarnings("unchecked")
     public void testOutgoingRtpPacketAction() {
         // given
-        final long ssrc = 12345L;
         final RtpSessionStatistics statistics = mock(RtpSessionStatistics.class);
         final RtpSessionContext context = mock(RtpSessionContext.class);
         final RtpSessionFsmImpl fsm = spy(new RtpSessionFsmImpl(context));
@@ -430,7 +429,7 @@ public class RtpSessionFsmImplTest {
         }).when(channel).send(eq(packet), any(FutureCallback.class));
         
         // when
-        RtpSessionOutgoingRtpCallback callback = new RtpSessionOutgoingRtpCallback(ssrc, statistics, packet);
+        RtpSessionOutgoingRtpCallback callback = new RtpSessionOutgoingRtpCallback(statistics, packet);
         RtpSessionOutgoingRtpContext txContext = new RtpSessionOutgoingRtpContext(packet, channel, callback);
         
         fsm.onOutgoingRtp(RtpSessionState.ESTABLISHED, RtpSessionState.ESTABLISHED, RtpSessionEvent.OUTGOING_RTP, txContext);
@@ -444,7 +443,6 @@ public class RtpSessionFsmImplTest {
     @SuppressWarnings("unchecked")
     public void testOutgoingRtpPacketActionWhenChannelIsInactive() {
         // given
-        final long ssrc = 12345L;
         final RtpSessionStatistics statistics = mock(RtpSessionStatistics.class);
         final RtpSessionContext context = mock(RtpSessionContext.class);
         final RtpSessionFsmImpl fsm = spy(new RtpSessionFsmImpl(context));
@@ -468,7 +466,7 @@ public class RtpSessionFsmImplTest {
         }).when(channel).send(eq(packet), any(FutureCallback.class));
         
         // when
-        RtpSessionOutgoingRtpCallback callback = new RtpSessionOutgoingRtpCallback(ssrc, statistics, packet);
+        RtpSessionOutgoingRtpCallback callback = new RtpSessionOutgoingRtpCallback(statistics, packet);
         RtpSessionOutgoingRtpContext txContext = new RtpSessionOutgoingRtpContext(packet, channel, callback);
         
         fsm.onOutgoingRtp(RtpSessionState.ESTABLISHED, RtpSessionState.ESTABLISHED, RtpSessionEvent.OUTGOING_RTP, txContext);

@@ -68,6 +68,7 @@ public class RtpSessionFsmBuilder {
         this.builder.defineSequentialStatesOn(RtpSessionState.NEGOTIATING, RtpSessionState.NEGOTIATING_FORMATS, RtpSessionState.CONNECTING, RtpSessionState.NEGOTIATED);
         this.builder.externalTransition().from(RtpSessionState.NEGOTIATING).to(RtpSessionState.ESTABLISHED).on(RtpSessionEvent.NEGOTIATED);
         this.builder.externalTransition().from(RtpSessionState.NEGOTIATING).to(RtpSessionState.NEGOTIATION_FAILED).on(RtpSessionEvent.UNSUPPORTED_FORMATS);
+        this.builder.externalTransition().from(RtpSessionState.NEGOTIATING).to(RtpSessionState.NEGOTIATION_FAILED).on(RtpSessionEvent.CONNECT_FAILURE);
         this.builder.externalTransition().from(RtpSessionState.NEGOTIATING).toFinal(RtpSessionState.CLOSED).on(RtpSessionEvent.CLOSE);
         this.builder.onExit(RtpSessionState.NEGOTIATING).callMethod("exitNegotiating");
 

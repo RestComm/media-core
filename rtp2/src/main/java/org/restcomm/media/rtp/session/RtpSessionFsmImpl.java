@@ -146,6 +146,15 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
                 }
                 break;
 
+            case CONNECT_FAILURE:
+                if (log.isDebugEnabled()) {
+                    RtpSessionConnectFailureContext txContext = (RtpSessionConnectFailureContext) context;
+                    long ssrc = this.globalContext.getSsrc();
+                    SocketAddress address = txContext.getAddress();
+                    log.debug("RTP session " + ssrc + " failed to connect to remote peer " + address.toString());
+                }
+                break;
+
             default:
                 if (log.isDebugEnabled()) {
                     long ssrc = this.globalContext.getSsrc();
@@ -305,7 +314,8 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
             default:
                 // Session mode does not allow to send packets
                 long ssrc = this.globalContext.getSsrc();
-                RtpSessionUnwritableException exception = new RtpSessionUnwritableException("RTP session " + ssrc + " cannot send packet because is operating in " + mode.name() + " mode");
+                RtpSessionUnwritableException exception = new RtpSessionUnwritableException(
+                        "RTP session " + ssrc + " cannot send packet because is operating in " + mode.name() + " mode");
                 callback.onFailure(exception);
                 break;
         }
