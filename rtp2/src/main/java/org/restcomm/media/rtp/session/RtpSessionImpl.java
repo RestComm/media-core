@@ -154,7 +154,7 @@ public class RtpSessionImpl implements RtpSession {
     @Override
     public void outgoingRtp(RtpPacket packet) {
         // Fire event
-        RtpSessionOutgoingRtpCallback callback = new RtpSessionOutgoingRtpCallback(this.context.getSsrc(), this.context.getStatistics(), packet);
+        RtpSessionOutgoingRtpCallback callback = new RtpSessionOutgoingRtpCallback(this.context.getStatistics(), packet);
         RtpSessionOutgoingRtpContext txContext = new RtpSessionOutgoingRtpContext(packet, this.channel, callback);
         this.fsm.fire(RtpSessionEvent.OUTGOING_RTP, txContext);
     }

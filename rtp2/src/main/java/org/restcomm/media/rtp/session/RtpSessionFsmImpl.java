@@ -305,8 +305,7 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
             default:
                 // Session mode does not allow to send packets
                 long ssrc = this.globalContext.getSsrc();
-                RtpSessionUnwritableException exception = new RtpSessionUnwritableException(
-                        "RTP session " + ssrc + " cannot send packet because is operating in " + mode.name() + " mode");
+                RtpSessionUnwritableException exception = new RtpSessionUnwritableException("RTP session " + ssrc + " cannot send packet because is operating in " + mode.name() + " mode");
                 callback.onFailure(exception);
                 break;
         }

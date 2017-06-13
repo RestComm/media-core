@@ -735,4 +735,260 @@ public class RtpSessionImplTest {
         // TODO check dropped packets
     }
 
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testOutgoingRtp() {
+        // given
+        final long ssrc = 12345L;
+        final MediaType mediaType = MediaType.AUDIO;
+        final RtpSessionStatistics statistics = mock(RtpSessionStatistics.class);
+        final RTPFormats formats = AVProfile.audio;
+        final RtpChannel channel = mock(RtpChannel.class);
+        final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
+        final DtmfInput dtmfInput = mock(DtmfInput.class);
+        final RtpInput rtpInput = mock(RtpInput.class);
+        final RtpOutput rtpOutput = mock(RtpOutput.class);
+        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
+        final RtpSessionImpl session = new RtpSessionImpl(channel, context, jitterBuffer, rtpInput, dtmfInput, rtpOutput);
+
+        InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
+        MediaDescriptionField remoteSdp = mock(MediaDescriptionField.class);
+        ConnectionField remoteConnection = mock(ConnectionField.class);
+        SsrcAttribute ssrcAttribute = new SsrcAttribute("54321");
+        RtpMapAttribute pcmu = new RtpMapAttribute();
+        pcmu.setClockRate(8000);
+        pcmu.setCodec("pcmu");
+        pcmu.setPayloadType(0);
+        RtpMapAttribute telephoneEvent = new RtpMapAttribute();
+        telephoneEvent.setCodec("telephone-event");
+        telephoneEvent.setPayloadType(101);
+        RtpMapAttribute[] offeredFormats = new RtpMapAttribute[] { pcmu, telephoneEvent };
+
+        when(remoteSdp.getSsrc()).thenReturn(ssrcAttribute);
+        when(remoteSdp.getPort()).thenReturn(remoteAddress.getPort());
+        when(remoteSdp.getConnection()).thenReturn(remoteConnection);
+        when(remoteConnection.getAddress()).thenReturn(remoteAddress.getHostString());
+        when(remoteSdp.getFormats()).thenReturn(offeredFormats);
+
+        doAnswer(new Answer<Void>() {
+
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                FutureCallback<Void> callback = invocation.getArgumentAt(0, FutureCallback.class);
+                callback.onSuccess(null);
+                return null;
+            }
+
+        }).when(channel).open(any(FutureCallback.class));
+
+        doAnswer(new Answer<Void>() {
+
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                FutureCallback<Void> callback = invocation.getArgumentAt(1, FutureCallback.class);
+                callback.onSuccess(null);
+                return null;
+            }
+
+        }).when(channel).bind(any(SocketAddress.class), any(FutureCallback.class));
+
+        doAnswer(new Answer<Void>() {
+
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                FutureCallback<Void> callback = invocation.getArgumentAt(1, FutureCallback.class);
+                callback.onSuccess(null);
+                return null;
+            }
+
+        }).when(channel).connect(any(SocketAddress.class), any(FutureCallback.class));
+
+        doAnswer(new Answer<Void>() {
+            
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                FutureCallback<Void> callback = invocation.getArgumentAt(1, FutureCallback.class);
+                callback.onSuccess(null);
+                return null;
+            }
+            
+        }).when(channel).send(any(RtpPacket.class), any(FutureCallback.class));
+        
+
+        // when
+        session.open(new InetSocketAddress("127.0.0.1", 6000), mock(FutureCallback.class));
+        session.updateMode(ConnectionMode.SEND_RECV, mock(FutureCallback.class));
+        session.negotiate(remoteSdp, mock(FutureCallback.class));
+
+        RtpPacket packet = new RtpPacket(true, pcmu.getPayloadType(), 100, 160 * 1, ssrc, new byte[160]);
+        session.outgoingRtp(packet);
+
+        // then
+        verify(channel).send(eq(packet), any(FutureCallback.class));
+        verify(statistics).outgoingRtp(packet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testOutgoingRtpWhenSessionIsNotEstablished() {
+        // given
+        final long ssrc = 12345L;
+        final MediaType mediaType = MediaType.AUDIO;
+        final RtpSessionStatistics statistics = mock(RtpSessionStatistics.class);
+        final RTPFormats formats = AVProfile.audio;
+        final RtpChannel channel = mock(RtpChannel.class);
+        final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
+        final DtmfInput dtmfInput = mock(DtmfInput.class);
+        final RtpInput rtpInput = mock(RtpInput.class);
+        final RtpOutput rtpOutput = mock(RtpOutput.class);
+        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
+        final RtpSessionImpl session = new RtpSessionImpl(channel, context, jitterBuffer, rtpInput, dtmfInput, rtpOutput);
+        
+        InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
+        MediaDescriptionField remoteSdp = mock(MediaDescriptionField.class);
+        ConnectionField remoteConnection = mock(ConnectionField.class);
+        SsrcAttribute ssrcAttribute = new SsrcAttribute("54321");
+        RtpMapAttribute pcmu = new RtpMapAttribute();
+        pcmu.setClockRate(8000);
+        pcmu.setCodec("pcmu");
+        pcmu.setPayloadType(0);
+        RtpMapAttribute telephoneEvent = new RtpMapAttribute();
+        telephoneEvent.setCodec("telephone-event");
+        telephoneEvent.setPayloadType(101);
+        RtpMapAttribute[] offeredFormats = new RtpMapAttribute[] { pcmu, telephoneEvent };
+        
+        when(remoteSdp.getSsrc()).thenReturn(ssrcAttribute);
+        when(remoteSdp.getPort()).thenReturn(remoteAddress.getPort());
+        when(remoteSdp.getConnection()).thenReturn(remoteConnection);
+        when(remoteConnection.getAddress()).thenReturn(remoteAddress.getHostString());
+        when(remoteSdp.getFormats()).thenReturn(offeredFormats);
+        
+        doAnswer(new Answer<Void>() {
+            
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                FutureCallback<Void> callback = invocation.getArgumentAt(0, FutureCallback.class);
+                callback.onSuccess(null);
+                return null;
+            }
+            
+        }).when(channel).open(any(FutureCallback.class));
+        
+        doAnswer(new Answer<Void>() {
+            
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                FutureCallback<Void> callback = invocation.getArgumentAt(1, FutureCallback.class);
+                callback.onSuccess(null);
+                return null;
+            }
+            
+        }).when(channel).bind(any(SocketAddress.class), any(FutureCallback.class));
+        
+        
+        // when
+        session.open(new InetSocketAddress("127.0.0.1", 6000), mock(FutureCallback.class));
+        session.updateMode(ConnectionMode.SEND_RECV, mock(FutureCallback.class));
+        
+        RtpPacket packet = new RtpPacket(true, pcmu.getPayloadType(), 100, 160 * 1, ssrc, new byte[160]);
+        session.outgoingRtp(packet);
+        
+        // then
+        verify(channel, never()).send(eq(packet), any(FutureCallback.class));
+        verify(statistics, never()).outgoingRtp(packet);
+    }
+    
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testOutgoingRtpWhenSessionModeIsReceiveOnly() {
+        // given
+        final long ssrc = 12345L;
+        final MediaType mediaType = MediaType.AUDIO;
+        final RtpSessionStatistics statistics = mock(RtpSessionStatistics.class);
+        final RTPFormats formats = AVProfile.audio;
+        final RtpChannel channel = mock(RtpChannel.class);
+        final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
+        final DtmfInput dtmfInput = mock(DtmfInput.class);
+        final RtpInput rtpInput = mock(RtpInput.class);
+        final RtpOutput rtpOutput = mock(RtpOutput.class);
+        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
+        final RtpSessionImpl session = new RtpSessionImpl(channel, context, jitterBuffer, rtpInput, dtmfInput, rtpOutput);
+
+        InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
+        MediaDescriptionField remoteSdp = mock(MediaDescriptionField.class);
+        ConnectionField remoteConnection = mock(ConnectionField.class);
+        SsrcAttribute ssrcAttribute = new SsrcAttribute("54321");
+        RtpMapAttribute pcmu = new RtpMapAttribute();
+        pcmu.setClockRate(8000);
+        pcmu.setCodec("pcmu");
+        pcmu.setPayloadType(0);
+        RtpMapAttribute telephoneEvent = new RtpMapAttribute();
+        telephoneEvent.setCodec("telephone-event");
+        telephoneEvent.setPayloadType(101);
+        RtpMapAttribute[] offeredFormats = new RtpMapAttribute[] { pcmu, telephoneEvent };
+
+        when(remoteSdp.getSsrc()).thenReturn(ssrcAttribute);
+        when(remoteSdp.getPort()).thenReturn(remoteAddress.getPort());
+        when(remoteSdp.getConnection()).thenReturn(remoteConnection);
+        when(remoteConnection.getAddress()).thenReturn(remoteAddress.getHostString());
+        when(remoteSdp.getFormats()).thenReturn(offeredFormats);
+
+        doAnswer(new Answer<Void>() {
+
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                FutureCallback<Void> callback = invocation.getArgumentAt(0, FutureCallback.class);
+                callback.onSuccess(null);
+                return null;
+            }
+
+        }).when(channel).open(any(FutureCallback.class));
+
+        doAnswer(new Answer<Void>() {
+
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                FutureCallback<Void> callback = invocation.getArgumentAt(1, FutureCallback.class);
+                callback.onSuccess(null);
+                return null;
+            }
+
+        }).when(channel).bind(any(SocketAddress.class), any(FutureCallback.class));
+
+        doAnswer(new Answer<Void>() {
+
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                FutureCallback<Void> callback = invocation.getArgumentAt(1, FutureCallback.class);
+                callback.onSuccess(null);
+                return null;
+            }
+
+        }).when(channel).connect(any(SocketAddress.class), any(FutureCallback.class));
+
+        doAnswer(new Answer<Void>() {
+            
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                FutureCallback<Void> callback = invocation.getArgumentAt(1, FutureCallback.class);
+                callback.onSuccess(null);
+                return null;
+            }
+            
+        }).when(channel).send(any(RtpPacket.class), any(FutureCallback.class));
+        
+
+        // when
+        session.open(new InetSocketAddress("127.0.0.1", 6000), mock(FutureCallback.class));
+        session.updateMode(ConnectionMode.RECV_ONLY, mock(FutureCallback.class));
+        session.negotiate(remoteSdp, mock(FutureCallback.class));
+
+        RtpPacket packet = new RtpPacket(true, pcmu.getPayloadType(), 100, 160 * 1, ssrc, new byte[160]);
+        session.outgoingRtp(packet);
+
+        // then
+        verify(channel, never()).send(eq(packet), any(FutureCallback.class));
+        verify(statistics, never()).outgoingRtp(packet);
+    }
+    
 }

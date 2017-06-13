@@ -21,7 +21,6 @@
 
 package org.restcomm.media.rtp.session;
 
-import org.apache.log4j.Logger;
 import org.restcomm.media.rtp.RtpPacket;
 
 import com.google.common.util.concurrent.FutureCallback;
@@ -32,14 +31,10 @@ import com.google.common.util.concurrent.FutureCallback;
  */
 public class RtpSessionOutgoingRtpCallback implements FutureCallback<Void> {
     
-    private final Logger log = Logger.getLogger(RtpSessionOutgoingRtpCallback.class);
-
-    private final long ssrc;
     private final RtpSessionStatistics statistics;
     private final RtpPacket packet;
 
-    public RtpSessionOutgoingRtpCallback(long ssrc, RtpSessionStatistics statistics, RtpPacket packet) {
-        this.ssrc = ssrc;
+    public RtpSessionOutgoingRtpCallback(RtpSessionStatistics statistics, RtpPacket packet) {
         this.statistics = statistics;
         this.packet = packet;
     }
@@ -52,7 +47,7 @@ public class RtpSessionOutgoingRtpCallback implements FutureCallback<Void> {
 
     @Override
     public void onFailure(Throwable t) {
-        log.warn("RTP session " + this.ssrc + " could not send an RTP packet to remote peer.", t);
+        // Nothing to do
     }
 
 }
