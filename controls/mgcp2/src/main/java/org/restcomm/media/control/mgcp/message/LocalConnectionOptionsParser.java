@@ -31,6 +31,8 @@ import org.restcomm.media.control.mgcp.exception.MgcpParseException;
  *
  */
 public class LocalConnectionOptionsParser {
+    
+    public static final LocalConnectionOptionsParser INSTANCE = new LocalConnectionOptionsParser();
 
     private static final Logger log = Logger.getLogger(LocalConnectionOptionsParser.class);
 
