@@ -124,15 +124,22 @@ public class AudioFormat extends Format implements Cloneable {
 
     @Override
     public boolean matches(Format other) {
-        if (!super.matches(other)) return false;
+        if (!super.matches(other)) {
+            return false;
+        }
 
-        AudioFormat f = (AudioFormat) other;
+        if (other instanceof AudioFormat) {
+            AudioFormat f = (AudioFormat) other;
 
-        if (f.sampleRate != this.sampleRate) return false;
-        // XXX dirty patch for issue #7 - https://github.com/Mobicents/mediaserver/issues/7
-//        if (f.sampleSize != this.sampleSize) return false;
-        if (f.channels != this.channels) return false;
-
+            if (f.sampleRate != this.sampleRate) {
+                return false;
+            }
+            // XXX dirty patch for issue #7 - https://github.com/Mobicents/mediaserver/issues/7
+            // if (f.sampleSize != this.sampleSize) return false;
+            if (f.channels != this.channels) {
+                return false;
+            }
+        }
         return true;
     }
     
