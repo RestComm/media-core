@@ -12,7 +12,10 @@ class RtpSessionImpl
 class RtpSessionContext
 class RtpSessionStatistics
 
+
 interface RtpSessionFsm
+interface RtpSessionFsmListener
+class RtpSessionFsmBuilder
 abstract class AbstractRtpSessionFsm
 class RtpSessionFsmImpl
 enum RtpSessionState
@@ -34,6 +37,7 @@ RtpChannel <-- RtpSession : send
 
 RtpSession <|-- RtpSessionImpl
 RtpSessionImpl -> RtpSessionFsm
+(RtpSessionImpl,RtpSessionFsm) .. RtpSessionFsmListener
 
 RtpSessionImpl --> RtpSessionContext
 RtpSessionContext --> RtpSessionStatistics
@@ -44,6 +48,7 @@ RtpSessionImpl --> DtmfInput : write
 JitterBuffer --> RtpInput : wakeup
 JitterBuffer <-- RtpInput : read
 
+RtpSessionFsm <- RtpSessionFsmBuilder : builds
 RtpSessionFsm <|-- AbstractRtpSessionFsm
 AbstractRtpSessionFsm <|-- RtpSessionFsmImpl
 RtpSessionState <-- RtpSessionFsm
