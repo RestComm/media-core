@@ -90,7 +90,7 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
 
         if (log.isDebugEnabled()) {
             long ssrc = this.globalContext.getSsrc();
-            log.debug("RTP session " + ssrc + " is bound to " + localAddress.toString());
+            log.debug("RTP session " + ssrc + " bound to " + localAddress.toString());
         }
 
         // Move on to OPEN state
@@ -142,7 +142,8 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
                 if (log.isDebugEnabled()) {
                     RtpSessionUnsupportedFormatsContext txContext = (RtpSessionUnsupportedFormatsContext) context;
                     long ssrc = this.globalContext.getSsrc();
-                    log.debug("RTP session " + ssrc + " failed to negotiate because it does not support any offered format " + txContext.getOfferedFormats().toString());
+                    log.debug("RTP session " + ssrc + " failed to negotiate because it does not support any offered format "
+                            + txContext.getOfferedFormats().toString());
                 }
                 break;
 
@@ -176,7 +177,7 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
         if (log.isDebugEnabled()) {
             if (log.isDebugEnabled()) {
                 long ssrc = this.globalContext.getSsrc();
-                log.debug("RTP session " + ssrc + " is connected to " + remoteAddress.toString());
+                log.debug("RTP session " + ssrc + " connected to " + remoteAddress.toString());
             }
         }
 
@@ -322,12 +323,51 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
     }
 
     @Override
-    public void enterClosed(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
+    public void enterDeactivating(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
             RtpSessionTransactionContext context) {
         RtpSessionCloseContext txContext = (RtpSessionCloseContext) context;
+
+        // Deactivate RTP components
+        txContext.getRtpInput().deactivate();
+        txContext.getDtmfInput().deactivate();
+        txContext.getRtpOutput().deactivate();
+        txContext.getJitterBuffer().restart();
+        txContext.getJitterBuffer().forget(txContext.getRtpInput());
+
+        // Update mode to inactive
+        this.globalContext.setMode(ConnectionMode.INACTIVE);
+
+        // Move to next state
+        fire(RtpSessionEvent.DEACTIVATED, context);
+    }
+
+    @Override
+    public void enterDeallocating(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
+            RtpSessionTransactionContext context) {
+        RtpSessionCloseContext txContext = (RtpSessionCloseContext) context;
+
+        // Close channel
+        long ssrc = this.globalContext.getSsrc();
         RtpChannel channel = txContext.getChannel();
-        RtpSessionCloseCallback callback = new RtpSessionCloseCallback();
-        channel.close(callback);
+        RtpSessionCloseCallback closeCallback = new RtpSessionCloseCallback(ssrc, this, txContext);
+
+        channel.close(closeCallback);
+    }
+
+    @Override
+    public void enterDeallocated(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
+            RtpSessionTransactionContext context) {
+        // move to final state
+        fire(RtpSessionEvent.CLOSED, context);
+    }
+
+    @Override
+    public void enterClosed(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
+            RtpSessionTransactionContext context) {
+        if (log.isDebugEnabled()) {
+            long ssrc = this.globalContext.getSsrc();
+            log.debug("RTP session " + ssrc + " is closed");
+        }
     }
 
 }

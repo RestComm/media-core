@@ -21,6 +21,8 @@
 
 package org.restcomm.media.rtp.session;
 
+import org.apache.log4j.Logger;
+
 import com.google.common.util.concurrent.FutureCallback;
 
 /**
@@ -29,16 +31,28 @@ import com.google.common.util.concurrent.FutureCallback;
  */
 public class RtpSessionCloseCallback implements FutureCallback<Void> {
 
+    private static final Logger log = Logger.getLogger(RtpSessionCloseCallback.class);
+
+    private final long ssrc;
+    private final RtpSessionFsm fsm;
+    private final RtpSessionCloseContext context;
+
+    public RtpSessionCloseCallback(long ssrc, RtpSessionFsm fsm, RtpSessionCloseContext context) {
+        super();
+        this.ssrc = ssrc;
+        this.fsm = fsm;
+        this.context = context;
+    }
+
     @Override
     public void onSuccess(Void result) {
-        // TODO Auto-generated method stub
-
+        this.fsm.fire(RtpSessionEvent.DEALLOCATED, this.context);
     }
 
     @Override
     public void onFailure(Throwable t) {
-        // TODO Auto-generated method stub
-
+        log.warn("RTP session " + this.ssrc + "did not close elegantly", t);
+        this.fsm.fire(RtpSessionEvent.DEALLOCATED, this.context);
     }
 
 }

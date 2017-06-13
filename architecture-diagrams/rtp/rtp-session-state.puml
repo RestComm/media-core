@@ -3,28 +3,46 @@ state OPENING {
 [*] --> ALLOCATING
 ALLOCATING --> BINDING : allocated
 BINDING --> OPENED : bound
+OPENED --> [*]
 }
 
 state NEGOTIATING {
 [*] --> NEGOTIATING_FORMATS
 NEGOTIATING_FORMATS --> CONNECTING : negotiated_formats
 CONNECTING --> NEGOTIATED : connected
+NEGOTIATED --> [*]
+}
+
+state CLOSING {
+[*] --> DEACTIVATING
+DEACTIVATING --> DEALLOCATING : deactivated
+DEALLOCATING --> DEALLOCATED : deallocated
+DEALLOCATED --> [*]
 }
 
 [*] --> IDLE
 IDLE --> OPENING : open
 IDLE --> CLOSED : close
+
 OPENING --> OPEN : opened
-OPENING --> CLOSED : close
+OPENING --> CLOSING : close
+
 OPEN --> NEGOTIATING : negotiate
 OPEN --> OPEN : update_mode
-OPEN --> CLOSED : close
+OPEN --> CLOSING : close
+
 NEGOTIATING --> ESTABLISHED : negotiated
-NEGOTIATING --> NEGOTIATION_FAILED : unsupported_formats
-NEGOTIATING --> CLOSED : close
-NEGOTIATION_FAILED --> CLOSED : close
+NEGOTIATING -> NEGOTIATION_FAILED : unsupported_formats
+NEGOTIATING -> NEGOTIATION_FAILED : connect_failure
+NEGOTIATING --> CLOSING : close
+
+NEGOTIATION_FAILED --> CLOSING : close
+
 ESTABLISHED --> NEGOTIATING : negotiate
 ESTABLISHED --> ESTABLISHED : update_mode
-ESTABLISHED --> CLOSED : close
+ESTABLISHED --> CLOSING : close
+
+CLOSING --> CLOSED : closed
+
 CLOSED --> [*]
 @enduml

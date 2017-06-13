@@ -27,7 +27,7 @@ import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class AbstractRtpSessionFsm
+public abstract class AbstractRtpSessionFsm
         extends AbstractStateMachine<RtpSessionFsm, RtpSessionState, RtpSessionEvent, RtpSessionTransactionContext>
         implements RtpSessionFsm {
 
@@ -153,6 +153,46 @@ public class AbstractRtpSessionFsm
 
     @Override
     public void onOutgoingRtp(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
+            RtpSessionTransactionContext context) {
+    }
+    
+    @Override
+    public void enterClosing(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
+            RtpSessionTransactionContext context) {
+    }
+    
+    @Override
+    public void exitClosing(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
+            RtpSessionTransactionContext context) {
+    }
+    
+    @Override
+    public void enterDeactivating(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
+            RtpSessionTransactionContext context) {
+    }
+    
+    @Override
+    public void exitDeactivating(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
+            RtpSessionTransactionContext context) {
+    }
+    
+    @Override
+    public void enterDeallocating(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
+            RtpSessionTransactionContext context) {
+    }
+    
+    @Override
+    public void exitDeallocating(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
+            RtpSessionTransactionContext context) {
+    }
+    
+    @Override
+    public void enterDeallocated(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
+            RtpSessionTransactionContext context) {
+    }
+    
+    @Override
+    public void exitDeallocated(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
             RtpSessionTransactionContext context) {
     }
 

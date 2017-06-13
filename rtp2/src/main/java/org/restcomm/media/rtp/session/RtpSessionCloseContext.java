@@ -22,6 +22,10 @@
 package org.restcomm.media.rtp.session;
 
 import org.restcomm.media.rtp.RtpChannel;
+import org.restcomm.media.rtp.RtpInput;
+import org.restcomm.media.rtp.RtpOutput;
+import org.restcomm.media.rtp.jitter.JitterBuffer;
+import org.restcomm.media.rtp.rfc2833.DtmfInput;
 
 import com.google.common.util.concurrent.FutureCallback;
 
@@ -32,14 +36,38 @@ import com.google.common.util.concurrent.FutureCallback;
 public class RtpSessionCloseContext extends RtpSessionBaseTransactionContext {
 
     private final RtpChannel channel;
+    private final JitterBuffer jitterBuffer;
+    private final DtmfInput dtmfInput;
+    private final RtpInput rtpInput;
+    private final RtpOutput rtpOutput;
 
-    public RtpSessionCloseContext(RtpChannel channel, FutureCallback<Void> callback) {
+    public RtpSessionCloseContext(RtpChannel channel, JitterBuffer jitterBuffer, DtmfInput dtmfInput, RtpInput rtpInput, RtpOutput rtpOutput, FutureCallback<Void> callback) {
         super(callback);
         this.channel = channel;
+        this.jitterBuffer = jitterBuffer;
+        this.dtmfInput = dtmfInput;
+        this.rtpInput = rtpInput;
+        this.rtpOutput = rtpOutput;
     }
 
     public RtpChannel getChannel() {
         return channel;
+    }
+
+    public JitterBuffer getJitterBuffer() {
+        return jitterBuffer;
+    }
+
+    public DtmfInput getDtmfInput() {
+        return dtmfInput;
+    }
+
+    public RtpInput getRtpInput() {
+        return rtpInput;
+    }
+
+    public RtpOutput getRtpOutput() {
+        return rtpOutput;
     }
 
 }

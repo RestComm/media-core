@@ -129,7 +129,7 @@ public class RtpSessionImpl implements RtpSession {
         this.fsm.addDeclarativeListener(listener);
         
         // Fire event
-        RtpSessionCloseContext txContext = new RtpSessionCloseContext(this.channel, callback);
+        RtpSessionCloseContext txContext = new RtpSessionCloseContext(this.channel, this.jitterBuffer, this.dtmfInput, this.rtpInput, this.rtpOutput, callback);
         this.fsm.fire(RtpSessionEvent.CLOSE, txContext);
     }
 
