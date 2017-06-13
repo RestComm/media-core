@@ -44,7 +44,7 @@ import com.google.common.util.concurrent.FutureCallback;
  */
 public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
 
-    private static final Logger log = Logger.getLogger(RtpSessionFsmImplTest.class);
+    private static final Logger log = Logger.getLogger(RtpSessionFsmImpl.class);
 
     private final RtpSessionContext globalContext;
 

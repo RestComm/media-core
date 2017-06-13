@@ -1,38 +1,53 @@
 @startuml
+interface AsyncNettyNetworkChannel
+class RtpChannel
+class RtpChannelInitializer
+
 class RtpDemultiplexer
 class RtpInboundHandler
-class RtpInput
-class DtmfInput
-interface JitterBuffer
-class FixedJitterBuffer
-class RtpOutboundHandler
-class RtpOutput
-class DtmfOutput
-class MgcpRemoteConnection
-class RtpSession
-class RtpSessionContext
-class RtpStatistics
-abstract class AsyncNettyNetworkChannel
-class RtpChannel
+class RtpEncoder
 
-MgcpRemoteConnection *--> RtpSession : open close
-RtpSession -> RtpChannel : send receive
-RtpSession *--> RtpSessionContext
-RtpSessionContext *--> RtpStatistics
+interface RtpSession
+class RtpSessionImpl
+class RtpSessionContext
+class RtpSessionStatistics
+
+interface RtpSessionFsm
+abstract class AbstractRtpSessionFsm
+class RtpSessionFsmImpl
+enum RtpSessionState
+enum RtpSessionEvent
+interface RtpSessionTransactionContext
+
+interface JitterBuffer
+class DtmfInput
+class RtpInput
+class RtpOutput
 
 AsyncNettyNetworkChannel <|-- RtpChannel
-RtpChannel --> RtpDemultiplexer : read
-RtpChannel <-- RtpOutboundHandler : write
-
+RtpChannelInitializer -> RtpChannel : build pipeline
+RtpChannel --> RtpDemultiplexer : DatagramPacket
 RtpDemultiplexer --> RtpInboundHandler : RtpPacket
-RtpInboundHandler --> DtmfInput : write
-RtpInboundHandler --> JitterBuffer : write
-JitterBuffer <|-- FixedJitterBuffer
-RtpInput -> JitterBuffer : read
+RtpInboundHandler --> RtpSession : incoming rtp
+RtpEncoder <-- RtpChannel : write
+RtpChannel <-- RtpSession : send
 
-RtpOutboundHandler <-- DtmfOutput : write
-RtpOutboundHandler <-- RtpOutput : write
+RtpSession <|-- RtpSessionImpl
+RtpSessionImpl -> RtpSessionFsm
 
-RtpStatistics <- RtpInboundHandler : update
-RtpStatistics <- RtpOutboundHandler : update
+RtpSessionImpl --> RtpSessionContext
+RtpSessionContext --> RtpSessionStatistics
+
+RtpSessionImpl <-- RtpOutput : outgoing RTP
+RtpSessionImpl --> JitterBuffer : write
+RtpSessionImpl --> DtmfInput : write
+JitterBuffer --> RtpInput : wakeup
+JitterBuffer <-- RtpInput : read
+
+RtpSessionFsm <|-- AbstractRtpSessionFsm
+AbstractRtpSessionFsm <|-- RtpSessionFsmImpl
+RtpSessionState <-- RtpSessionFsm
+RtpSessionEvent <-- RtpSessionFsm
+RtpSessionTransactionContext <-- RtpSessionFsm
+RtpSessionContext <-- RtpSessionFsmImpl
 @enduml
