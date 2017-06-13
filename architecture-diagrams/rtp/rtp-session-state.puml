@@ -17,9 +17,14 @@ IDLE --> CLOSED : close
 OPENING --> OPEN : opened
 OPENING --> CLOSED : close
 OPEN --> NEGOTIATING : negotiate
+OPEN --> OPEN : update_mode
 OPEN --> CLOSED : close
 NEGOTIATING --> ESTABLISHED : negotiated
+NEGOTIATING --> NEGOTIATION_FAILED : unsupported_formats
 NEGOTIATING --> CLOSED : close
+NEGOTIATION_FAILED --> CLOSED : close
 ESTABLISHED --> NEGOTIATING : negotiate
+ESTABLISHED --> ESTABLISHED : update_mode
 ESTABLISHED --> CLOSED : close
+CLOSED --> [*]
 @enduml
