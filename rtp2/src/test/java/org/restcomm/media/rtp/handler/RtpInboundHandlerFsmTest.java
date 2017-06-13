@@ -32,9 +32,9 @@ import org.junit.After;
 import org.junit.Test;
 import org.restcomm.media.rtp.RtpInput;
 import org.restcomm.media.rtp.RtpPacket;
-import org.restcomm.media.rtp.RtpStatistics;
 import org.restcomm.media.rtp.jitter.JitterBuffer;
 import org.restcomm.media.rtp.rfc2833.DtmfInput;
+import org.restcomm.media.rtp.session.RtpSessionStatistics;
 import org.restcomm.media.scheduler.Clock;
 import org.restcomm.media.sdp.format.AVProfile;
 import org.restcomm.media.sdp.format.RTPFormat;
@@ -61,7 +61,7 @@ public class RtpInboundHandlerFsmTest {
     public void testActivateThenDeactivate() {
         // given
         final Clock clock = mock(Clock.class);
-        final RtpStatistics statistics = mock(RtpStatistics.class);
+        final RtpSessionStatistics statistics = mock(RtpSessionStatistics.class);
         final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
         final RtpInput RtpInput = mock(RtpInput.class);
         final DtmfInput dtmfInput = mock(DtmfInput.class);
@@ -87,7 +87,7 @@ public class RtpInboundHandlerFsmTest {
     public void testProcessIncomingAudioPacket() {
         // given
         final Clock clock = mock(Clock.class);
-        final RtpStatistics statistics = mock(RtpStatistics.class);
+        final RtpSessionStatistics statistics = mock(RtpSessionStatistics.class);
         final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
         final RtpInput RtpInput = mock(RtpInput.class);
         final DtmfInput dtmfInput = mock(DtmfInput.class);
@@ -114,7 +114,7 @@ public class RtpInboundHandlerFsmTest {
     public void testProcessIncomingDtmfPacket() {
         // given
         final Clock clock = mock(Clock.class);
-        final RtpStatistics statistics = mock(RtpStatistics.class);
+        final RtpSessionStatistics statistics = mock(RtpSessionStatistics.class);
         final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
         final RtpInput RtpInput = mock(RtpInput.class);
         final DtmfInput dtmfInput = mock(DtmfInput.class);
@@ -141,7 +141,7 @@ public class RtpInboundHandlerFsmTest {
     public void testDropIncomingPacketWithUnknowPayload() {
         // given
         final Clock clock = mock(Clock.class);
-        final RtpStatistics statistics = mock(RtpStatistics.class);
+        final RtpSessionStatistics statistics = mock(RtpSessionStatistics.class);
         final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
         final RtpInput RtpInput = mock(RtpInput.class);
         final DtmfInput dtmfInput = mock(DtmfInput.class);

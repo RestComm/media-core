@@ -33,7 +33,7 @@ import org.restcomm.media.spi.dsp.Processor;
 import org.restcomm.media.spi.memory.Frame;
 
 /**
- * Media source of RTP data coming from network.
+ * Media sink of RTP data coming from network.
  *
  * @author oifa yulian
  * @author Henrique Rosa (henrique.rosa@telestax.com)

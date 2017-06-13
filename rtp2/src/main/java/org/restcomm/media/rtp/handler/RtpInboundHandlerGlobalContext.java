@@ -25,9 +25,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.restcomm.media.rtp.RtpInput;
-import org.restcomm.media.rtp.RtpStatistics;
 import org.restcomm.media.rtp.jitter.JitterBuffer;
 import org.restcomm.media.rtp.rfc2833.DtmfInput;
+import org.restcomm.media.rtp.session.RtpSessionStatistics;
 import org.restcomm.media.scheduler.Clock;
 import org.restcomm.media.sdp.format.RTPFormats;
 
@@ -41,7 +41,7 @@ public class RtpInboundHandlerGlobalContext {
 
     // RTP Components
     private final Clock clock;
-    private final RtpStatistics statistics;
+    private final RtpSessionStatistics statistics;
     private final JitterBuffer jitterBuffer;
     private final RtpInput rtpInput;
     private final DtmfInput dtmfInput;
@@ -51,7 +51,7 @@ public class RtpInboundHandlerGlobalContext {
     private final AtomicBoolean loopable;
     private final AtomicBoolean receivable;
 
-    public RtpInboundHandlerGlobalContext(Clock clock, RtpStatistics statistics, JitterBuffer jitterBuffer, RtpInput rtpInput, DtmfInput dtmfInput) {
+    public RtpInboundHandlerGlobalContext(Clock clock, RtpSessionStatistics statistics, JitterBuffer jitterBuffer, RtpInput rtpInput, DtmfInput dtmfInput) {
         // RTP Components
         this.clock = clock;
         this.statistics = statistics;
@@ -70,7 +70,7 @@ public class RtpInboundHandlerGlobalContext {
         return clock;
     }
 
-    RtpStatistics getStatistics() {
+    RtpSessionStatistics getStatistics() {
         return statistics;
     }
 

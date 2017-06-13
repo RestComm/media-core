@@ -32,9 +32,9 @@ import org.junit.After;
 import org.junit.Test;
 import org.restcomm.media.rtp.RtpInput;
 import org.restcomm.media.rtp.RtpPacket;
-import org.restcomm.media.rtp.RtpStatistics;
 import org.restcomm.media.rtp.jitter.JitterBuffer;
 import org.restcomm.media.rtp.rfc2833.DtmfInput;
+import org.restcomm.media.rtp.session.RtpSessionStatistics;
 import org.restcomm.media.scheduler.Clock;
 import org.restcomm.media.sdp.format.AVProfile;
 import org.restcomm.media.spi.ConnectionMode;
@@ -61,7 +61,7 @@ public class RtpInboundHandlerTest {
     public void testActivateThenDeactivate() {
         // given
         final Clock clock = mock(Clock.class);
-        final RtpStatistics statistics = mock(RtpStatistics.class);
+        final RtpSessionStatistics statistics = mock(RtpSessionStatistics.class);
         final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
         final RtpInput RtpInput = mock(RtpInput.class);
         final DtmfInput dtmfInput = mock(DtmfInput.class);
@@ -87,7 +87,7 @@ public class RtpInboundHandlerTest {
     public void testUpdateMode() {
         // given
         final Clock clock = mock(Clock.class);
-        final RtpStatistics statistics = mock(RtpStatistics.class);
+        final RtpSessionStatistics statistics = mock(RtpSessionStatistics.class);
         final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
         final RtpInput RtpInput = mock(RtpInput.class);
         final DtmfInput dtmfInput = mock(DtmfInput.class);
@@ -107,7 +107,7 @@ public class RtpInboundHandlerTest {
     public void testReadAudioPacketWhenChannelIsReceivable() {
         // given
         final Clock clock = mock(Clock.class);
-        final RtpStatistics statistics = mock(RtpStatistics.class);
+        final RtpSessionStatistics statistics = mock(RtpSessionStatistics.class);
         final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
         final RtpInput RtpInput = mock(RtpInput.class);
         final DtmfInput dtmfInput = mock(DtmfInput.class);
@@ -136,7 +136,7 @@ public class RtpInboundHandlerTest {
     public void testReadDtmfPacketWhenChannelIsReceivable() {
         // given
         final Clock clock = mock(Clock.class);
-        final RtpStatistics statistics = mock(RtpStatistics.class);
+        final RtpSessionStatistics statistics = mock(RtpSessionStatistics.class);
         final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
         final RtpInput RtpInput = mock(RtpInput.class);
         final DtmfInput dtmfInput = mock(DtmfInput.class);
@@ -165,7 +165,7 @@ public class RtpInboundHandlerTest {
     public void testReadPacketWhenChannelIsInactive() {
         // given
         final Clock clock = mock(Clock.class);
-        final RtpStatistics statistics = mock(RtpStatistics.class);
+        final RtpSessionStatistics statistics = mock(RtpSessionStatistics.class);
         final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
         final RtpInput RtpInput = mock(RtpInput.class);
         final DtmfInput dtmfInput = mock(DtmfInput.class);
@@ -194,7 +194,7 @@ public class RtpInboundHandlerTest {
     public void testReadEmptyPacket() {
         // given
         final Clock clock = mock(Clock.class);
-        final RtpStatistics statistics = mock(RtpStatistics.class);
+        final RtpSessionStatistics statistics = mock(RtpSessionStatistics.class);
         final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
         final RtpInput RtpInput = mock(RtpInput.class);
         final DtmfInput dtmfInput = mock(DtmfInput.class);
@@ -223,7 +223,7 @@ public class RtpInboundHandlerTest {
     public void testReadPacketWithOldVersion() {
         // given
         final Clock clock = mock(Clock.class);
-        final RtpStatistics statistics = mock(RtpStatistics.class);
+        final RtpSessionStatistics statistics = mock(RtpSessionStatistics.class);
         final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
         final RtpInput RtpInput = mock(RtpInput.class);
         final DtmfInput dtmfInput = mock(DtmfInput.class);

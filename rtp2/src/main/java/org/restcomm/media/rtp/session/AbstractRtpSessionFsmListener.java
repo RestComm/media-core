@@ -19,35 +19,37 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.rtp.handler;
+package org.restcomm.media.rtp.session;
 
-import org.restcomm.media.rtp.RtpPacket;
-import org.restcomm.media.rtp.session.RtpSessionStatistics;
-
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.MessageToByteEncoder;
+import com.google.common.util.concurrent.FutureCallback;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpPacketEncoder extends MessageToByteEncoder<RtpPacket> {
+public abstract class AbstractRtpSessionFsmListener implements FutureCallback<Void> {
 
-    private final RtpSessionStatistics statistics;
+    private final RtpSessionFsm fsm;
 
-    public RtpPacketEncoder(RtpSessionStatistics statistics) {
+    public AbstractRtpSessionFsmListener(RtpSessionFsm fsm) {
         super();
-        this.statistics = statistics;
+        this.fsm = fsm;
+    }
+
+    protected abstract void succeeded(Void result);
+
+    protected abstract void failed(Throwable t);
+
+    @Override
+    public final void onSuccess(Void result) {
+        this.fsm.removeDeclarativeListener(this);
+        succeeded(result);
     }
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, RtpPacket msg, ByteBuf out) throws Exception {
-        // Update statistics 
-        this.statistics.outgoingRtp(msg);
-        
-        // Convert RTP packet to bytes
-        out.writeBytes(msg.toRaw());
+    public final void onFailure(Throwable t) {
+        this.fsm.removeDeclarativeListener(this);
+        failed(t);
     }
 
 }

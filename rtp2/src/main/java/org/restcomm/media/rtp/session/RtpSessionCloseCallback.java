@@ -19,35 +19,40 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.rtp.handler;
+package org.restcomm.media.rtp.session;
 
-import org.restcomm.media.rtp.RtpPacket;
-import org.restcomm.media.rtp.session.RtpSessionStatistics;
+import org.apache.log4j.Logger;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.MessageToByteEncoder;
+import com.google.common.util.concurrent.FutureCallback;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpPacketEncoder extends MessageToByteEncoder<RtpPacket> {
+public class RtpSessionCloseCallback implements FutureCallback<Void> {
 
-    private final RtpSessionStatistics statistics;
+    private static final Logger log = Logger.getLogger(RtpSessionCloseCallback.class);
 
-    public RtpPacketEncoder(RtpSessionStatistics statistics) {
+    private final long ssrc;
+    private final RtpSessionFsm fsm;
+    private final RtpSessionCloseContext context;
+
+    public RtpSessionCloseCallback(long ssrc, RtpSessionFsm fsm, RtpSessionCloseContext context) {
         super();
-        this.statistics = statistics;
+        this.ssrc = ssrc;
+        this.fsm = fsm;
+        this.context = context;
     }
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, RtpPacket msg, ByteBuf out) throws Exception {
-        // Update statistics 
-        this.statistics.outgoingRtp(msg);
-        
-        // Convert RTP packet to bytes
-        out.writeBytes(msg.toRaw());
+    public void onSuccess(Void result) {
+        this.fsm.fire(RtpSessionEvent.DEALLOCATED, this.context);
+    }
+
+    @Override
+    public void onFailure(Throwable t) {
+        log.warn("RTP session " + this.ssrc + "did not close elegantly", t);
+        this.fsm.fire(RtpSessionEvent.DEALLOCATED, this.context);
     }
 
 }

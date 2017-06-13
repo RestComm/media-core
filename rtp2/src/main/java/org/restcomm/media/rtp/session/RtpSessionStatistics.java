@@ -19,8 +19,9 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.rtp;
+package org.restcomm.media.rtp.session;
 
+import org.restcomm.media.rtp.RtpPacket;
 import org.restcomm.media.scheduler.Clock;
 
 /**
@@ -29,7 +30,7 @@ import org.restcomm.media.scheduler.Clock;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpStatistics {
+public class RtpSessionStatistics {
 
     // Core Components
     private final Clock wallClock;
@@ -45,7 +46,7 @@ public class RtpStatistics {
     private int rtpTxOctets;
     private long rtpSentOn;
 
-    public RtpStatistics(Clock wallClock, long ssrc) {
+    public RtpSessionStatistics(Clock wallClock, long ssrc) {
         super();
 
         // Core Components

@@ -19,35 +19,35 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.rtp.handler;
+package org.restcomm.media.rtp;
 
-import org.restcomm.media.rtp.RtpPacket;
-import org.restcomm.media.rtp.session.RtpSessionStatistics;
+import java.net.SocketAddress;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.MessageToByteEncoder;
+import org.restcomm.media.sdp.fields.MediaDescriptionField;
+import org.restcomm.media.spi.ConnectionMode;
+
+import com.google.common.util.concurrent.FutureCallback;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpPacketEncoder extends MessageToByteEncoder<RtpPacket> {
+public interface RtpSession {
+    
+    long getSsrc();
+    
+    MediaType getMediaType();
 
-    private final RtpSessionStatistics statistics;
+    void open(SocketAddress address, FutureCallback<Void> callback);
+    
+    void negotiate(MediaDescriptionField sdp, FutureCallback<Void> callback);
 
-    public RtpPacketEncoder(RtpSessionStatistics statistics) {
-        super();
-        this.statistics = statistics;
-    }
+    void close(FutureCallback<Void> callback);
 
-    @Override
-    protected void encode(ChannelHandlerContext ctx, RtpPacket msg, ByteBuf out) throws Exception {
-        // Update statistics 
-        this.statistics.outgoingRtp(msg);
-        
-        // Convert RTP packet to bytes
-        out.writeBytes(msg.toRaw());
-    }
+    void updateMode(ConnectionMode mode, FutureCallback<Void> callback);
+
+    void incomingRtp(RtpPacket packet);
+
+    void outgoingRtp(RtpPacket packet);
 
 }

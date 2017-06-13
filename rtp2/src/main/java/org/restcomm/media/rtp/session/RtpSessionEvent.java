@@ -18,36 +18,15 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
-package org.restcomm.media.rtp.handler;
-
-import org.restcomm.media.rtp.RtpPacket;
-import org.restcomm.media.rtp.session.RtpSessionStatistics;
-
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.MessageToByteEncoder;
+        
+package org.restcomm.media.rtp.session;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpPacketEncoder extends MessageToByteEncoder<RtpPacket> {
-
-    private final RtpSessionStatistics statistics;
-
-    public RtpPacketEncoder(RtpSessionStatistics statistics) {
-        super();
-        this.statistics = statistics;
-    }
-
-    @Override
-    protected void encode(ChannelHandlerContext ctx, RtpPacket msg, ByteBuf out) throws Exception {
-        // Update statistics 
-        this.statistics.outgoingRtp(msg);
-        
-        // Convert RTP packet to bytes
-        out.writeBytes(msg.toRaw());
-    }
+public enum RtpSessionEvent {
+    
+    OPEN, ALLOCATED, BOUND, OPENED, NEGOTIATE, UNSUPPORTED_FORMATS, NEGOTIATED_FORMATS, CONNECT_FAILURE, CONNECTED, NEGOTIATED, UPDATE_MODE, INCOMING_RTP, OUTGOING_RTP, CLOSE, DEACTIVATED, DEALLOCATED, CLOSED;
 
 }

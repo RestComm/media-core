@@ -19,35 +19,32 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.rtp.handler;
+package org.restcomm.media.rtp.session;
 
+import org.restcomm.media.rtp.RtpChannel;
 import org.restcomm.media.rtp.RtpPacket;
-import org.restcomm.media.rtp.session.RtpSessionStatistics;
-
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.MessageToByteEncoder;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpPacketEncoder extends MessageToByteEncoder<RtpPacket> {
+public class RtpSessionOutgoingRtpContext extends RtpSessionBaseTransactionContext {
 
-    private final RtpSessionStatistics statistics;
+    private final RtpPacket packet;
+    private final RtpChannel channel;
 
-    public RtpPacketEncoder(RtpSessionStatistics statistics) {
-        super();
-        this.statistics = statistics;
+    public RtpSessionOutgoingRtpContext(RtpPacket packet, RtpChannel channel, RtpSessionOutgoingRtpCallback callback) {
+        super(callback);
+        this.packet = packet;
+        this.channel = channel;
     }
 
-    @Override
-    protected void encode(ChannelHandlerContext ctx, RtpPacket msg, ByteBuf out) throws Exception {
-        // Update statistics 
-        this.statistics.outgoingRtp(msg);
-        
-        // Convert RTP packet to bytes
-        out.writeBytes(msg.toRaw());
+    public RtpPacket getPacket() {
+        return packet;
+    }
+
+    public RtpChannel getChannel() {
+        return channel;
     }
 
 }

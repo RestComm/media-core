@@ -19,35 +19,39 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.rtp.handler;
+package org.restcomm.media.rtp.session;
 
 import org.restcomm.media.rtp.RtpPacket;
-import org.restcomm.media.rtp.session.RtpSessionStatistics;
-
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.MessageToByteEncoder;
+import org.restcomm.media.rtp.jitter.JitterBuffer;
+import org.restcomm.media.rtp.rfc2833.DtmfInput;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpPacketEncoder extends MessageToByteEncoder<RtpPacket> {
+public class RtpSessionIncomingRtpContext extends RtpSessionBaseTransactionContext {
 
-    private final RtpSessionStatistics statistics;
+    private final RtpPacket packet;
+    private final JitterBuffer jitterBuffer;
+    private final DtmfInput dtmfInput;
 
-    public RtpPacketEncoder(RtpSessionStatistics statistics) {
-        super();
-        this.statistics = statistics;
+    public RtpSessionIncomingRtpContext(RtpPacket packet, JitterBuffer jitterBuffer, DtmfInput dtmfInput) {
+        super(null);
+        this.packet = packet;
+        this.jitterBuffer = jitterBuffer;
+        this.dtmfInput = dtmfInput;
     }
 
-    @Override
-    protected void encode(ChannelHandlerContext ctx, RtpPacket msg, ByteBuf out) throws Exception {
-        // Update statistics 
-        this.statistics.outgoingRtp(msg);
-        
-        // Convert RTP packet to bytes
-        out.writeBytes(msg.toRaw());
+    public RtpPacket getPacket() {
+        return packet;
+    }
+
+    public JitterBuffer getJitterBuffer() {
+        return jitterBuffer;
+    }
+
+    public DtmfInput getDtmfInput() {
+        return dtmfInput;
     }
 
 }

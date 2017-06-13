@@ -19,35 +19,26 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.rtp.handler;
-
-import org.restcomm.media.rtp.RtpPacket;
-import org.restcomm.media.rtp.session.RtpSessionStatistics;
-
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.MessageToByteEncoder;
+package org.restcomm.media.rtp.session.exception;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpPacketEncoder extends MessageToByteEncoder<RtpPacket> {
+public class RtpSessionAllocateException extends RtpSessionException {
 
-    private final RtpSessionStatistics statistics;
+    private static final long serialVersionUID = -7105967726259062848L;
 
-    public RtpPacketEncoder(RtpSessionStatistics statistics) {
-        super();
-        this.statistics = statistics;
+    public RtpSessionAllocateException(String message, Throwable cause) {
+        super(message, cause);
     }
 
-    @Override
-    protected void encode(ChannelHandlerContext ctx, RtpPacket msg, ByteBuf out) throws Exception {
-        // Update statistics 
-        this.statistics.outgoingRtp(msg);
-        
-        // Convert RTP packet to bytes
-        out.writeBytes(msg.toRaw());
+    public RtpSessionAllocateException(String message) {
+        super(message);
+    }
+
+    public RtpSessionAllocateException(Throwable cause) {
+        super(cause);
     }
 
 }

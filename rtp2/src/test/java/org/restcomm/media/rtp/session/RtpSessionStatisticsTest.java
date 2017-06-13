@@ -19,11 +19,13 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.rtp;
+package org.restcomm.media.rtp.session;
 
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.restcomm.media.rtp.RtpPacket;
+import org.restcomm.media.rtp.session.RtpSessionStatistics;
 import org.restcomm.media.scheduler.Clock;
 import org.restcomm.media.scheduler.WallClock;
 
@@ -31,14 +33,14 @@ import org.restcomm.media.scheduler.WallClock;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpStatisticsTest {
+public class RtpSessionStatisticsTest {
 
     @Test
     public void testRtpReceived() {
         // given
         final long ssrc = 12345;
         final Clock wallClock = new WallClock();
-        final RtpStatistics statistics = new RtpStatistics(wallClock, ssrc);
+        final RtpSessionStatistics statistics = new RtpSessionStatistics(wallClock, ssrc);
         final RtpPacket packet1 = new RtpPacket(true, 0, 1, 160 * 1, ssrc, new byte[160]);
         final RtpPacket packet2 = new RtpPacket(true, 0, 2, 160 * 2, ssrc, new byte[160]);
         final RtpPacket packet3 = new RtpPacket(true, 0, 3, 160 * 3, ssrc, new byte[160]);
@@ -58,7 +60,7 @@ public class RtpStatisticsTest {
         // given
         final long ssrc = 12345;
         final Clock wallClock = new WallClock();
-        final RtpStatistics statistics = new RtpStatistics(wallClock, ssrc);
+        final RtpSessionStatistics statistics = new RtpSessionStatistics(wallClock, ssrc);
         final RtpPacket packet1 = new RtpPacket(true, 0, 1, 160 * 1, ssrc, new byte[160]);
         final RtpPacket packet2 = new RtpPacket(true, 0, 2, 160 * 2, ssrc, new byte[160]);
         final RtpPacket packet3 = new RtpPacket(true, 0, 3, 160 * 3, ssrc, new byte[160]);

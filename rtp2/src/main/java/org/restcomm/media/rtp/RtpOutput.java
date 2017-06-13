@@ -19,35 +19,49 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.rtp.handler;
+package org.restcomm.media.rtp;
 
-import org.restcomm.media.rtp.RtpPacket;
-import org.restcomm.media.rtp.session.RtpSessionStatistics;
+import java.io.IOException;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.MessageToByteEncoder;
+import org.restcomm.media.component.AbstractSink;
+import org.restcomm.media.component.audio.AudioOutput;
+import org.restcomm.media.component.dsp.Dsp;
+import org.restcomm.media.spi.memory.Frame;
 
 /**
+ * Media source of RTP data going to the network.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
+ * @author Yulian Oifa
  */
-public class RtpPacketEncoder extends MessageToByteEncoder<RtpPacket> {
+public class RtpOutput extends AbstractSink {
 
-    private final RtpSessionStatistics statistics;
+    private static final long serialVersionUID = -7726485962772259820L;
 
-    public RtpPacketEncoder(RtpSessionStatistics statistics) {
-        super();
-        this.statistics = statistics;
+    private final AudioOutput output;
+    private final Dsp dsp;
+
+    public RtpOutput(String name, AudioOutput output, Dsp dsp) {
+        super(name);
+        this.dsp = dsp;
+        this.output = output;
+        this.output.join(this);
     }
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, RtpPacket msg, ByteBuf out) throws Exception {
-        // Update statistics 
-        this.statistics.outgoingRtp(msg);
-        
-        // Convert RTP packet to bytes
-        out.writeBytes(msg.toRaw());
+    public void activate() {
+        this.output.start();
+    }
+
+    @Override
+    public void deactivate() {
+        this.output.stop();
+    }
+
+    @Override
+    public void onMediaTransfer(Frame frame) throws IOException {
+        // TODO Auto-generated method stub
+
     }
 
 }

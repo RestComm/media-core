@@ -18,7 +18,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
+
 package org.restcomm.media.rtp;
 
 import org.restcomm.media.network.netty.NettyNetworkManager;
@@ -29,18 +29,14 @@ import org.restcomm.media.network.netty.channel.NettyNetworkChannelGlobalContext
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpChannel extends AsyncNettyNetworkChannel<RtpPacket>{
+public class RtpChannel extends AsyncNettyNetworkChannel<RtpPacket> {
 
     public RtpChannel(NettyNetworkChannelGlobalContext context) {
         super(context);
-        // TODO Auto-generated constructor stub
     }
 
     public RtpChannel(NettyNetworkManager networkManager) {
         super(networkManager);
-        // TODO Auto-generated constructor stub
     }
 
-    
-    
 }

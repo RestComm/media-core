@@ -29,7 +29,7 @@ import static org.mockito.Mockito.verify;
 
 import org.junit.Test;
 import org.restcomm.media.rtp.RtpPacket;
-import org.restcomm.media.rtp.RtpStatistics;
+import org.restcomm.media.rtp.session.RtpSessionStatistics;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.embedded.EmbeddedChannel;
@@ -43,7 +43,7 @@ public class RtpEncoderTest {
     @Test
     public void testEncode() {
         // given
-        final RtpStatistics statistics = mock(RtpStatistics.class);
+        final RtpSessionStatistics statistics = mock(RtpSessionStatistics.class);
         final RtpPacketEncoder encoder = new RtpPacketEncoder(statistics);
         final EmbeddedChannel channel = new EmbeddedChannel(encoder);
 
