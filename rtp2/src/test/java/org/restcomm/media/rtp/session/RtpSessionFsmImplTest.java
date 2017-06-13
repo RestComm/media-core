@@ -120,7 +120,7 @@ public class RtpSessionFsmImplTest {
     }
 
     @Test
-    public void testNegotiatingFormatsState() {
+    public void testNegotiatingFormatsAction() {
         // given
         final long ssrc = 12345L;
         final MediaType mediaType = MediaType.AUDIO;

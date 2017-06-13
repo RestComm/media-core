@@ -22,6 +22,8 @@
 package org.restcomm.media.rtp.session;
 
 import org.restcomm.media.rtp.session.exception.RtpSessionException;
+import org.restcomm.media.rtp.session.exception.RtpSessionNegotiationException;
+import org.restcomm.media.sdp.format.RTPFormats;
 import org.squirrelframework.foundation.exception.TransitionException;
 import org.squirrelframework.foundation.fsm.Action;
 import org.squirrelframework.foundation.fsm.annotation.OnActionExecException;
@@ -55,7 +57,8 @@ public class RtpSessionNegotiateListener extends AbstractRtpSessionFsmListener {
     }
 
     @OnTransitionBegin
-    public void transitionBegin(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context) {
+    public void transitionBegin(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
+            RtpSessionTransactionContext context) {
         if (context != null) {
             FutureCallback<Void> originator = context.getCallback();
             if (originator == this.callback) {
@@ -68,12 +71,35 @@ public class RtpSessionNegotiateListener extends AbstractRtpSessionFsmListener {
     }
 
     @OnTransitionComplete
-    public void transitionComplete(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context) {
+    public void transitionComplete(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
+            RtpSessionTransactionContext context) {
         if (context != null) {
             FutureCallback<Void> originator = context.getCallback();
             if (this.callback == originator) {
-                if (RtpSessionState.NEGOTIATED.equals(to)) {
-                    onSuccess(null);
+                switch (to) {
+                    case NEGOTIATED:
+                        onSuccess(null);
+                        break;
+
+                    case NEGOTIATION_FAILED:
+                        Exception exception = null;
+                        switch (event) {
+                            case UNSUPPORTED_FORMATS:
+                                RtpSessionUnsupportedFormatsContext txContext = (RtpSessionUnsupportedFormatsContext) context;
+                                RTPFormats offeredFormats = txContext.getOfferedFormats();
+                                exception = new RtpSessionNegotiationException("Unsupported formats " + offeredFormats.toString());
+                                break;
+
+                            default:
+                                exception = new RtpSessionNegotiationException("Negotiation error");
+                                break;
+                        }
+
+                        onFailure(exception);
+                        break;
+
+                    default:
+                        break;
                 }
             }
         }
@@ -91,7 +117,8 @@ public class RtpSessionNegotiateListener extends AbstractRtpSessionFsmListener {
     }
 
     @OnActionExecException
-    public void onActionExecException(RtpSessionState from, RtpSessionEvent event, RtpSessionTransactionContext context, Action<?, ?, ?, ?> action, TransitionException e) {
+    public void onActionExecException(RtpSessionState from, RtpSessionEvent event, RtpSessionTransactionContext context,
+            Action<?, ?, ?, ?> action, TransitionException e) {
         if (context != null) {
             FutureCallback<Void> originator = context.getCallback();
             if (this.callback == originator) {

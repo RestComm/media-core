@@ -21,14 +21,31 @@
 
 package org.restcomm.media.rtp.session;
 
+import org.restcomm.media.sdp.format.RTPFormats;
+
+import com.google.common.util.concurrent.FutureCallback;
+
 /**
- * List of states that form the lifecycle of an RTP Session.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum RtpSessionState {
+public class RtpSessionUnsupportedFormatsContext extends RtpSessionBaseTransactionContext {
 
-    IDLE, OPENING, ALLOCATING, BINDING, OPENED, OPEN, NEGOTIATING, NEGOTIATING_FORMATS, CONNECTING, NEGOTIATION_FAILED, NEGOTIATED, ESTABLISHED, CLOSED;
+    private final RTPFormats supportedFormats;
+    private final RTPFormats offeredFormats;
+
+    public RtpSessionUnsupportedFormatsContext(RTPFormats supportedFormats, RTPFormats offeredFormats, FutureCallback<Void> callback) {
+        super(callback);
+        this.supportedFormats = supportedFormats;
+        this.offeredFormats = offeredFormats;
+    }
+
+    public RTPFormats getSupportedFormats() {
+        return supportedFormats;
+    }
+
+    public RTPFormats getOfferedFormats() {
+        return offeredFormats;
+    }
 
 }

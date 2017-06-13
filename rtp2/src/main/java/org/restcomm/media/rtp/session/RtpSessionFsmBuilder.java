@@ -67,6 +67,7 @@ public class RtpSessionFsmBuilder {
         this.builder.onEntry(RtpSessionState.NEGOTIATING).callMethod("enterNegotiating");
         this.builder.defineSequentialStatesOn(RtpSessionState.NEGOTIATING, RtpSessionState.NEGOTIATING_FORMATS, RtpSessionState.CONNECTING, RtpSessionState.NEGOTIATED);
         this.builder.externalTransition().from(RtpSessionState.NEGOTIATING).to(RtpSessionState.ESTABLISHED).on(RtpSessionEvent.NEGOTIATED);
+        this.builder.externalTransition().from(RtpSessionState.NEGOTIATING).to(RtpSessionState.NEGOTIATION_FAILED).on(RtpSessionEvent.UNSUPPORTED_FORMATS);
         this.builder.externalTransition().from(RtpSessionState.NEGOTIATING).toFinal(RtpSessionState.CLOSED).on(RtpSessionEvent.CLOSE);
         this.builder.onExit(RtpSessionState.NEGOTIATING).callMethod("exitNegotiating");
 
@@ -80,6 +81,9 @@ public class RtpSessionFsmBuilder {
         
         this.builder.onEntry(RtpSessionState.NEGOTIATED).callMethod("enterNegotiated");
         this.builder.onExit(RtpSessionState.NEGOTIATED).callMethod("exitNegotiated");
+
+        this.builder.onEntry(RtpSessionState.NEGOTIATION_FAILED).callMethod("enterNegotiationFailed");
+        this.builder.onExit(RtpSessionState.NEGOTIATION_FAILED).callMethod("exitNegotiationFailed");
         
         this.builder.onEntry(RtpSessionState.ESTABLISHED).callMethod("enterEstablished");
         this.builder.internalTransition().within(RtpSessionState.ESTABLISHED).on(RtpSessionEvent.UPDATE_MODE).callMethod("onUpdateMode");

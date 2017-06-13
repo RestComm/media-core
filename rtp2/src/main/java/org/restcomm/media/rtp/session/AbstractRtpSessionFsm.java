@@ -120,6 +120,16 @@ public class AbstractRtpSessionFsm
     public void exitNegotiated(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
             RtpSessionTransactionContext context) {
     }
+    
+    @Override
+    public void enterNegotiationFailed(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
+            RtpSessionTransactionContext context) {
+    }
+    
+    @Override
+    public void exitNegotiationFailed(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
+            RtpSessionTransactionContext context) {
+    }
 
     @Override
     public void enterEstablished(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,

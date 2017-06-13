@@ -31,7 +31,7 @@ import org.restcomm.media.rtp.RtpPacket;
 import org.restcomm.media.rtp.format.DtmfFormat;
 import org.restcomm.media.rtp.jitter.JitterBuffer;
 import org.restcomm.media.rtp.rfc2833.DtmfInput;
-import org.restcomm.media.rtp.session.exception.RtpSessionunwritableException;
+import org.restcomm.media.rtp.session.exception.RtpSessionUnwritableException;
 import org.restcomm.media.sdp.format.RTPFormat;
 import org.restcomm.media.sdp.format.RTPFormats;
 import org.restcomm.media.spi.ConnectionMode;
@@ -106,7 +106,9 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
         final RTPFormats negotiated = supported.intersection(offered);
 
         if (negotiated.isEmpty()) {
-            // TODO close session
+            RtpSessionUnsupportedFormatsContext unsupportedContext = new RtpSessionUnsupportedFormatsContext(supported, offered,
+                    txContext.getCallback());
+            fire(RtpSessionEvent.UNSUPPORTED_FORMATS, unsupportedContext);
         } else {
             // Update context with negotiated formats
             this.globalContext.setNegotiatedFormats(negotiated);
@@ -130,6 +132,27 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
 
         RtpSessionConnectCallback callback = new RtpSessionConnectCallback(this, txContext);
         channel.connect(address, callback);
+    }
+
+    @Override
+    public void enterNegotiationFailed(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
+            RtpSessionTransactionContext context) {
+        switch (event) {
+            case UNSUPPORTED_FORMATS:
+                if (log.isDebugEnabled()) {
+                    RtpSessionUnsupportedFormatsContext txContext = (RtpSessionUnsupportedFormatsContext) context;
+                    long ssrc = this.globalContext.getSsrc();
+                    log.debug("RTP session " + ssrc + " failed to negotiate because it does not support any offered format " + txContext.getOfferedFormats().toString());
+                }
+                break;
+
+            default:
+                if (log.isDebugEnabled()) {
+                    long ssrc = this.globalContext.getSsrc();
+                    log.debug("RTP session " + ssrc + " failed to negotiate with remote peer");
+                }
+                break;
+        }
     }
 
     @Override
@@ -205,9 +228,10 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
             }
         }
     }
-    
+
     @Override
-    public void onIncomingRtp(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context) {
+    public void onIncomingRtp(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
+            RtpSessionTransactionContext context) {
         RtpSessionIncomingRtpContext txContext = (RtpSessionIncomingRtpContext) context;
 
         // Packets are only processed if session is in "receiver" mode
@@ -240,8 +264,8 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
                         this.globalContext.getStatistics().incomingRtp(packet);
                     }
                 }
-                
-                if(ConnectionMode.NETWORK_LOOPBACK.equals(mode)) {
+
+                if (ConnectionMode.NETWORK_LOOPBACK.equals(mode)) {
                     // TODO Loop packet back to remote peer
                 }
                 break;
@@ -257,7 +281,7 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
         }
 
     }
-    
+
     @Override
     public void onOutgoingRtp(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
             RtpSessionTransactionContext context) {
@@ -281,14 +305,16 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
             default:
                 // Session mode does not allow to send packets
                 long ssrc = this.globalContext.getSsrc();
-                RtpSessionunwritableException exception = new RtpSessionunwritableException("RTP session " + ssrc + " cannot send packet because is operating in " + mode.name() + " mode");
+                RtpSessionUnwritableException exception = new RtpSessionUnwritableException(
+                        "RTP session " + ssrc + " cannot send packet because is operating in " + mode.name() + " mode");
                 callback.onFailure(exception);
                 break;
         }
     }
 
     @Override
-    public void enterClosed(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context) {
+    public void enterClosed(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
+            RtpSessionTransactionContext context) {
         RtpSessionCloseContext txContext = (RtpSessionCloseContext) context;
         RtpChannel channel = txContext.getChannel();
         RtpSessionCloseCallback callback = new RtpSessionCloseCallback();

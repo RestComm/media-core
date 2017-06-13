@@ -67,6 +67,10 @@ public interface RtpSessionFsm extends StateMachine<RtpSessionFsm, RtpSessionSta
     
     void exitNegotiated(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context);
     
+    void enterNegotiationFailed(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context);
+    
+    void exitNegotiationFailed(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context);
+    
     void enterEstablished(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context);
     
     void exitEstablished(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context);

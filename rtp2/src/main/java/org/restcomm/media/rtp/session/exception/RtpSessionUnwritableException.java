@@ -25,19 +25,19 @@ package org.restcomm.media.rtp.session.exception;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpSessionunwritableException extends RtpSessionException {
+public class RtpSessionUnwritableException extends RtpSessionException {
 
     private static final long serialVersionUID = 4816713457042599506L;
 
-    public RtpSessionunwritableException(String message, Throwable cause) {
+    public RtpSessionUnwritableException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public RtpSessionunwritableException(String message) {
+    public RtpSessionUnwritableException(String message) {
         super(message);
     }
 
-    public RtpSessionunwritableException(Throwable cause) {
+    public RtpSessionUnwritableException(Throwable cause) {
         super(cause);
     }
 
