@@ -1,0 +1,40 @@
+@startuml
+state OPENING {
+[*] --> ALLOCATING_SESSION
+ALLOCATING_SESSION --> SETTING_SESSION_MODE : session_allocated
+SETTING_SESSION_MODE --> NEGOTIATING_SESSION : session_mode_updated
+NEGOTIATING_SESSION --> SESSION_NEGOTIATED : session_negotiated
+SESSION_NEGOTIATED --> [*]
+}
+
+state UPDATING_MODE {
+[*] --> UPDATING_SESSION_MODE
+UPDATING_SESSION_MODE --> SESSION_MODE_UPDATED : session_mode_updated
+SESSION_MODE_UPDATED --> [*]
+}
+
+state CLOSING {
+[*] --> CLOSING_SESSION
+CLOSING_SESSION --> CLOSED_SESSION : session_closed
+}
+
+[*] --> IDLE
+IDLE -> IDLE : update_mode
+IDLE --> OPENING : open
+IDLE --> CLOSED : close
+
+OPENING --> OPEN : opened
+OPENING --> CORRUPTED : session_allocation_error
+OPENING --> CORRUPTED : session_negotiation_error
+
+OPEN --> CLOSING : close
+OPEN --> UPDATING_MODE : update_mode
+
+UPDATING_MODE --> OPEN : mode_updated
+UPDATING_MODE --> CLOSING : close
+
+CORRUPTED --> CLOSING : close
+
+CLOSING --> CLOSED
+CLOSED --> [*]
+@enduml
