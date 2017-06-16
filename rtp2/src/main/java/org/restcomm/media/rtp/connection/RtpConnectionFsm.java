@@ -37,7 +37,7 @@ public interface RtpConnectionFsm extends StateMachine<RtpConnectionFsm, RtpConn
     
     void exitAllocatingSession(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext txContext);
     
-    void enterSesttingSessionMode(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext txContext);
+    void enterSettingSessionMode(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext txContext);
     
     void exitSesttingSessionMode(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext txContext);
     

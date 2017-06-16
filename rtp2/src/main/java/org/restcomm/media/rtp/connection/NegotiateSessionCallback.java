@@ -19,26 +19,33 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.rtp.connection.exception;
+package org.restcomm.media.rtp.connection;
+
+import com.google.common.util.concurrent.FutureCallback;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class SessionNegotiationException extends RtpConnectionException {
+public class NegotiateSessionCallback implements FutureCallback<Void> {
 
-    private static final long serialVersionUID = -2697607136667679616L;
+    private final RtpConnectionFsm fsm;
+    private final RtpConnectionOpenContext context;
 
-    public SessionNegotiationException(String message, Throwable cause) {
-        super(message, cause);
+    public NegotiateSessionCallback(RtpConnectionFsm fsm, RtpConnectionOpenContext context) {
+        super();
+        this.fsm = fsm;
+        this.context = context;
     }
 
-    public SessionNegotiationException(String message) {
-        super(message);
+    @Override
+    public void onSuccess(Void result) {
+        this.fsm.fire(RtpConnectionEvent.SESSION_NEGOTIATED, this.context);
     }
 
-    public SessionNegotiationException(Throwable cause) {
-        super(cause);
+    @Override
+    public void onFailure(Throwable t) {
+        this.context.setThrowable(t);
+        this.fsm.fire(RtpConnectionEvent.SESSION_NEGOTIATION_FAILURE, this.context);
     }
-
 }

@@ -18,27 +18,35 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
-package org.restcomm.media.rtp.connection.exception;
+
+package org.restcomm.media.rtp.connection;
+
+import com.google.common.util.concurrent.FutureCallback;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class SessionAllocationException extends RtpConnectionException {
+public class UpdateSessionModeCallback implements FutureCallback<Void> {
+    
+    private final RtpConnectionFsm fsm;
+    private final RtpConnectionOpenContext context;
 
-    private static final long serialVersionUID = 5864627425450055465L;
-
-    public SessionAllocationException(String message, Throwable cause) {
-        super(message, cause);
+    public UpdateSessionModeCallback(RtpConnectionFsm fsm, RtpConnectionOpenContext context) {
+        super();
+        this.fsm = fsm;
+        this.context = context;
     }
 
-    public SessionAllocationException(String message) {
-        super(message);
+    @Override
+    public void onSuccess(Void result) {
+        this.fsm.fire(RtpConnectionEvent.SESSION_MODE_UPDATED, this.context);
     }
 
-    public SessionAllocationException(Throwable cause) {
-        super(cause);
+    @Override
+    public void onFailure(Throwable t) {
+        this.context.setThrowable(t);
+        this.fsm.fire(RtpConnectionEvent.SESSION_MODE_UPDATE_FAILURE, this.context);
     }
 
 }

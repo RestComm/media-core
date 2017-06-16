@@ -43,6 +43,7 @@ public class RtpConnectionFsmBuilder {
         this.builder.onEntry(RtpConnectionState.OPENING).callMethod("enterOpening");
         this.builder.defineSequentialStatesOn(RtpConnectionState.OPENING, RtpConnectionState.ALLOCATING_SESSION, RtpConnectionState.SETTING_SESSION_MODE, RtpConnectionState.NEGOTIATING_SESSION, RtpConnectionState.SESSION_ESTABLISHED);
         this.builder.externalTransition().from(RtpConnectionState.OPENING).to(RtpConnectionState.CORRUPTED).on(RtpConnectionEvent.SESSION_ALLOCATION_FAILURE);
+        this.builder.externalTransition().from(RtpConnectionState.OPENING).to(RtpConnectionState.CORRUPTED).on(RtpConnectionEvent.SESSION_MODE_UPDATE_FAILURE);
         this.builder.externalTransition().from(RtpConnectionState.OPENING).to(RtpConnectionState.CORRUPTED).on(RtpConnectionEvent.SESSION_NEGOTIATION_FAILURE);
         this.builder.externalTransition().from(RtpConnectionState.OPENING).to(RtpConnectionState.OPEN).on(RtpConnectionEvent.OPENED);
         this.builder.onExit(RtpConnectionState.OPENING).callMethod("exitOpening");

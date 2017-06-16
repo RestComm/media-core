@@ -50,7 +50,7 @@ public abstract class AbstractRtpConnectionFsm extends AbstractStateMachine<RtpC
     }
 
     @Override
-    public void enterSesttingSessionMode(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event,
+    public void enterSettingSessionMode(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event,
             RtpConnectionTransitionContext txContext) {
     }
 

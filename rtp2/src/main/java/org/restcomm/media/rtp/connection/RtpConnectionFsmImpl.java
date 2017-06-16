@@ -26,8 +26,8 @@ import java.net.SocketAddress;
 import org.apache.log4j.Logger;
 import org.restcomm.media.rtp.RtpSession;
 import org.restcomm.media.rtp.connection.exception.RtpConnectionException;
-import org.restcomm.media.rtp.connection.exception.SessionAllocationException;
-import org.restcomm.media.rtp.connection.exception.SessionNegotiationException;
+import org.restcomm.media.sdp.fields.MediaDescriptionField;
+import org.restcomm.media.spi.ConnectionMode;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -57,13 +57,46 @@ public class RtpConnectionFsmImpl extends AbstractRtpConnectionFsm {
     }
 
     @Override
+    public void enterSettingSessionMode(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext txContext) {
+        // Get relevant data from context
+        final RtpConnectionOpenContext openContext = (RtpConnectionOpenContext) txContext;
+        final RtpSession session = openContext.getSession();
+        final ConnectionMode mode = openContext.getMode();
+
+        // Set mode in context
+        this.context.setMode(mode);
+
+        // Update session mode. The callback will fire proper event to move to next state.
+        UpdateSessionModeCallback callback = new UpdateSessionModeCallback(this, openContext);
+        session.updateMode(mode, callback);
+    }
+
+    @Override
+    public void enterNegotiatingSession(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext txContext) {
+        // Get relevant data from context
+        final RtpConnectionOpenContext openContext = (RtpConnectionOpenContext) txContext;
+        final RtpSession session = openContext.getSession();
+        final MediaDescriptionField remoteSession = openContext.getRemoteSession();
+        
+        // Negotiate session. The callback will fire proper event to move to next state.
+        NegotiateSessionCallback callback = new NegotiateSessionCallback(this, openContext);
+        session.negotiate(remoteSession, callback);
+    }
+    
+    @Override
+    public void enterSessionEstablished(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event,
+            RtpConnectionTransitionContext txContext) {
+        fire(RtpConnectionEvent.OPENED, txContext);
+    }
+
+    @Override
     public void enterOpen(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext txContext) {
         final RtpConnectionOpenContext openContext = (RtpConnectionOpenContext) txContext;
 
         if (log.isDebugEnabled()) {
             final RtpSession session = openContext.getSession();
             final String cname = this.context.getCname();
-            log.debug("RTP Connection " + cname + " opened " + session.getMediaType().name() + "session " + session.getSsrc());
+            log.debug("RTP Connection " + cname + " opened session " + session.getSsrc());
         }
 
         // Let originator of the OPEN request know the operation completed successfully
@@ -74,13 +107,13 @@ public class RtpConnectionFsmImpl extends AbstractRtpConnectionFsm {
     public void enterCorrupted(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext txContext) {
         final RtpConnectionOpenContext openContext = (RtpConnectionOpenContext) txContext;
         final RtpConnectionException exception;
-        
+
         switch (event) {
             case SESSION_ALLOCATION_FAILURE: {
                 final RtpSession session = openContext.getSession();
                 final String cname = this.context.getCname();
                 final Throwable t = openContext.getThrowable();
-                exception = new SessionAllocationException("RTP Connection " + cname + " could not allocate session " + session.getSsrc(), t);
+                exception = new RtpConnectionException("RTP Connection " + cname + " could not allocate session " + session.getSsrc(), t);
                 break;
             }
 
@@ -88,7 +121,15 @@ public class RtpConnectionFsmImpl extends AbstractRtpConnectionFsm {
                 final RtpSession session = openContext.getSession();
                 final String cname = this.context.getCname();
                 final Throwable t = openContext.getThrowable();
-                exception = new SessionNegotiationException("RTP Connection " + cname + " could not negotiate session " + session.getSsrc(), t);
+                exception = new RtpConnectionException("RTP Connection " + cname + " could not negotiate session " + session.getSsrc(), t);
+                break;
+            }
+
+            case SESSION_MODE_UPDATE_FAILURE: {
+                final RtpSession session = openContext.getSession();
+                final String cname = this.context.getCname();
+                final Throwable t = openContext.getThrowable();
+                exception = new RtpConnectionException("RTP Connection " + cname + " could not update mode of session " + session.getSsrc(), t);
                 break;
             }
 

@@ -25,6 +25,7 @@ import java.net.SocketAddress;
 
 import org.restcomm.media.rtp.RtpSession;
 import org.restcomm.media.sdp.fields.MediaDescriptionField;
+import org.restcomm.media.spi.ConnectionMode;
 
 import com.google.common.util.concurrent.FutureCallback;
 
@@ -35,12 +36,14 @@ import com.google.common.util.concurrent.FutureCallback;
 public class RtpConnectionOpenContext extends RtpConnectionBaseContext {
 
     private final RtpSession session;
+    private final ConnectionMode mode;
     private final SocketAddress address;
     private final MediaDescriptionField remoteSession;
 
-    public RtpConnectionOpenContext(FutureCallback<Void> originator, RtpSession session, SocketAddress address, MediaDescriptionField remoteSession) {
+    public RtpConnectionOpenContext(FutureCallback<Void> originator, RtpSession session, ConnectionMode mode, SocketAddress address, MediaDescriptionField remoteSession) {
         super(originator);
         this.session = session;
+        this.mode = mode;
         this.address = address;
         this.remoteSession = remoteSession;
     }
@@ -48,7 +51,11 @@ public class RtpConnectionOpenContext extends RtpConnectionBaseContext {
     public RtpSession getSession() {
         return session;
     }
-    
+
+    public ConnectionMode getMode() {
+        return mode;
+    }
+
     public SocketAddress getAddress() {
         return address;
     }
