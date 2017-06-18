@@ -112,11 +112,15 @@ public class MgcpLocalConnection extends AbstractMgcpConnection {
                     break;
 
                 default:
-                    throw new MgcpConnectionException(
-                            "Cannot open connection " + this.getHexIdentifier() + " because state is " + this.state.name());
+                    throw new MgcpConnectionException("Cannot open connection " + this.getHexIdentifier() + " because state is " + this.state.name());
             }
         }
-        return null;
+        return "";
+    }
+    
+    @Override
+    public String renegotiate(String sdp) throws MgcpConnectionException {
+        return "";
     }
 
     public void join(MgcpLocalConnection otherConnection) throws MgcpConnectionException {
