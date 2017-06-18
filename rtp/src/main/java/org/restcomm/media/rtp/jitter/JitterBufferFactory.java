@@ -20,11 +20,8 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.rtp.jitter.adaptive;
+package org.restcomm.media.rtp.jitter;
 
-import org.restcomm.media.rtp.jitter.JitterBuffer;
-import org.restcomm.media.rtp.jitter.adaptive.strategy.PlayoutStrategy;
-
-public interface AdaptiveJitterBuffer extends JitterBuffer {
-    public void setPlayoutStrategy(PlayoutStrategy playoutStrategy);
+public interface JitterBufferFactory {
+	public JitterBuffer getJitterBuffer();
 }

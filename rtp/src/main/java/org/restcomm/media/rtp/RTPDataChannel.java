@@ -33,6 +33,7 @@ import org.restcomm.media.network.deprecated.ProtocolHandler;
 import org.restcomm.media.network.deprecated.UdpManager;
 import org.restcomm.media.rtp.crypto.DtlsSrtpServerProvider;
 import org.restcomm.media.rtp.jitter.FixedJitterBuffer;
+import org.restcomm.media.rtp.jitter.JitterBuffer;
 import org.restcomm.media.rtp.rfc2833.DtmfInput;
 import org.restcomm.media.rtp.rfc2833.DtmfOutput;
 import org.restcomm.media.rtp.secure.DtlsHandler;
@@ -145,7 +146,7 @@ public class RTPDataChannel {
 	 */
 	protected RTPDataChannel(ChannelsManager channelsManager, int channelId, DtlsSrtpServerProvider dtlsServerProvider) {
 		this.channelsManager = channelsManager;
-		this.jitterBufferSize = channelsManager.getJitterBufferSize();
+		int jitterBufferSize = channelsManager.getJitterBufferSize();
 
 		// open data channel
 		rtpHandler = new RTPHandler();

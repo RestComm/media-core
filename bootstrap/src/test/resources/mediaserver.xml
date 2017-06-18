@@ -32,7 +32,11 @@
 		<timeout>5</timeout>
 		<lowPort>54534</lowPort>
 		<highPort>64534</highPort>
-		<jitterBuffer size="60" />
+		<jitterBuffer>
+			<size>60</size>
+			<clazz>org.restcomm.media.rtp.jitter.adaptive.AdaptiveJitterBuffer</clazz>
+			<playoutStrategyClazz>org.restcomm.media.rtp.jitter.adaptive.strategy.LinearRecursiveFilter</playoutStrategyClazz>
+		</jitterBuffer>
 		<codecs>
 			<codec name="l16" />
 			<codec name="pcmu" />

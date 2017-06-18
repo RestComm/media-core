@@ -61,6 +61,9 @@ import org.restcomm.media.rtp.ChannelsManager;
 import org.restcomm.media.rtp.crypto.AlgorithmCertificate;
 import org.restcomm.media.rtp.crypto.CipherSuite;
 import org.restcomm.media.rtp.crypto.DtlsSrtpServerProvider;
+import org.restcomm.media.rtp.jitter.FixedJitterBuffer;
+import org.restcomm.media.rtp.jitter.JitterBufferFactory;
+import org.restcomm.media.rtp.jitter.JitterBufferFactoryImpl;
 import org.restcomm.media.scheduler.Clock;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.ServiceScheduler;
@@ -91,6 +94,7 @@ public class LocalJoiningTest {
     protected AlgorithmCertificate algorithmCertificate = AlgorithmCertificate.RSA;
     protected DtlsSrtpServerProvider dtlsServerProvider = new DtlsSrtpServerProvider(minVersion, maxVersion, cipherSuites,
             certificatePath, keyPath, algorithmCertificate);
+    protected JitterBufferFactory jitterBufferFactory = new JitterBufferFactoryImpl(60, FixedJitterBuffer.class.getName(), null);
 
     //endpoint and connection
     private MyTestEndpoint endpoint1;
@@ -126,7 +130,7 @@ public class LocalJoiningTest {
         mediaScheduler.setClock(clock);
         mediaScheduler.start();
 
-        channelsManager = new ChannelsManager(new UdpManager(new ServiceScheduler(), new RtpPortManager(), new RtpPortManager()), dtlsServerProvider);
+        channelsManager = new ChannelsManager(new UdpManager(new ServiceScheduler(), new RtpPortManager(), new RtpPortManager()), dtlsServerProvider, jitterBufferFactory);
         channelsManager.setScheduler(mediaScheduler);
         
         // Resource

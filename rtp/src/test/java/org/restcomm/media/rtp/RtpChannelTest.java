@@ -28,6 +28,7 @@ import java.net.InetSocketAddress;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.restcomm.media.codec.g711.alaw.Decoder;
 import org.restcomm.media.codec.g711.alaw.Encoder;
@@ -44,6 +45,8 @@ import org.restcomm.media.rtp.RtpChannel;
 import org.restcomm.media.rtp.RtpClock;
 import org.restcomm.media.rtp.crypto.DtlsSrtpServer;
 import org.restcomm.media.rtp.crypto.DtlsSrtpServerProvider;
+import org.restcomm.media.rtp.jitter.FixedJitterBuffer;
+import org.restcomm.media.rtp.jitter.JitterBufferFactory;
 import org.restcomm.media.rtp.statistics.RtpStatistics;
 import org.restcomm.media.scheduler.Clock;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
@@ -102,10 +105,12 @@ public class RtpChannelTest {
         // given
         DtlsSrtpServerProvider mockedDtlsServerProvider = mock(DtlsSrtpServerProvider.class);
         DtlsSrtpServer mockedDtlsSrtpServer = mock(DtlsSrtpServer.class);
+        JitterBufferFactory jitterBufferFactory = mock(JitterBufferFactory.class);
 
         // when
         when(mockedDtlsServerProvider.provide()).thenReturn(mockedDtlsSrtpServer);
         when(mockedDtlsSrtpServer.getCipherSuites()).thenReturn(cipherSuites);
+        when(jitterBufferFactory.getJitterBuffer()).thenReturn(new FixedJitterBuffer(60));
 
         // then
     	AudioFormat pcma = FormatFactory.createAudioFormat("pcma", 8000, 8, 1);
@@ -140,7 +145,7 @@ public class RtpChannelTest {
         scheduler.start();
         udpManager.start();
         
-        channelsManager = new ChannelsManager(udpManager, mockedDtlsServerProvider);
+        channelsManager = new ChannelsManager(udpManager, mockedDtlsServerProvider, jitterBufferFactory);
         channelsManager.setScheduler(mediaScheduler);
 
         source1 = new Sine(mediaScheduler);

@@ -37,21 +37,19 @@ public class MediaConfiguration {
     public static final int TIMEOUT = 0;
     public static final int LOW_PORT = 64534;
     public static final int HIGH_PORT = 65534;
-    public static final int JITTER_BUFFER_SIZE = 50;
 
     private int maxDuration;
     private int timeout;
     private int lowPort;
     private int highPort;
-    private int jitterBufferSize;
     private final Set<String> codecs;
+    private JitterBufferConfiguration jitterBufferConfiguration;
 
     public MediaConfiguration() {
         this.maxDuration = MAX_DURATION;
         this.timeout = TIMEOUT;
         this.lowPort = LOW_PORT;
         this.highPort = HIGH_PORT;
-        this.jitterBufferSize = JITTER_BUFFER_SIZE;
         this.codecs = new HashSet<>(5);
     }
     
@@ -100,17 +98,6 @@ public class MediaConfiguration {
         this.highPort = highPort;
     }
 
-    public int getJitterBufferSize() {
-        return jitterBufferSize;
-    }
-
-    public void setJitterBufferSize(int jitterBufferSize) {
-        if (jitterBufferSize < 0) {
-            throw new IllegalArgumentException("Jitter Buffer size must be positive.");
-        }
-        this.jitterBufferSize = jitterBufferSize;
-    }
-
     public void addCodec(String codec) {
         if (codec == null || codec.isEmpty()) {
             throw new IllegalArgumentException("Codec cannot be empty.");
@@ -140,5 +127,15 @@ public class MediaConfiguration {
     public void removeAllCodecs() {
         this.codecs.clear();
     }
+
+    public JitterBufferConfiguration getJitterBufferConfiguration() {
+        return jitterBufferConfiguration;
+    }
+
+    public void setJitterBufferConfiguration(JitterBufferConfiguration jitterBufferConfiguration) {
+        this.jitterBufferConfiguration = jitterBufferConfiguration;
+    }
+    
+    
 
 }

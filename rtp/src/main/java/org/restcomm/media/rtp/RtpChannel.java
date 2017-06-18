@@ -38,6 +38,8 @@ import org.restcomm.media.network.deprecated.UdpManager;
 import org.restcomm.media.network.deprecated.channel.MultiplexedChannel;
 import org.restcomm.media.rtcp.RtcpHandler;
 import org.restcomm.media.rtp.crypto.DtlsSrtpServerProvider;
+import org.restcomm.media.rtp.jitter.JitterBuffer;
+import org.restcomm.media.rtp.jitter.JitterBufferFactory;
 import org.restcomm.media.rtp.secure.DtlsHandler;
 import org.restcomm.media.rtp.secure.DtlsListener;
 import org.restcomm.media.rtp.statistics.RtpStatistics;
@@ -75,7 +77,6 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener, IceE
     private final PriorityQueueScheduler scheduler;
     private final RtpClock clock;
     private final RtpClock oobClock;
-    private final int jitterBufferSize;
 
     // Heart beat
     private final HeartBeat heartBeat;
@@ -116,8 +117,8 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener, IceE
     // Listeners
     private RtpListener rtpListener;
 
-    public RtpChannel(int channelId, int jitterBufferSize, RtpStatistics statistics, RtpClock clock, RtpClock oobClock,
-            PriorityQueueScheduler scheduler, UdpManager udpManager, DtlsSrtpServerProvider dtlsServerProvider) {
+    public RtpChannel(int channelId, RtpStatistics statistics, RtpClock clock, RtpClock oobClock,
+            PriorityQueueScheduler scheduler, UdpManager udpManager, DtlsSrtpServerProvider dtlsServerProvider, JitterBufferFactory jitterBufferFactory) {
         // Initialize MultiplexedChannel elements
         super();
 
@@ -129,13 +130,12 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener, IceE
 
         // Channel attributes
         this.channelId = channelId;
-        this.jitterBufferSize = jitterBufferSize;
         this.statistics = statistics;
         this.bound = false;
 
         // Protocol Handlers
         this.transmitter = new RtpTransmitter(scheduler, clock, statistics);
-        this.rtpHandler = new RtpHandler(scheduler, clock, oobClock, jitterBufferSize, statistics);
+        this.rtpHandler = new RtpHandler(scheduler, clock, oobClock, jitterBufferFactory, statistics);
         this.rtpHandler.setPipelinePriority(RTP_PRIORITY);
         this.rtcpHandler = new RtcpHandler(this.udpManager.getScheduler(), statistics);
         this.rtpHandler.setPipelinePriority(RTCP_PRIORITY);

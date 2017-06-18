@@ -36,6 +36,8 @@ import org.restcomm.media.rtp.RtpClock;
 import org.restcomm.media.rtp.channels.AudioChannel;
 import org.restcomm.media.rtp.crypto.DtlsSrtpServer;
 import org.restcomm.media.rtp.crypto.DtlsSrtpServerProvider;
+import org.restcomm.media.rtp.jitter.FixedJitterBuffer;
+import org.restcomm.media.rtp.jitter.JitterBufferFactory;
 import org.restcomm.media.rtp.sdp.SdpFactory;
 import org.restcomm.media.rtp.statistics.RtpStatistics;
 import org.restcomm.media.scheduler.Clock;
@@ -72,10 +74,12 @@ public class MediaChannelTest {
 	    // given
 	    DtlsSrtpServerProvider mockedDtlsServerProvider = mock(DtlsSrtpServerProvider.class);
 	    DtlsSrtpServer mockedDtlsSrtpServer = mock(DtlsSrtpServer.class);
+	    JitterBufferFactory jitterBufferFactory = mock(JitterBufferFactory.class);
 	    
 	    // when
 	    when(mockedDtlsServerProvider.provide()).thenReturn(mockedDtlsSrtpServer);
 	    when(mockedDtlsSrtpServer.getCipherSuites()).thenReturn(cipherSuites);
+	    when(jitterBufferFactory.getJitterBuffer()).thenReturn(new FixedJitterBuffer(60));
 	    
 	    // then
 		this.wallClock = new WallClock();
@@ -83,7 +87,7 @@ public class MediaChannelTest {
 		this.mediaScheduler.setClock(this.wallClock);
 		this.scheduler = new ServiceScheduler();
 		this.udpManager = new UdpManager(scheduler, new RtpPortManager(), new RtpPortManager());
-		this.channelsManager = new ChannelsManager(udpManager, mockedDtlsServerProvider);
+		this.channelsManager = new ChannelsManager(udpManager, mockedDtlsServerProvider, jitterBufferFactory);
 		this.channelsManager.setScheduler(this.mediaScheduler);
 		
 		this.factory = new ChannelFactory();

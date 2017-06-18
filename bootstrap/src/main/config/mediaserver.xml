@@ -33,7 +33,10 @@
 		<maxDuration>14400</maxDuration>
 		<lowPort>34534</lowPort>
 		<highPort>65534</highPort>
-		<jitterBuffer size="50" />
+		<jitterBuffer>
+			<size>50</size>
+			<clazz>org.restcomm.media.rtp.jitter.adaptive.AdaptiveJitterBuffer</clazz>
+		</jitterBuffer>
 		<codecs>
 			<codec name="l16" />
 			<codec name="pcmu" />

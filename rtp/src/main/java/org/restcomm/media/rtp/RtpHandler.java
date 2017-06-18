@@ -27,8 +27,8 @@ import org.apache.log4j.Logger;
 import org.restcomm.media.network.deprecated.channel.PacketHandler;
 import org.restcomm.media.network.deprecated.channel.PacketHandlerException;
 import org.restcomm.media.rtcp.RtcpHeader;
-import org.restcomm.media.rtp.jitter.FixedJitterBuffer;
 import org.restcomm.media.rtp.jitter.JitterBuffer;
+import org.restcomm.media.rtp.jitter.JitterBufferFactory;
 import org.restcomm.media.rtp.rfc2833.DtmfInput;
 import org.restcomm.media.rtp.secure.DtlsHandler;
 import org.restcomm.media.rtp.statistics.RtpStatistics;
@@ -54,7 +54,6 @@ public class RtpHandler implements PacketHandler {
 	private final RtpClock oobClock;
 	
 	private JitterBuffer jitterBuffer;
-	private int jitterBufferSize;
 	private final RTPInput rtpInput;
 	private final DtmfInput dtmfInput;
 	
@@ -68,14 +67,14 @@ public class RtpHandler implements PacketHandler {
 	private boolean secure;
 	private DtlsHandler dtlsHandler;
 	
-	public RtpHandler(PriorityQueueScheduler scheduler, RtpClock clock, RtpClock oobClock, int jitterBufferSize, RtpStatistics statistics) {
+	public RtpHandler(PriorityQueueScheduler scheduler, RtpClock clock, RtpClock oobClock, JitterBufferFactory jitterBufferFactory, RtpStatistics statistics) {
 		this.pipelinePriority = 0;
 		
 		this.rtpClock = clock;
 		this.oobClock = oobClock;
 		
-		this.jitterBufferSize = jitterBufferSize;
-		this.jitterBuffer = new FixedJitterBuffer(this.rtpClock, this.jitterBufferSize);
+		this.jitterBuffer = jitterBufferFactory.getJitterBuffer();
+		this.jitterBuffer.setRtpClock(this.rtpClock);
 		
 		this.rtpInput = new RTPInput(scheduler, jitterBuffer);
 		this.jitterBuffer.setListener(this.rtpInput);

@@ -29,6 +29,8 @@ import org.restcomm.media.network.deprecated.UdpManager;
 import org.restcomm.media.rtcp.RtcpChannel;
 import org.restcomm.media.rtp.channels.AudioChannel;
 import org.restcomm.media.rtp.crypto.DtlsSrtpServerProvider;
+import org.restcomm.media.rtp.jitter.JitterBuffer;
+import org.restcomm.media.rtp.jitter.JitterBufferFactory;
 import org.restcomm.media.rtp.statistics.RtpStatistics;
 import org.restcomm.media.scheduler.Clock;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
@@ -59,6 +61,7 @@ public class ChannelsManager {
     
     private final RTPFormats codecs;
     private DtlsSrtpServerProvider dtlsServerProvider;
+    private JitterBufferFactory jitterBufferFactory;
     
     /**
      * Creates a new channels manager with a subset of supported codecs.
@@ -67,10 +70,11 @@ public class ChannelsManager {
      * @param codecs The list of supported codecs
      * @param dtlsServerProvider The provider of DtlsSrtpServer instances
      */
-    public ChannelsManager(UdpManager udpManager, RTPFormats codecs, DtlsSrtpServerProvider dtlsServerProvider) {
+    public ChannelsManager(UdpManager udpManager, RTPFormats codecs, DtlsSrtpServerProvider dtlsServerProvider, JitterBufferFactory jitterBufferFactory) {
         this.udpManager = udpManager;
         this.codecs = codecs;
         this.dtlsServerProvider = dtlsServerProvider;
+        this.jitterBufferFactory = jitterBufferFactory;
     }
 
     /**
@@ -79,8 +83,8 @@ public class ChannelsManager {
      * @param udpManager The network manager.
      * @param dtlsServerProvider The provider of DtlsSrtpServer instances
      */
-    public ChannelsManager(UdpManager udpManager, DtlsSrtpServerProvider dtlsServerProvider) {
-        this(udpManager, AVProfile.audio, dtlsServerProvider);
+    public ChannelsManager(UdpManager udpManager, DtlsSrtpServerProvider dtlsServerProvider, JitterBufferFactory jitterBufferFactory) {
+        this(udpManager, AVProfile.audio, dtlsServerProvider, jitterBufferFactory);
     }
 
     /**
@@ -142,7 +146,7 @@ public class ChannelsManager {
     }
     
     public RtpChannel getRtpChannel(RtpStatistics statistics, RtpClock clock, RtpClock oobClock) {
-    	return new RtpChannel(channelIndex.incrementAndGet(), jitterBufferSize, statistics, clock, oobClock, scheduler, udpManager, dtlsServerProvider);
+    	return new RtpChannel(channelIndex.incrementAndGet(), statistics, clock, oobClock, scheduler, udpManager, dtlsServerProvider, jitterBufferFactory);
     }
 
     public RtcpChannel getRtcpChannel(RtpStatistics statistics) {
@@ -156,5 +160,16 @@ public class ChannelsManager {
     public AudioChannel getAudioChannel() {
     	return new AudioChannel(this.scheduler.getClock(), this);
     }
+
+    public JitterBufferFactory getJitterBufferFactory() {
+        return jitterBufferFactory;
+    }
+
+    public void setJitterBufferFactory(JitterBufferFactory jitterBufferFactory) {
+        this.jitterBufferFactory = jitterBufferFactory;
+    }
+
+   
+    
     
 }

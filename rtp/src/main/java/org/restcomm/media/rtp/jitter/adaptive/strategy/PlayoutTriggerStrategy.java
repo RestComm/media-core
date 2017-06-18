@@ -20,11 +20,16 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.rtp.jitter.adaptive;
+/**
+ * Strategy interface to know the time when the jitter buffer should be adjusted. It can either be at the begin/end of talkspurt or at regular intervals etc.
+ * 
+ * @author jqayyum
+ *
+ */
+package org.restcomm.media.rtp.jitter.adaptive.strategy;
 
-import org.restcomm.media.rtp.jitter.JitterBuffer;
-import org.restcomm.media.rtp.jitter.adaptive.strategy.PlayoutStrategy;
+import org.restcomm.media.rtp.RtpPacket;
 
-public interface AdaptiveJitterBuffer extends JitterBuffer {
-    public void setPlayoutStrategy(PlayoutStrategy playoutStrategy);
+public interface PlayoutTriggerStrategy {
+	boolean shouldAdjustBuffer(RtpPacket p);
 }

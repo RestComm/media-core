@@ -53,6 +53,8 @@ import org.restcomm.media.network.deprecated.UdpManager;
 import org.restcomm.media.resource.dtmf.DetectorImpl;
 import org.restcomm.media.rtp.crypto.DtlsSrtpServer;
 import org.restcomm.media.rtp.crypto.DtlsSrtpServerProvider;
+import org.restcomm.media.rtp.jitter.FixedJitterBuffer;
+import org.restcomm.media.rtp.jitter.JitterBufferFactory;
 import org.restcomm.media.scheduler.Clock;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.Scheduler;
@@ -112,10 +114,12 @@ public class RTPEventTest implements DtmfDetectorListener {
         // given
         DtlsSrtpServerProvider mockedDtlsServerProvider = mock(DtlsSrtpServerProvider.class);
         DtlsSrtpServer mockedDtlsSrtpServer = mock(DtlsSrtpServer.class);
+        JitterBufferFactory jitterBufferFactory = mock(JitterBufferFactory.class);
         
         // when
         when(mockedDtlsServerProvider.provide()).thenReturn(mockedDtlsSrtpServer);
         when(mockedDtlsSrtpServer.getCipherSuites()).thenReturn(cipherSuites);
+        when(jitterBufferFactory.getJitterBuffer()).thenReturn(new FixedJitterBuffer(60));
         
         // then
         AudioFormat pcma = FormatFactory.createAudioFormat("pcma", 8000, 8, 1);
@@ -146,7 +150,7 @@ public class RTPEventTest implements DtmfDetectorListener {
         scheduler.start();
         udpManager.start();
         
-        channelsManager = new ChannelsManager(udpManager, mockedDtlsServerProvider);
+        channelsManager = new ChannelsManager(udpManager, mockedDtlsServerProvider, jitterBufferFactory);
         channelsManager.setScheduler(mediaScheduler);
         
         detector = new DetectorImpl("dtmf", mediaScheduler);

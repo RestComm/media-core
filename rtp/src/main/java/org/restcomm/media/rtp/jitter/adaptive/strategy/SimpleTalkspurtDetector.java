@@ -20,11 +20,21 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.rtp.jitter.adaptive;
+/**
+ * Simple strategy to detect talkspurt begin.
+ * 
+ * @author jqayyum
+ *
+ */
+package org.restcomm.media.rtp.jitter.adaptive.strategy;
 
-import org.restcomm.media.rtp.jitter.JitterBuffer;
-import org.restcomm.media.rtp.jitter.adaptive.strategy.PlayoutStrategy;
+import org.restcomm.media.rtp.RtpPacket;
 
-public interface AdaptiveJitterBuffer extends JitterBuffer {
-    public void setPlayoutStrategy(PlayoutStrategy playoutStrategy);
+public class SimpleTalkspurtDetector implements PlayoutTriggerStrategy {
+
+	@Override
+	public boolean shouldAdjustBuffer(RtpPacket p) {
+		return p.getMarker();
+	}
+
 }

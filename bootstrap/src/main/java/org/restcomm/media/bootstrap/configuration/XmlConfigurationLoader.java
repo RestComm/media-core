@@ -31,6 +31,7 @@ import org.apache.commons.configuration2.ex.ConfigurationRuntimeException;
 import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.apache.log4j.Logger;
 import org.restcomm.media.core.configuration.DtlsConfiguration;
+import org.restcomm.media.core.configuration.JitterBufferConfiguration;
 import org.restcomm.media.core.configuration.MediaConfiguration;
 import org.restcomm.media.core.configuration.MediaServerConfiguration;
 import org.restcomm.media.core.configuration.MgcpControllerConfiguration;
@@ -113,12 +114,30 @@ public class XmlConfigurationLoader implements ConfigurationLoader {
         dst.setTimeout(src.getInt("timeout", MediaConfiguration.TIMEOUT));
         dst.setLowPort(src.getInt("lowPort", MediaConfiguration.LOW_PORT));
         dst.setHighPort(src.getInt("highPort", MediaConfiguration.HIGH_PORT));
-        dst.setJitterBufferSize(src.getInt("jitterBuffer[@size]", MediaConfiguration.JITTER_BUFFER_SIZE));
+        dst.setJitterBufferConfiguration(new JitterBufferConfiguration());
+        
+        try {
+            configureJitterBuffer(src.configurationAt("jitterBuffer"), dst.getJitterBufferConfiguration());
+        } catch (ConfigurationRuntimeException exception) {
+        }
+        
 
         // Iterate over codec configuration
         List<HierarchicalConfiguration<ImmutableNode>> codecs = src.childConfigurationsAt("codecs");
         for (HierarchicalConfiguration<ImmutableNode> codec : codecs) {
             dst.addCodec(codec.getString("[@name]"));
+        }
+    }
+    
+    private static void configureJitterBuffer(HierarchicalConfiguration<ImmutableNode> src, JitterBufferConfiguration dst) {
+        if(src.containsKey("size")) {
+            dst.setSize(src.getInt("size"));
+        }
+        if(src.containsKey("clazz")) {
+            dst.setClazz(src.getString("clazz"));
+        }
+        if(src.containsKey("playoutStrategyClazz")) {
+            dst.setPlayoutStrategyClazz(src.getString("playoutStrategyClazz"));
         }
     }
 

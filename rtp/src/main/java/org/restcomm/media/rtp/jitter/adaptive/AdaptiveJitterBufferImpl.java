@@ -20,12 +20,15 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.rtp.jitter;
+package org.restcomm.media.rtp.jitter.adaptive;
 
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.PriorityQueue;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -33,60 +36,61 @@ import org.apache.log4j.Logger;
 import org.restcomm.media.rtp.BufferListener;
 import org.restcomm.media.rtp.RtpClock;
 import org.restcomm.media.rtp.RtpPacket;
+import org.restcomm.media.rtp.jitter.adaptive.strategy.PlayoutStrategy;
 import org.restcomm.media.sdp.format.RTPFormat;
 import org.restcomm.media.spi.memory.Frame;
 import org.restcomm.media.spi.memory.Memory;
 
 /**
- * Implements jitter buffer.
+ * Implements adaptive jitter buffer.
  * 
- * A jitter buffer temporarily stores arriving packets in order to minimize delay variations. If packets arrive too late then
- * they are discarded. A jitter buffer may be mis-configured and be either too large or too small.
- * 
- * If a jitter buffer is too small then an excessive number of packets may be discarded, which can lead to call quality
- * degradation. If a jitter buffer is too large then the additional delay can lead to conversational difficulty.
- * 
- * A typical jitter buffer configuration is 30mS to 50mS in size. In the case of an adaptive jitter buffer then the maximum size
- * may be set to 100-200mS. Note that if the jitter buffer size exceeds 100mS then the additional delay introduced can lead to
- * conversational difficulty.
- *
- * @author oifa yulian
+ * @author jehanzeb qayyum
  */
-public class FixedJitterBuffer implements JitterBuffer, Serializable {
+public class AdaptiveJitterBufferImpl implements AdaptiveJitterBuffer, Serializable {
 
-    private static final long serialVersionUID = -389930569631795779L;
+    private static final int DEFAULT_INITIAL_CAPACITY = 100;
 
-    // The underlying buffer size
-    private static final int QUEUE_SIZE = 10;
+    public static class FrameComparator implements Comparator<Frame> {
+        @Override
+        public int compare(Frame f0, Frame f1) {
+            if (f0.getSequenceNumber() == f1.getSequenceNumber())
+                return 0;
+            if (f0.getTimestamp() <= f1.getTimestamp())
+                return -1;
+            if (f0.getTimestamp() > f1.getTimestamp())
+                return 1;
+            return -1;
+        }
+    }
+
+    private static final long serialVersionUID = 183012984750647142L;
+
+    private Timer playoutTimer = new Timer("PlayoutTimer", true);
+
+    // strategy for frames playout
+    private PlayoutStrategy playoutStrategy;
+
     // the underlying buffer
-    private ArrayList<Frame> queue = new ArrayList<Frame>(QUEUE_SIZE);
+    private PriorityQueue<Frame> queue = new PriorityQueue<Frame>(DEFAULT_INITIAL_CAPACITY, new FrameComparator());
 
     // RTP clock
     private RtpClock rtpClock;
+
     // first received sequence number
-    private long isn = -1;
-
-    // allowed jitter
-    private long jitterBufferSize;
+    private volatile long isn = -1;
 
     // packet arrival dead line measured on RTP clock.
     // initial value equals to infinity
-    private long arrivalDeadLine = 0;
-
-    // packet arrival dead line measured on RTP clock.
-    // initial value equals to infinity
-    private long droppedInRaw = 0;
+    private volatile long arrivalDeadLine = 0;
 
     // The number of dropped packets
-    private int dropCount;
+    // private volatile int dropCount;
 
     // known duration of media wich contains in this buffer.
-    private volatile long duration;
+    // private volatile long bufferDuration;
 
     // buffer's monitor
-    private BufferListener listener;
-
-    private AtomicBoolean ready = new AtomicBoolean(false);
+    private BufferListener bufferListener;
 
     /**
      * used to calculate network jitter. currentTransit measures the relative time it takes for an RTP packet to arrive from the
@@ -99,31 +103,13 @@ public class FixedJitterBuffer implements JitterBuffer, Serializable {
      */
     private long currentJitter = 0;
 
-    // currently used format
-    private RTPFormat format;
-
     private Boolean useBuffer = true;
 
-    private final static Logger logger = Logger.getLogger(FixedJitterBuffer.class);
+    private final static Logger logger = Logger.getLogger(AdaptiveJitterBufferImpl.class);
 
     private final Lock lock = new ReentrantLock();
 
-    
-    public FixedJitterBuffer() {
-    }
-    
-    /**
-     * Creates new instance of jitter.
-     * 
-     * @param clock the rtp clock.
-     */
-    public FixedJitterBuffer(int jitterBufferSize) {
-        this.jitterBufferSize = jitterBufferSize;
-    }
-    
-    public FixedJitterBuffer(RtpClock rtpClock, int jitterBufferSize) {
-        this.rtpClock = rtpClock;
-        this.jitterBufferSize = jitterBufferSize;
+    public AdaptiveJitterBufferImpl() {
     }
 
     private void initJitter(RtpPacket firstPacket) {
@@ -184,9 +170,9 @@ public class FixedJitterBuffer implements JitterBuffer, Serializable {
      * 
      * @return the number of dropped packets.
      */
-    public int getDropped() {
-        return dropCount;
-    }
+    /*
+     * public int getDropped() { return dropCount; }
+     */
 
     public boolean bufferInUse() {
         return this.useBuffer;
@@ -197,24 +183,7 @@ public class FixedJitterBuffer implements JitterBuffer, Serializable {
         this.useBuffer = useBuffer;
     }
 
-    /**
-     * Assigns listener for this buffer.
-     * 
-     * @param listener the listener object.
-     */
-    @Override
-    public void setListener(BufferListener listener) {
-        this.listener = listener;
-    }
-
     private void safeWrite(RtpPacket packet, RTPFormat format) {
-        if (this.format == null || this.format.getID() != format.getID()) {
-            this.format = format;
-            if (logger.isDebugEnabled()) {
-                logger.debug("Format changed! [" + this.format.toString() + "]");
-            }
-        }
-
         // if this is first packet then synchronize clock
         if (isn == -1) {
             rtpClock.synchronize(packet.getTimestamp());
@@ -225,28 +194,91 @@ public class FixedJitterBuffer implements JitterBuffer, Serializable {
         }
 
         // update clock rate
-        rtpClock.setClockRate(this.format.getClockRate());
+        rtpClock.setClockRate(format.getClockRate());
 
-        // drop outstanding packets
-        // packet is outstanding if its timestamp of arrived packet is less
-        // then consumer media time
-        if (packet.getTimestamp() < this.arrivalDeadLine) {
-            if (logger.isTraceEnabled()) {
-                logger.trace("drop packet: dead line=" + arrivalDeadLine + ", packet time=" + packet.getTimestamp() + ", seq="
-                        + packet.getSeqNumber() + ", payload length=" + packet.getPayloadLength() + ", format="
-                        + this.format.toString());
-            }
-            dropCount++;
+        if (isLateArrival(packet)) {
+            // dropCount++;
+            return;
+        }
 
-            // checking if not dropping too much
-            droppedInRaw++;
-            if (droppedInRaw == QUEUE_SIZE / 2 || queue.size() == 0) {
-                arrivalDeadLine = 0;
+        Frame f = createFrame(packet, format);
+        if (queue.contains(f)) { // duplicate
+            f.recycle();
+            return;
+        }
+
+        queue.add(f);
+
+        // recalculate duration of all packets since we may insert in the middle
+        recalculateDurations(f);
+
+        // this.bufferDuration = queue.size() > 1 ? (queue.last().getTimestamp() - queue.first().getTimestamp()) : 0;
+        // if overall duration is negative we have some mess here,try to
+        // reset
+        // if (this.bufferDuration < 0 && queue.size() > 1) {
+        // logger.warn("Something messy happened. Reseting jitter buffer!");
+        // reset();
+        // return;
+        // }
+
+        // wakeup listener
+        if (bufferListener != null) {
+            if (!useBuffer) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Jitter Buffer is ready! [frames=" + queue.size() + "]");
+                }
+                bufferListener.onFill();
             } else {
-                return;
+                schedulePlayout(f, packet);
             }
         }
 
+    }
+
+    private void schedulePlayout(Frame f, RtpPacket packet) {
+        if (this.playoutStrategy == null) {
+            return;
+        }
+
+        long playoutOffset = this.playoutStrategy.getPlayoutOffset(packet);
+        if (playoutOffset >= 0) {
+            f.setPlayoutOffset(playoutOffset);
+            try {
+                playoutTimer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("Jitter Buffer is ready to be played! [frames=" + queue.size() + "]");
+                        }
+                        bufferListener.onFill();
+                    }
+                }, playoutOffset);
+                if (logger.isDebugEnabled()) {
+                    logger.debug(
+                            "Jitter Buffer is scheuled! [playoutOfgset = " + playoutOffset + " frames=" + queue.size() + "]");
+                }
+            } catch (Exception e) {
+                logger.error("Could not schedule playout task.", e);
+            }
+        }
+    }
+
+    private void recalculateDurations(Frame f) {
+        Frame curr, next;
+        Iterator<Frame> iter = queue.iterator();
+        while (iter.hasNext()) {
+            curr = iter.next();
+            if (iter.hasNext()) {
+                next = iter.next();
+                // duration measured by wall clock
+                long duration = next.getTimestamp() - curr.getTimestamp();
+                // in case of RFC2833 event timestamp remains same
+                curr.setDuration(duration > 0 ? duration : 0);
+            }
+        }
+    }
+
+    private Frame createFrame(RtpPacket packet, RTPFormat format) {
         Frame f = Memory.allocate(packet.getPayloadLength());
         // put packet into buffer irrespective of its sequence number
         f.setHeader(null);
@@ -256,72 +288,23 @@ public class FixedJitterBuffer implements JitterBuffer, Serializable {
         f.setOffset(0);
         f.setLength(packet.getPayloadLength());
         packet.getPayload(f.getData(), 0);
-
         // set format
-        f.setFormat(this.format.getFormat());
+        f.setFormat(format.getFormat());
+        return f;
+    }
 
-        // make checks only if have packet
-        if (f != null) {
-
-            droppedInRaw = 0;
-
-            // find correct position to insert a packet
-            // use timestamp since its always positive
-            int currIndex = queue.size() - 1;
-            while (currIndex >= 0 && queue.get(currIndex).getTimestamp() > f.getTimestamp()) {
-                currIndex--;
+    private boolean isLateArrival(RtpPacket packet) {
+        // drop outstanding packets
+        // packet is outstanding if its timestamp of arrived packet is less
+        // then consumer media time
+        if (packet.getTimestamp() < this.arrivalDeadLine) {
+            if (logger.isTraceEnabled()) {
+                logger.trace("drop packet: dead line=" + arrivalDeadLine + ", packet time=" + packet.getTimestamp() + ", seq="
+                        + packet.getSeqNumber() + ", payload length=" + packet.getPayloadLength());
             }
-
-            // check for duplicate packet
-            if (currIndex >= 0 && queue.get(currIndex).getSequenceNumber() == f.getSequenceNumber()) {
-                return;
-            }
-
-            queue.add(currIndex + 1, f);
-
-            // recalculate duration of each frame in queue and overall duration
-            // since we could insert the frame in the middle of the queue
-            duration = 0;
-            if (queue.size() > 1) {
-                duration = queue.get(queue.size() - 1).getTimestamp() - queue.get(0).getTimestamp();
-            }
-
-            for (int i = 0; i < queue.size() - 1; i++) {
-                // duration measured by wall clock
-                long d = queue.get(i + 1).getTimestamp() - queue.get(i).getTimestamp();
-                // in case of RFC2833 event timestamp remains same
-                queue.get(i).setDuration(d > 0 ? d : 0);
-            }
-
-            // if overall duration is negative we have some mess here,try to
-            // reset
-            if (duration < 0 && queue.size() > 1) {
-                logger.warn("Something messy happened. Reseting jitter buffer!");
-                reset();
-                return;
-            }
-
-            // overflow?
-            // only now remove packet if overflow , possibly the same packet we just received
-            if (queue.size() > QUEUE_SIZE) {
-                if (logger.isTraceEnabled()) {
-                    logger.trace("Jitter Buffer overflow! [duration=" + duration + "ms, frames=" + queue.size() + "]");
-                }
-                dropCount++;
-                queue.remove(0).recycle();
-            }
-
-            // check if this buffer already full
-            boolean readyTest = (!useBuffer || (duration >= jitterBufferSize && queue.size() > 1));
-            if (ready.compareAndSet(false, readyTest)) {
-                if (ready.get() && listener != null) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Jitter Buffer is ready! [duration=" + duration + "ms, frames=" + queue.size() + "]");
-                    }
-                    listener.onFill();
-                }
-            }
+            return true;
         }
+        return false;
     }
 
     /**
@@ -369,14 +352,11 @@ public class FixedJitterBuffer implements JitterBuffer, Serializable {
             locked = this.lock.tryLock() || this.lock.tryLock(5, TimeUnit.MILLISECONDS);
             if (locked) {
                 frame = safeRead();
-            } else {
-                this.ready.set(false);
             }
         } catch (InterruptedException e) {
             if (logger.isTraceEnabled()) {
                 logger.trace("Could not acquire reading lock for jitter buffer.");
             }
-            this.ready.set(false);
         } finally {
             if (locked) {
                 lock.unlock();
@@ -387,19 +367,28 @@ public class FixedJitterBuffer implements JitterBuffer, Serializable {
 
     private Frame safeRead() {
         if (queue.size() == 0) {
-            this.ready.set(false);
             if (logger.isTraceEnabled()) {
                 logger.trace("Jitter Buffer is empty. Consumer will wait until buffer is filled.");
             }
             return null;
         }
 
-        // extract packet
-        Frame frame = queue.remove(0);
+        // queue head
+        Frame frame = queue.peek();
+
+        if (frame.getPlayoutOffset() != -1
+                && (frame.getTimestamp() + frame.getPlayoutOffset()) < rtpClock.getWallClock().getCurrentTime()) {
+            if (logger.isTraceEnabled()) {
+                logger.trace("Cannot read jitter buffer further, since playout time did not come yet.");
+            }
+            return null;
+        }
+
+        // remove head
+        queue.poll();
 
         // buffer empty now? - change ready flag.
         if (queue.size() == 0) {
-            this.ready.set(false);
             if (logger.isTraceEnabled()) {
                 logger.trace("Read last packet from Jitter Buffer.");
             }
@@ -426,8 +415,9 @@ public class FixedJitterBuffer implements JitterBuffer, Serializable {
             locked = lock.tryLock() || lock.tryLock(5, TimeUnit.MILLISECONDS);
             if (locked) {
                 while (queue.size() > 0) {
-                    queue.remove(0).recycle();
+                    queue.poll().recycle();
                 }
+                playoutTimer.purge();
             }
         } catch (InterruptedException e) {
             if (logger.isTraceEnabled()) {
@@ -442,11 +432,8 @@ public class FixedJitterBuffer implements JitterBuffer, Serializable {
 
     public void restart() {
         reset();
-        this.ready.set(false);
         arrivalDeadLine = 0;
-        dropCount = 0;
-        droppedInRaw = 0;
-        format = null;
+        // dropCount = 0;
         isn = -1;
 
         if (logger.isDebugEnabled()) {
@@ -454,14 +441,36 @@ public class FixedJitterBuffer implements JitterBuffer, Serializable {
         }
     }
 
-	@Override
-	public void setRtpClock(RtpClock rtpClock) {
-		this.rtpClock = rtpClock;
-	}
+    @Override
+    public void setListener(BufferListener listener) {
+        this.bufferListener = listener;
+    }
+
+    public long getCurrentDelay() {
+        return this.currentTransit;
+    }
+
+    /*
+     * public long getBufferDuration() { return bufferDuration; }
+     */
+
+    public void setPlayoutStrategy(PlayoutStrategy playoutStrategy) {
+        this.playoutStrategy = playoutStrategy;
+    }
+
+    @Override
+    public String toString() {
+        return "AdaptiveJitterBuffer [isn=" + isn + ", arrivalDeadLine=" + arrivalDeadLine + ", currentTransit="
+                + currentTransit + ", currentJitter=" + currentJitter + ", useBuffer=" + useBuffer + "]";
+    }
+
+    @Override
+    public void setRtpClock(RtpClock rtpClock) {
+        this.rtpClock = rtpClock;
+    }
 
     @Override
     public void setJitterbufferSize(int jitterBufferSize) {
-        this.jitterBufferSize = jitterBufferSize;
     }
 
 }

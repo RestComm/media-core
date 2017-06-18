@@ -22,6 +22,7 @@
 package org.restcomm.media.rtp.jitter;
 
 import org.restcomm.media.rtp.BufferListener;
+import org.restcomm.media.rtp.RtpClock;
 import org.restcomm.media.rtp.RtpPacket;
 import org.restcomm.media.sdp.format.RTPFormat;
 import org.restcomm.media.spi.memory.Frame;
@@ -80,4 +81,16 @@ public interface JitterBuffer {
      */
     void restart();
 
+    
+    /**
+     * Sets RtpClock
+     * @param rtpClock
+     */
+    void setRtpClock(RtpClock rtpClock);
+    
+    /**
+     * Sets jitterBufferSize
+     * @param jitterBufferSize
+     */
+    void setJitterbufferSize(int jitterBufferSize);
 }

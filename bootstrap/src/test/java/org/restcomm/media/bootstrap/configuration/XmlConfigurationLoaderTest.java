@@ -26,14 +26,15 @@ import org.bouncycastle.crypto.tls.ProtocolVersion;
 import org.bouncycastle.crypto.tls.SignatureAlgorithm;
 import org.junit.Assert;
 import org.junit.Test;
-import org.restcomm.media.bootstrap.configuration.XmlConfigurationLoader;
 import org.restcomm.media.core.configuration.DtlsConfiguration;
+import org.restcomm.media.core.configuration.JitterBufferConfiguration;
 import org.restcomm.media.core.configuration.MediaConfiguration;
 import org.restcomm.media.core.configuration.MediaServerConfiguration;
 import org.restcomm.media.core.configuration.MgcpControllerConfiguration;
 import org.restcomm.media.core.configuration.MgcpEndpointConfiguration;
 import org.restcomm.media.core.configuration.NetworkConfiguration;
 import org.restcomm.media.core.configuration.ResourcesConfiguration;
+import org.restcomm.media.rtp.jitter.adaptive.AdaptiveJitterBufferImpl;
 import org.restcomm.media.spi.RelayType;
 
 /**
@@ -80,12 +81,15 @@ public class XmlConfigurationLoaderTest {
         Assert.assertEquals(5, media.getTimeout());
         Assert.assertEquals(54534, media.getLowPort());
         Assert.assertEquals(64534, media.getHighPort());
-        Assert.assertEquals(60, media.getJitterBufferSize());
         Assert.assertTrue(media.hasCodec("l16"));
         Assert.assertTrue(media.hasCodec("PCMU"));
         Assert.assertTrue(media.hasCodec("pcma"));
         Assert.assertTrue(media.hasCodec("gSm"));
         Assert.assertTrue(media.hasCodec("g729"));
+
+        JitterBufferConfiguration jitterBuffer = media.getJitterBufferConfiguration();
+        Assert.assertEquals(60, jitterBuffer.getSize());
+        Assert.assertEquals(AdaptiveJitterBufferImpl.class.getName(), jitterBuffer.getClazz());
 
         ResourcesConfiguration resources = config.getResourcesConfiguration();
         Assert.assertEquals(-25, resources.getDtmfDetectorDbi());
@@ -139,8 +143,12 @@ public class XmlConfigurationLoaderTest {
         Assert.assertEquals(MediaConfiguration.TIMEOUT, media.getTimeout());
         Assert.assertEquals(MediaConfiguration.LOW_PORT, media.getLowPort());
         Assert.assertEquals(MediaConfiguration.HIGH_PORT, media.getHighPort());
-        Assert.assertEquals(MediaConfiguration.JITTER_BUFFER_SIZE, media.getJitterBufferSize());
         Assert.assertEquals(0, media.countCodecs());
+
+        JitterBufferConfiguration jitterBuffer = media.getJitterBufferConfiguration();
+        Assert.assertEquals(JitterBufferConfiguration.JITTER_BUFFER_SIZE, jitterBuffer.getSize());
+        Assert.assertEquals(JitterBufferConfiguration.JITTER_BUFFER_CLAZZ, jitterBuffer.getClazz());
+        Assert.assertEquals(JitterBufferConfiguration.PLAYOUT_STRATEGY_CLAZZ, jitterBuffer.getPlayoutStrategyClazz());
 
         ResourcesConfiguration resources = config.getResourcesConfiguration();
         Assert.assertEquals(ResourcesConfiguration.DTMF_DETECTOR_DBI, resources.getDtmfDetectorDbi());
@@ -187,9 +195,13 @@ public class XmlConfigurationLoaderTest {
         Assert.assertEquals(MediaConfiguration.TIMEOUT, media.getTimeout());
         Assert.assertEquals(MediaConfiguration.LOW_PORT, media.getLowPort());
         Assert.assertEquals(MediaConfiguration.HIGH_PORT, media.getHighPort());
-        Assert.assertEquals(MediaConfiguration.JITTER_BUFFER_SIZE, media.getJitterBufferSize());
         Assert.assertEquals(0, media.countCodecs());
-        
+
+        JitterBufferConfiguration jitterBuffer = media.getJitterBufferConfiguration();
+        Assert.assertEquals(JitterBufferConfiguration.JITTER_BUFFER_SIZE, jitterBuffer.getSize());
+        Assert.assertEquals(JitterBufferConfiguration.JITTER_BUFFER_CLAZZ, jitterBuffer.getClazz());
+        Assert.assertEquals(JitterBufferConfiguration.PLAYOUT_STRATEGY_CLAZZ, jitterBuffer.getPlayoutStrategyClazz());
+
         ResourcesConfiguration resources = config.getResourcesConfiguration();
         Assert.assertEquals(ResourcesConfiguration.DTMF_DETECTOR_DBI, resources.getDtmfDetectorDbi());
         Assert.assertEquals(ResourcesConfiguration.DTMF_GENERATOR_TONE_DURATION, resources.getDtmfGeneratorToneDuration());

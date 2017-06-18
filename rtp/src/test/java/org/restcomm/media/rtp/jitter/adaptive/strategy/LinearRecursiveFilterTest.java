@@ -30,19 +30,24 @@ import org.restcomm.media.rtp.BufferListener;
 import org.restcomm.media.rtp.MockWallClock;
 import org.restcomm.media.rtp.RtpClock;
 import org.restcomm.media.rtp.RtpPacket;
-import org.restcomm.media.rtp.jitter.adaptive.AdaptiveJitterBuffer;
+import org.restcomm.media.rtp.jitter.adaptive.AdaptiveJitterBufferImpl;
 import org.restcomm.media.sdp.format.AVProfile;
 
+/**
+ * @author jehanzebqayyum
+ *
+ */
 public class LinearRecursiveFilterTest {
     private MockWallClock clock = new MockWallClock();
     private RtpClock rtpClock = new RtpClock(clock);
 
-    private AdaptiveJitterBuffer jitterBuffer = new AdaptiveJitterBuffer(rtpClock);
-    private LinearRecursiveFilter linearRecursiveFilter = org.mockito.Mockito.spy(LinearRecursiveFilter.class);
+    private AdaptiveJitterBufferImpl jitterBuffer = new AdaptiveJitterBufferImpl();
+    private LinearRecursiveFilter linearRecursiveFilter = org.mockito.Mockito.spy(new LinearRecursiveFilter());
 
     private final static Logger logger = Logger.getLogger(LinearRecursiveFilterTest.class);
 
     public LinearRecursiveFilterTest() {
+        jitterBuffer.setRtpClock(rtpClock);
         jitterBuffer.setPlayoutStrategy(linearRecursiveFilter);
         jitterBuffer.setListener(new BufferListener() {
             @Override
@@ -52,6 +57,7 @@ public class LinearRecursiveFilterTest {
             }
         });
         linearRecursiveFilter.jitterBuffer = jitterBuffer;
+
     }
 
     @Before

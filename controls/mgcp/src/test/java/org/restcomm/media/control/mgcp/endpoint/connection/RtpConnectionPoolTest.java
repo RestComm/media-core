@@ -34,6 +34,9 @@ import org.restcomm.media.rtp.ChannelsManager;
 import org.restcomm.media.rtp.crypto.AlgorithmCertificate;
 import org.restcomm.media.rtp.crypto.CipherSuite;
 import org.restcomm.media.rtp.crypto.DtlsSrtpServerProvider;
+import org.restcomm.media.rtp.jitter.FixedJitterBuffer;
+import org.restcomm.media.rtp.jitter.JitterBufferFactory;
+import org.restcomm.media.rtp.jitter.JitterBufferFactoryImpl;
 import org.restcomm.media.scheduler.Clock;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.Scheduler;
@@ -63,6 +66,7 @@ public class RtpConnectionPoolTest {
     protected AlgorithmCertificate algorithmCertificate = AlgorithmCertificate.RSA;
     protected DtlsSrtpServerProvider dtlsServerProvider = new DtlsSrtpServerProvider(minVersion, maxVersion, cipherSuites,
             certificatePath, keyPath, algorithmCertificate);
+    protected JitterBufferFactory jitterBufferFactory = new JitterBufferFactoryImpl(60, FixedJitterBuffer.class.getName(), null);
     
     private final ChannelsManager connectionFactory;
     private final DspFactory dspFactory;
@@ -72,7 +76,7 @@ public class RtpConnectionPoolTest {
         this.mediaScheduler = new PriorityQueueScheduler();
         this.taskScheduler = new ServiceScheduler(clock);
         this.udpManager = new UdpManager(taskScheduler, new RtpPortManager(), new RtpPortManager());
-        this.connectionFactory = new ChannelsManager(udpManager, dtlsServerProvider);
+        this.connectionFactory = new ChannelsManager(udpManager, dtlsServerProvider, jitterBufferFactory);
         this.dspFactory = new DspFactoryImpl();
         
         this.mediaScheduler.setClock(clock);
