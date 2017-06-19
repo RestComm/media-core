@@ -23,6 +23,7 @@ package org.restcomm.media.control.mgcp.command;
 
 import org.apache.log4j.Logger;
 import org.restcomm.media.control.mgcp.connection.MgcpConnection;
+import org.restcomm.media.control.mgcp.connection.MgcpConnectionState;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.restcomm.media.control.mgcp.exception.MgcpConnectionException;
@@ -120,7 +121,8 @@ public class ModifyConnectionCommand extends AbstractMgcpCommand {
         String remoteSdp = context.remoteDescription;
         if (!remoteSdp.isEmpty()) {
             try {
-                String localSdp = connection.open(remoteSdp);
+                MgcpConnectionState state = connection.getState();
+                String localSdp = MgcpConnectionState.OPEN.equals(state) ? connection.renegotiate(remoteSdp) : connection.open(remoteSdp);
                 context.localDescription = localSdp;
             } catch (MgcpConnectionException e) {
                 throw new MgcpCommandException(MgcpResponseCode.UNSUPPORTED_SDP);
