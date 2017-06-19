@@ -18,10 +18,8 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
-package org.restcomm.media.rtp;
 
-import org.restcomm.media.spi.ConnectionMode;
+package org.restcomm.media.rtp.connection;
 
 import com.google.common.util.concurrent.FutureCallback;
 
@@ -29,12 +27,26 @@ import com.google.common.util.concurrent.FutureCallback;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface RtpConnection {
-    
-    void updateMode(ConnectionMode mode, FutureCallback<Void> callback);
-    
-    void open(String sdp, FutureCallback<Void> callback);
-    
-    void close(FutureCallback<Void> callback);
-    
+public class SessionCloseCallback implements FutureCallback<Void> {
+
+    private final RtpConnectionFsm fsm;
+    private final CloseContext context;
+
+    public SessionCloseCallback(RtpConnectionFsm fsm, CloseContext context) {
+        super();
+        this.fsm = fsm;
+        this.context = context;
+    }
+
+    @Override
+    public void onSuccess(Void result) {
+        this.fsm.fire(RtpConnectionEvent.SESSION_CLOSED, this.context);
+    }
+
+    @Override
+    public void onFailure(Throwable t) {
+        this.context.setThrowable(t);
+        this.fsm.fire(RtpConnectionEvent.SESSION_CLOSE_FAILURE, this.context);
+    }
+
 }

@@ -47,7 +47,7 @@ public class RtpConnectionImpl implements RtpConnection {
     }
 
     @Override
-    public void open(String sdp, FutureCallback<String> callback) {
+    public void open(String sdp, FutureCallback<Void> callback) {
         // TODO Auto-generated method stub
 
     }
