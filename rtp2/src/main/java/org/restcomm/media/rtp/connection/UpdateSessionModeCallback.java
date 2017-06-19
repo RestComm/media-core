@@ -30,9 +30,9 @@ import com.google.common.util.concurrent.FutureCallback;
 public class UpdateSessionModeCallback implements FutureCallback<Void> {
     
     private final RtpConnectionFsm fsm;
-    private final RtpConnectionOpenContext context;
+    private final RtpConnectionBaseContext context;
 
-    public UpdateSessionModeCallback(RtpConnectionFsm fsm, RtpConnectionOpenContext context) {
+    public UpdateSessionModeCallback(RtpConnectionFsm fsm, RtpConnectionBaseContext context) {
         super();
         this.fsm = fsm;
         this.context = context;

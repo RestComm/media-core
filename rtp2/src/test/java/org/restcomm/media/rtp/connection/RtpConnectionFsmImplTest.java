@@ -69,7 +69,7 @@ public class RtpConnectionFsmImplTest {
         final ConnectionMode mode = ConnectionMode.SEND_RECV;
         final SocketAddress address = new InetSocketAddress("127.0.0.1", 6000);
         final MediaDescriptionField remoteSession = mock(MediaDescriptionField.class);
-        final RtpConnectionOpenContext txContext  = new RtpConnectionOpenContext(originator, session, mode, address, remoteSession);
+        final OpenContext txContext  = new OpenContext(originator, session, mode, address, remoteSession);
         final RtpConnectionContext context = new RtpConnectionContext(cname);
         final RtpConnectionFsmImpl fsm = new RtpConnectionFsmImpl(context);
         
@@ -90,7 +90,7 @@ public class RtpConnectionFsmImplTest {
         final ConnectionMode mode = ConnectionMode.SEND_RECV;
         final SocketAddress address = new InetSocketAddress("127.0.0.1", 6000);
         final MediaDescriptionField remoteSession = mock(MediaDescriptionField.class);
-        final RtpConnectionOpenContext txContext  = new RtpConnectionOpenContext(originator, session, mode, address, remoteSession);
+        final OpenContext txContext  = new OpenContext(originator, session, mode, address, remoteSession);
         final RtpConnectionContext context = new RtpConnectionContext(cname);
         final RtpConnectionFsmImpl fsm = new RtpConnectionFsmImpl(context);
         
@@ -112,7 +112,7 @@ public class RtpConnectionFsmImplTest {
         final ConnectionMode mode = ConnectionMode.SEND_RECV;
         final SocketAddress address = new InetSocketAddress("127.0.0.1", 6000);
         final MediaDescriptionField remoteSession = mock(MediaDescriptionField.class);
-        final RtpConnectionOpenContext txContext  = new RtpConnectionOpenContext(originator, session, mode, address, remoteSession);
+        final OpenContext txContext  = new OpenContext(originator, session, mode, address, remoteSession);
         final RtpConnectionContext context = new RtpConnectionContext(cname);
         final RtpConnectionFsmImpl fsm = new RtpConnectionFsmImpl(context);
         
@@ -149,7 +149,7 @@ public class RtpConnectionFsmImplTest {
         // when
         this.fsm.start();
         
-        RtpConnectionOpenContext openContext = new RtpConnectionOpenContext(originator, session, mode, address, remoteSession);
+        OpenContext openContext = new OpenContext(originator, session, mode, address, remoteSession);
         this.fsm.fire(RtpConnectionEvent.OPEN, openContext);
         
         // then
@@ -194,7 +194,7 @@ public class RtpConnectionFsmImplTest {
         // when
         this.fsm.start();
         
-        RtpConnectionOpenContext openContext = new RtpConnectionOpenContext(originator, session, mode, address, remoteSession);
+        OpenContext openContext = new OpenContext(originator, session, mode, address, remoteSession);
         this.fsm.fire(RtpConnectionEvent.OPEN, openContext);
         
         // then
@@ -251,7 +251,7 @@ public class RtpConnectionFsmImplTest {
         // when
         this.fsm.start();
         
-        RtpConnectionOpenContext openContext = new RtpConnectionOpenContext(originator, session, mode, address, remoteSession);
+        OpenContext openContext = new OpenContext(originator, session, mode, address, remoteSession);
         this.fsm.fire(RtpConnectionEvent.OPEN, openContext);
         
         // then
@@ -308,7 +308,7 @@ public class RtpConnectionFsmImplTest {
         // when
         this.fsm.start();
 
-        RtpConnectionOpenContext openContext = new RtpConnectionOpenContext(openCallback, session, mode, address, remoteSession);
+        OpenContext openContext = new OpenContext(openCallback, session, mode, address, remoteSession);
         this.fsm.fire(RtpConnectionEvent.OPEN, openContext);
         
         // then
@@ -317,6 +317,130 @@ public class RtpConnectionFsmImplTest {
         verify(session).negotiate(eq(remoteSession), any(FutureCallback.class));
         verify(openCallback).onSuccess(null);
         assertEquals(RtpConnectionState.OPEN, fsm.getCurrentState());
+    }
+    
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testUpdateConnectionMode() {
+        // given
+        final String cname = "mock";
+        final RtpSession session = mock(RtpSession.class);
+        final ConnectionMode mode = ConnectionMode.SEND_RECV;
+        final SocketAddress address = new InetSocketAddress("127.0.0.1", 6000);
+        final MediaDescriptionField remoteSession = mock(MediaDescriptionField.class);     
+        final RtpConnectionContext context = new RtpConnectionContext(cname);
+        this.fsm = RtpConnectionFsmBuilder.INSTANCE.build(context);
+        
+        doAnswer(new Answer<Void>() {
+
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                FutureCallback<Void> callback = invocation.getArgumentAt(1, FutureCallback.class);
+                callback.onSuccess(null);
+                return null;
+            }
+        }).when(session).open(any(SocketAddress.class), any(FutureCallback.class));
+        
+        doAnswer(new Answer<Void>() {
+            
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                FutureCallback<Void> callback = invocation.getArgumentAt(1, FutureCallback.class);
+                callback.onSuccess(null);
+                return null;
+            }
+        }).when(session).updateMode(any(ConnectionMode.class), any(FutureCallback.class));
+
+        doAnswer(new Answer<Void>() {
+            
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                FutureCallback<Void> callback = invocation.getArgumentAt(1, FutureCallback.class);
+                callback.onSuccess(null);
+                return null;
+            }
+        }).when(session).negotiate(any(MediaDescriptionField.class), any(FutureCallback.class));
+        
+        // when
+        this.fsm.start();
+
+        OpenContext openContext = new OpenContext(mock(FutureCallback.class), session, mode, address, remoteSession);
+        this.fsm.fire(RtpConnectionEvent.OPEN, openContext);
+        
+        FutureCallback<Void> updateCallback = mock(FutureCallback.class);
+        ConnectionMode newMode = ConnectionMode.SEND_ONLY;
+        UpdateModeContext updateModeContext = new UpdateModeContext(updateCallback, newMode, session);
+        this.fsm.fire(RtpConnectionEvent.UPDATE_MODE, updateModeContext);
+        
+        // then
+        verify(session).updateMode(eq(newMode), any(FutureCallback.class));
+        verify(updateCallback).onSuccess(null);
+        assertEquals(RtpConnectionState.OPEN, fsm.getCurrentState());
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testUpdateConnectionModeFailure() {
+        // given
+        final String cname = "mock";
+        final RtpSession session = mock(RtpSession.class);
+        final ConnectionMode mode = ConnectionMode.SEND_RECV;
+        final SocketAddress address = new InetSocketAddress("127.0.0.1", 6000);
+        final MediaDescriptionField remoteSession = mock(MediaDescriptionField.class);     
+        final RtpConnectionContext context = new RtpConnectionContext(cname);
+        this.fsm = RtpConnectionFsmBuilder.INSTANCE.build(context);
+        
+        doAnswer(new Answer<Void>() {
+            
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                FutureCallback<Void> callback = invocation.getArgumentAt(1, FutureCallback.class);
+                callback.onSuccess(null);
+                return null;
+            }
+        }).when(session).open(any(SocketAddress.class), any(FutureCallback.class));
+        
+        doAnswer(new Answer<Void>() {
+            
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                ConnectionMode connectionMode = invocation.getArgumentAt(0, ConnectionMode.class);
+                FutureCallback<Void> callback = invocation.getArgumentAt(1, FutureCallback.class);
+                
+                if (mode.equals(connectionMode)) {
+                    callback.onSuccess(null);
+                } else {
+                    callback.onFailure(new RtpConnectionException("Testing purposes!"));
+                }
+                return null;
+            }
+        }).when(session).updateMode(any(ConnectionMode.class), any(FutureCallback.class));
+        
+        doAnswer(new Answer<Void>() {
+            
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                FutureCallback<Void> callback = invocation.getArgumentAt(1, FutureCallback.class);
+                callback.onSuccess(null);
+                return null;
+            }
+        }).when(session).negotiate(any(MediaDescriptionField.class), any(FutureCallback.class));
+        
+        // when
+        this.fsm.start();
+        
+        OpenContext openContext = new OpenContext(mock(FutureCallback.class), session, mode, address, remoteSession);
+        this.fsm.fire(RtpConnectionEvent.OPEN, openContext);
+        
+        FutureCallback<Void> updateCallback = mock(FutureCallback.class);
+        ConnectionMode newMode = ConnectionMode.SEND_ONLY;
+        UpdateModeContext updateModeContext = new UpdateModeContext(updateCallback, newMode, session);
+        this.fsm.fire(RtpConnectionEvent.UPDATE_MODE, updateModeContext);
+        
+        // then
+        verify(session).updateMode(eq(newMode), any(FutureCallback.class));
+        verify(updateCallback).onFailure(any(RtpConnectionException.class));;
+        assertEquals(RtpConnectionState.CORRUPTED, fsm.getCurrentState());
     }
 
 }

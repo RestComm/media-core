@@ -21,31 +21,47 @@
 
 package org.restcomm.media.rtp.connection;
 
+import java.net.SocketAddress;
+
+import org.restcomm.media.rtp.RtpSession;
+import org.restcomm.media.sdp.fields.MediaDescriptionField;
+import org.restcomm.media.spi.ConnectionMode;
+
 import com.google.common.util.concurrent.FutureCallback;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class NegotiateSessionCallback implements FutureCallback<Void> {
+public class OpenContext extends RtpConnectionBaseContext {
 
-    private final RtpConnectionFsm fsm;
-    private final OpenContext context;
+    private final RtpSession session;
+    private final ConnectionMode mode;
+    private final SocketAddress address;
+    private final MediaDescriptionField remoteSession;
 
-    public NegotiateSessionCallback(RtpConnectionFsm fsm, OpenContext context) {
-        super();
-        this.fsm = fsm;
-        this.context = context;
+    public OpenContext(FutureCallback<Void> originator, RtpSession session, ConnectionMode mode, SocketAddress address, MediaDescriptionField remoteSession) {
+        super(originator);
+        this.session = session;
+        this.mode = mode;
+        this.address = address;
+        this.remoteSession = remoteSession;
     }
 
-    @Override
-    public void onSuccess(Void result) {
-        this.fsm.fire(RtpConnectionEvent.SESSION_NEGOTIATED, this.context);
+    public RtpSession getSession() {
+        return session;
     }
 
-    @Override
-    public void onFailure(Throwable t) {
-        this.context.setThrowable(t);
-        this.fsm.fire(RtpConnectionEvent.SESSION_NEGOTIATION_FAILURE, this.context);
+    public ConnectionMode getMode() {
+        return mode;
     }
+
+    public SocketAddress getAddress() {
+        return address;
+    }
+
+    public MediaDescriptionField getRemoteSession() {
+        return remoteSession;
+    }
+
 }

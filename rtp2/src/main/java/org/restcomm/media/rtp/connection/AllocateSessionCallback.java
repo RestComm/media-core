@@ -30,9 +30,9 @@ import com.google.common.util.concurrent.FutureCallback;
 public class AllocateSessionCallback implements FutureCallback<Void> {
 
     private final RtpConnectionFsm fsm;
-    private final RtpConnectionOpenContext context;
+    private final OpenContext context;
 
-    public AllocateSessionCallback(RtpConnectionFsm fsm, RtpConnectionOpenContext context) {
+    public AllocateSessionCallback(RtpConnectionFsm fsm, OpenContext context) {
         this.fsm = fsm;
         this.context = context;
     }

@@ -47,7 +47,7 @@ public class RtpConnectionFsmImpl extends AbstractRtpConnectionFsm {
     @Override
     public void enterAllocatingSession(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext txContext) {
         // Get relevant data from context
-        final RtpConnectionOpenContext openContext = (RtpConnectionOpenContext) txContext;
+        final OpenContext openContext = (OpenContext) txContext;
         final RtpSession session = openContext.getSession();
         final SocketAddress address = openContext.getAddress();
 
@@ -59,7 +59,7 @@ public class RtpConnectionFsmImpl extends AbstractRtpConnectionFsm {
     @Override
     public void enterSettingSessionMode(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext txContext) {
         // Get relevant data from context
-        final RtpConnectionOpenContext openContext = (RtpConnectionOpenContext) txContext;
+        final OpenContext openContext = (OpenContext) txContext;
         final RtpSession session = openContext.getSession();
         final ConnectionMode mode = openContext.getMode();
 
@@ -74,7 +74,7 @@ public class RtpConnectionFsmImpl extends AbstractRtpConnectionFsm {
     @Override
     public void enterNegotiatingSession(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext txContext) {
         // Get relevant data from context
-        final RtpConnectionOpenContext openContext = (RtpConnectionOpenContext) txContext;
+        final OpenContext openContext = (OpenContext) txContext;
         final RtpSession session = openContext.getSession();
         final MediaDescriptionField remoteSession = openContext.getRemoteSession();
         
@@ -84,57 +84,72 @@ public class RtpConnectionFsmImpl extends AbstractRtpConnectionFsm {
     }
     
     @Override
-    public void enterSessionEstablished(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event,
-            RtpConnectionTransitionContext txContext) {
+    public void enterSessionEstablished(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext txContext) {
         fire(RtpConnectionEvent.OPENED, txContext);
     }
-
+    
     @Override
     public void enterOpen(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext txContext) {
-        final RtpConnectionOpenContext openContext = (RtpConnectionOpenContext) txContext;
-
         if (log.isDebugEnabled()) {
-            final RtpSession session = openContext.getSession();
-            final String cname = this.context.getCname();
-            log.debug("RTP Connection " + cname + " opened session " + session.getSsrc());
+            if(RtpConnectionEvent.OPENED.equals(event)) {
+                final OpenContext openContext = (OpenContext) txContext;
+                final RtpSession session = openContext.getSession();
+                final String cname = this.context.getCname();
+                log.debug("RTP Connection " + cname + " opened session " + session.getSsrc());
+            } else if(RtpConnectionEvent.OPENED.equals(event)) {
+                final UpdateModeContext modeContext = (UpdateModeContext) txContext;
+                final ConnectionMode mode = modeContext.getMode();
+                final String cname = this.context.getCname();
+                log.debug("RTP Connection " + cname + " updated mode to " + mode.name());
+            }
         }
 
         // Let originator of the OPEN request know the operation completed successfully
-        openContext.getOriginator().onSuccess(null);
+        txContext.getOriginator().onSuccess(null);
     }
-
+    
     @Override
     public void enterCorrupted(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext txContext) {
-        final RtpConnectionOpenContext openContext = (RtpConnectionOpenContext) txContext;
         final RtpConnectionException exception;
+        final String cname = this.context.getCname();
 
         switch (event) {
             case SESSION_ALLOCATION_FAILURE: {
+                final OpenContext openContext = (OpenContext) txContext;
                 final RtpSession session = openContext.getSession();
-                final String cname = this.context.getCname();
                 final Throwable t = openContext.getThrowable();
                 exception = new RtpConnectionException("RTP Connection " + cname + " could not allocate session " + session.getSsrc(), t);
                 break;
             }
 
             case SESSION_NEGOTIATION_FAILURE: {
+                final OpenContext openContext = (OpenContext) txContext;
                 final RtpSession session = openContext.getSession();
-                final String cname = this.context.getCname();
                 final Throwable t = openContext.getThrowable();
                 exception = new RtpConnectionException("RTP Connection " + cname + " could not negotiate session " + session.getSsrc(), t);
                 break;
             }
 
             case SESSION_MODE_UPDATE_FAILURE: {
-                final RtpSession session = openContext.getSession();
-                final String cname = this.context.getCname();
-                final Throwable t = openContext.getThrowable();
-                exception = new RtpConnectionException("RTP Connection " + cname + " could not update mode of session " + session.getSsrc(), t);
+                final RtpSession session;
+                final Throwable t;
+                
+                if(txContext instanceof OpenContext) {
+                    OpenContext openContext = (OpenContext) txContext;
+                    session = openContext.getSession();
+                    t = openContext.getThrowable();
+                    exception = new RtpConnectionException("RTP Connection " + cname + " could not update mode of session " + session.getSsrc(), t);
+                } else {
+                    UpdateModeContext updateContext = (UpdateModeContext) txContext;
+                    session = updateContext.getSession();
+                    t = updateContext.getThrowable();
+                    exception = new RtpConnectionException("RTP Connection " + cname + " could not update mode of session " + session.getSsrc(), t);
+                }
                 break;
             }
 
             default: {
-                final String cname = this.context.getCname();
+                final OpenContext openContext = (OpenContext) txContext;
                 final Throwable t = openContext.getThrowable();
                 exception = new RtpConnectionException("RTP Connection " + cname + " became corrupted. Reason: " + event.name(), t);
                 break;
@@ -142,7 +157,36 @@ public class RtpConnectionFsmImpl extends AbstractRtpConnectionFsm {
         }
 
         // Let originator of the OPEN request know the operation failed
-        openContext.getOriginator().onFailure(exception);
+        txContext.getOriginator().onFailure(exception);
+    }
+    
+    @Override
+    public void enterUpdatingMode(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext txContext) {
+        // Get relevant data from context
+        final UpdateModeContext modeContext = (UpdateModeContext) txContext;
+        final ConnectionMode mode = modeContext.getMode();
+
+        // Update connection-level mode
+        // TODO Optimization: only try to update mode if currMode != newMode
+        this.context.setMode(mode);
+    }
+    
+    @Override
+    public void enterUpdatingSessionMode(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext txContext) {
+        // Get relevant data from context
+        final UpdateModeContext modeContext = (UpdateModeContext) txContext;
+        final ConnectionMode mode = modeContext.getMode();
+        final RtpSession session = modeContext.getSession();
+        
+        // Update session-level mode. The callback will fire proper event to move to next state.
+        UpdateSessionModeCallback callback = new UpdateSessionModeCallback(this, modeContext);
+        session.updateMode(mode, callback);
+    }
+    
+    @Override
+    public void enterSessionModeUpdated(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext txContext) {
+        // Move immediately to successful state
+        fire(RtpConnectionEvent.MODE_UPDATED, txContext);
     }
 
 }

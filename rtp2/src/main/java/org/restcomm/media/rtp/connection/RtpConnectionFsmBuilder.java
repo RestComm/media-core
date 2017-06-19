@@ -64,10 +64,24 @@ public class RtpConnectionFsmBuilder {
         this.builder.onExit(RtpConnectionState.SESSION_ESTABLISHED).callMethod("exitSessionEstablished");
         
         this.builder.onEntry(RtpConnectionState.OPEN).callMethod("enterOpen");
+        this.builder.externalTransition().from(RtpConnectionState.OPEN).to(RtpConnectionState.UPDATING_MODE).on(RtpConnectionEvent.UPDATE_MODE);
         this.builder.onExit(RtpConnectionState.OPEN).callMethod("exitOpen");
         
         this.builder.onEntry(RtpConnectionState.CORRUPTED).callMethod("enterCorrupted");
         this.builder.onExit(RtpConnectionState.CORRUPTED).callMethod("exitCorrupted");
+
+        this.builder.onEntry(RtpConnectionState.UPDATING_MODE).callMethod("enterUpdatingMode");
+        this.builder.defineSequentialStatesOn(RtpConnectionState.UPDATING_MODE, RtpConnectionState.UPDATING_SESSION_MODE, RtpConnectionState.SESSION_MODE_UPDATED);
+        this.builder.externalTransition().from(RtpConnectionState.UPDATING_MODE).to(RtpConnectionState.OPEN).on(RtpConnectionEvent.MODE_UPDATED);
+        this.builder.externalTransition().from(RtpConnectionState.UPDATING_MODE).to(RtpConnectionState.CORRUPTED).on(RtpConnectionEvent.SESSION_MODE_UPDATE_FAILURE);
+        this.builder.onExit(RtpConnectionState.UPDATING_MODE).callMethod("exitUpdatingMode");
+        
+        this.builder.onEntry(RtpConnectionState.UPDATING_SESSION_MODE).callMethod("enterUpdatingSessionMode");
+        this.builder.localTransition().from(RtpConnectionState.UPDATING_SESSION_MODE).to(RtpConnectionState.SESSION_MODE_UPDATED).on(RtpConnectionEvent.SESSION_MODE_UPDATED);
+        this.builder.onExit(RtpConnectionState.UPDATING_SESSION_MODE).callMethod("exitUpdatingSessionMode");
+
+        this.builder.onEntry(RtpConnectionState.SESSION_MODE_UPDATED).callMethod("enterSessionModeUpdated");
+        this.builder.onExit(RtpConnectionState.SESSION_MODE_UPDATED).callMethod("exitSessionModeUpdated");
     }
     
     public RtpConnectionFsm build(RtpConnectionContext context) {
