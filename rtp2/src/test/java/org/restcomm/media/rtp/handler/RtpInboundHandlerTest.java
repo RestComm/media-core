@@ -30,9 +30,9 @@ import static org.mockito.Mockito.when;
 
 import org.junit.After;
 import org.junit.Test;
+import org.restcomm.media.rtp.JitterBuffer;
 import org.restcomm.media.rtp.RtpInput;
 import org.restcomm.media.rtp.RtpPacket;
-import org.restcomm.media.rtp.jitter.JitterBuffer;
 import org.restcomm.media.rtp.rfc2833.DtmfInput;
 import org.restcomm.media.rtp.session.RtpSessionStatistics;
 import org.restcomm.media.scheduler.Clock;

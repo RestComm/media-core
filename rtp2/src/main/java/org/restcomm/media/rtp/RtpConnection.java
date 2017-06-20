@@ -21,6 +21,8 @@
         
 package org.restcomm.media.rtp;
 
+import java.net.SocketAddress;
+
 import org.restcomm.media.spi.ConnectionMode;
 
 import com.google.common.util.concurrent.FutureCallback;
@@ -33,7 +35,7 @@ public interface RtpConnection {
     
     void updateMode(ConnectionMode mode, FutureCallback<Void> callback);
     
-    void open(String sdp, FutureCallback<Void> callback);
+    void open(SocketAddress localAddress, ConnectionMode mode, String remoteDescription, FutureCallback<Void> callback);
     
     void close(FutureCallback<Void> callback);
     

@@ -19,9 +19,8 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.rtp.jitter;
+package org.restcomm.media.rtp;
 
-import org.restcomm.media.rtp.RtpPacket;
 import org.restcomm.media.sdp.format.RTPFormat;
 import org.restcomm.media.spi.memory.Frame;
 

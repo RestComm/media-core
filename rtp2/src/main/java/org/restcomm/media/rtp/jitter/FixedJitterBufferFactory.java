@@ -19,49 +19,33 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.rtp;
+package org.restcomm.media.rtp.jitter;
 
-import java.io.IOException;
-
-import org.restcomm.media.component.AbstractSink;
-import org.restcomm.media.component.audio.AudioOutput;
-import org.restcomm.media.spi.dsp.Processor;
-import org.restcomm.media.spi.memory.Frame;
+import org.restcomm.media.rtp.JitterBuffer;
+import org.restcomm.media.rtp.JitterBufferFactory;
+import org.restcomm.media.rtp.RtpClock;
+import org.restcomm.media.scheduler.WallClock;
 
 /**
- * Media source of RTP data going to the network.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- * @author Yulian Oifa
+ *
  */
-public class RtpOutput extends AbstractSink {
+public class FixedJitterBufferFactory implements JitterBufferFactory {
 
-    private static final long serialVersionUID = -7726485962772259820L;
+    private final WallClock wallClock;
+    private final int bufferSize;
 
-    private final AudioOutput output;
-    private final Processor dsp;
-
-    public RtpOutput(String name, AudioOutput output, Processor dsp) {
-        super(name);
-        this.dsp = dsp;
-        this.output = output;
-        this.output.join(this);
+    public FixedJitterBufferFactory(WallClock wallClock, int bufferSize) {
+        super();
+        this.wallClock = wallClock;
+        this.bufferSize = bufferSize;
     }
 
     @Override
-    public void activate() {
-        this.output.start();
-    }
-
-    @Override
-    public void deactivate() {
-        this.output.stop();
-    }
-
-    @Override
-    public void onMediaTransfer(Frame frame) throws IOException {
-        // TODO Auto-generated method stub
-
+    public JitterBuffer build() {
+        final RtpClock rtpClock = new RtpClock(this.wallClock);
+        final FixedJitterBuffer jitterBuffer = new FixedJitterBuffer(rtpClock, this.bufferSize);
+        return jitterBuffer;
     }
 
 }

@@ -19,16 +19,24 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.rtp.jitter;
+package org.restcomm.media.rtp;
 
 /**
- * Different types of events that can happen during lifetime of a Jitter Buffer.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum JitterBufferEvent {
+public class RtpChannelFactory {
 
-    BUFFER_EMPTY, BUFFER_FILLED, BUFFER_OVERFLOW;
+    private final RtpNetworkManager networkManager;
+
+    public RtpChannelFactory(RtpNetworkManager networkManager) {
+        super();
+        this.networkManager = networkManager;
+    }
+
+    public RtpChannel build() {
+        RtpChannel channel = new RtpChannel(this.networkManager);
+        return channel;
+    }
 
 }

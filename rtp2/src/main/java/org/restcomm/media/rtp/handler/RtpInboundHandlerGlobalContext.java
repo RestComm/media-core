@@ -24,8 +24,8 @@ package org.restcomm.media.rtp.handler;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.restcomm.media.rtp.JitterBuffer;
 import org.restcomm.media.rtp.RtpInput;
-import org.restcomm.media.rtp.jitter.JitterBuffer;
 import org.restcomm.media.rtp.rfc2833.DtmfInput;
 import org.restcomm.media.rtp.session.RtpSessionStatistics;
 import org.restcomm.media.scheduler.Clock;

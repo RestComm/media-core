@@ -21,10 +21,10 @@
 
 package org.restcomm.media.rtp.session;
 
+import org.restcomm.media.rtp.JitterBuffer;
 import org.restcomm.media.rtp.RtpChannel;
 import org.restcomm.media.rtp.RtpInput;
 import org.restcomm.media.rtp.RtpOutput;
-import org.restcomm.media.rtp.jitter.JitterBuffer;
 import org.restcomm.media.rtp.rfc2833.DtmfInput;
 
 import com.google.common.util.concurrent.FutureCallback;

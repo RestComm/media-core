@@ -24,13 +24,13 @@ package org.restcomm.media.rtp.session;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
+import org.restcomm.media.rtp.JitterBuffer;
 import org.restcomm.media.rtp.MediaType;
 import org.restcomm.media.rtp.RtpChannel;
 import org.restcomm.media.rtp.RtpInput;
 import org.restcomm.media.rtp.RtpOutput;
 import org.restcomm.media.rtp.RtpPacket;
 import org.restcomm.media.rtp.RtpSession;
-import org.restcomm.media.rtp.jitter.JitterBuffer;
 import org.restcomm.media.rtp.rfc2833.DtmfInput;
 import org.restcomm.media.sdp.attributes.RtpMapAttribute;
 import org.restcomm.media.sdp.fields.MediaDescriptionField;
