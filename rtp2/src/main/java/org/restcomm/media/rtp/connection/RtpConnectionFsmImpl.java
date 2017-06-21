@@ -26,10 +26,15 @@ import java.net.SocketAddress;
 import org.apache.log4j.Logger;
 import org.restcomm.media.rtp.RtpSession;
 import org.restcomm.media.rtp.connection.exception.RtpConnectionException;
+import org.restcomm.media.sdp.SdpException;
+import org.restcomm.media.sdp.SessionDescription;
+import org.restcomm.media.sdp.SessionDescriptionParser;
 import org.restcomm.media.sdp.fields.MediaDescriptionField;
 import org.restcomm.media.spi.ConnectionMode;
 
 import com.google.common.util.concurrent.FutureCallback;
+
+import io.netty.handler.ssl.OpenSslSessionTicketKey;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -44,6 +49,30 @@ public class RtpConnectionFsmImpl extends AbstractRtpConnectionFsm {
     public RtpConnectionFsmImpl(RtpConnectionContext context) {
         super();
         this.context = context;
+    }
+    
+    @Override
+    public void enterParsingRemoteDescription(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext txContext) {
+        // Get relevant data from context
+        final OpenContext openContext = (OpenContext) txContext;
+        final String remoteDescription = openContext.getRemoteDescription();
+        
+        try {
+            // Parse remote description and update global context
+            SessionDescription remoteSession = SessionDescriptionParser.parse(remoteDescription);
+            this.context.setRemoteDescription(remoteSession);
+            
+            // Move to next state
+            fire(RtpConnectionEvent.PARSED_REMOTE_DESCRIPTION, txContext);
+        } catch (SdpException e) {
+            // Wrap exception
+            String cname = this.context.getCname();
+            Exception exception = new RtpConnectionException("RTP Connection " + cname + " could not parse remote session description" , e);
+            openContext.setThrowable(exception);
+            
+            // Move to CORRUPTED state
+            fire(RtpConnectionEvent.PARSE_REMOTE_DESCRIPTION_FAILURE, txContext);
+        }
     }
 
     @Override
@@ -75,18 +104,20 @@ public class RtpConnectionFsmImpl extends AbstractRtpConnectionFsm {
 
     @Override
     public void enterNegotiatingSession(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext txContext) {
-        // Get relevant data from context
-        final OpenContext openContext = (OpenContext) txContext;
-        final RtpSession session = openContext.getSession();
-        final MediaDescriptionField remoteSession = openContext.getRemoteSession();
-
-        // Negotiate session. The callback will fire proper event to move to next state.
-        NegotiateSessionCallback callback = new NegotiateSessionCallback(this, openContext);
-        session.negotiate(remoteSession, callback);
+//        // Get relevant data from context
+//        final OpenContext openContext = (OpenContext) txContext;
+//        final RtpSession session = openContext.getSession();
+//        final MediaDescriptionField remoteSession = openContext.getRemoteSession();
+//
+//        // Negotiate session. The callback will fire proper event to move to next state.
+//        NegotiateSessionCallback callback = new NegotiateSessionCallback(this, openContext);
+//        session.negotiate(remoteSession, callback);
     }
 
     @Override
-    public void enterSessionEstablished(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext txContext) {
+    public void enterGeneratingLocalDescription(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event,
+            RtpConnectionTransitionContext txContext) {
+        // TODO Generate local description
         fire(RtpConnectionEvent.OPENED, txContext);
     }
 

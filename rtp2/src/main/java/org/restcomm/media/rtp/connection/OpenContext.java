@@ -38,6 +38,7 @@ public class OpenContext extends RtpConnectionBaseContext {
     private final RtpSession session;
     private final ConnectionMode mode;
     private final SocketAddress address;
+//    private final String remoteDescription;
     private final MediaDescriptionField remoteSession;
 
     public OpenContext(FutureCallback<Void> originator, RtpSession session, ConnectionMode mode, SocketAddress address, MediaDescriptionField remoteSession) {
@@ -45,6 +46,7 @@ public class OpenContext extends RtpConnectionBaseContext {
         this.session = session;
         this.mode = mode;
         this.address = address;
+//        this.remoteDescription = remoteDescription;
         this.remoteSession = remoteSession;
     }
 
@@ -60,6 +62,10 @@ public class OpenContext extends RtpConnectionBaseContext {
         return address;
     }
 
+//    public String getRemoteDescription() {
+//        return remoteDescription;
+//    }
+    
     public MediaDescriptionField getRemoteSession() {
         return remoteSession;
     }

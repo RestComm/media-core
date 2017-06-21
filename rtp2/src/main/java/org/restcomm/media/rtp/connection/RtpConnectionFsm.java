@@ -33,6 +33,10 @@ public interface RtpConnectionFsm extends StateMachine<RtpConnectionFsm, RtpConn
 
     void exitOpening(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext txContext);
     
+    void enterParsingRemoteDescription(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext txContext);
+    
+    void exitParsingRemoteDescription(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext txContext);
+    
     void enterAllocatingSession(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext txContext);
     
     void exitAllocatingSession(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext txContext);
@@ -45,9 +49,9 @@ public interface RtpConnectionFsm extends StateMachine<RtpConnectionFsm, RtpConn
     
     void exitNegotiatingSession(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext txContext);
 
-    void enterSessionEstablished(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext txContext);
+    void enterGeneratingLocalDescription(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext txContext);
     
-    void exitSessionEstablished(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext txContext);
+    void exitGeneratingLocalDescription(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext txContext);
     
     void enterOpen(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext txContext);
     

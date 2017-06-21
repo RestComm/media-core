@@ -41,13 +41,19 @@ public class RtpConnectionFsmBuilder {
         this.builder.externalTransition().from(RtpConnectionState.IDLE).toFinal(RtpConnectionState.CLOSED).on(RtpConnectionEvent.CLOSE);
         
         this.builder.onEntry(RtpConnectionState.OPENING).callMethod("enterOpening");
-        this.builder.defineSequentialStatesOn(RtpConnectionState.OPENING, RtpConnectionState.ALLOCATING_SESSION, RtpConnectionState.SETTING_SESSION_MODE, RtpConnectionState.NEGOTIATING_SESSION, RtpConnectionState.SESSION_ESTABLISHED);
+        this.builder.defineSequentialStatesOn(RtpConnectionState.OPENING, RtpConnectionState.PARSING_REMOTE_DESCRIPTION, RtpConnectionState.ALLOCATING_SESSION, RtpConnectionState.SETTING_SESSION_MODE, RtpConnectionState.NEGOTIATING_SESSION, RtpConnectionState.GENERATING_LOCAL_DESCRIPTION);
+        this.builder.externalTransition().from(RtpConnectionState.OPENING).to(RtpConnectionState.CORRUPTED).on(RtpConnectionEvent.PARSE_REMOTE_DESCRIPTION_FAILURE);
         this.builder.externalTransition().from(RtpConnectionState.OPENING).to(RtpConnectionState.CORRUPTED).on(RtpConnectionEvent.SESSION_ALLOCATION_FAILURE);
         this.builder.externalTransition().from(RtpConnectionState.OPENING).to(RtpConnectionState.CORRUPTED).on(RtpConnectionEvent.SESSION_MODE_UPDATE_FAILURE);
         this.builder.externalTransition().from(RtpConnectionState.OPENING).to(RtpConnectionState.CORRUPTED).on(RtpConnectionEvent.SESSION_NEGOTIATION_FAILURE);
+        this.builder.externalTransition().from(RtpConnectionState.OPENING).to(RtpConnectionState.CORRUPTED).on(RtpConnectionEvent.GENERATE_LOCAL_DESCRIPTION_FAILURE);
         this.builder.externalTransition().from(RtpConnectionState.OPENING).to(RtpConnectionState.OPEN).on(RtpConnectionEvent.OPENED);
         this.builder.externalTransition().from(RtpConnectionState.OPENING).to(RtpConnectionState.CLOSING).on(RtpConnectionEvent.CLOSE);
         this.builder.onExit(RtpConnectionState.OPENING).callMethod("exitOpening");
+        
+        this.builder.onEntry(RtpConnectionState.PARSING_REMOTE_DESCRIPTION).callMethod("enterParsingRemoteDescription");
+        this.builder.localTransition().from(RtpConnectionState.PARSING_REMOTE_DESCRIPTION).to(RtpConnectionState.ALLOCATING_SESSION).on(RtpConnectionEvent.PARSED_REMOTE_DESCRIPTION);
+        this.builder.onExit(RtpConnectionState.PARSING_REMOTE_DESCRIPTION).callMethod("exitParsingRemoteDescription");
         
         this.builder.onEntry(RtpConnectionState.ALLOCATING_SESSION).callMethod("enterAllocatingSession");
         this.builder.localTransition().from(RtpConnectionState.ALLOCATING_SESSION).to(RtpConnectionState.SETTING_SESSION_MODE).on(RtpConnectionEvent.SESSION_ALLOCATED);
@@ -58,11 +64,11 @@ public class RtpConnectionFsmBuilder {
         this.builder.onExit(RtpConnectionState.SETTING_SESSION_MODE).callMethod("exitSettingSessionMode");
         
         this.builder.onEntry(RtpConnectionState.NEGOTIATING_SESSION).callMethod("enterNegotiatingSession");
-        this.builder.localTransition().from(RtpConnectionState.NEGOTIATING_SESSION).to(RtpConnectionState.SESSION_ESTABLISHED).on(RtpConnectionEvent.SESSION_NEGOTIATED);
+        this.builder.localTransition().from(RtpConnectionState.NEGOTIATING_SESSION).to(RtpConnectionState.GENERATING_LOCAL_DESCRIPTION).on(RtpConnectionEvent.SESSION_NEGOTIATED);
         this.builder.onExit(RtpConnectionState.NEGOTIATING_SESSION).callMethod("exitNegotiatingSession");
         
-        this.builder.onEntry(RtpConnectionState.SESSION_ESTABLISHED).callMethod("enterSessionEstablished");
-        this.builder.onExit(RtpConnectionState.SESSION_ESTABLISHED).callMethod("exitSessionEstablished");
+        this.builder.onEntry(RtpConnectionState.GENERATING_LOCAL_DESCRIPTION).callMethod("enterGeneratingLocalDescription");
+        this.builder.onExit(RtpConnectionState.GENERATING_LOCAL_DESCRIPTION).callMethod("exitGeneratingLocalDescription");
         
         this.builder.onEntry(RtpConnectionState.OPEN).callMethod("enterOpen");
         this.builder.externalTransition().from(RtpConnectionState.OPEN).to(RtpConnectionState.UPDATING_MODE).on(RtpConnectionEvent.UPDATE_MODE);

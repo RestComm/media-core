@@ -38,6 +38,16 @@ public abstract class AbstractRtpConnectionFsm extends AbstractStateMachine<RtpC
     public void exitOpening(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event,
             RtpConnectionTransitionContext txContext) {
     }
+    
+    @Override
+    public void enterParsingRemoteDescription(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event,
+            RtpConnectionTransitionContext txContext) {
+    }
+    
+    @Override
+    public void exitParsingRemoteDescription(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event,
+            RtpConnectionTransitionContext txContext) {
+    }
 
     @Override
     public void enterAllocatingSession(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event,
@@ -68,14 +78,14 @@ public abstract class AbstractRtpConnectionFsm extends AbstractStateMachine<RtpC
     public void exitNegotiatingSession(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event,
             RtpConnectionTransitionContext txContext) {
     }
-
+    
     @Override
-    public void enterSessionEstablished(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event,
+    public void enterGeneratingLocalDescription(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event,
             RtpConnectionTransitionContext txContext) {
     }
-
+    
     @Override
-    public void exitSessionEstablished(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event,
+    public void exitGeneratingLocalDescription(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event,
             RtpConnectionTransitionContext txContext) {
     }
 
