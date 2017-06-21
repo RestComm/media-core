@@ -65,7 +65,7 @@ public class RtpConnectionImpl implements RtpConnection {
     @Override
     public void updateMode(ConnectionMode mode, FutureCallback<Void> callback) {
         if(this.fsm.canAccept(RtpConnectionEvent.UPDATE_MODE)) {
-            
+            // TODO accidentally removed this code. Review git history for code.
         } else {
             
         }
@@ -80,6 +80,8 @@ public class RtpConnectionImpl implements RtpConnection {
                 final SessionDescription remoteDescription = SessionDescriptionParser.parse(sdp);
                 final MediaDescriptionField remoteAudioSession = remoteDescription.getMediaDescription(MediaType.AUDIO.name().toLowerCase());
                 final RtpSession rtpSession = this.sessionFactory.build();
+                
+                
                 
                 // Fire event in FSM to open the connection
                 OpenContext txContext = new OpenContext(callback, rtpSession, mode, localAddress, remoteAudioSession);

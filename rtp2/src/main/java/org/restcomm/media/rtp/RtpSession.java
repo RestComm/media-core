@@ -24,6 +24,7 @@ package org.restcomm.media.rtp;
 import java.net.SocketAddress;
 
 import org.restcomm.media.sdp.fields.MediaDescriptionField;
+import org.restcomm.media.sdp.format.RTPFormats;
 import org.restcomm.media.spi.ConnectionMode;
 
 import com.google.common.util.concurrent.FutureCallback;
@@ -37,7 +38,13 @@ public interface RtpSession {
     long getSsrc();
     
     MediaType getMediaType();
-
+    
+    SocketAddress getRtpAddress();
+    
+    RTPFormats getSupportedFormats();
+    
+    ConnectionMode getMode();
+    
     void open(SocketAddress address, FutureCallback<Void> callback);
     
     void negotiate(MediaDescriptionField sdp, FutureCallback<Void> callback);
