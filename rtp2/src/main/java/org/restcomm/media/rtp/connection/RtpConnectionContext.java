@@ -31,12 +31,18 @@ import org.restcomm.media.spi.ConnectionMode;
 public class RtpConnectionContext {
 
     private final String cname;
+    private final String localAddress;
+    private final String externalAddress;
+
     private ConnectionMode mode;
     private SessionDescription localDescription;
     private SessionDescription remoteDescription;
 
-    public RtpConnectionContext(String cname) {
+    public RtpConnectionContext(String cname, String localAddress, String externalAddress) {
         this.cname = cname;
+        this.localAddress = localAddress;
+        this.externalAddress = externalAddress;
+
         this.mode = ConnectionMode.INACTIVE;
         this.localDescription = null;
         this.remoteDescription = null;
@@ -44,6 +50,14 @@ public class RtpConnectionContext {
 
     public String getCname() {
         return cname;
+    }
+
+    public String getLocalAddress() {
+        return localAddress;
+    }
+
+    public String getExternalAddress() {
+        return externalAddress;
     }
 
     public ConnectionMode getMode() {
