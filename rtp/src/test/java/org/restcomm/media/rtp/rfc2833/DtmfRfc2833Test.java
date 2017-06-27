@@ -472,6 +472,80 @@ public class DtmfRfc2833Test {
         Assert.assertEquals("1", dtmfListener.pollTone().getTone());
         Assert.assertEquals("#", dtmfListener.pollTone().getTone());
     }
+    
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testCiscoSpa525G2InboundAudioForZendesk34432() throws Exception {
+        // given
+        long rtpStreamDuration = 11000;
+        InetSocketAddress localAddress = new InetSocketAddress("127.0.0.1", 64000);
+        
+        String filepath = "cisco-spa-525G2-attempt2-zendesk34432.pcap";
+        PcapPacketEncoder packetEncoder = new PcapPacketEncoder();
+        AsyncPcapChannelHandler channelInitializer = new AsyncPcapChannelHandler(packetEncoder);
+        bootstrap.handler(channelInitializer);
+        NettyNetworkChannelGlobalContext context = new NettyNetworkChannelGlobalContext(networkManager);
+        channel = new AsyncPcapChannel(context);
+        player = new PcapPlayer(channel, scheduler);
+        
+        FutureCallback<Void> openCallback = mock(FutureCallback.class);
+        FutureCallback<Void> bindCallback = mock(FutureCallback.class);
+        FutureCallback<Void> connectCallback = mock(FutureCallback.class);
+        
+        rtpChannel.bind(false, false);
+        rtpChannel.connect(localAddress);
+        SocketAddress remoteAddress = rtpChannel.getLocalAddress();
+        rtpChannel.setFormatMap(AVProfile.audio);
+        rtpChannel.updateMode(ConnectionMode.RECV_ONLY);
+        
+        channel.open(openCallback);
+        verify(openCallback, timeout(100)).onSuccess(null);
+        channel.bind(localAddress, bindCallback);
+        verify(bindCallback, timeout(100)).onSuccess(null);
+        channel.connect(remoteAddress, connectCallback);
+        verify(connectCallback, timeout(100)).onSuccess(null);
+        
+        this.dtmfDetector = new DetectorImpl("dtmf-detector", -30, 100, 300, this.mediaScheduler);
+        this.inbandDetectorComponent = new AudioComponent(8);
+        this.inbandDetectorComponent.addOutput(this.dtmfDetector.getAudioOutput());
+        this.inbandDetectorComponent.updateMode(true, true);
+        this.mixer.addComponent(this.inbandDetectorComponent);
+        
+        this.oobDetectorComponent = new OOBComponent(9);
+        this.oobDetectorComponent.addOutput(this.dtmfDetector.getOOBOutput());
+        this.oobDetectorComponent.updateMode(true, true);
+        this.oobMixer.addComponent(this.oobDetectorComponent);
+        
+        final DtmfListener dtmfListener = new DtmfListener();
+        this.dtmfDetector.addListener(dtmfListener);
+        
+        // when
+        this.mixer.start();
+        this.oobMixer.start();
+        this.dtmfDetector.activate();
+        Thread.sleep(1000);
+        
+        URL pcap = DtmfRfc2833Test.class.getResource(filepath);
+        player.play(pcap);
+        
+        // then
+        Assert.assertTrue(player.isPlaying());
+        Thread.sleep(rtpStreamDuration + 10000);
+        Assert.assertFalse(player.isPlaying());
+        
+        this.dtmfDetector.flushBuffer();
+        Assert.assertEquals(10, dtmfListener.countTones());
+        Assert.assertEquals("6", dtmfListener.pollTone().getTone());
+        Assert.assertEquals("6", dtmfListener.pollTone().getTone());
+        Assert.assertEquals("8", dtmfListener.pollTone().getTone());
+        Assert.assertEquals("8", dtmfListener.pollTone().getTone());
+        Assert.assertEquals("#", dtmfListener.pollTone().getTone());
+        Assert.assertEquals("6", dtmfListener.pollTone().getTone());
+        Assert.assertEquals("6", dtmfListener.pollTone().getTone());
+        Assert.assertEquals("8", dtmfListener.pollTone().getTone());
+        Assert.assertEquals("8", dtmfListener.pollTone().getTone());
+        Assert.assertEquals("#", dtmfListener.pollTone().getTone());
+    }
 
     private class DtmfListener implements DtmfDetectorListener {
 
