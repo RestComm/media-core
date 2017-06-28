@@ -291,6 +291,11 @@ public class RtpConnectionFsmImpl extends AbstractRtpConnectionFsm {
             final String cname = this.context.getCname();
             log.debug("RTP connection " + cname + " is closed.");
         }
+        
+        // Clean connection context
+        this.context.setLocalDescription(null);
+        this.context.setRemoteDescription(null);
+        this.context.setMode(ConnectionMode.INACTIVE);
 
         // Warn callback that CLOSE operation is complete
         final FutureCallback<Void> callback = txContext.getOriginator();

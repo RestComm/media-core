@@ -31,6 +31,12 @@ import com.google.common.util.concurrent.FutureCallback;
  */
 public interface RtpConnection {
     
+    String getLocalDescription();
+
+    String getRemoteDescription();
+    
+    boolean isOpen();
+    
     void updateMode(ConnectionMode mode, FutureCallback<Void> callback);
     
     void open(ConnectionMode mode, String remoteDescription, FutureCallback<Void> callback);
