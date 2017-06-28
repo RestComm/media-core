@@ -31,7 +31,6 @@ import org.restcomm.media.rtp.connection.exception.RtpConnectionException;
 import org.restcomm.media.rtp.sdp.SdpBuilder;
 import org.restcomm.media.sdp.SdpException;
 import org.restcomm.media.sdp.SessionDescription;
-import org.restcomm.media.sdp.SessionDescriptionParser;
 import org.restcomm.media.sdp.fields.MediaDescriptionField;
 import org.restcomm.media.spi.ConnectionMode;
 
@@ -60,7 +59,7 @@ public class RtpConnectionFsmImpl extends AbstractRtpConnectionFsm {
         
         try {
             // Parse remote description and update global context
-            SessionDescription remoteSession = SessionDescriptionParser.parse(remoteDescription);
+            SessionDescription remoteSession = openContext.getSdpParser().parse(remoteDescription);
             this.context.setRemoteDescription(remoteSession);
             
             // Move to next state
@@ -125,13 +124,12 @@ public class RtpConnectionFsmImpl extends AbstractRtpConnectionFsm {
 
     @Override
     public void enterGeneratingLocalDescription(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext txContext) {
-        // TODO Make SDP Builder a provided singleton
         final OpenContext openContext = (OpenContext) txContext;
         final String cname = this.context.getCname();
         final InetSocketAddress localAddress = (InetSocketAddress) openContext.getAddress();
         final String externalAddress = openContext.getExternalAddress();
         final RtpSession session = openContext.getSession();
-        final SdpBuilder sdpBuilder = new SdpBuilder();
+        final SdpBuilder sdpBuilder = openContext.getSdpBuilder();
 
         try {
             // Generate local description

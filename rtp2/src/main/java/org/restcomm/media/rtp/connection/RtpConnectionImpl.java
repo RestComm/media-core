@@ -22,18 +22,14 @@
 package org.restcomm.media.rtp.connection;
 
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 
 import org.restcomm.media.network.deprecated.PortManager;
-import org.restcomm.media.rtp.MediaType;
 import org.restcomm.media.rtp.RtpConnection;
 import org.restcomm.media.rtp.RtpSession;
 import org.restcomm.media.rtp.RtpSessionFactory;
 import org.restcomm.media.rtp.connection.exception.RtpConnectionException;
-import org.restcomm.media.sdp.SdpException;
-import org.restcomm.media.sdp.SessionDescription;
+import org.restcomm.media.rtp.sdp.SdpBuilder;
 import org.restcomm.media.sdp.SessionDescriptionParser;
-import org.restcomm.media.sdp.fields.MediaDescriptionField;
 import org.restcomm.media.spi.ConnectionMode;
 
 import com.google.common.util.concurrent.FutureCallback;
@@ -46,6 +42,7 @@ public class RtpConnectionImpl implements RtpConnection {
 
     // Dependencies
     private final SessionDescriptionParser sdpParser;
+    private final SdpBuilder sdpBuilder;
     private final RtpSessionFactory sessionFactory;
     private final PortManager portManager;
 
@@ -54,9 +51,10 @@ public class RtpConnectionImpl implements RtpConnection {
     private final RtpConnectionFsm fsm;
     private RtpSession session;
 
-    public RtpConnectionImpl(RtpConnectionContext context, SessionDescriptionParser sdpParser, RtpSessionFactory sessionFactory, PortManager portManager) {
+    public RtpConnectionImpl(RtpConnectionContext context, SessionDescriptionParser sdpParser, SdpBuilder sdpBuilder, RtpSessionFactory sessionFactory, PortManager portManager) {
         // Dependencies
         this.sdpParser = sdpParser;
+        this.sdpBuilder = sdpBuilder;
         this.sessionFactory = sessionFactory;
         this.portManager = portManager;
 
@@ -86,7 +84,7 @@ public class RtpConnectionImpl implements RtpConnection {
 
             // Fire event in FSM to open the connection
             InetSocketAddress bindAddress = new InetSocketAddress(localAddress, port);
-            OpenContext txContext = new OpenContext(callback, rtpSession, mode, bindAddress, externalAddress, sdp);
+            OpenContext txContext = new OpenContext(callback, rtpSession, mode, bindAddress, externalAddress, sdp, this.sdpParser, this.sdpBuilder);
             this.fsm.fire(RtpConnectionEvent.OPEN, txContext);
         } else {
             // Reject operation
