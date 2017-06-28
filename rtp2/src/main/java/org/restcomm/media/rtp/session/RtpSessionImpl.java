@@ -81,6 +81,21 @@ public class RtpSessionImpl implements RtpSession {
     public MediaType getMediaType() {
         return this.context.getMediaType();
     }
+    
+    @Override
+    public SocketAddress getRtpAddress() {
+        return this.context.getLocalAddress();
+    }
+    
+    @Override
+    public RTPFormats getSupportedFormats() {
+        return this.context.getSupportedFormats();
+    }
+    
+    @Override
+    public ConnectionMode getMode() {
+        return this.context.getMode();
+    }
 
     @Override
     public void open(SocketAddress address, FutureCallback<Void> callback) {

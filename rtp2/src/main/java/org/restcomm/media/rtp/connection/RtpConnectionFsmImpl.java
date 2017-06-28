@@ -21,20 +21,20 @@
 
 package org.restcomm.media.rtp.connection;
 
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 import org.apache.log4j.Logger;
+import org.restcomm.media.rtp.MediaType;
 import org.restcomm.media.rtp.RtpSession;
 import org.restcomm.media.rtp.connection.exception.RtpConnectionException;
+import org.restcomm.media.rtp.sdp.SdpBuilder;
 import org.restcomm.media.sdp.SdpException;
 import org.restcomm.media.sdp.SessionDescription;
-import org.restcomm.media.sdp.SessionDescriptionParser;
 import org.restcomm.media.sdp.fields.MediaDescriptionField;
 import org.restcomm.media.spi.ConnectionMode;
 
 import com.google.common.util.concurrent.FutureCallback;
-
-import io.netty.handler.ssl.OpenSslSessionTicketKey;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -59,7 +59,7 @@ public class RtpConnectionFsmImpl extends AbstractRtpConnectionFsm {
         
         try {
             // Parse remote description and update global context
-            SessionDescription remoteSession = SessionDescriptionParser.parse(remoteDescription);
+            SessionDescription remoteSession = openContext.getSdpParser().parse(remoteDescription);
             this.context.setRemoteDescription(remoteSession);
             
             // Move to next state
@@ -104,21 +104,47 @@ public class RtpConnectionFsmImpl extends AbstractRtpConnectionFsm {
 
     @Override
     public void enterNegotiatingSession(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext txContext) {
-//        // Get relevant data from context
-//        final OpenContext openContext = (OpenContext) txContext;
-//        final RtpSession session = openContext.getSession();
-//        final MediaDescriptionField remoteSession = openContext.getRemoteSession();
-//
-//        // Negotiate session. The callback will fire proper event to move to next state.
-//        NegotiateSessionCallback callback = new NegotiateSessionCallback(this, openContext);
-//        session.negotiate(remoteSession, callback);
+        // Get relevant data from context
+        final OpenContext openContext = (OpenContext) txContext;
+        final RtpSession session = openContext.getSession();
+        final String audioType = MediaType.AUDIO.name().toLowerCase();
+        final MediaDescriptionField remoteSession = this.context.getRemoteDescription().getMediaDescription(audioType);
+
+        if(remoteSession == null) {
+            // Abort negotiation if remote peer does not declare an audio session
+            RtpConnectionException exception = new RtpConnectionException("Remote peer did not declare an audio session");
+            openContext.setThrowable(exception);
+            fire(RtpConnectionEvent.SESSION_NEGOTIATION_FAILURE, txContext);
+        } else {
+            // Negotiate session. The callback will fire proper event to move to next state.
+            NegotiateSessionCallback callback = new NegotiateSessionCallback(this, openContext);
+            session.negotiate(remoteSession, callback);
+        }
     }
 
     @Override
-    public void enterGeneratingLocalDescription(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event,
-            RtpConnectionTransitionContext txContext) {
-        // TODO Generate local description
-        fire(RtpConnectionEvent.OPENED, txContext);
+    public void enterGeneratingLocalDescription(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext txContext) {
+        final OpenContext openContext = (OpenContext) txContext;
+        final String cname = this.context.getCname();
+        final InetSocketAddress localAddress = (InetSocketAddress) openContext.getAddress();
+        final String externalAddress = openContext.getExternalAddress();
+        final RtpSession session = openContext.getSession();
+        final SdpBuilder sdpBuilder = openContext.getSdpBuilder();
+
+        try {
+            // Generate local description
+            SessionDescription answer = sdpBuilder.buildSessionDescription(false, cname, localAddress.getHostString(), externalAddress, session);
+            // Register local description in global context
+            this.context.setLocalDescription(answer);
+            // Move to next OPEN state
+            fire(RtpConnectionEvent.OPENED, txContext);
+        } catch (Exception e) {
+            // Wrap failure in proper exception type
+            Exception exception = new RtpConnectionException("RTP Connection " + cname + " could not generate local description", e);
+            openContext.setThrowable(exception);
+            // Move to CORRUPTED state
+            fire(RtpConnectionEvent.GENERATE_LOCAL_DESCRIPTION_FAILURE, txContext);
+        }
     }
 
     @Override

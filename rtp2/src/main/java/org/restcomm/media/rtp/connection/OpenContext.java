@@ -24,7 +24,8 @@ package org.restcomm.media.rtp.connection;
 import java.net.SocketAddress;
 
 import org.restcomm.media.rtp.RtpSession;
-import org.restcomm.media.sdp.fields.MediaDescriptionField;
+import org.restcomm.media.rtp.sdp.SdpBuilder;
+import org.restcomm.media.sdp.SessionDescriptionParser;
 import org.restcomm.media.spi.ConnectionMode;
 
 import com.google.common.util.concurrent.FutureCallback;
@@ -35,19 +36,23 @@ import com.google.common.util.concurrent.FutureCallback;
  */
 public class OpenContext extends RtpConnectionBaseContext {
 
+    private final SessionDescriptionParser sdpParser;
+    private final SdpBuilder sdpBuilder;
     private final RtpSession session;
     private final ConnectionMode mode;
     private final SocketAddress address;
-//    private final String remoteDescription;
-    private final MediaDescriptionField remoteSession;
+    private final String externalAddress;
+    private final String remoteDescription;
 
-    public OpenContext(FutureCallback<Void> originator, RtpSession session, ConnectionMode mode, SocketAddress address, MediaDescriptionField remoteSession) {
+    public OpenContext(FutureCallback<Void> originator, RtpSession session, ConnectionMode mode, SocketAddress address, String externalAddress, String remoteDescription, SessionDescriptionParser sdpParser, SdpBuilder sdpBuilder) {
         super(originator);
         this.session = session;
         this.mode = mode;
         this.address = address;
-//        this.remoteDescription = remoteDescription;
-        this.remoteSession = remoteSession;
+        this.externalAddress = externalAddress;
+        this.remoteDescription = remoteDescription;
+        this.sdpParser = sdpParser;
+        this.sdpBuilder = sdpBuilder;
     }
 
     public RtpSession getSession() {
@@ -62,12 +67,20 @@ public class OpenContext extends RtpConnectionBaseContext {
         return address;
     }
 
-//    public String getRemoteDescription() {
-//        return remoteDescription;
-//    }
-    
-    public MediaDescriptionField getRemoteSession() {
-        return remoteSession;
+    public String getExternalAddress() {
+        return externalAddress;
+    }
+
+    public String getRemoteDescription() {
+        return remoteDescription;
+    }
+
+    public SessionDescriptionParser getSdpParser() {
+        return sdpParser;
+    }
+
+    public SdpBuilder getSdpBuilder() {
+        return sdpBuilder;
     }
 
 }
