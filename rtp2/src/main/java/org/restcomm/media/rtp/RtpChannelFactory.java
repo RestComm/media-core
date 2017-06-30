@@ -21,40 +21,22 @@
 
 package org.restcomm.media.rtp;
 
-import java.net.SocketAddress;
-
-import org.restcomm.media.sdp.fields.MediaDescriptionField;
-import org.restcomm.media.sdp.format.RTPFormats;
-import org.restcomm.media.spi.ConnectionMode;
-
-import com.google.common.util.concurrent.FutureCallback;
-
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface RtpSession {
-    
-    long getSsrc();
-    
-    MediaType getMediaType();
-    
-    SocketAddress getRtpAddress();
-    
-    RTPFormats getSupportedFormats();
-    
-    ConnectionMode getMode();
-    
-    void open(SocketAddress address, FutureCallback<Void> callback);
-    
-    void negotiate(MediaDescriptionField sdp, FutureCallback<Void> callback);
+public class RtpChannelFactory {
 
-    void close(FutureCallback<Void> callback);
+    private final RtpNetworkManager networkManager;
 
-    void updateMode(ConnectionMode mode, FutureCallback<Void> callback);
+    public RtpChannelFactory(RtpNetworkManager networkManager) {
+        super();
+        this.networkManager = networkManager;
+    }
 
-    void incomingRtp(RtpPacket packet);
-
-    void outgoingRtp(RtpPacket packet);
+    public RtpChannel build() {
+        RtpChannel channel = new RtpChannel(this.networkManager);
+        return channel;
+    }
 
 }

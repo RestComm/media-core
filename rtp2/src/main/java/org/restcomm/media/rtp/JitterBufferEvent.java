@@ -19,18 +19,16 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.rtp.jitter;
+package org.restcomm.media.rtp;
 
 /**
+ * Different types of events that can happen during lifetime of a Jitter Buffer.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface JitterBufferSubject {
+public enum JitterBufferEvent {
 
-    void observe(JitterBufferObserver observer);
-
-    void forget(JitterBufferObserver observer);
-
-    void notify(JitterBufferEvent event);
+    BUFFER_EMPTY, BUFFER_FILLED, BUFFER_OVERFLOW;
 
 }

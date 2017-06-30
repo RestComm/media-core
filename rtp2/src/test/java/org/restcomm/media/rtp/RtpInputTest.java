@@ -33,8 +33,6 @@ import static org.mockito.Mockito.when;
 import org.junit.Test;
 import org.restcomm.media.component.audio.AudioInput;
 import org.restcomm.media.rtp.format.LinearFormat;
-import org.restcomm.media.rtp.jitter.JitterBuffer;
-import org.restcomm.media.rtp.jitter.JitterBufferEvent;
 import org.restcomm.media.scheduler.Clock;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.WallClock;

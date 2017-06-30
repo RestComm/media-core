@@ -19,16 +19,26 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.rtp.jitter;
+package org.restcomm.media.rtp.connection.exception;
 
 /**
- * Different types of events that can happen during lifetime of a Jitter Buffer.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum JitterBufferEvent {
+public class RtpConnectionException extends Exception {
 
-    BUFFER_EMPTY, BUFFER_FILLED, BUFFER_OVERFLOW;
+    private static final long serialVersionUID = -8641579066459828614L;
+
+    public RtpConnectionException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public RtpConnectionException(String message) {
+        super(message);
+    }
+
+    public RtpConnectionException(Throwable cause) {
+        super(cause);
+    }
 
 }

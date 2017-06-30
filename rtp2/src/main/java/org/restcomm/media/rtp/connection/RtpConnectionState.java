@@ -18,43 +18,17 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
-package org.restcomm.media.rtp;
-
-import java.net.SocketAddress;
-
-import org.restcomm.media.sdp.fields.MediaDescriptionField;
-import org.restcomm.media.sdp.format.RTPFormats;
-import org.restcomm.media.spi.ConnectionMode;
-
-import com.google.common.util.concurrent.FutureCallback;
+        
+package org.restcomm.media.rtp.connection;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface RtpSession {
-    
-    long getSsrc();
-    
-    MediaType getMediaType();
-    
-    SocketAddress getRtpAddress();
-    
-    RTPFormats getSupportedFormats();
-    
-    ConnectionMode getMode();
-    
-    void open(SocketAddress address, FutureCallback<Void> callback);
-    
-    void negotiate(MediaDescriptionField sdp, FutureCallback<Void> callback);
+public enum RtpConnectionState {
 
-    void close(FutureCallback<Void> callback);
-
-    void updateMode(ConnectionMode mode, FutureCallback<Void> callback);
-
-    void incomingRtp(RtpPacket packet);
-
-    void outgoingRtp(RtpPacket packet);
-
+    IDLE,
+    OPENING, PARSING_REMOTE_DESCRIPTION, ALLOCATING_SESSION, SETTING_SESSION_MODE, NEGOTIATING_SESSION, GENERATING_LOCAL_DESCRIPTION, OPEN, CORRUPTED, 
+    UPDATING_MODE, UPDATING_SESSION_MODE, SESSION_MODE_UPDATED,
+    CLOSING, CLOSING_SESSION, CLOSED_SESSION, CLOSED;
 }

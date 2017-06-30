@@ -19,16 +19,34 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.rtp.jitter;
+package org.restcomm.media.rtp.connection;
+
+import org.restcomm.media.rtp.RtpSession;
+import org.restcomm.media.spi.ConnectionMode;
+
+import com.google.common.util.concurrent.FutureCallback;
 
 /**
- * Listens to events that happen in a Jitter Buffer.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface JitterBufferObserver {
+public class UpdateModeContext extends RtpConnectionBaseContext {
 
-    void onJitterBufferEvent(JitterBuffer originator, JitterBufferEvent event);
+    private final ConnectionMode mode;
+    private final RtpSession session;
+
+    public UpdateModeContext(FutureCallback<Void> originator, ConnectionMode mode, RtpSession session) {
+        super(originator);
+        this.mode = mode;
+        this.session = session;
+    }
+
+    public ConnectionMode getMode() {
+        return mode;
+    }
+
+    public RtpSession getSession() {
+        return session;
+    }
 
 }

@@ -21,40 +21,14 @@
 
 package org.restcomm.media.rtp;
 
-import java.net.SocketAddress;
-
-import org.restcomm.media.sdp.fields.MediaDescriptionField;
-import org.restcomm.media.sdp.format.RTPFormats;
-import org.restcomm.media.spi.ConnectionMode;
-
-import com.google.common.util.concurrent.FutureCallback;
-
 /**
+ * Listens to events that happen in a Jitter Buffer.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface RtpSession {
-    
-    long getSsrc();
-    
-    MediaType getMediaType();
-    
-    SocketAddress getRtpAddress();
-    
-    RTPFormats getSupportedFormats();
-    
-    ConnectionMode getMode();
-    
-    void open(SocketAddress address, FutureCallback<Void> callback);
-    
-    void negotiate(MediaDescriptionField sdp, FutureCallback<Void> callback);
+public interface JitterBufferObserver {
 
-    void close(FutureCallback<Void> callback);
-
-    void updateMode(ConnectionMode mode, FutureCallback<Void> callback);
-
-    void incomingRtp(RtpPacket packet);
-
-    void outgoingRtp(RtpPacket packet);
+    void onJitterBufferEvent(JitterBuffer originator, JitterBufferEvent event);
 
 }

@@ -21,8 +21,8 @@
 
 package org.restcomm.media.rtp.session;
 
+import org.restcomm.media.rtp.JitterBuffer;
 import org.restcomm.media.rtp.RtpPacket;
-import org.restcomm.media.rtp.jitter.JitterBuffer;
 import org.restcomm.media.rtp.rfc2833.DtmfInput;
 
 /**

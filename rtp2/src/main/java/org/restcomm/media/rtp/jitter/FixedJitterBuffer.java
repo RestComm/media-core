@@ -31,6 +31,9 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
+import org.restcomm.media.rtp.JitterBuffer;
+import org.restcomm.media.rtp.JitterBufferEvent;
+import org.restcomm.media.rtp.JitterBufferObserver;
 import org.restcomm.media.rtp.RtpClock;
 import org.restcomm.media.rtp.RtpPacket;
 import org.restcomm.media.sdp.format.RTPFormat;

@@ -56,9 +56,11 @@ public class SessionDescriptionParser {
 	private static final String PARSE_ERROR = "Cannot parse SDP: ";
 	private static final String PARSE_ERROR_EMPTY = PARSE_ERROR + "empty";
 
+	public static final SessionDescriptionParser INSTANCE = new SessionDescriptionParser();
 	private static final SdpParserPipeline PARSERS = new SdpParserPipeline();
+	
 
-	public static SessionDescription parse(String text) throws SdpException {
+	public SessionDescription parse(String text) throws SdpException {
 
 		if (text == null || text.isEmpty()) {
 			throw new SdpException(PARSE_ERROR_EMPTY);
@@ -107,7 +109,7 @@ public class SessionDescriptionParser {
 		return info.sdp;
 	}
 
-	private static void convertAndApplyField(SdpField field, SdpParsingInfo info) {
+	private void convertAndApplyField(SdpField field, SdpParsingInfo info) {
 		switch (field.getFieldType()) {
 		case VersionField.FIELD_TYPE:
 			info.sdp.setVersion((VersionField) field);
@@ -145,7 +147,7 @@ public class SessionDescriptionParser {
 		}
 	}
 
-	private static void convertAndApplyAttribute(AttributeField attribute,
+	private void convertAndApplyAttribute(AttributeField attribute,
 			SdpParsingInfo info) {
 		switch (attribute.getKey()) {
 		case RtpMapAttribute.ATTRIBUTE_TYPE:

@@ -93,7 +93,7 @@ public class SessionDescriptionParserTest {
         SessionDescription sdp;
 
         // when
-        sdp = SessionDescriptionParser.parse(tlcSbcOffer);
+        sdp = SessionDescriptionParser.INSTANCE.parse(tlcSbcOffer);
 
         // then
         MediaDescriptionField audio = sdp.getMediaDescription("audio");
@@ -107,7 +107,7 @@ public class SessionDescriptionParserTest {
         SessionDescription sdp;
 
         // when
-        sdp = SessionDescriptionParser.parse(androidSdkOffer);
+        sdp = SessionDescriptionParser.INSTANCE.parse(androidSdkOffer);
 
         // then
         MediaDescriptionField audio = sdp.getMediaDescription("audio");
@@ -120,7 +120,7 @@ public class SessionDescriptionParserTest {
         SessionDescription sdp;
 
         // when
-        sdp = SessionDescriptionParser.parse(chrome39offer);
+        sdp = SessionDescriptionParser.INSTANCE.parse(chrome39offer);
 
         // then
         MediaDescriptionField audio = sdp.getMediaDescription("audio");
@@ -134,7 +134,7 @@ public class SessionDescriptionParserTest {
         SessionDescription sdp;
 
         // when
-        sdp = SessionDescriptionParser.parse(firefox33offer);
+        sdp = SessionDescriptionParser.INSTANCE.parse(firefox33offer);
 
         // then
         MediaDescriptionField audio = sdp.getMediaDescription("audio");
@@ -147,7 +147,7 @@ public class SessionDescriptionParserTest {
         SessionDescription sdp;
 
         // when
-        sdp = SessionDescriptionParser.parse(webrtcDescription);
+        sdp = SessionDescriptionParser.INSTANCE.parse(webrtcDescription);
 
         // then
         VersionField version = sdp.getVersion();

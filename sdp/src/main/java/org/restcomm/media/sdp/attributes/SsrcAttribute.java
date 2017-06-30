@@ -69,7 +69,9 @@ public class SsrcAttribute extends AttributeField {
 
 	public static final String ATTRIBUTE_TYPE = "ssrc";
 	public static final String BEGIN = "a=ssrc:";
-	public static final String NEWLINE = "\n";
+	public static final String NEWLINE = System.lineSeparator();
+	
+	public static final String CNAME = "cname";
 
 	private String ssrcId;
 	private final Map<String, String> attributes;

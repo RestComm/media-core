@@ -19,13 +19,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.rtp;
-
-import java.net.SocketAddress;
-
-import org.restcomm.media.sdp.fields.MediaDescriptionField;
-import org.restcomm.media.sdp.format.RTPFormats;
-import org.restcomm.media.spi.ConnectionMode;
+package org.restcomm.media.rtp.connection;
 
 import com.google.common.util.concurrent.FutureCallback;
 
@@ -33,28 +27,26 @@ import com.google.common.util.concurrent.FutureCallback;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface RtpSession {
+public class UpdateSessionModeCallback implements FutureCallback<Void> {
     
-    long getSsrc();
-    
-    MediaType getMediaType();
-    
-    SocketAddress getRtpAddress();
-    
-    RTPFormats getSupportedFormats();
-    
-    ConnectionMode getMode();
-    
-    void open(SocketAddress address, FutureCallback<Void> callback);
-    
-    void negotiate(MediaDescriptionField sdp, FutureCallback<Void> callback);
+    private final RtpConnectionFsm fsm;
+    private final RtpConnectionBaseContext context;
 
-    void close(FutureCallback<Void> callback);
+    public UpdateSessionModeCallback(RtpConnectionFsm fsm, RtpConnectionBaseContext context) {
+        super();
+        this.fsm = fsm;
+        this.context = context;
+    }
 
-    void updateMode(ConnectionMode mode, FutureCallback<Void> callback);
+    @Override
+    public void onSuccess(Void result) {
+        this.fsm.fire(RtpConnectionEvent.SESSION_MODE_UPDATED, this.context);
+    }
 
-    void incomingRtp(RtpPacket packet);
-
-    void outgoingRtp(RtpPacket packet);
+    @Override
+    public void onFailure(Throwable t) {
+        this.context.setThrowable(t);
+        this.fsm.fire(RtpConnectionEvent.SESSION_MODE_UPDATE_FAILURE, this.context);
+    }
 
 }

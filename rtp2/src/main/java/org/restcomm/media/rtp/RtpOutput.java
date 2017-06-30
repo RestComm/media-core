@@ -25,7 +25,7 @@ import java.io.IOException;
 
 import org.restcomm.media.component.AbstractSink;
 import org.restcomm.media.component.audio.AudioOutput;
-import org.restcomm.media.component.dsp.Dsp;
+import org.restcomm.media.spi.dsp.Processor;
 import org.restcomm.media.spi.memory.Frame;
 
 /**
@@ -39,9 +39,9 @@ public class RtpOutput extends AbstractSink {
     private static final long serialVersionUID = -7726485962772259820L;
 
     private final AudioOutput output;
-    private final Dsp dsp;
+    private final Processor dsp;
 
-    public RtpOutput(String name, AudioOutput output, Dsp dsp) {
+    public RtpOutput(String name, AudioOutput output, Processor dsp) {
         super(name);
         this.dsp = dsp;
         this.output = output;

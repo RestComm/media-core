@@ -37,7 +37,6 @@ import org.restcomm.media.rtp.handler.RtpDemultiplexer;
 import org.restcomm.media.rtp.handler.RtpInboundHandler;
 import org.restcomm.media.rtp.handler.RtpInboundHandlerGlobalContext;
 import org.restcomm.media.rtp.handler.RtpPacketEncoder;
-import org.restcomm.media.rtp.jitter.JitterBuffer;
 import org.restcomm.media.rtp.rfc2833.DtmfInput;
 import org.restcomm.media.rtp.session.RtpSessionStatistics;
 import org.restcomm.media.scheduler.Clock;

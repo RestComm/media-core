@@ -152,7 +152,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener, Po
 	@Override
 	public void setOtherParty(byte[] descriptor) throws IOException {
 		try {
-			this.remoteSdp = SessionDescriptionParser.parse(new String(descriptor));
+			this.remoteSdp = SessionDescriptionParser.INSTANCE.parse(new String(descriptor));
 			if(ConnectionState.OPEN.equals(getState())) {
 			    renegotiateSession();
 			} else {
