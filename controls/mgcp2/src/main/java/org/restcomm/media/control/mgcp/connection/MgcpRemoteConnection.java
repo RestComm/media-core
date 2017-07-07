@@ -243,6 +243,12 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
         if (remoteApplication != null) {
             SdpFactory.rejectMediaField(this.localSdp, remoteApplication);
         }
+        
+        // Reject image stream (not supported)
+        MediaDescriptionField remoteImage = this.remoteSdp.getMediaDescription("image");
+        if (remoteImage != null) {
+            SdpFactory.rejectMediaField(this.localSdp, remoteImage);
+        }
     }
     
     private void updateAudioChannel(MediaDescriptionField remoteAudio) throws IOException {

@@ -232,7 +232,7 @@ public class SdpFactory {
 				throw new IllegalArgumentException("Media type " + channel.getMediaType() + " not supported.");
 			}
 			
-			md.addPayloadType(f.getID());
+			md.addPayloadType(String.valueOf(f.getID()));
 			md.addFormat(rtpMap);
 		}
 

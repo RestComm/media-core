@@ -480,7 +480,7 @@ public class DtmfRfc2833Test {
         long rtpStreamDuration = 11000;
         InetSocketAddress localAddress = new InetSocketAddress("127.0.0.1", 64000);
         
-        String filepath = "cisco-spa-525G2-attempt2-zendesk34432.pcap";
+        String filepath = "cisco-spa-525G2-zendesk34432.pcap";
         PcapPacketEncoder packetEncoder = new PcapPacketEncoder();
         AsyncPcapChannelHandler channelInitializer = new AsyncPcapChannelHandler(packetEncoder);
         bootstrap.handler(channelInitializer);

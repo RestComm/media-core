@@ -28,7 +28,7 @@ import org.restcomm.media.sdp.fields.MediaDescriptionField;
 
 public class MediaDescriptionFieldParser implements SdpParser<MediaDescriptionField> {
 
-	private static final String REGEX = "^m=[a-zA-Z]+\\s\\d+\\s[a-zA-Z/]+(\\s\\d+)*$";
+	private static final String REGEX = "^m=[a-zA-Z]+\\s\\d+\\s[a-zA-Z/]+(\\s\\w+)*$";
 	private static final Pattern PATTERN = Pattern.compile(REGEX);
 	
 	@Override
@@ -51,12 +51,12 @@ public class MediaDescriptionFieldParser implements SdpParser<MediaDescriptionFi
 			int port = Integer.parseInt(values[index++]);
 			String protocol = values[index++];
 
-			int[] formats = null;
+			String[] formats = null;
 			if (maxIndex - index >= 0) {
 				int numFormats = maxIndex - index + 1;
-				formats = new int[numFormats];
+				formats = new String[numFormats];
 				for (int i = 0; i < numFormats; i++) {
-					formats[i] = Integer.parseInt(values[i + index]);
+					formats[i] = values[i + index];
 				}
 			}
 
@@ -84,12 +84,12 @@ public class MediaDescriptionFieldParser implements SdpParser<MediaDescriptionFi
 			int port = Integer.parseInt(values[index++]);
 			String protocol = values[index++];
 
-			int[] payloadTypes = null;
+			String[] payloadTypes = null;
 			if (maxIndex - index >= 0) {
 				int numFormats = maxIndex - index + 1;
-				payloadTypes = new int[numFormats];
+				payloadTypes = new String[numFormats];
 				for (int i = 0; i < numFormats; i++) {
-					payloadTypes[i] = Integer.parseInt(values[i + index]);
+					payloadTypes[i] = values[i + index];
 				}
 			}
 

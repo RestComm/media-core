@@ -55,10 +55,32 @@ public class SdpFactoryTest {
 		Assert.assertNotNull(mediaDescription);
 		Assert.assertEquals(0, mediaDescription.getPort());
 		Assert.assertEquals("DTLS/SCTP", mediaDescription.getProtocol());
-		int[] payloadTypes = mediaDescription.getPayloadTypes();
+		String[] payloadTypes = mediaDescription.getPayloadTypes();
 		Assert.assertEquals(1, payloadTypes.length);
-		Assert.assertEquals(5000, payloadTypes[0]);
+		Assert.assertEquals("5000", payloadTypes[0]);
 	}
+
+    @Test
+    public void testRejectImageMediaType() throws SdpException {
+        // given
+        String imageSDP = "m=image 52550 udptl t38\n\r";
+        MediaDescriptionFieldParser mediaFieldParser = new MediaDescriptionFieldParser();
+        MediaDescriptionField applicationField = mediaFieldParser.parse(imageSDP);
+
+        SessionDescription answer = new SessionDescription();
+
+        // when
+        SdpFactory.rejectMediaField(answer, applicationField);
+
+        // then
+        MediaDescriptionField mediaDescription = answer.getMediaDescription("image");
+        Assert.assertNotNull(mediaDescription);
+        Assert.assertEquals(0, mediaDescription.getPort());
+        Assert.assertEquals("udptl", mediaDescription.getProtocol());
+        String[] payloadTypes = mediaDescription.getPayloadTypes();
+        Assert.assertEquals(1, payloadTypes.length);
+        Assert.assertEquals("t38", payloadTypes[0]);
+    }
 
     @Test
     public void testValidExternalAddress() {
