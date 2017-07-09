@@ -21,12 +21,16 @@ Get the [latest release](https://github.com/RestComm/mediaserver/releases/latest
 ## Continuous Integration and Delivery
 
 [![RestComm Media Server Continuous Job](http://www.cloudbees.com/sites/default/files/Button-Built-on-CB-1.png)](https://mobicents.ci.cloudbees.com/job/RestComm-MediaServer-6.x/)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bhttps%3A%2F%2Fgithub.com%2FRestComm%2Fmediaserver.svg?type=shield)](https://app.fossa.io/projects/git%2Bhttps%3A%2F%2Fgithub.com%2FRestComm%2Fmediaserver?ref=badge_shield)
 
 ## License
 
 RestComm Media Server is lead by [TeleStax](http://www.telestax.com/), Inc. and developed collaboratively by a community of individual and enterprise contributors.
 
 RestComm Media Server is licensed under dual license policy. The default license is the Free Open Source GNU Affero GPL v3.0. Alternatively a commercial license can be obtained from Telestax ([contact form](http://www.telestax.com/contactus/#InquiryForm))
+
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bhttps%3A%2F%2Fgithub.com%2FRestComm%2Fmediaserver.svg?type=large)](https://app.fossa.io/projects/git%2Bhttps%3A%2F%2Fgithub.com%2FRestComm%2Fmediaserver?ref=badge_large)
 
 # Contributions 
 
