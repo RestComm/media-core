@@ -24,7 +24,9 @@ package org.restcomm.media.control.mgcp.network.netty;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
+import io.netty.channel.FixedRecvByteBufAllocator;
 
 /**
  * Initializes the MGCP channel and builds its pipeline.
@@ -34,6 +36,7 @@ import io.netty.channel.ChannelPipeline;
  */
 public class MgcpChannelInitializer extends ChannelInitializer<Channel> {
 
+    private static final int BUFFER_SIZE = 2300;
     private static final ChannelHandler[] NO_HANDLERS = new ChannelHandler[0];
 
     private final ChannelHandler[] handlers;
@@ -44,6 +47,12 @@ public class MgcpChannelInitializer extends ChannelInitializer<Channel> {
 
     @Override
     protected void initChannel(Channel ch) throws Exception {
+        // Increase default buffer size for Netty Buffers
+        // MEDIA-472: https://github.com/RestComm/mediaserver/issues/472
+        ch.config().setOption(ChannelOption.SO_RCVBUF, BUFFER_SIZE);
+        ch.config().setOption(ChannelOption.RCVBUF_ALLOCATOR, new FixedRecvByteBufAllocator(BUFFER_SIZE));
+
+        // Build handlers pipeline
         ChannelPipeline pipeline = ch.pipeline();
         pipeline.addLast(this.handlers);
     }

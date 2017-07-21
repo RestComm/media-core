@@ -182,11 +182,91 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
                     break;
 
                 default:
-                    throw new MgcpConnectionException(
-                            "Cannot open connection " + this.getHexIdentifier() + " because state is " + this.state.name());
+                    throw new MgcpConnectionException("Cannot open connection " + this.getHexIdentifier() + " because state is " + this.state.name());
             }
         }
         return this.localSdp.toString();
+    }
+
+    @Override
+    public String renegotiate(String sdp) throws MgcpConnectionException {
+        synchronized (this.stateLock) {
+            switch (this.state) {
+                case OPEN:
+                    // Parse remote SDP
+                    try {
+                        this.remoteSdp = SessionDescriptionParser.parse(sdp);
+                    } catch (SdpException e) {
+                        throw new MgcpConnectionException(e.getMessage(), e);
+                    }
+
+                    // Re-negotiate open session
+                    updateConnection();
+                    
+                    if(log.isDebugEnabled()) {
+                        log.debug("Connection " + getHexIdentifier() + " state is " + this.state.name());
+                    }
+                    
+                    // Submit timer
+                    if (this.timeout > 0) {
+                        expireIn(this.timeout);
+                    }
+                    break;
+
+                default:
+                    throw new MgcpConnectionException("Cannot renegotiate connection " + this.getHexIdentifier() + " because state is " + this.state.name());
+            }
+        }
+        return this.localSdp.toString();
+    }
+    
+    private void updateConnection() throws MgcpConnectionException {
+        // Connect audio channel to remote peer
+        try {
+            MediaDescriptionField remoteAudio = this.remoteSdp.getMediaDescription("audio");
+            updateAudioChannel(remoteAudio);
+        } catch (IOException e) {
+            throw new MgcpConnectionException(e.getMessage(), e);
+        }
+
+        // Generate SDP answer
+        this.localSdp = SdpFactory.buildSdp(false, this.localAddress, this.externalAddress, this.audioChannel);
+
+        // Reject video stream (not supported)
+        MediaDescriptionField remoteVideo = this.remoteSdp.getMediaDescription("video");
+        if (remoteVideo != null) {
+            SdpFactory.rejectMediaField(this.localSdp, remoteVideo);
+        }
+
+        // Reject data stream (not supported)
+        MediaDescriptionField remoteApplication = this.remoteSdp.getMediaDescription("application");
+        if (remoteApplication != null) {
+            SdpFactory.rejectMediaField(this.localSdp, remoteApplication);
+        }
+        
+        // Reject image stream (not supported)
+        MediaDescriptionField remoteImage = this.remoteSdp.getMediaDescription("image");
+        if (remoteImage != null) {
+            SdpFactory.rejectMediaField(this.localSdp, remoteImage);
+        }
+    }
+    
+    private void updateAudioChannel(MediaDescriptionField remoteAudio) throws IOException {
+        // Negotiate audio codecs
+        this.audioChannel.negotiateFormats(remoteAudio);
+        if (!this.audioChannel.containsNegotiatedFormats()) {
+            throw new IOException("Audio codecs were not supported");
+        }
+
+        boolean enableIce = remoteAudio.containsIce();
+        if (enableIce) {
+            // Enable ICE. Wait for ICE handshake to finish before connecting RTP/RTCP channels
+            this.audioChannel.enableICE(this.externalAddress, remoteAudio.isRtcpMux());
+        } else {
+            String remoteAddr = remoteAudio.getConnection().getAddress();
+            this.audioChannel.connectRtp(remoteAddr, remoteAudio.getPort());
+            this.audioChannel.connectRtcp(remoteAddr, remoteAudio.getRtcpPort());
+        }
     }
 
     private void openConnection() throws MgcpConnectionException {
@@ -201,7 +281,7 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
             throw new MgcpConnectionException(e.getMessage(), e);
         }
     }
-
+    
     /**
      * Sets the remote peer based on the remote SDP description.
      * 

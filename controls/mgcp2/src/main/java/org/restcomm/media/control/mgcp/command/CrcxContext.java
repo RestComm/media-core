@@ -21,6 +21,7 @@
 
 package org.restcomm.media.control.mgcp.command;
 
+import org.restcomm.media.control.mgcp.message.LocalConnectionOptions;
 import org.restcomm.media.control.mgcp.message.MgcpResponseCode;
 import org.restcomm.media.spi.ConnectionMode;
 
@@ -40,6 +41,7 @@ public class CrcxContext {
     private String remoteDescription;
     private String localDescription;
     private ConnectionMode connectionMode;
+    private LocalConnectionOptions lcOptions;
 
     private int code;
     private String message;
@@ -54,7 +56,8 @@ public class CrcxContext {
         this.remoteDescription = "";
         this.localDescription = "";
         this.connectionMode = null;
-        
+        this.lcOptions = new LocalConnectionOptions();
+
         this.code = MgcpResponseCode.ABORTED.code();
         this.message = MgcpResponseCode.ABORTED.message();
     }
@@ -121,6 +124,14 @@ public class CrcxContext {
 
     public void setConnectionMode(ConnectionMode connectionMode) {
         this.connectionMode = connectionMode;
+    }
+
+    public LocalConnectionOptions getLocalConnectionOptions() {
+        return lcOptions;
+    }
+
+    public void setLocalConnectionOptions(LocalConnectionOptions lcOptions) {
+        this.lcOptions = lcOptions;
     }
 
     public int getCode() {

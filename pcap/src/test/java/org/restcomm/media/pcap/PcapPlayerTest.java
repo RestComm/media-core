@@ -183,7 +183,7 @@ public class PcapPlayerTest {
 
         // then
         Assert.assertTrue(player.isPlaying());
-        Thread.sleep(rtpStreamDuration);
+        Thread.sleep(rtpStreamDuration * 2);
         Assert.assertFalse(player.isPlaying());
         Assert.assertEquals(totalPackets, player.countPacketsSent());
         Assert.assertEquals(totalOctets, player.countOctetsSent());
@@ -229,7 +229,7 @@ public class PcapPlayerTest {
         
         // then
         Assert.assertTrue(player.isPlaying());
-        Thread.sleep(rtpStreamDuration);
+        Thread.sleep(rtpStreamDuration * 2);
         Assert.assertFalse(player.isPlaying());
         Assert.assertEquals(totalPackets, player.countPacketsSent());
         Assert.assertEquals(totalOctets, player.countOctetsSent());
@@ -275,7 +275,7 @@ public class PcapPlayerTest {
         
         // then
         Assert.assertTrue(player.isPlaying());
-        Thread.sleep(rtpStreamDuration);
+        Thread.sleep(rtpStreamDuration + 10000);
         Assert.assertFalse(player.isPlaying());
         Assert.assertEquals(totalPackets, player.countPacketsSent());
         Assert.assertEquals(totalOctets, player.countOctetsSent());

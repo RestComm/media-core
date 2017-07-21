@@ -642,13 +642,18 @@ public abstract class MediaChannel {
 		// Clean currently offered formats
 		this.offeredFormats.clean();
 		
-		// Map payload types tp RTP Format
-		for (int payloadType : media.getPayloadTypes()) {
-			RTPFormat format = AVProfile.getFormat(payloadType, AVProfile.AUDIO);
-			if(format != null) {
-				this.offeredFormats.add(format);
-			}
-		}
+		// Map payload types to RTP Format
+        for (String payloadType : media.getPayloadTypes()) {
+            try {
+                int iPayloadType = Integer.valueOf(payloadType);
+                RTPFormat format = AVProfile.getFormat(iPayloadType, AVProfile.AUDIO);
+                if (format != null) {
+                    this.offeredFormats.add(format);
+                }
+            } catch (Exception e) {
+                logger.warn(this.mediaType + " channel " + this.ssrc + " dropped unsupported RTP payload type " + payloadType, e);
+            }
+        }
 		
 		// Negotiate the formats and store intersection
 		this.negotiatedFormats.clean();

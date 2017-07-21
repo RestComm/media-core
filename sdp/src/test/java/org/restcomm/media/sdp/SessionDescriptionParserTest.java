@@ -61,6 +61,7 @@ public class SessionDescriptionParserTest {
     private static String webrtcDescription;
     private static String chrome39offer;
     private static String firefox33offer;
+    private static String firefox54offer;
     private static String androidSdkOffer;
     private static String tlcSbcOffer;
 
@@ -77,6 +78,10 @@ public class SessionDescriptionParserTest {
         resource = SessionDescriptionParserTest.class.getResource("firefox-33-offer.txt");
         bytes = Files.readAllBytes(Paths.get(resource.toURI()));
         firefox33offer = new String(bytes);
+        
+        resource = SessionDescriptionParserTest.class.getResource("firefox-54-offer.txt");
+        bytes = Files.readAllBytes(Paths.get(resource.toURI()));
+        firefox54offer = new String(bytes);
 
         resource = SessionDescriptionParserTest.class.getResource("android-sdk-offer.txt");
         bytes = Files.readAllBytes(Paths.get(resource.toURI()));
@@ -136,6 +141,19 @@ public class SessionDescriptionParserTest {
         // when
         sdp = SessionDescriptionParser.INSTANCE.parse(firefox33offer);
 
+        // then
+        MediaDescriptionField audio = sdp.getMediaDescription("audio");
+        Assert.assertNotNull(audio);
+    }
+
+    @Test
+    public void testParseFirefox54Offer() throws SdpException {
+        // given
+        SessionDescription sdp;
+        
+        // when
+        sdp = SessionDescriptionParser.parse(firefox54offer);
+        
         // then
         MediaDescriptionField audio = sdp.getMediaDescription("audio");
         Assert.assertNotNull(audio);
