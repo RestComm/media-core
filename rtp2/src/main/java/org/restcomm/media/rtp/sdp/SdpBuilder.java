@@ -141,7 +141,7 @@ public class SdpBuilder {
                     throw new IllegalArgumentException("Media type " + mediaType + " not supported.");
             }
 
-            md.addPayloadType(format.getID());
+            md.addPayloadType(String.valueOf(format.getID()));
             md.addFormat(rtpMap);
         }
 

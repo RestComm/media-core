@@ -63,9 +63,9 @@ public class SdpBuilderTest {
         assertNotNull(mediaDescription);
         assertEquals(0, mediaDescription.getPort());
         assertEquals("DTLS/SCTP", mediaDescription.getProtocol());
-        int[] payloadTypes = mediaDescription.getPayloadTypes();
+        String[] payloadTypes = mediaDescription.getPayloadTypes();
         assertEquals(1, payloadTypes.length);
-        assertEquals(5000, payloadTypes[0]);
+        assertEquals("5000", payloadTypes[0]);
     }
 
     // TODO Test supported formats

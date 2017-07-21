@@ -21,7 +21,10 @@
 
 package org.restcomm.media.rtp;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,15 +38,8 @@ import org.restcomm.media.pcap.GenericPcapReader;
 import org.restcomm.media.pcap.PcapFile;
 import org.restcomm.media.rtp.handler.RtpDemultiplexer;
 import org.restcomm.media.rtp.handler.RtpInboundHandler;
-import org.restcomm.media.rtp.handler.RtpInboundHandlerGlobalContext;
 import org.restcomm.media.rtp.handler.RtpPacketEncoder;
-import org.restcomm.media.rtp.rfc2833.DtmfInput;
 import org.restcomm.media.rtp.session.RtpSessionStatistics;
-import org.restcomm.media.scheduler.Clock;
-import org.restcomm.media.scheduler.WallClock;
-import org.restcomm.media.sdp.format.AVProfile;
-import org.restcomm.media.sdp.format.RTPFormat;
-import org.restcomm.media.spi.ConnectionMode;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -72,27 +68,18 @@ public class RtpChannelPipelineTest {
             }
             pcapFile = null;
         }
-
     }
 
     @Test
     public void testIncomingRtpPacket() throws Exception {
         // given
-        final Clock clock = new WallClock();
         final RtpSessionStatistics statistics = mock(RtpSessionStatistics.class);
-        final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
-        final RtpInput rtpInput = mock(RtpInput.class);
-        final DtmfInput dtmfInput = mock(DtmfInput.class);
-        final RtpInboundHandlerGlobalContext context = new RtpInboundHandlerGlobalContext(clock, statistics, jitterBuffer, rtpInput, dtmfInput);
-        final RtpInboundHandler inboundHandler = new RtpInboundHandler(context);
+        final RtpSession rtpSession = mock(RtpSession.class);
+        final RtpInboundHandler inboundHandler = new RtpInboundHandler(rtpSession);
         final RtpDemultiplexer rtpDemultiplexer = new RtpDemultiplexer();
         final RtpPacketEncoder rtpPacketEncoder = new RtpPacketEncoder(statistics);
         final EmbeddedChannel channel = new EmbeddedChannel(rtpDemultiplexer, rtpPacketEncoder, inboundHandler);
         final PcapFile pcapFile = loadPcap("src/test/resources/pcap/rtp-packet.pcap");
-
-        inboundHandler.activate();
-        inboundHandler.updateMode(ConnectionMode.RECV_ONLY);
-        inboundHandler.setFormatMap(AVProfile.audio);
 
         // when
         pcapFile.open();
@@ -104,76 +91,33 @@ public class RtpChannelPipelineTest {
         pcapFile.close();
 
         // then
-        verify(statistics).incomingRtp(any(RtpPacket.class));
-        verify(statistics, never()).outgoingRtp(any(RtpPacket.class));
-        verify(jitterBuffer).write(any(RtpPacket.class), any(RTPFormat.class));
+        verify(rtpSession).incomingRtp(any(RtpPacket.class));
+        verify(rtpSession, never()).outgoingRtp(any(RtpPacket.class));
     }
 
     @Test
     public void testOutgoingRtpPacket() throws Exception {
         // given
-        final Clock clock = new WallClock();
         final RtpSessionStatistics statistics = mock(RtpSessionStatistics.class);
-        final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
-        final RtpInput rtpInput = mock(RtpInput.class);
-        final DtmfInput dtmfInput = mock(DtmfInput.class);
-        final RtpInboundHandlerGlobalContext context = new RtpInboundHandlerGlobalContext(clock, statistics, jitterBuffer, rtpInput, dtmfInput);
-        final RtpInboundHandler inboundHandler = new RtpInboundHandler(context);
+        final RtpSession rtpSession = mock(RtpSession.class);
+        final RtpInboundHandler inboundHandler = new RtpInboundHandler(rtpSession);
         final RtpDemultiplexer rtpDemultiplexer = new RtpDemultiplexer();
         final RtpPacketEncoder rtpPacketEncoder = new RtpPacketEncoder(statistics);
         final EmbeddedChannel channel = new EmbeddedChannel(rtpDemultiplexer, rtpPacketEncoder, inboundHandler);
         final PcapFile pcapFile = loadPcap("src/test/resources/pcap/rtp-packet.pcap");
-        
-        inboundHandler.activate();
-        inboundHandler.updateMode(ConnectionMode.SEND_ONLY);
-        inboundHandler.setFormatMap(AVProfile.audio);
-        
+
         // when
         pcapFile.open();
         final Packet pcapPacket = pcapFile.read();
         final byte[] data = (byte[]) pcapPacket.get(GenericPcapReader.PAYLOAD);
         final RtpPacket rtpPacket = new RtpPacket(data);
-        
+
         channel.writeOutbound(rtpPacket);
         pcapFile.close();
-        
+
         // then
         verify(statistics, never()).incomingRtp(any(RtpPacket.class));
         verify(statistics).outgoingRtp(any(RtpPacket.class));
-    }
-
-    @Test
-    public void testLoopingRtpPacket() throws Exception {
-        // given
-        final Clock clock = new WallClock();
-        final RtpSessionStatistics statistics = mock(RtpSessionStatistics.class);
-        final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
-        final RtpInput rtpInput = mock(RtpInput.class);
-        final DtmfInput dtmfInput = mock(DtmfInput.class);
-        final RtpInboundHandlerGlobalContext context = new RtpInboundHandlerGlobalContext(clock, statistics, jitterBuffer, rtpInput, dtmfInput);
-        final RtpInboundHandler inboundHandler = new RtpInboundHandler(context);
-        final RtpDemultiplexer rtpDemultiplexer = new RtpDemultiplexer();
-        final RtpPacketEncoder rtpPacketEncoder = new RtpPacketEncoder(statistics);
-        final EmbeddedChannel channel = new EmbeddedChannel(rtpDemultiplexer, rtpPacketEncoder, inboundHandler);
-        final PcapFile pcapFile = loadPcap("src/test/resources/pcap/rtp-packet.pcap");
-
-        inboundHandler.activate();
-        inboundHandler.updateMode(ConnectionMode.NETWORK_LOOPBACK);
-        inboundHandler.setFormatMap(AVProfile.audio);
-
-        // when
-        pcapFile.open();
-        final Packet pcapPacket = pcapFile.read();
-        final byte[] data = (byte[]) pcapPacket.get(GenericPcapReader.PAYLOAD);
-        final ByteBuf buffer = Unpooled.wrappedBuffer(data);
-
-        channel.writeInbound(buffer);
-        pcapFile.close();
-
-        // then
-        verify(statistics).incomingRtp(any(RtpPacket.class));
-        verify(statistics).outgoingRtp(any(RtpPacket.class));
-        verify(jitterBuffer).write(any(RtpPacket.class), any(RTPFormat.class));
     }
 
     private PcapFile loadPcap(String path) throws MalformedURLException {

@@ -66,7 +66,7 @@ public class MediaDescriptionField implements SdpField {
 	private String media;
 	private int port;
 	private String protocol;
-	private final List<Integer> payloadTypes;
+	private final List<String> payloadTypes;
 	private final Map<Integer, RtpMapAttribute> formats;
 	
 	// SDP fields and attributes (media-level)
@@ -97,7 +97,7 @@ public class MediaDescriptionField implements SdpField {
 	public MediaDescriptionField(final SessionLevelAccessor sessionAccessor) {
 		this.session = sessionAccessor;
 		this.builder = new StringBuilder(BEGIN);
-		this.payloadTypes = new ArrayList<Integer>(10);
+		this.payloadTypes = new ArrayList<String>(10);
 		this.formats = new HashMap<Integer, RtpMapAttribute>(10);
 	}
 	
@@ -129,20 +129,20 @@ public class MediaDescriptionField implements SdpField {
 		this.protocol = protocol;
 	}
 	
-	public void addPayloadType(int payloadType) {
+	public void addPayloadType(String payloadType) {
 		if(!this.payloadTypes.contains(payloadType)) {
 			this.payloadTypes.add(payloadType);
 		}
 	}
 	
-	public void setPayloadTypes(int... payloadTypes) {
+	public void setPayloadTypes(String... payloadTypes) {
 		this.payloadTypes.clear();
-		for (int payloadType : payloadTypes) {
+		for (String payloadType : payloadTypes) {
 			addPayloadType(payloadType);
 		}
 	}
 	
-	public boolean containsPayloadType(int payloadType) {
+	public boolean containsPayloadType(String payloadType) {
 		return this.payloadTypes.contains(payloadType);
 	}
 	
@@ -207,10 +207,10 @@ public class MediaDescriptionField implements SdpField {
 		return this.formats.values().toArray(new RtpMapAttribute[this.formats.size()]);
 	}
 	
-	public int[] getPayloadTypes() {
-		int[] values = new int[this.payloadTypes.size()];
+	public String[] getPayloadTypes() {
+		String[] values = new String[this.payloadTypes.size()];
 		int index = 0;
-		for (Integer value : this.payloadTypes) {
+		for (String value : this.payloadTypes) {
 			values[index++] = value;
 		}
 		return values;
@@ -376,7 +376,7 @@ public class MediaDescriptionField implements SdpField {
 		        .append(this.media).append(" ")
 				.append(this.port).append(" ")
 				.append(this.protocol);
-		for (Integer payloadType : this.payloadTypes) {
+		for (String payloadType : this.payloadTypes) {
 			this.builder.append(" ").append(payloadType);
 		}
 		

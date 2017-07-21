@@ -240,9 +240,31 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
     }
 
     @Override
-    public void onIncomingRtp(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
-            RtpSessionTransactionContext context) {
+    public void onIncomingRtp(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context) {
         RtpSessionIncomingRtpContext txContext = (RtpSessionIncomingRtpContext) context;
+        RtpSessionStatistics statistics = this.globalContext.getStatistics();
+        RtpPacket packet = txContext.getPacket();
+        
+        // RTP v0 packets are used in some applications. Discarded since we do not handle them.
+        int version = packet.getVersion();
+        if (version == 0) {
+
+            // TODO update statistics.dropped
+            if (log.isDebugEnabled()) {
+                log.debug("RTP Channel " + statistics.getSsrc() + " dropped RTP v0 packet.");
+            }
+            return;
+        }
+        
+        // Check if packet is not empty
+        boolean hasData = (packet.getLength() > 0);
+        if (!hasData) {
+            // TODO update statistics.dropped
+            if (log.isDebugEnabled()) {
+                log.debug("RTP Channel " + statistics.getSsrc() + " dropped packet because payload was empty.");
+            }
+            return;
+        }
 
         // Packets are only processed if session is in "receiver" mode
         ConnectionMode mode = this.globalContext.getMode();
@@ -251,18 +273,15 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
             case SEND_RECV:
             case CONFERENCE:
             case NETWORK_LOOPBACK:
-                RtpPacket packet = txContext.getPacket();
-
                 // Confirm codec is supported
                 int payloadType = packet.getPayloadType();
                 RTPFormat format = this.globalContext.getNegotiatedFormats().getRTPFormat(payloadType);
 
                 if (format == null) {
-                    // TODO drop packet in statistics
+                    // TODO update statistics.dropped
                     if (log.isDebugEnabled()) {
                         long ssrc = this.globalContext.getSsrc();
-                        log.debug("RTP session " + ssrc + " dropped incoming packet because payload type " + payloadType
-                                + " is not supported.");
+                        log.debug("RTP session " + ssrc + " dropped incoming packet because payload type " + payloadType + " is not supported.");
                     }
                 } else {
                     // Consume packet

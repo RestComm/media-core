@@ -77,7 +77,7 @@ public class CandidateAttributeParser implements SdpParser<CandidateAttribute> {
 			}
 			
 			String tcptype = null;
-			if(protocol.equals("tcp")) {
+			if(protocol.equalsIgnoreCase("tcp")) {
 				index++; // TCPTYPE
 				tcptype = values[index++];
 			}

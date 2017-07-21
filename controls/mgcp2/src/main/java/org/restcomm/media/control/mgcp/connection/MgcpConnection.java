@@ -136,6 +136,16 @@ public interface MgcpConnection extends MgcpEventSubject {
      * @throws MgcpConnectionException If connection fails to open properly
      */
     String open(String sdp) throws MgcpConnectionException;
+    
+    /**
+     * Re-negotiates an open connection.
+     * 
+     * @param sdp The new remote session description.
+     * @return The updated local session description.
+     * @throws MgcpConnectionException If connection state is not open.
+     * @throws MgcpConnectionException If connection fails to re-negotiate.
+     */
+    String renegotiate(String sdp) throws MgcpConnectionException;
 
     /**
      * Closes the connection.

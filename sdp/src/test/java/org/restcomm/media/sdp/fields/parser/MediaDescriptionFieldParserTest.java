@@ -20,8 +20,7 @@
 
 package org.restcomm.media.sdp.fields.parser;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.restcomm.media.sdp.SdpException;
@@ -45,6 +44,7 @@ public class MediaDescriptionFieldParserTest {
 		String sdp3 = "m=video xyz RTP/AVPF 0 101 120\n\r";
 		String sdp4 = "m=video 64534 0 101 120\n\r";
 		String sdp5 = "m=video 64534 RTP/AVPF 0 xyz 120\n\r";
+		String sdp6 = "m=image 52550 udptl t38\n\r";
 		
 		// when
 		boolean canParseSdp1 = parser.canParse(sdp1);
@@ -52,13 +52,15 @@ public class MediaDescriptionFieldParserTest {
 		boolean canParseSdp3 = parser.canParse(sdp3);
 		boolean canParseSdp4 = parser.canParse(sdp4);
 		boolean canParseSdp5 = parser.canParse(sdp5);
+		boolean canParseSdp6 = parser.canParse(sdp6);
 		
 		// then
 		Assert.assertTrue(canParseSdp1);
 		Assert.assertFalse(canParseSdp2);
 		Assert.assertFalse(canParseSdp3);
 		Assert.assertFalse(canParseSdp4);
-		Assert.assertFalse(canParseSdp5);
+		Assert.assertTrue(canParseSdp5);
+		Assert.assertTrue(canParseSdp6);
 	}
 	
 	@Test
@@ -73,10 +75,25 @@ public class MediaDescriptionFieldParserTest {
 		Assert.assertEquals("video", md.getMedia());
 		Assert.assertEquals(64534, md.getPort());
 		Assert.assertEquals("RTP/AVPF", md.getProtocol());
-		Assert.assertTrue(md.containsPayloadType((short) 0));
-		Assert.assertTrue(md.containsPayloadType((short) 101));
-		Assert.assertTrue(md.containsPayloadType((short) 120));
+		Assert.assertTrue(md.containsPayloadType("0"));
+		Assert.assertTrue(md.containsPayloadType("101"));
+		Assert.assertTrue(md.containsPayloadType("120"));
 	}
+	
+    @Test
+    public void testParseImageType() throws SdpException {
+        // given
+        String line = "m=image 52550 udptl t38\n\r";
+
+        // when
+        MediaDescriptionField md = parser.parse(line);
+
+        // then
+        Assert.assertEquals("image", md.getMedia());
+        Assert.assertEquals(52550, md.getPort());
+        Assert.assertEquals("udptl", md.getProtocol());
+        Assert.assertTrue(md.containsPayloadType("t38"));
+    }
 
 	@Test
 	public void testParseOverwrite() throws SdpException {
@@ -92,10 +109,10 @@ public class MediaDescriptionFieldParserTest {
 		Assert.assertEquals("audio", md.getMedia());
 		Assert.assertEquals(65000, md.getPort());
 		Assert.assertEquals("RTP/SAVPF", md.getProtocol());
-		Assert.assertTrue(md.containsPayloadType((short) 0));
-		Assert.assertTrue(md.containsPayloadType((short) 101));
-		Assert.assertTrue(md.containsPayloadType((short) 180));
-		Assert.assertFalse(md.containsPayloadType((short) 120));
+		Assert.assertTrue(md.containsPayloadType("0"));
+		Assert.assertTrue(md.containsPayloadType("101"));
+		Assert.assertTrue(md.containsPayloadType("180"));
+		Assert.assertFalse(md.containsPayloadType("120"));
 	}
 
 	@Test(expected=SdpException.class)
@@ -126,13 +143,4 @@ public class MediaDescriptionFieldParserTest {
 		parser.parse(line);
 	}
 
-	@Test(expected=SdpException.class)
-	public void testParseInvalidFormats() throws SdpException {
-		// given
-		String line = "m=64534 63000 RTP/AVP a b c\n\r";
-		
-		// when
-		parser.parse(line);
-	}
-	
 }
