@@ -195,7 +195,7 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
                 case OPEN:
                     // Parse remote SDP
                     try {
-                        this.remoteSdp = SessionDescriptionParser.parse(sdp);
+                        this.remoteSdp = SessionDescriptionParser.INSTANCE.parse(sdp);
                     } catch (SdpException e) {
                         throw new MgcpConnectionException(e.getMessage(), e);
                     }

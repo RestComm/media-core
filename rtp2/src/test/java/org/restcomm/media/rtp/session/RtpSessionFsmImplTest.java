@@ -334,12 +334,12 @@ public class RtpSessionFsmImplTest {
         final RtpSessionFsmImpl fsm = spy(new RtpSessionFsmImpl(context));
 
         final int payloadType = 0;
-        final RtpPacket packet = mock(RtpPacket.class);
+        final byte[] payload = "hello".getBytes();
+        final RtpPacket packet = new RtpPacket(true, payloadType, 1, System.currentTimeMillis(), 12345L, payload);
         final RTPFormat format = AVProfile.audio.find(payloadType);
         final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
         final DtmfInput dtmfInput = mock(DtmfInput.class);
 
-        when(packet.getPayloadType()).thenReturn(payloadType);
         when(context.getNegotiatedFormats()).thenReturn(AVProfile.audio);
         when(context.getMode()).thenReturn(ConnectionMode.CONFERENCE);
         when(context.getStatistics()).thenReturn(statistics);
@@ -362,12 +362,12 @@ public class RtpSessionFsmImplTest {
         final RtpSessionFsmImpl fsm = spy(new RtpSessionFsmImpl(context));
 
         final int payloadType = 101;
-        final RtpPacket packet = mock(RtpPacket.class);
+        final byte[] payload = "hello".getBytes();
+        final RtpPacket packet = new RtpPacket(true, payloadType, 1, System.currentTimeMillis(), 12345L, payload);
         final RTPFormat format = AVProfile.audio.find(payloadType);
         final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
         final DtmfInput dtmfInput = mock(DtmfInput.class);
-
-        when(packet.getPayloadType()).thenReturn(payloadType);
+        
         when(context.getNegotiatedFormats()).thenReturn(AVProfile.audio);
         when(context.getMode()).thenReturn(ConnectionMode.CONFERENCE);
         when(context.getStatistics()).thenReturn(statistics);

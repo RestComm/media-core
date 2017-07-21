@@ -152,7 +152,7 @@ public class SessionDescriptionParserTest {
         SessionDescription sdp;
         
         // when
-        sdp = SessionDescriptionParser.parse(firefox54offer);
+        sdp = SessionDescriptionParser.INSTANCE.parse(firefox54offer);
         
         // then
         MediaDescriptionField audio = sdp.getMediaDescription("audio");
