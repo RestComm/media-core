@@ -21,7 +21,7 @@
 
 package org.restcomm.media.control.mgcp.command;
 
-import java.util.concurrent.Callable;
+import com.google.common.util.concurrent.FutureCallback;
 
 /**
  * Represents an MGCP action that can be executed.
@@ -29,6 +29,8 @@ import java.util.concurrent.Callable;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpCommand extends Callable<MgcpCommandResult> {
+public interface MgcpCommand {
+    
+    void execute(FutureCallback<MgcpCommandResult> callback);
 
 }

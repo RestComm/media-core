@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.restcomm.media.control.mgcp.command.DeleteConnectionCommand;
 import org.restcomm.media.control.mgcp.command.MgcpCommandResult;
 import org.restcomm.media.control.mgcp.connection.MgcpConnection;
@@ -47,12 +48,15 @@ import org.restcomm.media.control.mgcp.message.MgcpRequest;
 import org.restcomm.media.control.mgcp.message.MgcpResponseCode;
 import org.restcomm.media.control.mgcp.util.collections.Parameters;
 
+import com.google.common.util.concurrent.FutureCallback;
+
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
 public class DeleteConnectionCommandTest {
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testDeleteSingleConnection() throws MgcpException {
         // given
@@ -74,10 +78,15 @@ public class DeleteConnectionCommandTest {
         when(bridgeEndpoint.deleteConnection(1, 1)).thenReturn(connection);
         when(connection.getIdentifier()).thenReturn(1);
 
-        MgcpCommandResult result = dlcx.call();
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        dlcx.execute(callback);
 
         // then
         verify(bridgeEndpoint, times(1)).deleteConnection(1, 1);
+
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
 
         assertNotNull(result);
         assertEquals(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code(), result.getCode());
@@ -88,6 +97,7 @@ public class DeleteConnectionCommandTest {
         assertEquals(1, parameters.size());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testDeleteAllCallConnections() throws MgcpException {
         // given
@@ -111,11 +121,16 @@ public class DeleteConnectionCommandTest {
         connections.add(connection1);
         connections.add(connection2);
 
-        MgcpCommandResult result = dlcx.call();
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        dlcx.execute(callback);
 
         // then
         verify(bridgeEndpoint, times(1)).deleteConnections(1);
 
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
+        
         assertNotNull(result);
         assertEquals(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code(), result.getCode());
         assertNull(result.getParameters().getString(MgcpParameterType.CONNECTION_PARAMETERS).orNull());
@@ -124,6 +139,7 @@ public class DeleteConnectionCommandTest {
         assertEquals(0, parameters.size());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testDeleteAllEndpointConnections() throws MgcpException {
         // given
@@ -141,10 +157,16 @@ public class DeleteConnectionCommandTest {
         // when
         when(endpointManager.getEndpoint("mobicents/bridge/1@127.0.0.1:2427")).thenReturn(bridgeEndpoint);
         when(bridgeEndpoint.deleteConnections()).thenReturn(connections);
-        MgcpCommandResult result = dlcx.call();
+        
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        dlcx.execute(callback);
         
         // then
         verify(bridgeEndpoint, times(1)).deleteConnections();
+        
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
 
         assertNotNull(result);
         assertEquals(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code(), result.getCode());
@@ -154,6 +176,7 @@ public class DeleteConnectionCommandTest {
         assertEquals(0, parameters.size());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testNoConnectionFoundWhenDeletingSingleConnection() throws MgcpException {
         // given
@@ -173,10 +196,15 @@ public class DeleteConnectionCommandTest {
         when(endpointManager.getEndpoint("mobicents/bridge/1@127.0.0.1:2427")).thenReturn(bridgeEndpoint);
         when(bridgeEndpoint.deleteConnection(1, 1)).thenThrow(new MgcpConnectionNotFoundException(""));
 
-        MgcpCommandResult result = dlcx.call();
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        dlcx.execute(callback);
 
         // then
         verify(bridgeEndpoint, times(1)).deleteConnection(1, 1);
+
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
 
         assertNotNull(result);
         assertEquals(MgcpResponseCode.INCORRECT_CONNECTION_ID.code(), result.getCode());
@@ -185,6 +213,7 @@ public class DeleteConnectionCommandTest {
         assertEquals(0, parameters.size());        
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testNoCallFoundWhenDeletingSingleConnection() throws MgcpException {
         // given
@@ -204,10 +233,15 @@ public class DeleteConnectionCommandTest {
         when(endpointManager.getEndpoint("mobicents/bridge/1@127.0.0.1:2427")).thenReturn(bridgeEndpoint);
         when(bridgeEndpoint.deleteConnection(1, 1)).thenThrow(new MgcpCallNotFoundException(""));
 
-        MgcpCommandResult result = dlcx.call();
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        dlcx.execute(callback);
 
         // then
         verify(bridgeEndpoint, times(1)).deleteConnection(1, 1);
+        
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
 
         assertNotNull(result);
         assertEquals(MgcpResponseCode.INCORRECT_CALL_ID.code(), result.getCode());
@@ -216,6 +250,7 @@ public class DeleteConnectionCommandTest {
         assertEquals(0, parameters.size());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testNoCallFoundWhenDeletingMultipleConnections() throws MgcpException {
         // given
@@ -234,16 +269,22 @@ public class DeleteConnectionCommandTest {
         when(endpointManager.getEndpoint("mobicents/bridge/1@127.0.0.1:2427")).thenReturn(bridgeEndpoint);
         when(bridgeEndpoint.deleteConnections(1)).thenThrow(new MgcpCallNotFoundException(""));
 
-        MgcpCommandResult result = dlcx.call();
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        dlcx.execute(callback);
 
         // then
         verify(bridgeEndpoint, times(1)).deleteConnections(1);
+        
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
 
         assertNotNull(result);
         assertEquals(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code(), result.getCode());
         assertNull(result.getParameters().getString(MgcpParameterType.CONNECTION_PARAMETERS).orNull());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testValidateRequestWithEndpointNameContainingWildCardAllWithEndpointIdSpecified() throws MgcpException {
         // given
@@ -260,9 +301,14 @@ public class DeleteConnectionCommandTest {
         final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(transactionId, request.getParameters(), endpointManager);
 
         // when
-        MgcpCommandResult result = dlcx.call();
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        dlcx.execute(callback);
         
         // then
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
+        
         assertNotNull(result);
         assertEquals(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(), result.getCode());
 
@@ -270,6 +316,7 @@ public class DeleteConnectionCommandTest {
         assertEquals(0, parameters.size());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testValidateRequestWithEndpointNameContainingWildCardAnyWithEndpointIdSpecified() throws MgcpException {
         // given
@@ -286,9 +333,14 @@ public class DeleteConnectionCommandTest {
         final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(transactionId, request.getParameters(), endpointManager);
 
         // when
-        MgcpCommandResult result = dlcx.call();
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        dlcx.execute(callback);
         
         // then
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
+        
         assertNotNull(result);
         assertEquals(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(), result.getCode());
 
@@ -296,6 +348,7 @@ public class DeleteConnectionCommandTest {
         assertEquals(0, parameters.size());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testValidateRequestWithEndpointNameContainingWildCardAnyWithoutEndpointIdSpecified() throws MgcpException {
         // given
@@ -311,9 +364,14 @@ public class DeleteConnectionCommandTest {
         final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(transactionId, request.getParameters(), endpointManager);
 
         // when
-        MgcpCommandResult result = dlcx.call();
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        dlcx.execute(callback);
         
         // then
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
+        
         assertNotNull(result);
         assertEquals(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(), result.getCode());
 
@@ -321,6 +379,7 @@ public class DeleteConnectionCommandTest {
         assertEquals(0, parameters.size());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testUnknownEndpoint() throws MgcpException {
         // given
@@ -338,9 +397,14 @@ public class DeleteConnectionCommandTest {
         // when
         when(endpointManager.getEndpoint("mobicents/bridge/1@127.0.0.1:2427")).thenReturn(null);
 
-        MgcpCommandResult result = dlcx.call();
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        dlcx.execute(callback);
         
         // then
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
+        
         assertNotNull(result);
         assertEquals(MgcpResponseCode.ENDPOINT_UNKNOWN.code(), result.getCode());
 
@@ -348,6 +412,7 @@ public class DeleteConnectionCommandTest {
         assertEquals(0, parameters.size());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testUnexpectedExceptionWhileExecutingCommand() throws MgcpException {
         // given
@@ -365,9 +430,14 @@ public class DeleteConnectionCommandTest {
         // when
         when(endpointManager.getEndpoint("mobicents/bridge/1@127.0.0.1:2427")).thenThrow(new RuntimeException("Test Purposes!"));
 
-        MgcpCommandResult result = dlcx.call();
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        dlcx.execute(callback);
 
         // then
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
+        
         assertNotNull(result);
         assertEquals(MgcpResponseCode.PROTOCOL_ERROR.code(), result.getCode());
 

@@ -21,8 +21,17 @@
 
 package org.restcomm.media.control.mgcp.transaction;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.only;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.net.InetSocketAddress;
 import java.util.Collection;
@@ -31,7 +40,6 @@ import java.util.Map;
 import org.junit.Test;
 import org.mockito.internal.util.reflection.Whitebox;
 import org.restcomm.media.control.mgcp.command.MgcpCommand;
-import org.restcomm.media.control.mgcp.command.MgcpCommandResult;
 import org.restcomm.media.control.mgcp.exception.DuplicateMgcpTransactionException;
 import org.restcomm.media.control.mgcp.exception.MgcpTransactionNotFoundException;
 import org.restcomm.media.control.mgcp.message.MessageDirection;
@@ -39,12 +47,8 @@ import org.restcomm.media.control.mgcp.message.MgcpMessageObserver;
 import org.restcomm.media.control.mgcp.message.MgcpRequest;
 import org.restcomm.media.control.mgcp.message.MgcpRequestType;
 import org.restcomm.media.control.mgcp.message.MgcpResponse;
-import org.restcomm.media.control.mgcp.transaction.MgcpTransaction;
-import org.restcomm.media.control.mgcp.transaction.MgcpTransactionNumberspace;
-import org.restcomm.media.control.mgcp.transaction.SubMgcpTransactionManager;
 
-import com.google.common.util.concurrent.AbstractFuture;
-import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.ListeningExecutorService;
 
 /**
@@ -56,6 +60,7 @@ public class SubMgcpTransactionManagerTest {
     private static final String REQUEST = "CRCX 147483653 mobicents/bridge/$@127.0.0.1:2427 MGCP 1.0";
     private static final String RESPONSE = "200 147483653 Successful Transaction";
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testProcessRemoteTransaction() throws DuplicateMgcpTransactionException, MgcpTransactionNotFoundException {
         // given
@@ -74,12 +79,11 @@ public class SubMgcpTransactionManagerTest {
         when(request.isRequest()).thenReturn(true);
         when(request.getRequestType()).thenReturn(MgcpRequestType.CRCX);
         when(request.getTransactionId()).thenReturn(transactionId);
-        when(executor.submit(command)).thenReturn(new AbstractFuture<MgcpCommandResult>() {});
         txManager.process(remote, local, request, command, MessageDirection.INCOMING);
 
         // then
         assertTrue(txManager.contains(transactionId));
-        verify(executor, times(1)).submit(command);
+        verify(command, times(1)).execute(any(FutureCallback.class));
 
         // when - response
         when(response.toString()).thenReturn(RESPONSE);
@@ -128,7 +132,6 @@ public class SubMgcpTransactionManagerTest {
         assertFalse(txManager.contains(finalTransactionId));
     }
 
-    @SuppressWarnings("unchecked")
     @Test(expected = DuplicateMgcpTransactionException.class)
     public void testProcessRetransmission() throws DuplicateMgcpTransactionException, MgcpTransactionNotFoundException {
         // given
@@ -142,7 +145,6 @@ public class SubMgcpTransactionManagerTest {
         final SubMgcpTransactionManager txManager = new SubMgcpTransactionManager(numberspace, executor);
 
         // when - request
-        when(executor.submit(command)).thenReturn(mock(ListenableFuture.class));
         when(request.toString()).thenReturn(REQUEST);
         when(request.isRequest()).thenReturn(true);
         when(request.getRequestType()).thenReturn(MgcpRequestType.CRCX);
@@ -152,7 +154,6 @@ public class SubMgcpTransactionManagerTest {
         txManager.process(remote, local, request, command, MessageDirection.INCOMING);
     }
 
-    @SuppressWarnings("unchecked")
     @Test(expected = MgcpTransactionNotFoundException.class)
     public void testProcessIncomingResponseWithUnknownTransactionId() throws DuplicateMgcpTransactionException, MgcpTransactionNotFoundException {
         // given
@@ -160,13 +161,11 @@ public class SubMgcpTransactionManagerTest {
         final InetSocketAddress local = new InetSocketAddress("127.0.0.1", 2427);
         final InetSocketAddress remote = new InetSocketAddress("127.0.0.1", 2727);
         final MgcpResponse response = mock(MgcpResponse.class);
-        final MgcpCommand command = mock(MgcpCommand.class);
         final MgcpTransactionNumberspace numberspace = mock(MgcpTransactionNumberspace.class);
         final ListeningExecutorService executor = mock(ListeningExecutorService.class);
         final SubMgcpTransactionManager txManager = new SubMgcpTransactionManager(numberspace, executor);
         
         // when - request
-        when(executor.submit(command)).thenReturn(mock(ListenableFuture.class));
         when(response.toString()).thenReturn(REQUEST);
         when(response.isRequest()).thenReturn(true);
         when(response.getTransactionId()).thenReturn(transactionId);
@@ -233,7 +232,6 @@ public class SubMgcpTransactionManagerTest {
         final Map<Integer, MgcpTransaction> transactions = (Map<Integer, MgcpTransaction>) Whitebox.getInternalState(transactionManager, "transactions");
 
         // when
-        when(executor.submit(command)).thenReturn(mock(ListenableFuture.class));
         when(request.getTransactionId()).thenReturn(transactionId);
         when(response.getTransactionId()).thenReturn(transactionId);
 

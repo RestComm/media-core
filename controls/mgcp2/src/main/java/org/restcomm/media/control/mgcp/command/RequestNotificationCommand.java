@@ -45,6 +45,7 @@ import org.restcomm.media.control.mgcp.pkg.exception.UnsupportedMgcpSignalExcept
 import org.restcomm.media.control.mgcp.util.collections.Parameters;
 
 import com.google.common.base.Optional;
+import com.google.common.util.concurrent.FutureCallback;
 
 /**
  * The NotificationRequest command is used to request the gateway to send notifications upon the occurrence of specified events
@@ -167,7 +168,7 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
     }
 
     @Override
-    public MgcpCommandResult call() {
+    public void execute(FutureCallback<MgcpCommandResult> callback) {
         // Initialize empty context
         RqntContext context = new RqntContext();
         try {
@@ -186,7 +187,8 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
             context.code = e.getCode();
             context.message = e.getMessage();
         }
-        return respond(context);
+        MgcpCommandResult result = respond(context);
+        callback.onSuccess(result);
     }
 
     private class RqntContext {
