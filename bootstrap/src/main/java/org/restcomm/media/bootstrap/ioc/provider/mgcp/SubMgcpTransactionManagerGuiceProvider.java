@@ -24,7 +24,6 @@ package org.restcomm.media.bootstrap.ioc.provider.mgcp;
 import org.restcomm.media.control.mgcp.transaction.MgcpTransactionNumberspace;
 import org.restcomm.media.control.mgcp.transaction.SubMgcpTransactionManagerProvider;
 
-import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
@@ -32,20 +31,18 @@ import com.google.inject.Provider;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class SubMgcpTransactionManagerProviderProvider implements Provider<SubMgcpTransactionManagerProvider> {
+public class SubMgcpTransactionManagerGuiceProvider implements Provider<SubMgcpTransactionManagerProvider> {
 
     private final MgcpTransactionNumberspace numberspace;
-    private final ListeningExecutorService executor;
 
     @Inject
-    public SubMgcpTransactionManagerProviderProvider(MgcpTransactionNumberspace numberspace, ListeningExecutorService executor) {
+    public SubMgcpTransactionManagerGuiceProvider(MgcpTransactionNumberspace numberspace) {
         this.numberspace = numberspace;
-        this.executor = executor;
     }
 
     @Override
     public SubMgcpTransactionManagerProvider get() {
-        return new SubMgcpTransactionManagerProvider(this.numberspace, this.executor);
+        return new SubMgcpTransactionManagerProvider(this.numberspace);
     }
 
 }

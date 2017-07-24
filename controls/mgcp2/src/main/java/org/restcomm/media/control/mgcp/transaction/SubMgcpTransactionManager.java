@@ -43,7 +43,6 @@ import org.restcomm.media.control.mgcp.util.collections.Parameters;
 import com.google.common.base.Optional;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.ListeningExecutorService;
 
 /**
  * Manages a group of MGCP transactions.
@@ -54,9 +53,6 @@ import com.google.common.util.concurrent.ListeningExecutorService;
 public class SubMgcpTransactionManager implements MgcpTransactionManager {
 
     private static final Logger log = Logger.getLogger(SubMgcpTransactionManager.class);
-
-    // Concurrency Components
-    private final ListeningExecutorService executor;
 
     // MGCP Components
     private final MgcpTransactionNumberspace numberspace;
@@ -74,10 +70,7 @@ public class SubMgcpTransactionManager implements MgcpTransactionManager {
     // Observers
     private final Set<MgcpMessageObserver> observers;
 
-    public SubMgcpTransactionManager(MgcpTransactionNumberspace numberspace, ListeningExecutorService executor) {
-        // Concurrency Components
-        this.executor = executor;
-
+    public SubMgcpTransactionManager(MgcpTransactionNumberspace numberspace) {
         // MGCP Components
         this.numberspace = numberspace;
 

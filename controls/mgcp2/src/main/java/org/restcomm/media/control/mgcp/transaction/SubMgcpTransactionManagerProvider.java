@@ -21,8 +21,6 @@
 
 package org.restcomm.media.control.mgcp.transaction;
 
-import com.google.common.util.concurrent.ListeningExecutorService;
-
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
@@ -30,16 +28,14 @@ import com.google.common.util.concurrent.ListeningExecutorService;
 public class SubMgcpTransactionManagerProvider implements MgcpTransactionManagerProvider {
 
     private final MgcpTransactionNumberspace numberspace;
-    private final ListeningExecutorService executor;
 
-    public SubMgcpTransactionManagerProvider(MgcpTransactionNumberspace numberspace, ListeningExecutorService executor) {
+    public SubMgcpTransactionManagerProvider(MgcpTransactionNumberspace numberspace) {
         this.numberspace = numberspace;
-        this.executor = executor;
     }
 
     @Override
     public MgcpTransactionManager provide() {
-        return new SubMgcpTransactionManager(this.numberspace, this.executor);
+        return new SubMgcpTransactionManager(this.numberspace);
     }
 
 }

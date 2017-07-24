@@ -49,7 +49,6 @@ import org.restcomm.media.control.mgcp.message.MgcpRequestType;
 import org.restcomm.media.control.mgcp.message.MgcpResponse;
 
 import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.ListeningExecutorService;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -71,8 +70,7 @@ public class SubMgcpTransactionManagerTest {
         final MgcpResponse response = mock(MgcpResponse.class);
         final MgcpCommand command = mock(MgcpCommand.class);
         final MgcpTransactionNumberspace numberspace = mock(MgcpTransactionNumberspace.class);
-        final ListeningExecutorService executor = mock(ListeningExecutorService.class);
-        final SubMgcpTransactionManager txManager = new SubMgcpTransactionManager(numberspace, executor);
+        final SubMgcpTransactionManager txManager = new SubMgcpTransactionManager(numberspace);
 
         // when - request
         when(request.toString()).thenReturn(REQUEST);
@@ -106,8 +104,7 @@ public class SubMgcpTransactionManagerTest {
         final MgcpRequest request = mock(MgcpRequest.class);
         final MgcpResponse response = mock(MgcpResponse.class);
         final MgcpTransactionNumberspace numberspace = mock(MgcpTransactionNumberspace.class);
-        final ListeningExecutorService executor = mock(ListeningExecutorService.class);
-        final SubMgcpTransactionManager txManager = new SubMgcpTransactionManager(numberspace, executor);
+        final SubMgcpTransactionManager txManager = new SubMgcpTransactionManager(numberspace);
 
         // when - request
         when(request.toString()).thenReturn(REQUEST);
@@ -141,8 +138,7 @@ public class SubMgcpTransactionManagerTest {
         final MgcpRequest request = mock(MgcpRequest.class);
         final MgcpCommand command = mock(MgcpCommand.class);
         final MgcpTransactionNumberspace numberspace = mock(MgcpTransactionNumberspace.class);
-        final ListeningExecutorService executor = mock(ListeningExecutorService.class);
-        final SubMgcpTransactionManager txManager = new SubMgcpTransactionManager(numberspace, executor);
+        final SubMgcpTransactionManager txManager = new SubMgcpTransactionManager(numberspace);
 
         // when - request
         when(request.toString()).thenReturn(REQUEST);
@@ -162,8 +158,7 @@ public class SubMgcpTransactionManagerTest {
         final InetSocketAddress remote = new InetSocketAddress("127.0.0.1", 2727);
         final MgcpResponse response = mock(MgcpResponse.class);
         final MgcpTransactionNumberspace numberspace = mock(MgcpTransactionNumberspace.class);
-        final ListeningExecutorService executor = mock(ListeningExecutorService.class);
-        final SubMgcpTransactionManager txManager = new SubMgcpTransactionManager(numberspace, executor);
+        final SubMgcpTransactionManager txManager = new SubMgcpTransactionManager(numberspace);
         
         // when - request
         when(response.toString()).thenReturn(REQUEST);
@@ -179,8 +174,7 @@ public class SubMgcpTransactionManagerTest {
         // given
         final MgcpMessageObserver observer = mock(MgcpMessageObserver.class);
         final MgcpTransactionNumberspace numberspace = new MgcpTransactionNumberspace();
-        final ListeningExecutorService executor = mock(ListeningExecutorService.class);
-        final SubMgcpTransactionManager transactionManager = new SubMgcpTransactionManager(numberspace, executor);
+        final SubMgcpTransactionManager transactionManager = new SubMgcpTransactionManager(numberspace);
         final Collection<MgcpMessageObserver> observers = (Collection<MgcpMessageObserver>) Whitebox.getInternalState(transactionManager, "observers");
 
         // when
@@ -203,8 +197,7 @@ public class SubMgcpTransactionManagerTest {
         // given
         final MgcpMessageObserver observer = mock(MgcpMessageObserver.class);
         final MgcpTransactionNumberspace numberspace = new MgcpTransactionNumberspace();
-        final ListeningExecutorService executor = mock(ListeningExecutorService.class);
-        final SubMgcpTransactionManager transactionManager = new SubMgcpTransactionManager(numberspace, executor);
+        final SubMgcpTransactionManager transactionManager = new SubMgcpTransactionManager(numberspace);
         final Collection<MgcpMessageObserver> observers = (Collection<MgcpMessageObserver>) Whitebox.getInternalState(transactionManager, "observers");
 
         // when
@@ -227,8 +220,7 @@ public class SubMgcpTransactionManagerTest {
         final MgcpCommand command = mock(MgcpCommand.class);
         final MgcpMessageObserver observer = mock(MgcpMessageObserver.class);
         final MgcpTransactionNumberspace numberspace = mock(MgcpTransactionNumberspace.class);
-        final ListeningExecutorService executor = mock(ListeningExecutorService.class);
-        final SubMgcpTransactionManager transactionManager = new SubMgcpTransactionManager(numberspace, executor);
+        final SubMgcpTransactionManager transactionManager = new SubMgcpTransactionManager(numberspace);
         final Map<Integer, MgcpTransaction> transactions = (Map<Integer, MgcpTransaction>) Whitebox.getInternalState(transactionManager, "transactions");
 
         // when
@@ -267,8 +259,7 @@ public class SubMgcpTransactionManagerTest {
         final MgcpResponse response = mock(MgcpResponse.class);
         final MgcpMessageObserver observer = mock(MgcpMessageObserver.class);
         final MgcpTransactionNumberspace numberspace = mock(MgcpTransactionNumberspace.class);
-        final ListeningExecutorService executor = mock(ListeningExecutorService.class);
-        final SubMgcpTransactionManager transactionManager = new SubMgcpTransactionManager(numberspace, executor);
+        final SubMgcpTransactionManager transactionManager = new SubMgcpTransactionManager(numberspace);
         final Map<Integer, MgcpTransaction> transactions = (Map<Integer, MgcpTransaction>) Whitebox.getInternalState(transactionManager, "transactions");
 
         // when
