@@ -31,8 +31,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.junit.Test;
-import org.restcomm.media.control.mgcp.command.CreateConnectionCommand;
-import org.restcomm.media.control.mgcp.command.MgcpCommandResult;
+import org.mockito.ArgumentCaptor;
 import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.restcomm.media.control.mgcp.connection.MgcpLocalConnection;
 import org.restcomm.media.control.mgcp.connection.MgcpRemoteConnection;
@@ -49,12 +48,15 @@ import org.restcomm.media.control.mgcp.message.MgcpRequest;
 import org.restcomm.media.control.mgcp.message.MgcpResponseCode;
 import org.restcomm.media.control.mgcp.util.collections.Parameters;
 
+import com.google.common.util.concurrent.FutureCallback;
+
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
 public class CreateConnectionCommandTest {
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testCreateLocalConnectionsBetweenTwoEndpoints() throws MgcpException {
         // given
@@ -90,8 +92,10 @@ public class CreateConnectionCommandTest {
         when(ivrEndpoint.getEndpointId()).thenReturn(ivrEndpointId);
         when(bridgeEndpoint.createConnection(callId, true)).thenReturn(connection1);
         when(ivrEndpoint.createConnection(callId, true)).thenReturn(connection2);
-
-        MgcpCommandResult result = crcx.call();
+        
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        crcx.execute(callback);
 
         // then
         verify(endpointManager, times(1)).registerEndpoint("mobicents/bridge/");
@@ -99,6 +103,9 @@ public class CreateConnectionCommandTest {
         verify(bridgeEndpoint, times(1)).createConnection(callId, true);
         verify(ivrEndpoint, times(1)).createConnection(callId, true);
         verify(connection1, times(1)).join(connection2);
+        
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
         
         assertNotNull(result);
         assertEquals(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code(), result.getCode());
@@ -111,6 +118,7 @@ public class CreateConnectionCommandTest {
         assertEquals(connection2.getIdentifier(), parameters.getInteger(MgcpParameterType.CONNECTION_ID2).or(0).intValue());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testCreateOutboundRemoteConnection() throws MgcpException {
         // given
@@ -139,13 +147,18 @@ public class CreateConnectionCommandTest {
         when(bridgeEndpoint.getEndpointId()).thenReturn(bridgeEndpointId);
         when(bridgeEndpoint.createConnection(callId, false)).thenReturn(connection);
         
-        MgcpCommandResult result = crcx.call();
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        crcx.execute(callback);
 
         // then
         verify(endpointManager, times(1)).registerEndpoint("mobicents/bridge/");
         verify(bridgeEndpoint, times(1)).createConnection(callId, false);
         verify(connection, times(1)).halfOpen(any(LocalConnectionOptions.class));
         
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
+
         assertNotNull(result);
         assertEquals(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code(), result.getCode());
 
@@ -156,6 +169,7 @@ public class CreateConnectionCommandTest {
         assertEquals("answer", parameters.getString(MgcpParameterType.SDP).or(""));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testCreateInboundRemoteConnection() throws MgcpException {
         // given
@@ -194,13 +208,18 @@ public class CreateConnectionCommandTest {
         when(bridgeEndpoint.getEndpointId()).thenReturn(bridgeEndpointId);
         when(bridgeEndpoint.createConnection(callId, false)).thenReturn(connection);
 
-        MgcpCommandResult result = crcx.call();
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        crcx.execute(callback);
 
         // then
         verify(endpointManager, times(1)).registerEndpoint("mobicents/bridge/");
         verify(bridgeEndpoint, times(1)).createConnection(callId, false);
         verify(connection, times(1)).open(builderSdp.toString());
 
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
+        
         assertNotNull(result);
         assertEquals(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code(), result.getCode());
         assertEquals("answer", result.getParameters().getString(MgcpParameterType.SDP).or(""));
@@ -212,6 +231,7 @@ public class CreateConnectionCommandTest {
         assertEquals("answer", parameters.getString(MgcpParameterType.SDP).or(""));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testValidateRequestWithZ2AndSdpPresent() throws MgcpException {
         // given
@@ -239,14 +259,20 @@ public class CreateConnectionCommandTest {
         final CreateConnectionCommand crcx = new CreateConnectionCommand(transactionId, request.getParameters(), endpointManager);
 
         // when
-        MgcpCommandResult result = crcx.call();
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        crcx.execute(callback);
 
         // then
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
+
         assertNotNull(result);
         assertEquals(MgcpResponseCode.PROTOCOL_ERROR.code(), result.getCode());
         assertEquals(0, result.getParameters().size());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testValidateRequestWithMissingCallId() throws MgcpException {
         // given
@@ -262,14 +288,20 @@ public class CreateConnectionCommandTest {
         final CreateConnectionCommand crcx = new CreateConnectionCommand(transactionId, request.getParameters(), endpointManager);
 
         // when
-        MgcpCommandResult result = crcx.call();
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        crcx.execute(callback);
 
         // then
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
+
         assertNotNull(result);
         assertEquals(MgcpResponseCode.INCORRECT_CALL_ID.code(), result.getCode());
         assertEquals(0, result.getParameters().size());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testValidateRequestWithInvalidConnectionMode() throws MgcpException {
         // given
@@ -286,14 +318,20 @@ public class CreateConnectionCommandTest {
         final CreateConnectionCommand crcx = new CreateConnectionCommand(transactionId, request.getParameters(), endpointManager);
 
         // when
-        MgcpCommandResult result = crcx.call();
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        crcx.execute(callback);
 
         // then
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
+
         assertNotNull(result);
         assertEquals(MgcpResponseCode.INVALID_OR_UNSUPPORTED_MODE.code(), result.getCode());
         assertEquals(0, result.getParameters().size());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testValidateRequestWithComplicatedWildcardOnPrimaryEndpoint() throws MgcpException {
         // given
@@ -310,14 +348,20 @@ public class CreateConnectionCommandTest {
         final CreateConnectionCommand crcx = new CreateConnectionCommand(transactionId, request.getParameters(), endpointManager);
 
         // when
-        MgcpCommandResult result = crcx.call();
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        crcx.execute(callback);
 
         // then
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
+
         assertNotNull(result);
         assertEquals(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(), result.getCode());
         assertEquals(0, result.getParameters().size());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testValidateRequestWithComplicatedWildcardOnSecondaryEndpoint() throws MgcpException {
         // given
@@ -334,14 +378,20 @@ public class CreateConnectionCommandTest {
         final CreateConnectionCommand crcx = new CreateConnectionCommand(transactionId, request.getParameters(), endpointManager);
 
         // when
-        MgcpCommandResult result = crcx.call();
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        crcx.execute(callback);
 
         // then
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
+
         assertNotNull(result);
         assertEquals(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(), result.getCode());
         assertEquals(0, result.getParameters().size());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testValidateRequestWithUnknownPrimaryEndpoint() throws MgcpException {
         // given
@@ -360,14 +410,20 @@ public class CreateConnectionCommandTest {
         // when
         when(endpointManager.registerEndpoint("mobicents/bridge/")).thenThrow(new UnrecognizedMgcpNamespaceException(""));
 
-        MgcpCommandResult result = crcx.call();
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        crcx.execute(callback);
 
         // then
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
+        
         assertNotNull(result);
         assertEquals(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE.code(), result.getCode());
         assertEquals(0, result.getParameters().size());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testValidateRequestWithUnknownSecondaryEndpoint() throws MgcpException {
         // given
@@ -390,14 +446,20 @@ public class CreateConnectionCommandTest {
         when(endpointManager.registerEndpoint("mobicents/ivr/")).thenThrow(new UnrecognizedMgcpNamespaceException(""));
         when(bridgeEndpoint.getEndpointId()).thenReturn(bridgeEndpointId);
 
-        MgcpCommandResult result = crcx.call();
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        crcx.execute(callback);
 
         // then
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
+        
         assertNotNull(result);
         assertEquals(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE.code(), result.getCode());
         assertEquals(0, result.getParameters().size());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testRollback() throws MgcpException {
         // given
@@ -438,12 +500,17 @@ public class CreateConnectionCommandTest {
 
         doThrow(MgcpConnectionException.class).when(connection1).join(connection2);
 
-        MgcpCommandResult result = crcx.call();
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        crcx.execute(callback);
 
         // then
         verify(bridgeEndpoint, times(1)).deleteConnection(callId, connection1.getIdentifier());
         verify(ivrEndpoint, times(1)).deleteConnection(callId, connection2.getIdentifier());
 
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
+        
         assertNotNull(result);
         assertEquals(MgcpResponseCode.PROTOCOL_ERROR.code(), result.getCode());
         assertEquals(0, result.getParameters().size());

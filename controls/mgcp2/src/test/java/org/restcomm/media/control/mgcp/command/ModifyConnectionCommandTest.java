@@ -31,6 +31,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.restcomm.media.control.mgcp.command.MgcpCommandResult;
 import org.restcomm.media.control.mgcp.command.ModifyConnectionCommand;
 import org.restcomm.media.control.mgcp.connection.MgcpRemoteConnection;
@@ -45,12 +46,15 @@ import org.restcomm.media.control.mgcp.message.MgcpResponseCode;
 import org.restcomm.media.control.mgcp.util.collections.Parameters;
 import org.restcomm.media.spi.ConnectionMode;
 
+import com.google.common.util.concurrent.FutureCallback;
+
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
 public class ModifyConnectionCommandTest {
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testModifyConnectionMode() throws MgcpException {
         // given
@@ -71,12 +75,17 @@ public class ModifyConnectionCommandTest {
         when(endpointManager.getEndpoint("mobicents/bridge/1@127.0.0.1:2427")).thenReturn(bridgeEndpoint);
         when(bridgeEndpoint.getConnection(1, 1)).thenReturn(connection);
 
-        MgcpCommandResult result = mdcx.call();
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        mdcx.execute(callback);
 
         // then
         verify(connection, times(1)).setMode(ConnectionMode.SEND_ONLY);
         verify(connection, never()).open(any(String.class));
 
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
+        
         assertNotNull(result);
         assertEquals(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code(), result.getCode());
 
@@ -84,6 +93,7 @@ public class ModifyConnectionCommandTest {
         assertEquals(0, parameters.size());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testModifyRemoteDescription() throws MgcpException {
         // given
@@ -115,12 +125,16 @@ public class ModifyConnectionCommandTest {
         when(bridgeEndpoint.getConnection(1, 1)).thenReturn(connection);
         when(connection.open(any(String.class))).thenReturn("answer");
 
-        MgcpCommandResult result = mdcx.call();
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        mdcx.execute(callback);
 
         // then
         verify(connection, times(1)).setMode(ConnectionMode.SEND_RECV);
         verify(connection, times(1)).open(builderSdp.toString());
 
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
         assertNotNull(result);
         assertEquals(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code(), result.getCode());
 
@@ -129,6 +143,7 @@ public class ModifyConnectionCommandTest {
         assertEquals("answer", parameters.getString(MgcpParameterType.SDP).get());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testValidateRequestWithEndpointNameContainingWildCardAll() throws MgcpException {
         // given
@@ -145,9 +160,13 @@ public class ModifyConnectionCommandTest {
         final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(request.getTransactionId(), request.getParameters(), endpointManager);
 
         // when
-        MgcpCommandResult result = mdcx.call();
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        mdcx.execute(callback);
 
         // then
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
         assertNotNull(result);
         assertEquals(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(), result.getCode());
 
@@ -155,6 +174,7 @@ public class ModifyConnectionCommandTest {
         assertEquals(0, parameters.size());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testValidateRequestWithEndpointNameContainingWildCardAny() throws MgcpException {
         // given
@@ -171,9 +191,13 @@ public class ModifyConnectionCommandTest {
         final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(request.getTransactionId(), request.getParameters(), endpointManager);
 
         // when
-        MgcpCommandResult result = mdcx.call();
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        mdcx.execute(callback);
 
         // then
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
         assertNotNull(result);
         assertEquals(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(), result.getCode());
 
@@ -181,6 +205,7 @@ public class ModifyConnectionCommandTest {
         assertEquals(0, parameters.size());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testValidateRequestMissingCallId() throws MgcpException {
         // given
@@ -196,9 +221,13 @@ public class ModifyConnectionCommandTest {
         final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(request.getTransactionId(), request.getParameters(), endpointManager);
 
         // when
-        MgcpCommandResult result = mdcx.call();
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        mdcx.execute(callback);
 
         // then
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
         assertNotNull(result);
         assertEquals(MgcpResponseCode.INCORRECT_CALL_ID.code(), result.getCode());
 
@@ -206,6 +235,7 @@ public class ModifyConnectionCommandTest {
         assertEquals(0, parameters.size());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testValidateRequestMissingConnectionId() throws MgcpException {
         // given
@@ -221,9 +251,13 @@ public class ModifyConnectionCommandTest {
         final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(request.getTransactionId(), request.getParameters(), endpointManager);
 
         // when
-        MgcpCommandResult result = mdcx.call();
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        mdcx.execute(callback);
 
         // then
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
         assertNotNull(result);
         assertEquals(MgcpResponseCode.INCORRECT_CONNECTION_ID.code(), result.getCode());
 
@@ -231,6 +265,7 @@ public class ModifyConnectionCommandTest {
         assertEquals(0, parameters.size());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testValidateRequestWithInvalidMode() throws MgcpException {
         // given
@@ -247,9 +282,13 @@ public class ModifyConnectionCommandTest {
         final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(request.getTransactionId(), request.getParameters(), endpointManager);
 
         // when
-        MgcpCommandResult result = mdcx.call();
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        mdcx.execute(callback);
 
         // then
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
         assertNotNull(result);
         assertEquals(MgcpResponseCode.INVALID_OR_UNSUPPORTED_MODE.code(), result.getCode());
 
@@ -257,6 +296,7 @@ public class ModifyConnectionCommandTest {
         assertEquals(0, parameters.size());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testUnknownEndpoint() throws MgcpException {
         // given
@@ -277,9 +317,13 @@ public class ModifyConnectionCommandTest {
         when(endpointManager.getEndpoint("mobicents/bridge/1@127.0.0.1:2427")).thenReturn(null);
         when(bridgeEndpoint.getConnection(1, 1)).thenReturn(connection);
 
-        MgcpCommandResult result = mdcx.call();
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        mdcx.execute(callback);
 
         // then
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
         assertNotNull(result);
         assertEquals(MgcpResponseCode.ENDPOINT_UNKNOWN.code(), result.getCode());
 
@@ -287,6 +331,7 @@ public class ModifyConnectionCommandTest {
         assertEquals(0, parameters.size());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testUnknownConnection() throws MgcpException {
         // given
@@ -306,9 +351,13 @@ public class ModifyConnectionCommandTest {
         when(endpointManager.getEndpoint("mobicents/bridge/1@127.0.0.1:2427")).thenReturn(bridgeEndpoint);
         when(bridgeEndpoint.getConnection(1, 1)).thenReturn(null);
 
-        MgcpCommandResult result = mdcx.call();
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        mdcx.execute(callback);
 
         // then
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
         assertNotNull(result);
         assertEquals(MgcpResponseCode.INCORRECT_CONNECTION_ID.code(), result.getCode());
 
@@ -348,9 +397,13 @@ public class ModifyConnectionCommandTest {
         when(bridgeEndpoint.getConnection(1, 1)).thenReturn(connection);
         when(connection.open(builderSdp.toString())).thenThrow(MgcpConnectionException.class);
 
-        MgcpCommandResult result = mdcx.call();
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        mdcx.execute(callback);
 
         // then
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
         assertNotNull(result);
         assertEquals(MgcpResponseCode.UNSUPPORTED_SDP.code(), result.getCode());
 

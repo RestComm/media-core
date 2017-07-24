@@ -43,8 +43,6 @@ import org.restcomm.media.control.mgcp.util.collections.Parameters;
 import com.google.common.base.Optional;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 
 /**
@@ -135,8 +133,7 @@ public class SubMgcpTransactionManager implements MgcpTransactionManager {
         }
         
         if (command != null) {
-            ListenableFuture<MgcpCommandResult> future = this.executor.submit(command);
-            Futures.addCallback(future, new MgcpCommandCallback(from, to, request.getTransactionId()));
+            command.execute(new MgcpCommandCallback(from, to, request.getTransactionId()));
         }
     }
 

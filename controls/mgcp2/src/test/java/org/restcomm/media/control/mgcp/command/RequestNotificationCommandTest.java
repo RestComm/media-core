@@ -34,6 +34,7 @@ import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.restcomm.media.control.mgcp.command.MgcpCommandResult;
@@ -54,6 +55,8 @@ import org.restcomm.media.control.mgcp.pkg.MgcpSignal;
 import org.restcomm.media.control.mgcp.pkg.MgcpSignalProvider;
 import org.restcomm.media.control.mgcp.pkg.exception.UnrecognizedMgcpPackageException;
 import org.restcomm.media.control.mgcp.pkg.exception.UnsupportedMgcpSignalException;
+
+import com.google.common.util.concurrent.FutureCallback;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -117,9 +120,13 @@ public class RequestNotificationCommandTest {
 
         }).when(endpoint).requestNotification(any(NotificationRequest.class));
 
-        MgcpCommandResult result = rqnt.call();
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        rqnt.execute(callback);
 
         // then
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
         Assert.assertNotNull(result);
         Assert.assertEquals(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code(), result.getCode());
         verify(endpoint, times(1)).requestNotification(any(NotificationRequest.class));
@@ -178,9 +185,13 @@ public class RequestNotificationCommandTest {
             
         }).when(endpoint).requestNotification(any(NotificationRequest.class));
         
-        MgcpCommandResult result = rqnt.call();
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        rqnt.execute(callback);
         
         // then
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
         Assert.assertNotNull(result);
         Assert.assertEquals(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code(), result.getCode());
         verify(endpoint, times(1)).requestNotification(any(NotificationRequest.class));
@@ -245,14 +256,19 @@ public class RequestNotificationCommandTest {
 
         }).when(endpoint).requestNotification(any(NotificationRequest.class));
 
-        MgcpCommandResult result = rqnt.call();
-
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        rqnt.execute(callback);
+        
         // then
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
         Assert.assertNotNull(result);
         Assert.assertEquals(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code(), result.getCode());
         verify(endpoint, times(1)).requestNotification(any(NotificationRequest.class));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testNotificationRequestWithAnyWildcard() throws MgcpParseException {
         // given
@@ -273,13 +289,18 @@ public class RequestNotificationCommandTest {
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10@127.0.0.1:2427")).thenReturn(endpoint);
 
-        MgcpCommandResult result = rqnt.call();
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        rqnt.execute(callback);
         
         // then
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
         Assert.assertNotNull(result);
         Assert.assertEquals(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(), result.getCode());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testNotificationRequestMissingRequestIdentifier() throws MgcpParseException {
         // given
@@ -299,13 +320,18 @@ public class RequestNotificationCommandTest {
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10@127.0.0.1:2427")).thenReturn(endpoint);
 
-        MgcpCommandResult result = rqnt.call();
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        rqnt.execute(callback);
         
         // then
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
         Assert.assertNotNull(result);
         Assert.assertEquals(MgcpResponseCode.PROTOCOL_ERROR.code(), result.getCode());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testNotificationWithMissingEndpoint() throws MgcpParseException {
         // given
@@ -331,9 +357,13 @@ public class RequestNotificationCommandTest {
         when(mgcpPackage.getEventDetails(any(String.class))).thenReturn(eventType);
         when(eventType.parameterized()).thenReturn(false);
 
-        MgcpCommandResult result = rqnt.call();
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        rqnt.execute(callback);
         
         // then
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
         Assert.assertNotNull(result);
         Assert.assertEquals(MgcpResponseCode.ENDPOINT_UNKNOWN.code(), result.getCode());
     }
@@ -363,9 +393,13 @@ public class RequestNotificationCommandTest {
         when(endpoint.getMediaGroup()).thenReturn(mediaGroup);
         when(signalProvider.provide(eq("AX"), eq("pa"), eq(16), eq(notifiedEntity), any(Map.class), eq(endpoint))).thenThrow(new UnrecognizedMgcpPackageException(""));
 
-        MgcpCommandResult result = rqnt.call();
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        rqnt.execute(callback);
         
         // then
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
         Assert.assertNotNull(result);
         Assert.assertEquals(MgcpResponseCode.UNKNOWN_PACKAGE.code(), result.getCode());
     }
@@ -401,13 +435,18 @@ public class RequestNotificationCommandTest {
         when(mgcpPackage.getEventDetails(any(String.class))).thenReturn(eventType);
         when(eventType.parameterized()).thenReturn(false);
         
-        MgcpCommandResult result = rqnt.call();
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        rqnt.execute(callback);
         
         // then
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
         Assert.assertNotNull(result);
         Assert.assertEquals(MgcpResponseCode.NO_SUCH_EVENT_OR_SIGNAL.code(), result.getCode());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testNotificationRequestWithUnrecognizedPackageOnEvent() throws MgcpParseException {
         // given
@@ -428,13 +467,18 @@ public class RequestNotificationCommandTest {
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10@127.0.0.1:2427")).thenReturn(endpoint);
 
-        MgcpCommandResult result = rqnt.call();
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        rqnt.execute(callback);
         
         // then
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
         Assert.assertNotNull(result);
         Assert.assertEquals(MgcpResponseCode.UNKNOWN_PACKAGE.code(), result.getCode());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testNotificationRequestWithUnrecognizedEvent() throws MgcpParseException {
         // given
@@ -459,13 +503,18 @@ public class RequestNotificationCommandTest {
         when(packageManager.getPackage("AU")).thenReturn(mgcpPackage);
         when(mgcpPackage.getEventDetails("xyz")).thenReturn(null);
 
-        MgcpCommandResult result = rqnt.call();
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        rqnt.execute(callback);
         
         // then
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
         Assert.assertNotNull(result);
         Assert.assertEquals(MgcpResponseCode.NO_SUCH_EVENT_OR_SIGNAL.code(), result.getCode());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testNotificationRequestWithUnrecognizedAction() throws MgcpParseException {
         // given
@@ -492,13 +541,18 @@ public class RequestNotificationCommandTest {
         when(mgcpPackage.getEventDetails(any(String.class))).thenReturn(eventType);
         when(eventType.parameterized()).thenReturn(false);
 
-        MgcpCommandResult result = rqnt.call();
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        rqnt.execute(callback);
         
         // then
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
         Assert.assertNotNull(result);
         Assert.assertEquals(MgcpResponseCode.EVENT_OR_SIGNAL_PARAMETER_ERROR.code(), result.getCode());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testNotificationRequestWithMalformedRequestedEvents() throws MgcpParseException {
         // given
@@ -524,13 +578,18 @@ public class RequestNotificationCommandTest {
         when(mgcpPackage.getEventDetails(any(String.class))).thenReturn(eventType);
         when(eventType.parameterized()).thenReturn(false);
 
-        MgcpCommandResult result = rqnt.call();
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        rqnt.execute(callback);
         
         // then
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
         Assert.assertNotNull(result);
         Assert.assertEquals(MgcpResponseCode.PROTOCOL_ERROR.code(), result.getCode());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testNotificationRequestWithUnexpectedError() throws MgcpParseException {
         // given
@@ -556,9 +615,13 @@ public class RequestNotificationCommandTest {
         when(mgcpPackage.getEventDetails(any(String.class))).thenReturn(eventType);
         when(eventType.parameterized()).thenReturn(false);
 
-        MgcpCommandResult result = rqnt.call();
+        ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        rqnt.execute(callback);
         
         // then
+        verify(callback).onSuccess(resultCaptor.capture());
+        MgcpCommandResult result = resultCaptor.getValue();
         Assert.assertNotNull(result);
         Assert.assertEquals(MgcpResponseCode.PROTOCOL_ERROR.code(), result.getCode());
     }

@@ -32,6 +32,7 @@ import org.restcomm.media.control.mgcp.message.MgcpResponseCode;
 import org.restcomm.media.control.mgcp.util.collections.Parameters;
 
 import com.google.common.base.Optional;
+import com.google.common.util.concurrent.FutureCallback;
 
 /**
  * This command is used to terminate a single connection or multiple connections at the same time.<br>
@@ -136,7 +137,7 @@ public class DeleteConnectionCommand extends AbstractMgcpCommand {
     }
 
     @Override
-    public MgcpCommandResult call() {
+    public void execute(FutureCallback<MgcpCommandResult> callback) {
         // Initialize empty context
         DlcxContext context = new DlcxContext();
         try {
@@ -164,7 +165,8 @@ public class DeleteConnectionCommand extends AbstractMgcpCommand {
             context.message = e.getMessage();
         }
         // Build response
-        return respond(context);
+        MgcpCommandResult result = respond(context);
+        callback.onSuccess(result);
     }
 
     private class DlcxContext {

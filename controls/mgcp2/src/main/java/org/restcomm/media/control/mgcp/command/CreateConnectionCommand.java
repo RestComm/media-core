@@ -40,6 +40,7 @@ import org.restcomm.media.control.mgcp.util.collections.Parameters;
 import org.restcomm.media.spi.ConnectionMode;
 
 import com.google.common.base.Optional;
+import com.google.common.util.concurrent.FutureCallback;
 
 /**
  * This command is used to create a connection between two endpoints.
@@ -335,7 +336,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
     }
     
     @Override
-    public MgcpCommandResult call() {
+    public void execute(FutureCallback<MgcpCommandResult> callback) {
         // Initialize empty context
         CrcxContext context = new CrcxContext();
         try {
@@ -355,7 +356,9 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
             context.setCode(e.getCode());
             context.setMessage(e.getMessage());
         }
-        return respond(context);
+        
+        MgcpCommandResult response = respond(context);
+        callback.onSuccess(response);
     }
     
 

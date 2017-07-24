@@ -25,6 +25,8 @@ import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.restcomm.media.control.mgcp.message.MgcpParameterType;
 import org.restcomm.media.control.mgcp.util.collections.Parameters;
 
+import com.google.common.util.concurrent.FutureCallback;
+
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
@@ -36,9 +38,9 @@ public class AuditConnectionCommand extends AbstractMgcpCommand {
     }
 
     @Override
-    public MgcpCommandResult call() throws Exception {
+    public void execute(FutureCallback<MgcpCommandResult> callback) {
         // TODO Auto-generated method stub
-        return null;
+        callback.onFailure(new UnsupportedOperationException("MGCP AUCX not yet implemented"));
     }
 
 }

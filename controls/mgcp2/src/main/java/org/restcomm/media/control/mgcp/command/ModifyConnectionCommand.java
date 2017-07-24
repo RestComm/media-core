@@ -33,6 +33,7 @@ import org.restcomm.media.control.mgcp.util.collections.Parameters;
 import org.restcomm.media.spi.ConnectionMode;
 
 import com.google.common.base.Optional;
+import com.google.common.util.concurrent.FutureCallback;
 
 /**
  * This command is used to modify the characteristics of a gateway's "view" of a connection.<br>
@@ -150,7 +151,7 @@ public class ModifyConnectionCommand extends AbstractMgcpCommand {
     }
 
     @Override
-    public MgcpCommandResult call() {
+    public void execute(FutureCallback<MgcpCommandResult> callback) {
         // Initialize empty context
         MdcxContext context = new MdcxContext();
         try {
@@ -169,7 +170,8 @@ public class ModifyConnectionCommand extends AbstractMgcpCommand {
             context.code = e.getCode();
             context.message = e.getMessage();
         }
-        return respond(context);
+        MgcpCommandResult result = respond(context);
+        callback.onSuccess(result);
     }
 
     private class MdcxContext {
