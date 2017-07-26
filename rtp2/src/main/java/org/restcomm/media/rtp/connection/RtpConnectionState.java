@@ -18,17 +18,17 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
+
 package org.restcomm.media.rtp.connection;
 
 /**
+ * Set of states of an RTP Connection.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum RtpConnectionState {
+enum RtpConnectionState {
 
-    IDLE,
-    OPENING, PARSING_REMOTE_DESCRIPTION, ALLOCATING_SESSION, SETTING_SESSION_MODE, NEGOTIATING_SESSION, GENERATING_LOCAL_DESCRIPTION, OPEN, CORRUPTED, 
-    UPDATING_MODE, UPDATING_SESSION_MODE, SESSION_MODE_UPDATED,
-    CLOSING, CLOSING_SESSION, CLOSED_SESSION, CLOSED;
+    IDLE, ALLOCATING_SESSION, NEGOTIATING_SESSION, PARSING_REMOTE_SDP, GENERATING_REMOTE_SDP, UPDATING_MODE, HALF_OPEN, OPEN, CORRUPTED, CLOSING, CLOSED;
+
 }

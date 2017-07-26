@@ -21,58 +21,92 @@
 
 package org.restcomm.media.rtp.connection;
 
+import org.restcomm.media.network.deprecated.PortManager;
+import org.restcomm.media.rtp.RtpSession;
+import org.restcomm.media.rtp.RtpSessionFactory;
 import org.restcomm.media.sdp.SessionDescription;
 import org.restcomm.media.spi.ConnectionMode;
 
 /**
+ * Runtime context of an RTP Connection.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpConnectionContext {
-
+class RtpConnectionContext {
+    
+    // Dependencies
+    private final RtpSessionFactory sessionFactory;
+    private final PortManager portManager;
+    
+    // RTP Connection
     private final String cname;
-    private final String localAddress;
+    private final String bindAddress;
     private final String externalAddress;
 
     private ConnectionMode mode;
+    private RtpSession rtpSession;
     private SessionDescription localDescription;
     private SessionDescription remoteDescription;
+    
+    private Throwable error;
 
-    public RtpConnectionContext(String cname, String localAddress, String externalAddress) {
+    RtpConnectionContext(String cname, String bindAddress, String externalAddress, RtpSessionFactory sessionFactory, PortManager portManager) {
+        // Dependencies
+        this.sessionFactory = sessionFactory;
+        this.portManager = portManager;
+        
+        // RTP Connection
         this.cname = cname;
-        this.localAddress = localAddress;
+        this.bindAddress = bindAddress;
         this.externalAddress = externalAddress;
 
         this.mode = ConnectionMode.INACTIVE;
-        this.localDescription = null;
-        this.remoteDescription = null;
+    }
+    
+    /*
+     * Dependencies
+     */
+    public RtpSessionFactory getSessionFactory() {
+        return sessionFactory;
+    }
+    
+    public PortManager getPortManager() {
+        return portManager;
     }
 
-    public String getCname() {
-        return cname;
+    /*
+     * RTP Connection
+     */
+    public Throwable getError() {
+        return error;
     }
-
-    public String getLocalAddress() {
-        return localAddress;
+    
+    public void setError(Throwable error) {
+        this.error = error;
     }
-
-    public String getExternalAddress() {
-        return externalAddress;
-    }
-
+    
     public ConnectionMode getMode() {
         return mode;
     }
 
-    void setMode(ConnectionMode mode) {
+    public void setMode(ConnectionMode mode) {
         this.mode = mode;
+    }
+
+    public RtpSession getRtpSession() {
+        return rtpSession;
+    }
+
+    public void setRtpSession(RtpSession rtpSession) {
+        this.rtpSession = rtpSession;
     }
 
     public SessionDescription getLocalDescription() {
         return localDescription;
     }
 
-    void setLocalDescription(SessionDescription localDescription) {
+    public void setLocalDescription(SessionDescription localDescription) {
         this.localDescription = localDescription;
     }
 
@@ -80,8 +114,20 @@ public class RtpConnectionContext {
         return remoteDescription;
     }
 
-    void setRemoteDescription(SessionDescription remoteDescription) {
+    public void setRemoteDescription(SessionDescription remoteDescription) {
         this.remoteDescription = remoteDescription;
+    }
+
+    public String getBindAddress() {
+        return bindAddress;
+    }
+
+    public String getExternalAddress() {
+        return externalAddress;
+    }
+
+    public String getCname() {
+        return cname;
     }
 
 }

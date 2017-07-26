@@ -21,32 +21,32 @@
 
 package org.restcomm.media.rtp.connection;
 
-import org.restcomm.media.rtp.RtpSession;
-import org.restcomm.media.spi.ConnectionMode;
-
 import com.google.common.util.concurrent.FutureCallback;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class UpdateModeContext extends RtpConnectionBaseContext {
+public class AllocatingSessionCallback implements FutureCallback<Void> {
 
-    private final ConnectionMode mode;
-    private final RtpSession session;
+    private final RtpConnectionContext context;
+    private final RtpConnectionFsm fsm;
 
-    public UpdateModeContext(FutureCallback<Void> originator, ConnectionMode mode, RtpSession session) {
-        super(originator);
-        this.mode = mode;
-        this.session = session;
+    AllocatingSessionCallback(RtpConnectionContext context, RtpConnectionFsm fsm) {
+        super();
+        this.context = context;
+        this.fsm = fsm;
     }
 
-    public ConnectionMode getMode() {
-        return mode;
+    @Override
+    public void onSuccess(Void result) {
+        this.fsm.fire(RtpConnectionEvent.ALLOCATED_SESSION, this.context);
     }
 
-    public RtpSession getSession() {
-        return session;
+    @Override
+    public void onFailure(Throwable t) {
+        this.context.setError(t);
+        this.fsm.fireImmediate(RtpConnectionEvent.FAILURE, this.context);
     }
 
 }
