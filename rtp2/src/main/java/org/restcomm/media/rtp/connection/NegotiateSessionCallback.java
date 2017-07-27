@@ -25,21 +25,21 @@ package org.restcomm.media.rtp.connection;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class AllocateSessionCallback extends AbstractRtpConnectionActionCallback {
+public class NegotiateSessionCallback extends AbstractRtpConnectionActionCallback {
 
-    public AllocateSessionCallback(RtpConnectionTransitionContext context, RtpConnectionFsm fsm) {
+    public NegotiateSessionCallback(RtpConnectionTransitionContext context, RtpConnectionFsm fsm) {
         super(context, fsm);
     }
 
     @Override
     public void onSuccess(Void result) {
-        getFsm().fire(RtpConnectionEvent.ALLOCATED_SESSION, getContext());
+        getFsm().fire(RtpConnectionEvent.SESSION_NEGOTIATED, getContext());
     }
 
     @Override
     public void onFailure(Throwable t) {
         getContext().set(RtpConnectionTransitionParameter.ERROR, t);
-        getFsm().fireImmediate(RtpConnectionEvent.FAILURE, getContext());
+        getFsm().fire(RtpConnectionEvent.FAILURE, getContext());
     }
 
 }

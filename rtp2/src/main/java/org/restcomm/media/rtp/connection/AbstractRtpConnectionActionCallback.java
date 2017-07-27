@@ -21,25 +21,29 @@
 
 package org.restcomm.media.rtp.connection;
 
+import com.google.common.util.concurrent.FutureCallback;
+
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class AllocateSessionCallback extends AbstractRtpConnectionActionCallback {
+public abstract class AbstractRtpConnectionActionCallback implements FutureCallback<Void> {
 
-    public AllocateSessionCallback(RtpConnectionTransitionContext context, RtpConnectionFsm fsm) {
-        super(context, fsm);
+    private final RtpConnectionTransitionContext context;
+    private final RtpConnectionFsm fsm;
+
+    public AbstractRtpConnectionActionCallback(RtpConnectionTransitionContext context, RtpConnectionFsm fsm) {
+        super();
+        this.context = context;
+        this.fsm = fsm;
     }
 
-    @Override
-    public void onSuccess(Void result) {
-        getFsm().fire(RtpConnectionEvent.ALLOCATED_SESSION, getContext());
+    protected RtpConnectionTransitionContext getContext() {
+        return context;
     }
 
-    @Override
-    public void onFailure(Throwable t) {
-        getContext().set(RtpConnectionTransitionParameter.ERROR, t);
-        getFsm().fireImmediate(RtpConnectionEvent.FAILURE, getContext());
+    protected RtpConnectionFsm getFsm() {
+        return fsm;
     }
 
 }
