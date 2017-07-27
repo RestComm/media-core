@@ -34,6 +34,7 @@ import org.restcomm.media.sdp.SessionDescriptionParser;
 public enum RtpConnectionTransitionParameter {
 
     CNAME(String.class),
+    INBOUND(Boolean.class),
     LOCAL_SDP(SessionDescription.class),
     LOCAL_SDP_STRING(String.class),
     REMOTE_SDP(SessionDescription.class),
