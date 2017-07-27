@@ -21,18 +21,32 @@
 
 package org.restcomm.media.rtp.connection;
 
-import org.squirrelframework.foundation.fsm.AnonymousAction;
+import com.google.common.util.concurrent.FutureCallback;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class ParsingRemoteDescriptionAction
-        extends AnonymousAction<RtpConnectionFsm, RtpConnectionState, RtpConnectionEvent, RtpConnectionTransitionContext> {
+public class AllocateSessionCallback implements FutureCallback<Void> {
+
+    private final RtpConnectionTransitionContext context;
+    private final RtpConnectionFsm fsm;
+
+    AllocateSessionCallback(RtpConnectionTransitionContext context, RtpConnectionFsm fsm) {
+        super();
+        this.context = context;
+        this.fsm = fsm;
+    }
 
     @Override
-    public void execute(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext context, RtpConnectionFsm stateMachine) {
-        
+    public void onSuccess(Void result) {
+        this.fsm.fire(RtpConnectionEvent.ALLOCATED_SESSION, this.context);
+    }
+
+    @Override
+    public void onFailure(Throwable t) {
+        this.context.set(RtpConnectionTransitionParameter.ERROR, t);
+        this.fsm.fireImmediate(RtpConnectionEvent.FAILURE, this.context);
     }
 
 }

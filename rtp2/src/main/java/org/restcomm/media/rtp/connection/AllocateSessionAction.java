@@ -47,22 +47,20 @@ import org.squirrelframework.foundation.fsm.AnonymousAction;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class AllocatingSessionAction extends AnonymousAction<RtpConnectionFsm, RtpConnectionState, RtpConnectionEvent, RtpConnectionTransitionContext> {
+public class AllocateSessionAction extends AnonymousAction<RtpConnectionFsm, RtpConnectionState, RtpConnectionEvent, RtpConnectionTransitionContext> {
 
     @Override
-    public void execute(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event,
-            RtpConnectionTransitionContext context, RtpConnectionFsm stateMachine) {
+    public void execute(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext context, RtpConnectionFsm stateMachine) {
         // Get relevant data from context
         final SocketAddress bindAddress = context.get(RtpConnectionTransitionParameter.BIND_ADDRESS, SocketAddress.class);
-        final RtpSessionFactory sessionFactory = context.get(RtpConnectionTransitionParameter.RTP_SESSION_FACTORY,
-                RtpSessionFactory.class);
+        final RtpSessionFactory sessionFactory = context.get(RtpConnectionTransitionParameter.RTP_SESSION_FACTORY, RtpSessionFactory.class);
 
         // Create new RTP session
         RtpSession session = sessionFactory.build();
         context.set(RtpConnectionTransitionParameter.RTP_SESSION, session);
 
         // Open session
-        AllocatingSessionCallback callback = new AllocatingSessionCallback(context, stateMachine);
+        AllocateSessionCallback callback = new AllocateSessionCallback(context, stateMachine);
         session.open(bindAddress, callback);
     }
 

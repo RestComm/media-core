@@ -35,7 +35,9 @@ public enum RtpConnectionTransitionParameter {
 
     CNAME(String.class),
     LOCAL_SDP(SessionDescription.class),
+    LOCAL_SDP_STRING(String.class),
     REMOTE_SDP(SessionDescription.class),
+    REMOTE_SDP_STRING(String.class),
     ERROR(Throwable.class),
     RTP_SESSION(RtpSession.class),
     RTP_SESSION_FACTORY(RtpSessionFactory.class),

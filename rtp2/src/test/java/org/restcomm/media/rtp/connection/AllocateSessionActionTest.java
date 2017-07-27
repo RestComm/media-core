@@ -41,7 +41,7 @@ import com.google.common.util.concurrent.FutureCallback;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class AllocatingSessionActionTest {
+public class AllocateSessionActionTest {
     
     @Test
     @SuppressWarnings("unchecked")
@@ -52,7 +52,7 @@ public class AllocatingSessionActionTest {
         final RtpSessionFactory sessionFactory = mock(RtpSessionFactory.class);
         final RtpConnectionTransitionContext context = new RtpConnectionTransitionContext();
         final RtpConnectionFsm fsm = mock(RtpConnectionFsm.class);
-        final AllocatingSessionAction action = new AllocatingSessionAction();
+        final AllocateSessionAction action = new AllocateSessionAction();
         
         context.set(RtpConnectionTransitionParameter.BIND_ADDRESS, bindAddress);
         context.set(RtpConnectionTransitionParameter.RTP_SESSION_FACTORY, sessionFactory);
