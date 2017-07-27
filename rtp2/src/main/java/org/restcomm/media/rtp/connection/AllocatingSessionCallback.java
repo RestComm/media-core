@@ -29,10 +29,10 @@ import com.google.common.util.concurrent.FutureCallback;
  */
 public class AllocatingSessionCallback implements FutureCallback<Void> {
 
-    private final RtpConnectionContext context;
+    private final RtpConnectionTransitionContext context;
     private final RtpConnectionFsm fsm;
 
-    AllocatingSessionCallback(RtpConnectionContext context, RtpConnectionFsm fsm) {
+    AllocatingSessionCallback(RtpConnectionTransitionContext context, RtpConnectionFsm fsm) {
         super();
         this.context = context;
         this.fsm = fsm;
@@ -45,7 +45,7 @@ public class AllocatingSessionCallback implements FutureCallback<Void> {
 
     @Override
     public void onFailure(Throwable t) {
-        this.context.setError(t);
+        this.context.set(RtpConnectionTransitionParameter.ERROR, t);
         this.fsm.fireImmediate(RtpConnectionEvent.FAILURE, this.context);
     }
 

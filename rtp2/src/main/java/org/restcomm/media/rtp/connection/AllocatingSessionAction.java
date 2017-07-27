@@ -21,36 +21,49 @@
 
 package org.restcomm.media.rtp.connection;
 
-import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
-import org.restcomm.media.network.deprecated.PortManager;
 import org.restcomm.media.rtp.RtpSession;
 import org.restcomm.media.rtp.RtpSessionFactory;
 import org.squirrelframework.foundation.fsm.AnonymousAction;
 
 /**
+ * Builds a new RTP Session and binds it to a local address.
+ * 
+ * <p>
+ * Input parameters:
+ * <ul>
+ * <li>BIND_ADDRESS</li>
+ * <li>RTP_SESSION_FACTORY</li>
+ * </ul>
+ * </p>
+ * <p>
+ * Output parameters:
+ * <ul>
+ * <li>RTP_SESSION</li>
+ * </ul>
+ * </p>
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class AllocatingSessionAction extends AnonymousAction<RtpConnectionFsm, RtpConnectionState, RtpConnectionEvent, RtpConnectionContext> {
+public class AllocatingSessionAction extends AnonymousAction<RtpConnectionFsm, RtpConnectionState, RtpConnectionEvent, RtpConnectionTransitionContext> {
 
     @Override
-    public void execute(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionContext context, RtpConnectionFsm stateMachine) {
+    public void execute(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event,
+            RtpConnectionTransitionContext context, RtpConnectionFsm stateMachine) {
         // Get relevant data from context
-        final String bindAddress = context.getBindAddress();
-        final PortManager portManager = context.getPortManager();
-        final RtpSessionFactory sessionFactory = context.getSessionFactory();
+        final SocketAddress bindAddress = context.get(RtpConnectionTransitionParameter.BIND_ADDRESS, SocketAddress.class);
+        final RtpSessionFactory sessionFactory = context.get(RtpConnectionTransitionParameter.RTP_SESSION_FACTORY,
+                RtpSessionFactory.class);
 
         // Create new RTP session
         RtpSession session = sessionFactory.build();
-
-        // Allocate address for new session
-        SocketAddress address = new InetSocketAddress(bindAddress, portManager.next());
+        context.set(RtpConnectionTransitionParameter.RTP_SESSION, session);
 
         // Open session
         AllocatingSessionCallback callback = new AllocatingSessionCallback(context, stateMachine);
-        session.open(address, callback);
+        session.open(bindAddress, callback);
     }
 
 }

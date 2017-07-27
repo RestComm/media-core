@@ -18,15 +18,40 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
+
 package org.restcomm.media.rtp.connection;
 
-import org.squirrelframework.foundation.fsm.StateMachine;
+import org.restcomm.media.rtp.RtpSession;
+import org.restcomm.media.rtp.RtpSessionFactory;
+import org.restcomm.media.rtp.sdp.SdpBuilder;
+import org.restcomm.media.sdp.SessionDescription;
+import org.restcomm.media.sdp.SessionDescriptionParser;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-interface RtpConnectionFsm extends StateMachine<RtpConnectionFsm, RtpConnectionState, RtpConnectionEvent, RtpConnectionTransitionContext> {
+public enum RtpConnectionTransitionParameter {
+
+    CNAME(String.class),
+    LOCAL_SDP(SessionDescription.class),
+    REMOTE_SDP(SessionDescription.class),
+    ERROR(Throwable.class),
+    RTP_SESSION(RtpSession.class),
+    RTP_SESSION_FACTORY(RtpSessionFactory.class),
+    SDP_PARSER(SessionDescriptionParser.class),
+    SDP_BUILDER(SdpBuilder.class),
+    BIND_ADDRESS(String.class),
+    EXTERNAL_ADDRESS(String.class);
+
+    private final Class<?> type;
+
+    private RtpConnectionTransitionParameter(Class<?> type) {
+        this.type = type;
+    }
+
+    public Class<?> getType() {
+        return type;
+    }
 
 }

@@ -21,14 +21,17 @@
         
 package org.restcomm.media.rtp.connection;
 
-import static org.mockito.Mockito.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.net.InetSocketAddress;
 
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.restcomm.media.network.deprecated.PortManager;
 import org.restcomm.media.rtp.RtpSession;
 import org.restcomm.media.rtp.RtpSessionFactory;
 
@@ -44,18 +47,16 @@ public class AllocatingSessionActionTest {
     @SuppressWarnings("unchecked")
     public void testAllocateSessionInboundFlow() {
         // given
-        final String cname = "cname";
-        final int port = 6002;
-        final String bindAddress = "127.0.0.1";
-        final String externalAddress = "";
+        final InetSocketAddress bindAddress = new InetSocketAddress("127.0.0.1", 6002);
         final RtpSession session = mock(RtpSession.class);
         final RtpSessionFactory sessionFactory = mock(RtpSessionFactory.class);
-        final PortManager portManager = mock(PortManager.class);
-        final RtpConnectionContext context = new RtpConnectionContext(cname, bindAddress, externalAddress, sessionFactory, portManager);
+        final RtpConnectionTransitionContext context = new RtpConnectionTransitionContext();
         final RtpConnectionFsm fsm = mock(RtpConnectionFsm.class);
         final AllocatingSessionAction action = new AllocatingSessionAction();
         
-        when(portManager.next()).thenReturn(port);
+        context.set(RtpConnectionTransitionParameter.BIND_ADDRESS, bindAddress);
+        context.set(RtpConnectionTransitionParameter.RTP_SESSION_FACTORY, sessionFactory);
+        
         when(sessionFactory.build()).thenReturn(session);
         
         // when
@@ -65,8 +66,8 @@ public class AllocatingSessionActionTest {
         ArgumentCaptor<InetSocketAddress> addressCaptor = ArgumentCaptor.forClass(InetSocketAddress.class);
         verify(sessionFactory, times(1)).build();
         verify(session, times(1)).open(addressCaptor.capture(), any(FutureCallback.class));
-        assertEquals(bindAddress, addressCaptor.getValue().getHostString());
-        assertEquals(port, addressCaptor.getValue().getPort());
+        assertEquals(bindAddress, addressCaptor.getValue());
+        assertEquals(session, context.get(RtpConnectionTransitionParameter.RTP_SESSION, RtpSession.class));
     }
 
 }
