@@ -51,12 +51,14 @@ public class AllocateSessionActionTest {
         final RtpSession session = mock(RtpSession.class);
         final RtpSessionFactory sessionFactory = mock(RtpSessionFactory.class);
         final RtpConnectionTransitionContext context = new RtpConnectionTransitionContext();
+        final RtpConnectionContext globalContext = mock(RtpConnectionContext.class);
         final RtpConnectionFsm fsm = mock(RtpConnectionFsm.class);
         final AllocateSessionAction action = new AllocateSessionAction();
         
         context.set(RtpConnectionTransitionParameter.BIND_ADDRESS, bindAddress);
         context.set(RtpConnectionTransitionParameter.RTP_SESSION_FACTORY, sessionFactory);
         
+        when(fsm.getContext()).thenReturn(globalContext);
         when(sessionFactory.build()).thenReturn(session);
         
         // when
@@ -68,6 +70,7 @@ public class AllocateSessionActionTest {
         verify(session, times(1)).open(addressCaptor.capture(), any(FutureCallback.class));
         assertEquals(bindAddress, addressCaptor.getValue());
         assertEquals(session, context.get(RtpConnectionTransitionParameter.RTP_SESSION, RtpSession.class));
+        verify(globalContext, times(1)).setRtpSession(session);
     }
 
 }

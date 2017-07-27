@@ -56,7 +56,12 @@ public class ParseRemoteDescriptionAction extends AnonymousAction<RtpConnectionF
         try {
             // Parse SDP
             SessionDescription remoteSessionDescription = parser.parse(remoteSdp);
+            
+            // Update context
             context.set(RtpConnectionTransitionParameter.REMOTE_SDP, remoteSessionDescription);
+            stateMachine.getContext().setRemoteDescription(remoteSessionDescription);
+            
+            // Move to next state
             stateMachine.fire(RtpConnectionEvent.PARSED_REMOTE_SDP, context);
         } catch (SdpException e) {
             // Move to corrupted state if parsing fails

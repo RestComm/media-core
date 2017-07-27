@@ -41,6 +41,7 @@ public class ParseRemoteDescriptionActionTest {
     public void testParsingSuccess() throws SdpException {
         // given
         final RtpConnectionFsm fsm = mock(RtpConnectionFsm.class);
+        final RtpConnectionContext globalContext = mock(RtpConnectionContext.class);
         final String remoteSdpString = "xyz";
         final SessionDescription remoteSdp = mock(SessionDescription.class);
         final SessionDescriptionParser parser = mock(SessionDescriptionParser.class);
@@ -50,6 +51,7 @@ public class ParseRemoteDescriptionActionTest {
         context.set(RtpConnectionTransitionParameter.REMOTE_SDP_STRING, remoteSdpString);
         context.set(RtpConnectionTransitionParameter.SDP_PARSER, parser);
 
+        when(fsm.getContext()).thenReturn(globalContext);
         when(parser.parse(remoteSdpString)).thenReturn(remoteSdp);
 
         // when
@@ -58,6 +60,7 @@ public class ParseRemoteDescriptionActionTest {
         // then
         verify(parser, times(1)).parse(remoteSdpString);
         assertEquals(remoteSdp, context.get(RtpConnectionTransitionParameter.REMOTE_SDP, SessionDescription.class));
+        verify(globalContext).setRemoteDescription(remoteSdp);
         verify(fsm, times(1)).fire(RtpConnectionEvent.PARSED_REMOTE_SDP, context);
     }
 
@@ -65,6 +68,7 @@ public class ParseRemoteDescriptionActionTest {
     public void testParsingFailure() throws SdpException {
         // given
         final RtpConnectionFsm fsm = mock(RtpConnectionFsm.class);
+        final RtpConnectionContext globalContext = mock(RtpConnectionContext.class);
         final String remoteSdpString = "xyz";
         final SessionDescriptionParser parser = mock(SessionDescriptionParser.class);
         final RtpConnectionTransitionContext context = new RtpConnectionTransitionContext();
@@ -73,6 +77,7 @@ public class ParseRemoteDescriptionActionTest {
         context.set(RtpConnectionTransitionParameter.REMOTE_SDP_STRING, remoteSdpString);
         context.set(RtpConnectionTransitionParameter.SDP_PARSER, parser);
 
+        when(fsm.getContext()).thenReturn(globalContext);
         final SdpException exception = new SdpException("testing purposes");
         when(parser.parse(remoteSdpString)).thenThrow(exception);
 
@@ -82,6 +87,7 @@ public class ParseRemoteDescriptionActionTest {
         // then
         verify(parser, times(1)).parse(remoteSdpString);
         assertNull(context.get(RtpConnectionTransitionParameter.REMOTE_SDP, SessionDescription.class));
+        verify(globalContext, never()).setRemoteDescription(any(SessionDescription.class));
         assertEquals(exception, context.get(RtpConnectionTransitionParameter.ERROR, Throwable.class));
         verify(fsm, times(1)).fire(RtpConnectionEvent.FAILURE, context);
     }

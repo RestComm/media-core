@@ -69,6 +69,7 @@ public class GenerateLocalSdpAction extends AnonymousAction<RtpConnectionFsm, Rt
 
             // Update context
             context.set(RtpConnectionTransitionParameter.LOCAL_SDP, localSdp);
+            stateMachine.getContext().setLocalDescription(localSdp);
 
             // Fire event to move to next state
             stateMachine.fire(RtpConnectionEvent.GENERATED_LOCAL_SDP, context);

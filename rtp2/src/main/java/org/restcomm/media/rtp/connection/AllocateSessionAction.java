@@ -57,7 +57,10 @@ public class AllocateSessionAction extends AnonymousAction<RtpConnectionFsm, Rtp
 
         // Create new RTP session
         RtpSession session = sessionFactory.build();
+        
+        // Update context
         context.set(RtpConnectionTransitionParameter.RTP_SESSION, session);
+        stateMachine.getContext().setRtpSession(session);
 
         // Open session
         AllocateSessionCallback callback = new AllocateSessionCallback(context, stateMachine);

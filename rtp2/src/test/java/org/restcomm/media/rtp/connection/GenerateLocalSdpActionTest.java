@@ -48,6 +48,7 @@ public class GenerateLocalSdpActionTest {
         final SdpBuilder sdpBuilder = mock(SdpBuilder.class);
         final RtpConnectionTransitionContext context = new RtpConnectionTransitionContext();
         final RtpConnectionFsm fsm = mock(RtpConnectionFsm.class);
+        final RtpConnectionContext globalContext = mock(RtpConnectionContext.class);
         final GenerateLocalSdpAction action = new GenerateLocalSdpAction();
 
         context.set(RtpConnectionTransitionParameter.CNAME, cname);
@@ -57,17 +58,18 @@ public class GenerateLocalSdpActionTest {
         context.set(RtpConnectionTransitionParameter.RTP_SESSION, session);
         context.set(RtpConnectionTransitionParameter.SDP_BUILDER, sdpBuilder);
 
+        when(fsm.getContext()).thenReturn(globalContext);
         when(sdpBuilder.buildSessionDescription(!inbound, cname, localAddress, externalAddress, session)).thenReturn(localSdp);
 
         // when
-        action.execute(RtpConnectionState.NEGOTIATING_SESSION, RtpConnectionState.GENERATING_REMOTE_SDP,
-                RtpConnectionEvent.SESSION_NEGOTIATED, context, fsm);
+        action.execute(RtpConnectionState.NEGOTIATING_SESSION, RtpConnectionState.GENERATING_REMOTE_SDP, RtpConnectionEvent.SESSION_NEGOTIATED, context, fsm);
 
         // then
         verify(sdpBuilder, times(1)).buildSessionDescription(!inbound, cname, localAddress, externalAddress, session);
         assertEquals(localSdp, context.get(RtpConnectionTransitionParameter.LOCAL_SDP, SessionDescription.class));
         assertNull(context.get(RtpConnectionTransitionParameter.ERROR, Throwable.class));
         verify(fsm, times(1)).fire(RtpConnectionEvent.GENERATED_LOCAL_SDP, context);
+        verify(globalContext).setLocalDescription(localSdp);
     }
 
     @Test
@@ -81,6 +83,7 @@ public class GenerateLocalSdpActionTest {
         final SdpBuilder sdpBuilder = mock(SdpBuilder.class);
         final RtpConnectionTransitionContext context = new RtpConnectionTransitionContext();
         final RtpConnectionFsm fsm = mock(RtpConnectionFsm.class);
+        final RtpConnectionContext globalContext = mock(RtpConnectionContext.class);
         final GenerateLocalSdpAction action = new GenerateLocalSdpAction();
 
         context.set(RtpConnectionTransitionParameter.CNAME, cname);
@@ -90,16 +93,16 @@ public class GenerateLocalSdpActionTest {
         context.set(RtpConnectionTransitionParameter.RTP_SESSION, session);
         context.set(RtpConnectionTransitionParameter.SDP_BUILDER, sdpBuilder);
 
-        when(sdpBuilder.buildSessionDescription(!inbound, cname, localAddress, externalAddress, session))
-                .thenThrow(new RuntimeException());
+        when(fsm.getContext()).thenReturn(globalContext);
+        when(sdpBuilder.buildSessionDescription(!inbound, cname, localAddress, externalAddress, session)).thenThrow(new RuntimeException());
 
         // when
-        action.execute(RtpConnectionState.NEGOTIATING_SESSION, RtpConnectionState.GENERATING_REMOTE_SDP,
-                RtpConnectionEvent.SESSION_NEGOTIATED, context, fsm);
+        action.execute(RtpConnectionState.NEGOTIATING_SESSION, RtpConnectionState.GENERATING_REMOTE_SDP, RtpConnectionEvent.SESSION_NEGOTIATED, context, fsm);
 
         // then
         verify(sdpBuilder, times(1)).buildSessionDescription(!inbound, cname, localAddress, externalAddress, session);
         assertNull(context.get(RtpConnectionTransitionParameter.LOCAL_SDP, SessionDescription.class));
+        verify(globalContext, never()).setLocalDescription(any(SessionDescription.class));
         assertNotNull(context.get(RtpConnectionTransitionParameter.ERROR, Throwable.class));
         verify(fsm, times(1)).fire(RtpConnectionEvent.FAILURE, context);
     }
