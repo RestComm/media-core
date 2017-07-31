@@ -50,6 +50,12 @@ import org.squirrelframework.foundation.fsm.AnonymousAction;
  */
 public class NegotiateSessionAction extends AnonymousAction<RtpConnectionFsm, RtpConnectionState, RtpConnectionEvent, RtpConnectionTransitionContext> {
 
+    static final NegotiateSessionAction INSTANCE = new NegotiateSessionAction();
+    
+    NegotiateSessionAction() {
+        super();
+    }
+    
     @Override
     public void execute(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext context, RtpConnectionFsm stateMachine) {
         // Get input parameters

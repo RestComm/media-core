@@ -18,39 +18,30 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
+        
 package org.restcomm.media.rtp.connection;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.restcomm.media.sdp.SessionDescription;
+import org.squirrelframework.foundation.fsm.AnonymousCondition;
 
 /**
+ * Condition that is valid if there is a Remote Session Description in context.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpConnectionTransitionContext {
-
-    private final Map<RtpConnectionTransitionParameter, Object> data;
-
-    public RtpConnectionTransitionContext() {
-        this.data = new HashMap<>(10);
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T> T get(RtpConnectionTransitionParameter key, Class<T> type) throws IllegalArgumentException {
-        Object value = data.get(key);
-
-        if (value == null) {
-            return null;
-        } else if (type.isInstance(value)) {
-            return (T) value;
-        } else {
-            throw new IllegalArgumentException("Parameter " + key + "(" + value.getClass().getSimpleName() + ") is not of type " + type);
-        }
-    }
-
-    public void set(RtpConnectionTransitionParameter key, Object value) {
-        this.data.put(key, value);
-    }
+public class HasRemoteDescriptionCondition extends AnonymousCondition<RtpConnectionTransitionContext> {
     
+    static final HasRemoteDescriptionCondition INSTANCE = new HasRemoteDescriptionCondition();
+    
+    HasRemoteDescriptionCondition() {
+        super();
+    }
+
+    @Override
+    public boolean isSatisfied(RtpConnectionTransitionContext context) {
+        SessionDescription remoteSdp = context.get(RtpConnectionTransitionParameter.REMOTE_SDP, SessionDescription.class);
+        return (remoteSdp != null);
+    }
+
 }

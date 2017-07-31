@@ -21,36 +21,27 @@
 
 package org.restcomm.media.rtp.connection;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.restcomm.media.rtp.RtpSession;
+import org.squirrelframework.foundation.fsm.AnonymousCondition;
 
 /**
+ * Condition that is valid if there is no RTP Session in context.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpConnectionTransitionContext {
+public class NoSessionCondition extends AnonymousCondition<RtpConnectionTransitionContext> {
 
-    private final Map<RtpConnectionTransitionParameter, Object> data;
+    static final NoSessionCondition INSTANCE = new NoSessionCondition();
 
-    public RtpConnectionTransitionContext() {
-        this.data = new HashMap<>(10);
+    NoSessionCondition() {
+        super();
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> T get(RtpConnectionTransitionParameter key, Class<T> type) throws IllegalArgumentException {
-        Object value = data.get(key);
-
-        if (value == null) {
-            return null;
-        } else if (type.isInstance(value)) {
-            return (T) value;
-        } else {
-            throw new IllegalArgumentException("Parameter " + key + "(" + value.getClass().getSimpleName() + ") is not of type " + type);
-        }
+    @Override
+    public boolean isSatisfied(RtpConnectionTransitionContext context) {
+        RtpSession session = context.get(RtpConnectionTransitionParameter.RTP_SESSION, RtpSession.class);
+        return (session == null);
     }
 
-    public void set(RtpConnectionTransitionParameter key, Object value) {
-        this.data.put(key, value);
-    }
-    
 }

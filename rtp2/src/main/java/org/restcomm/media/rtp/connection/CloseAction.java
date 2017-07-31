@@ -44,6 +44,12 @@ import org.squirrelframework.foundation.fsm.AnonymousAction;
  *
  */
 public class CloseAction extends AnonymousAction<RtpConnectionFsm, RtpConnectionState, RtpConnectionEvent, RtpConnectionTransitionContext> {
+    
+    static final CloseAction INSTANCE = new CloseAction();
+    
+    CloseAction() {
+        super();
+    }
 
     @Override
     public void execute(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext context, RtpConnectionFsm stateMachine) {

@@ -21,36 +21,26 @@
 
 package org.restcomm.media.rtp.connection;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpConnectionTransitionContext {
+public class RtpConnectionFsmImpl
+        extends AbstractStateMachine<RtpConnectionFsm, RtpConnectionState, RtpConnectionEvent, RtpConnectionTransitionContext>
+        implements RtpConnectionFsm {
 
-    private final Map<RtpConnectionTransitionParameter, Object> data;
+    private final RtpConnectionContext context;
 
-    public RtpConnectionTransitionContext() {
-        this.data = new HashMap<>(10);
+    public RtpConnectionFsmImpl(RtpConnectionContext context) {
+        super();
+        this.context = context;
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> T get(RtpConnectionTransitionParameter key, Class<T> type) throws IllegalArgumentException {
-        Object value = data.get(key);
-
-        if (value == null) {
-            return null;
-        } else if (type.isInstance(value)) {
-            return (T) value;
-        } else {
-            throw new IllegalArgumentException("Parameter " + key + "(" + value.getClass().getSimpleName() + ") is not of type " + type);
-        }
+    @Override
+    public RtpConnectionContext getContext() {
+        return this.context;
     }
 
-    public void set(RtpConnectionTransitionParameter key, Object value) {
-        this.data.put(key, value);
-    }
-    
 }
