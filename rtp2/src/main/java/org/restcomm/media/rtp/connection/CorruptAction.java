@@ -21,43 +21,41 @@
 
 package org.restcomm.media.rtp.connection;
 
-import org.restcomm.media.rtp.RtpSession;
-import org.restcomm.media.rtp.RtpSessionFactory;
-import org.restcomm.media.rtp.sdp.SdpBuilder;
-import org.restcomm.media.sdp.SessionDescription;
-import org.restcomm.media.sdp.SessionDescriptionParser;
+import org.squirrelframework.foundation.fsm.AnonymousAction;
 
 import com.google.common.util.concurrent.FutureCallback;
 
 /**
+ * Warns caller that request operation failed and RTP Connection entered a corrupted state.
+ * 
+ * <p>
+ * Input parameters:
+ * <ul>
+ * <li>CALLBACK</li>
+ * <li>ERROR</li>
+ * </ul>
+ * </p>
+ * <p>
+ * Output parameters:
+ * <ul>
+ * <li>n/a</li>
+ * </ul>
+ * </p>
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum RtpConnectionTransitionParameter {
+public class CorruptAction
+        extends AnonymousAction<RtpConnectionFsm, RtpConnectionState, RtpConnectionEvent, RtpConnectionTransitionContext> {
 
-    CALLBACK(FutureCallback.class),
-    CNAME(String.class),
-    INBOUND(Boolean.class),
-    LOCAL_SDP(SessionDescription.class),
-    LOCAL_SDP_STRING(String.class),
-    REMOTE_SDP(SessionDescription.class),
-    REMOTE_SDP_STRING(String.class),
-    ERROR(Throwable.class),
-    RTP_SESSION(RtpSession.class),
-    RTP_SESSION_FACTORY(RtpSessionFactory.class),
-    SDP_PARSER(SessionDescriptionParser.class),
-    SDP_BUILDER(SdpBuilder.class),
-    BIND_ADDRESS(String.class),
-    EXTERNAL_ADDRESS(String.class);
+    @Override
+    public void execute(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext context, RtpConnectionFsm stateMachine) {
+        // Get input parameters
+        final FutureCallback<?> callback = context.get(RtpConnectionTransitionParameter.CALLBACK, FutureCallback.class);
+        final Throwable error = context.get(RtpConnectionTransitionParameter.ERROR, Throwable.class);
 
-    private final Class<?> type;
-
-    private RtpConnectionTransitionParameter(Class<?> type) {
-        this.type = type;
-    }
-
-    public Class<?> getType() {
-        return type;
+        // Warn callback that operation failed
+        callback.onFailure(error);
     }
 
 }

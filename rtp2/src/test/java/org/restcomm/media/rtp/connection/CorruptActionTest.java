@@ -21,11 +21,10 @@
 
 package org.restcomm.media.rtp.connection;
 
-import org.restcomm.media.rtp.RtpSession;
-import org.restcomm.media.rtp.RtpSessionFactory;
-import org.restcomm.media.rtp.sdp.SdpBuilder;
-import org.restcomm.media.sdp.SessionDescription;
-import org.restcomm.media.sdp.SessionDescriptionParser;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
+import org.junit.Test;
 
 import com.google.common.util.concurrent.FutureCallback;
 
@@ -33,31 +32,24 @@ import com.google.common.util.concurrent.FutureCallback;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum RtpConnectionTransitionParameter {
+public class CorruptActionTest {
 
-    CALLBACK(FutureCallback.class),
-    CNAME(String.class),
-    INBOUND(Boolean.class),
-    LOCAL_SDP(SessionDescription.class),
-    LOCAL_SDP_STRING(String.class),
-    REMOTE_SDP(SessionDescription.class),
-    REMOTE_SDP_STRING(String.class),
-    ERROR(Throwable.class),
-    RTP_SESSION(RtpSession.class),
-    RTP_SESSION_FACTORY(RtpSessionFactory.class),
-    SDP_PARSER(SessionDescriptionParser.class),
-    SDP_BUILDER(SdpBuilder.class),
-    BIND_ADDRESS(String.class),
-    EXTERNAL_ADDRESS(String.class);
+    @Test
+    public void testOpen() {
+        // given
+        final RtpConnectionFsm fsm = mock(RtpConnectionFsm.class);
+        final FutureCallback<?> callback = mock(FutureCallback.class);
+        final Throwable error = new Exception("test purposes");
+        final RtpConnectionTransitionContext context = new RtpConnectionTransitionContext();
+        context.set(RtpConnectionTransitionParameter.CALLBACK, callback);
+        context.set(RtpConnectionTransitionParameter.ERROR, error);
 
-    private final Class<?> type;
+        // when
+        final CorruptAction action = new CorruptAction();
+        action.execute(RtpConnectionState.PARSING_REMOTE_SDP, RtpConnectionState.OPEN, RtpConnectionEvent.GENERATED_LOCAL_SDP, context, fsm);
 
-    private RtpConnectionTransitionParameter(Class<?> type) {
-        this.type = type;
-    }
-
-    public Class<?> getType() {
-        return type;
+        // then
+        verify(callback).onFailure(error);
     }
 
 }

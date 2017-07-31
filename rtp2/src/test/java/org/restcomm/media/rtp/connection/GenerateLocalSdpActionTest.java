@@ -62,7 +62,7 @@ public class GenerateLocalSdpActionTest {
         when(sdpBuilder.buildSessionDescription(!inbound, cname, localAddress, externalAddress, session)).thenReturn(localSdp);
 
         // when
-        action.execute(RtpConnectionState.NEGOTIATING_SESSION, RtpConnectionState.GENERATING_REMOTE_SDP, RtpConnectionEvent.SESSION_NEGOTIATED, context, fsm);
+        action.execute(RtpConnectionState.NEGOTIATING_SESSION, RtpConnectionState.GENERATING_LOCAL_SDP, RtpConnectionEvent.SESSION_NEGOTIATED, context, fsm);
 
         // then
         verify(sdpBuilder, times(1)).buildSessionDescription(!inbound, cname, localAddress, externalAddress, session);
@@ -97,7 +97,7 @@ public class GenerateLocalSdpActionTest {
         when(sdpBuilder.buildSessionDescription(!inbound, cname, localAddress, externalAddress, session)).thenThrow(new RuntimeException());
 
         // when
-        action.execute(RtpConnectionState.NEGOTIATING_SESSION, RtpConnectionState.GENERATING_REMOTE_SDP, RtpConnectionEvent.SESSION_NEGOTIATED, context, fsm);
+        action.execute(RtpConnectionState.NEGOTIATING_SESSION, RtpConnectionState.GENERATING_LOCAL_SDP, RtpConnectionEvent.SESSION_NEGOTIATED, context, fsm);
 
         // then
         verify(sdpBuilder, times(1)).buildSessionDescription(!inbound, cname, localAddress, externalAddress, session);
