@@ -21,44 +21,39 @@
 
 package org.restcomm.media.rtp.connection;
 
+import static org.mockito.Mockito.*;
+
+import org.junit.Test;
 import org.restcomm.media.sdp.SessionDescription;
-import org.squirrelframework.foundation.fsm.AnonymousAction;
 
 import com.google.common.util.concurrent.FutureCallback;
 
 /**
- * Warns caller that request operation succeeded and RTP Connection is open.
- * 
- * <p>
- * Input parameters:
- * <ul>
- * <li>CALLBACK</li>
- * <li>LOCAL_SDP</li>
- * </ul>
- * </p>
- * <p>
- * Output parameters:
- * <ul>
- * <li>n/a</li>
- * </ul>
- * </p>
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class OpenAction
-        extends AnonymousAction<RtpConnectionFsm, RtpConnectionState, RtpConnectionEvent, RtpConnectionTransitionContext> {
+public class NotifyOpenActionTest {
 
-    @Override
+    @Test
     @SuppressWarnings("unchecked")
-    public void execute(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext context, RtpConnectionFsm stateMachine) {
-        // Get input parameters
-        final FutureCallback<String> callback = context.get(RtpConnectionTransitionParameter.CALLBACK, FutureCallback.class);
-        final SessionDescription localSdp = context.get(RtpConnectionTransitionParameter.LOCAL_SDP, SessionDescription.class);
+    public void testOpen() {
+        // given
+        final RtpConnectionFsm fsm = mock(RtpConnectionFsm.class);
+        final FutureCallback<String> callback = mock(FutureCallback.class);
+        final SessionDescription localSdp = mock(SessionDescription.class);
+        final String localSdpString = "local_sdp";
+        final RtpConnectionTransitionContext context = new RtpConnectionTransitionContext();
+        context.set(RtpConnectionTransitionParameter.CALLBACK, callback);
+        context.set(RtpConnectionTransitionParameter.LOCAL_SDP, localSdp);
 
-        // Get result and reply to callback
-        final String result = localSdp.toString();
-        callback.onSuccess(result);
+        when(localSdp.toString()).thenReturn(localSdpString);
+
+        // when
+        final NotifyOpenAction action = new NotifyOpenAction();
+        action.execute(RtpConnectionState.GENERATING_LOCAL_SDP, RtpConnectionState.OPEN, RtpConnectionEvent.GENERATED_LOCAL_SDP, context, fsm);
+
+        // then
+        verify(callback).onSuccess(localSdpString);
     }
 
 }

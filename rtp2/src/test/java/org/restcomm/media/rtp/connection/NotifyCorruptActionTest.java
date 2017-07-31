@@ -32,7 +32,7 @@ import com.google.common.util.concurrent.FutureCallback;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class CorruptActionTest {
+public class NotifyCorruptActionTest {
 
     @Test
     public void testOpen() {
@@ -45,7 +45,7 @@ public class CorruptActionTest {
         context.set(RtpConnectionTransitionParameter.ERROR, error);
 
         // when
-        final CorruptAction action = new CorruptAction();
+        final NotifyCorruptAction action = new NotifyCorruptAction();
         action.execute(RtpConnectionState.PARSING_REMOTE_SDP, RtpConnectionState.OPEN, RtpConnectionEvent.GENERATED_LOCAL_SDP, context, fsm);
 
         // then
