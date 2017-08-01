@@ -71,7 +71,7 @@ public class CloseActionTest {
         action.execute(RtpConnectionState.OPEN, RtpConnectionState.CLOSING, RtpConnectionEvent.CLOSE, context, fsm);
 
         // then
-        verify(fsm).fire(RtpConnectionEvent.CLOSED, context);
+        verify(fsm).fire(RtpConnectionEvent.SESSION_CLOSED, context);
     }
 
 }

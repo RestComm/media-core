@@ -21,9 +21,7 @@
 
 package org.restcomm.media.rtp.connection;
 
-import org.restcomm.media.network.deprecated.PortManager;
 import org.restcomm.media.rtp.RtpSession;
-import org.restcomm.media.rtp.RtpSessionFactory;
 import org.restcomm.media.sdp.SessionDescription;
 import org.restcomm.media.spi.ConnectionMode;
 
@@ -34,45 +32,24 @@ import org.restcomm.media.spi.ConnectionMode;
  *
  */
 class RtpConnectionContext {
-    
-    // Dependencies
-    private final RtpSessionFactory sessionFactory;
-    private final PortManager portManager;
-    
-    // RTP Connection
+
     private final String cname;
     private final String bindAddress;
     private final String externalAddress;
 
+    private boolean inbound;
     private ConnectionMode mode;
     private RtpSession rtpSession;
     private SessionDescription localDescription;
     private SessionDescription remoteDescription;
-    
+
     private Throwable error;
 
-    RtpConnectionContext(String cname, String bindAddress, String externalAddress, RtpSessionFactory sessionFactory, PortManager portManager) {
-        // Dependencies
-        this.sessionFactory = sessionFactory;
-        this.portManager = portManager;
-        
-        // RTP Connection
+    RtpConnectionContext(String cname, String bindAddress, String externalAddress) {
         this.cname = cname;
         this.bindAddress = bindAddress;
         this.externalAddress = externalAddress;
-
         this.mode = ConnectionMode.INACTIVE;
-    }
-    
-    /*
-     * Dependencies
-     */
-    public RtpSessionFactory getSessionFactory() {
-        return sessionFactory;
-    }
-    
-    public PortManager getPortManager() {
-        return portManager;
     }
 
     /*
@@ -81,16 +58,24 @@ class RtpConnectionContext {
     public Throwable getError() {
         return error;
     }
-    
-    public void setError(Throwable error) {
+
+    void setError(Throwable error) {
         this.error = error;
     }
     
+    public boolean isInbound() {
+        return inbound;
+    }
+    
+    void setInbound(boolean inbound) {
+        this.inbound = inbound;
+    }
+
     public ConnectionMode getMode() {
         return mode;
     }
 
-    public void setMode(ConnectionMode mode) {
+    void setMode(ConnectionMode mode) {
         this.mode = mode;
     }
 
@@ -98,7 +83,7 @@ class RtpConnectionContext {
         return rtpSession;
     }
 
-    public void setRtpSession(RtpSession rtpSession) {
+    void setRtpSession(RtpSession rtpSession) {
         this.rtpSession = rtpSession;
     }
 
@@ -106,7 +91,7 @@ class RtpConnectionContext {
         return localDescription;
     }
 
-    public void setLocalDescription(SessionDescription localDescription) {
+    void setLocalDescription(SessionDescription localDescription) {
         this.localDescription = localDescription;
     }
 
@@ -114,7 +99,7 @@ class RtpConnectionContext {
         return remoteDescription;
     }
 
-    public void setRemoteDescription(SessionDescription remoteDescription) {
+    void setRemoteDescription(SessionDescription remoteDescription) {
         this.remoteDescription = remoteDescription;
     }
 

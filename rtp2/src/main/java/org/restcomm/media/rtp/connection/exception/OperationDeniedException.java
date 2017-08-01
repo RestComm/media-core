@@ -18,15 +18,27 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
-package org.restcomm.media.rtp.connection;
+
+package org.restcomm.media.rtp.connection.exception;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-enum RtpConnectionEvent {
+public class OperationDeniedException extends RtpConnectionException {
 
-    HALF_OPEN, OPEN, CLOSE, ALLOCATED_SESSION, SESSION_NEGOTIATED, PARSED_REMOTE_SDP, GENERATED_LOCAL_SDP, MODE_UPDATED, FAILURE, SESSION_CLOSED;   
-    
+    private static final long serialVersionUID = 7721933157858484573L;
+
+    public OperationDeniedException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public OperationDeniedException(String message) {
+        super(message);
+    }
+
+    public OperationDeniedException(Throwable cause) {
+        super(cause);
+    }
+
 }

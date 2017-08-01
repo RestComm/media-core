@@ -46,9 +46,14 @@ import com.google.common.util.concurrent.FutureCallback;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class NotifyOpenAction
-        extends AnonymousAction<RtpConnectionFsm, RtpConnectionState, RtpConnectionEvent, RtpConnectionTransitionContext> {
+public class NotifyOpenAction extends AnonymousAction<RtpConnectionFsm, RtpConnectionState, RtpConnectionEvent, RtpConnectionTransitionContext> {
 
+    static final NotifyOpenAction INSTANCE = new NotifyOpenAction();
+
+    NotifyOpenAction() {
+        super();
+    }
+   
     @Override
     @SuppressWarnings("unchecked")
     public void execute(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext context, RtpConnectionFsm stateMachine) {

@@ -18,52 +18,42 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
+        
 package org.restcomm.media.rtp.connection;
 
-import org.restcomm.media.rtp.RtpSession;
 import org.squirrelframework.foundation.fsm.AnonymousAction;
 
 /**
- * Closes the RTP connection.
- * 
- * <p>
- * Input parameters:
- * <ul>
- * <li>CALLBACK</li>
- * <li>RTP_SESSION (optional)</li>
- * </ul>
- * </p>
- * <p>
- * Output parameters:
- * <ul>
- * <li>n/a</li>
- * </ul>
- * </p>
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class CloseAction extends AnonymousAction<RtpConnectionFsm, RtpConnectionState, RtpConnectionEvent, RtpConnectionTransitionContext> {
+public class SetCallFlowAction extends AnonymousAction<RtpConnectionFsm, RtpConnectionState, RtpConnectionEvent, RtpConnectionTransitionContext> {
+
+    static final SetCallFlowAction INSTANCE = new SetCallFlowAction();
     
-    static final CloseAction INSTANCE = new CloseAction();
-    
-    CloseAction() {
+    SetCallFlowAction() {
         super();
     }
-
+    
     @Override
     public void execute(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext context, RtpConnectionFsm stateMachine) {
-        // Get input parameters
-        final RtpSession rtpSession = context.get(RtpConnectionTransitionParameter.RTP_SESSION, RtpSession.class);
+        final boolean inbound;
+        
+        switch (event) {
+            case OPEN:
+                inbound = true; 
+                break;
 
-        if (rtpSession != null) {
-            // Close session if present. Then wait for callback before moving to CLOSED state.
-            final CloseSessionCallback callback = new CloseSessionCallback(context, stateMachine);
-            rtpSession.close(callback);
-        } else {
-            stateMachine.fire(RtpConnectionEvent.SESSION_CLOSED, context);
+            case HALF_OPEN:
+                inbound = false;
+                break;
+                
+            default:
+                throw new IllegalArgumentException("Event " + event + " is not allowed.");
         }
-
+        
+        stateMachine.getContext().setInbound(inbound);
+        context.set(RtpConnectionTransitionParameter.INBOUND, inbound);
     }
 
 }
