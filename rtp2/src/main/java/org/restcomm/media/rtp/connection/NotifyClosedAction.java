@@ -21,45 +21,47 @@
 
 package org.restcomm.media.rtp.connection;
 
-import java.net.SocketAddress;
-
-import org.restcomm.media.rtp.RtpSession;
-import org.restcomm.media.rtp.RtpSessionFactory;
-import org.restcomm.media.rtp.sdp.SdpBuilder;
-import org.restcomm.media.sdp.SessionDescription;
-import org.restcomm.media.sdp.SessionDescriptionParser;
+import org.apache.log4j.Logger;
+import org.squirrelframework.foundation.fsm.AnonymousAction;
 
 import com.google.common.util.concurrent.FutureCallback;
 
 /**
+ * Notifies listener that RTP Connection is closed.
+ * <p>
+ * Input parameters:
+ * <ul>
+ * <li>CALLBACK</li>
+ * </ul>
+ * </p>
+ * <p>
+ * Output parameters:
+ * <ul>
+ * <li>n/a</li>
+ * </ul>
+ * </p>
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum RtpConnectionTransitionParameter {
+public class NotifyClosedAction extends AnonymousAction<RtpConnectionFsm, RtpConnectionState, RtpConnectionEvent, RtpConnectionTransitionContext> {
 
-    CALLBACK(FutureCallback.class),
-    CNAME(String.class),
-    INBOUND(Boolean.class),
-    LOCAL_SDP(SessionDescription.class),
-    LOCAL_SDP_STRING(String.class),
-    REMOTE_SDP(SessionDescription.class),
-    REMOTE_SDP_STRING(String.class),
-    ERROR(Throwable.class),
-    RTP_SESSION(RtpSession.class),
-    RTP_SESSION_FACTORY(RtpSessionFactory.class),
-    SDP_PARSER(SessionDescriptionParser.class),
-    SDP_BUILDER(SdpBuilder.class),
-    BIND_ADDRESS(SocketAddress.class),
-    EXTERNAL_ADDRESS(String.class);
-
-    private final Class<?> type;
-
-    private RtpConnectionTransitionParameter(Class<?> type) {
-        this.type = type;
+    private static final Logger log = Logger.getLogger(NotifyClosedAction.class);
+    
+    static final NotifyClosedAction INSTANCE = new NotifyClosedAction();
+    
+    NotifyClosedAction() {
+        super();
     }
 
-    public Class<?> getType() {
-        return type;
+    @Override
+    public void execute(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event,
+            RtpConnectionTransitionContext context, RtpConnectionFsm stateMachine) {
+        // Get input parameters
+        final FutureCallback<?> callback = context.get(RtpConnectionTransitionParameter.CALLBACK, FutureCallback.class);
+
+        // Warn callback that operation failed
+        callback.onSuccess(null);
     }
 
 }

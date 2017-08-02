@@ -21,6 +21,8 @@
 
 package org.restcomm.media.rtp.connection;
 
+import java.net.InetSocketAddress;
+
 import org.restcomm.media.rtp.RtpSession;
 import org.restcomm.media.rtp.connection.exception.RtpConnectionException;
 import org.restcomm.media.rtp.sdp.SdpBuilder;
@@ -64,14 +66,14 @@ public class GenerateLocalSdpAction extends AnonymousAction<RtpConnectionFsm, Rt
         // Get input parameters
         final String cname = context.get(RtpConnectionTransitionParameter.CNAME, String.class);
         final boolean inbound = context.get(RtpConnectionTransitionParameter.INBOUND, Boolean.class);
-        final String localAddress = context.get(RtpConnectionTransitionParameter.BIND_ADDRESS, String.class);
+        final InetSocketAddress localAddress = context.get(RtpConnectionTransitionParameter.BIND_ADDRESS, InetSocketAddress.class);
         final String externalAddress = context.get(RtpConnectionTransitionParameter.EXTERNAL_ADDRESS, String.class);
         final RtpSession session = context.get(RtpConnectionTransitionParameter.RTP_SESSION, RtpSession.class);
         final SdpBuilder sdpBuilder = context.get(RtpConnectionTransitionParameter.SDP_BUILDER, SdpBuilder.class);
 
         try {
             // Generate local description
-            SessionDescription localSdp = sdpBuilder.buildSessionDescription(!inbound, cname, localAddress, externalAddress, session);
+            SessionDescription localSdp = sdpBuilder.buildSessionDescription(!inbound, cname, localAddress.getHostString(), externalAddress, session);
 
             // Update context
             context.set(RtpConnectionTransitionParameter.LOCAL_SDP, localSdp);

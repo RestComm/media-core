@@ -21,6 +21,10 @@
 
 package org.restcomm.media.rtp.connection;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.squirrelframework.foundation.fsm.Action;
 import org.squirrelframework.foundation.fsm.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
 
@@ -66,6 +70,11 @@ public class RtpConnectionFsmBuilder {
 
         this.builder.onEntry(RtpConnectionState.CLOSING).perform(CloseAction.INSTANCE);
         this.builder.externalTransition().from(RtpConnectionState.CLOSING).toFinal(RtpConnectionState.CLOSED).on(RtpConnectionEvent.SESSION_CLOSED);
+        
+        List<Action<RtpConnectionFsm, RtpConnectionState, RtpConnectionEvent, RtpConnectionTransitionContext>> closeActions = new ArrayList<>(2);
+        closeActions.add(NotifyClosedAction.INSTANCE);
+        closeActions.add(CleanupContextAction.INSTANCE);
+        this.builder.onEntry(RtpConnectionState.CLOSED).perform(closeActions);
     }
 
     public RtpConnectionFsm build(RtpConnectionContext context) {
