@@ -47,6 +47,12 @@ import com.google.common.util.concurrent.FutureCallback;
  */
 public class NotifyCorruptAction extends AnonymousAction<RtpConnectionFsm, RtpConnectionState, RtpConnectionEvent, RtpConnectionTransitionContext> {
 
+    static final NotifyCorruptAction INSTANCE = new NotifyCorruptAction();
+    
+    NotifyCorruptAction() {
+        super();
+    }
+    
     @Override
     public void execute(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext context, RtpConnectionFsm stateMachine) {
         // Get input parameters
