@@ -46,7 +46,7 @@ public class RtpConnectionFsmBuilder {
         this.builder.externalTransition().from(RtpConnectionState.IDLE).toFinal(RtpConnectionState.CLOSED).on(RtpConnectionEvent.CLOSE);
 
         this.builder.onEntry(RtpConnectionState.PARSING_REMOTE_SDP).perform(ParseRemoteDescriptionAction.INSTANCE);
-        this.builder.externalTransition().from(RtpConnectionState.PARSING_REMOTE_SDP).to(RtpConnectionState.ALLOCATING_SESSION).on(RtpConnectionEvent.PARSED_REMOTE_SDP).when(NoSessionCondition.INSTANCE);
+        this.builder.externalTransition().from(RtpConnectionState.PARSING_REMOTE_SDP).to(RtpConnectionState.ALLOCATING_SESSION).on(RtpConnectionEvent.PARSED_REMOTE_SDP).when(NoActiveSessionCondition.INSTANCE);
         this.builder.externalTransition().from(RtpConnectionState.PARSING_REMOTE_SDP).to(RtpConnectionState.CORRUPTED).on(RtpConnectionEvent.FAILURE);
         this.builder.externalTransition().from(RtpConnectionState.PARSING_REMOTE_SDP).to(RtpConnectionState.CLOSED).on(RtpConnectionEvent.CLOSE);
 
@@ -69,8 +69,8 @@ public class RtpConnectionFsmBuilder {
         this.builder.externalTransition().from(RtpConnectionState.OPEN).to(RtpConnectionState.CLOSING).on(RtpConnectionEvent.CLOSE);
 
         this.builder.onEntry(RtpConnectionState.CORRUPTED).perform(NotifyCorruptAction.INSTANCE);
-        this.builder.externalTransition().from(RtpConnectionState.CORRUPTED).to(RtpConnectionState.CLOSING).on(RtpConnectionEvent.CLOSE).when(HasSessionCondition.INSTANCE);
-        this.builder.externalTransition().from(RtpConnectionState.CORRUPTED).to(RtpConnectionState.CLOSED).on(RtpConnectionEvent.CLOSE).when(NoSessionCondition.INSTANCE);
+        this.builder.externalTransition().from(RtpConnectionState.CORRUPTED).to(RtpConnectionState.CLOSING).on(RtpConnectionEvent.CLOSE).when(HasActiveSessionCondition.INSTANCE);
+        this.builder.externalTransition().from(RtpConnectionState.CORRUPTED).to(RtpConnectionState.CLOSED).on(RtpConnectionEvent.CLOSE).when(NoActiveSessionCondition.INSTANCE);
         
         this.builder.onEntry(RtpConnectionState.CLOSING).perform(CloseAction.INSTANCE);
         this.builder.externalTransition().from(RtpConnectionState.CLOSING).toFinal(RtpConnectionState.CLOSED).on(RtpConnectionEvent.SESSION_CLOSED);

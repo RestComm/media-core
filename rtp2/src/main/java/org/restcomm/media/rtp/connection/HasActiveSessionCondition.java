@@ -25,23 +25,23 @@ import org.restcomm.media.rtp.RtpSession;
 import org.squirrelframework.foundation.fsm.AnonymousCondition;
 
 /**
- * Condition that is valid if there is no RTP Session in context.
+ * Condition that is valid if there is any <b>active</b> RTP Session in context.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class NoSessionCondition extends AnonymousCondition<RtpConnectionTransitionContext> {
+public class HasActiveSessionCondition extends AnonymousCondition<RtpConnectionTransitionContext> {
 
-    static final NoSessionCondition INSTANCE = new NoSessionCondition();
+    static final HasActiveSessionCondition INSTANCE = new HasActiveSessionCondition();
 
-    NoSessionCondition() {
+    HasActiveSessionCondition() {
         super();
     }
 
     @Override
     public boolean isSatisfied(RtpConnectionTransitionContext context) {
         RtpSession session = context.get(RtpConnectionTransitionParameter.RTP_SESSION, RtpSession.class);
-        return (session == null);
+        return (session != null && session.isActive());
     }
 
 }

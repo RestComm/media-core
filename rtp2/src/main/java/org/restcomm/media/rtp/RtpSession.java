@@ -56,5 +56,7 @@ public interface RtpSession {
     void incomingRtp(RtpPacket packet);
 
     void outgoingRtp(RtpPacket packet);
+    
+    boolean isActive();
 
 }
