@@ -18,22 +18,21 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
+        
 package org.restcomm.media.rtp.connection;
 
-import org.restcomm.media.sdp.SessionDescription;
+import org.restcomm.media.rtp.RtpSession;
+import org.restcomm.media.spi.ConnectionMode;
 import org.squirrelframework.foundation.fsm.AnonymousAction;
 
-import com.google.common.util.concurrent.FutureCallback;
-
 /**
- * Warns caller that request operation succeeded and RTP Connection is open.
+ * Updates the mode of an RTP Connection.
  * 
  * <p>
  * Input parameters:
  * <ul>
- * <li>CALLBACK</li>
- * <li>LOCAL_SDP</li>
+ * <li>MODE</li>
+ * <li>RTP_SESSION</li>
  * </ul>
  * </p>
  * <p>
@@ -46,35 +45,32 @@ import com.google.common.util.concurrent.FutureCallback;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class NotifyOpenAction extends AnonymousAction<RtpConnectionFsm, RtpConnectionState, RtpConnectionEvent, RtpConnectionTransitionContext> {
-
-    static final NotifyOpenAction INSTANCE = new NotifyOpenAction();
-
-    NotifyOpenAction() {
+public class UpdateModeAction extends AnonymousAction<RtpConnectionFsm, RtpConnectionState, RtpConnectionEvent, RtpConnectionTransitionContext> {
+    
+    static final UpdateModeAction INSTANCE = new UpdateModeAction();
+    
+    UpdateModeAction() {
         super();
     }
-   
+    
     @Override
-    @SuppressWarnings("unchecked")
     public void execute(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext context, RtpConnectionFsm stateMachine) {
-        final FutureCallback<Object> callback = context.get(RtpConnectionTransitionParameter.CALLBACK, FutureCallback.class);
-        Object result;
+        // Get relevant data from context
+        final ConnectionMode mode = context.get(RtpConnectionTransitionParameter.MODE, ConnectionMode.class);
+        final RtpSession session = context.get(RtpConnectionTransitionParameter.RTP_SESSION, RtpSession.class);
         
-        switch (event) {
-            case GENERATED_LOCAL_SDP:
-                // Get input parameters
-                final SessionDescription localSdp = context.get(RtpConnectionTransitionParameter.LOCAL_SDP, SessionDescription.class);
-
-                // Get result and reply to callback
-                result = localSdp.toString();
-                break;
-
-            default:
-                result = null;
-                break;
+        // Do nothing if required mode equals current mode
+        final ConnectionMode currentMode = stateMachine.getContext().getMode();
+        if(currentMode.equals(mode)) {
+            stateMachine.fire(RtpConnectionEvent.MODE_UPDATED, context);
+        } else {
+            // Update context
+            stateMachine.getContext().setMode(mode);
+            
+            // Ask session to update its mode
+            UpdateModeCallback callback = new UpdateModeCallback(context, stateMachine);
+            session.updateMode(mode, callback);
         }
-
-        callback.onSuccess(result);
     }
 
 }

@@ -30,6 +30,9 @@ import org.restcomm.media.sdp.SessionDescription;
 
 import static org.mockito.Mockito.*;
 
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
@@ -42,7 +45,9 @@ public class GenerateLocalSdpActionTest {
         final String cname = "cname";
         final boolean inbound = true;
         final String localAddress = "127.0.0.1";
+        final int port = 6000;
         final String externalAddress = "";
+        final SocketAddress bindAddress = new InetSocketAddress(localAddress, port);
         final RtpSession session = mock(RtpSession.class);
         final SessionDescription localSdp = mock(SessionDescription.class);
         final SdpBuilder sdpBuilder = mock(SdpBuilder.class);
@@ -53,7 +58,7 @@ public class GenerateLocalSdpActionTest {
 
         context.set(RtpConnectionTransitionParameter.CNAME, cname);
         context.set(RtpConnectionTransitionParameter.INBOUND, inbound);
-        context.set(RtpConnectionTransitionParameter.BIND_ADDRESS, localAddress);
+        context.set(RtpConnectionTransitionParameter.BIND_ADDRESS, bindAddress);
         context.set(RtpConnectionTransitionParameter.EXTERNAL_ADDRESS, externalAddress);
         context.set(RtpConnectionTransitionParameter.RTP_SESSION, session);
         context.set(RtpConnectionTransitionParameter.SDP_BUILDER, sdpBuilder);
@@ -78,7 +83,9 @@ public class GenerateLocalSdpActionTest {
         final String cname = "cname";
         final boolean inbound = true;
         final String localAddress = "127.0.0.1";
+        final int port = 6000;
         final String externalAddress = "";
+        final SocketAddress bindAddress = new InetSocketAddress(localAddress, port);
         final RtpSession session = mock(RtpSession.class);
         final SdpBuilder sdpBuilder = mock(SdpBuilder.class);
         final RtpConnectionTransitionContext context = new RtpConnectionTransitionContext();
@@ -88,7 +95,7 @@ public class GenerateLocalSdpActionTest {
 
         context.set(RtpConnectionTransitionParameter.CNAME, cname);
         context.set(RtpConnectionTransitionParameter.INBOUND, inbound);
-        context.set(RtpConnectionTransitionParameter.BIND_ADDRESS, localAddress);
+        context.set(RtpConnectionTransitionParameter.BIND_ADDRESS, bindAddress);
         context.set(RtpConnectionTransitionParameter.EXTERNAL_ADDRESS, externalAddress);
         context.set(RtpConnectionTransitionParameter.RTP_SESSION, session);
         context.set(RtpConnectionTransitionParameter.SDP_BUILDER, sdpBuilder);

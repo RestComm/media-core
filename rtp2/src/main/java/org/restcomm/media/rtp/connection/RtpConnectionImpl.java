@@ -60,8 +60,20 @@ public class RtpConnectionImpl implements RtpConnection {
 
     @Override
     public void updateMode(ConnectionMode mode, FutureCallback<Void> callback) {
-        // TODO Auto-generated method stub
+        RtpConnectionEvent event = RtpConnectionEvent.UPDATE_MODE;
+        if (this.fsm.canAccept(event)) {
+            // Build transitional context
+            RtpConnectionTransitionContext txContext = new RtpConnectionTransitionContext();
+            txContext.set(RtpConnectionTransitionParameter.MODE, mode);
+            txContext.set(RtpConnectionTransitionParameter.RTP_SESSION, this.context.getRtpSession());
+            txContext.set(RtpConnectionTransitionParameter.CALLBACK, callback);
 
+            // Request connection to open
+            this.fsm.fire(event, txContext);
+        } else {
+            // Request cannot be processed
+            denyOperation(event, callback);
+        }
     }
 
     @Override
@@ -113,8 +125,7 @@ public class RtpConnectionImpl implements RtpConnection {
     }
 
     private void denyOperation(RtpConnectionEvent event, FutureCallback<?> callback) {
-        Throwable t = new OperationDeniedException(
-                "RTP Connection " + this.context.getCname() + " denied operation " + event.name());
+        Throwable t = new OperationDeniedException("RTP Connection " + this.context.getCname() + " denied operation " + event.name());
         callback.onFailure(t);
     }
 

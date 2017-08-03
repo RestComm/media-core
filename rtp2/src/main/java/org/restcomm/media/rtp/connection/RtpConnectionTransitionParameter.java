@@ -28,6 +28,7 @@ import org.restcomm.media.rtp.RtpSessionFactory;
 import org.restcomm.media.rtp.sdp.SdpBuilder;
 import org.restcomm.media.sdp.SessionDescription;
 import org.restcomm.media.sdp.SessionDescriptionParser;
+import org.restcomm.media.spi.ConnectionMode;
 
 import com.google.common.util.concurrent.FutureCallback;
 
@@ -50,7 +51,8 @@ public enum RtpConnectionTransitionParameter {
     SDP_PARSER(SessionDescriptionParser.class),
     SDP_BUILDER(SdpBuilder.class),
     BIND_ADDRESS(SocketAddress.class),
-    EXTERNAL_ADDRESS(String.class);
+    EXTERNAL_ADDRESS(String.class),
+    MODE(ConnectionMode.class);
 
     private final Class<?> type;
 

@@ -25,8 +25,21 @@ package org.restcomm.media.rtp.connection;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-enum RtpConnectionEvent {
+public class UpdateModeCallback extends AbstractRtpConnectionActionCallback {
 
-    HALF_OPEN, OPEN, UPDATE_MODE, CLOSE, ALLOCATED_SESSION, SESSION_NEGOTIATED, PARSED_REMOTE_SDP, GENERATED_LOCAL_SDP, MODE_UPDATED, FAILURE, SESSION_CLOSED;   
-    
+    public UpdateModeCallback(RtpConnectionTransitionContext context, RtpConnectionFsm fsm) {
+        super(context, fsm);
+    }
+
+    @Override
+    public void onSuccess(Void result) {
+        getFsm().fire(RtpConnectionEvent.MODE_UPDATED, getContext());
+    }
+
+    @Override
+    public void onFailure(Throwable t) {
+        getContext().set(RtpConnectionTransitionParameter.ERROR, t);
+        getFsm().fire(RtpConnectionEvent.FAILURE, getContext());
+    }
+
 }

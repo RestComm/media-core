@@ -67,6 +67,12 @@ public class RtpConnectionFsmBuilder {
 
         this.builder.onEntry(RtpConnectionState.OPEN).perform(NotifyOpenAction.INSTANCE);
         this.builder.externalTransition().from(RtpConnectionState.OPEN).to(RtpConnectionState.CLOSING).on(RtpConnectionEvent.CLOSE);
+        this.builder.externalTransition().from(RtpConnectionState.OPEN).to(RtpConnectionState.UPDATING_MODE).on(RtpConnectionEvent.UPDATE_MODE);
+        
+        this.builder.onEntry(RtpConnectionState.UPDATING_MODE).perform(UpdateModeAction.INSTANCE);
+        this.builder.externalTransition().from(RtpConnectionState.UPDATING_MODE).to(RtpConnectionState.OPEN).on(RtpConnectionEvent.MODE_UPDATED);
+        this.builder.externalTransition().from(RtpConnectionState.UPDATING_MODE).to(RtpConnectionState.CORRUPTED).on(RtpConnectionEvent.FAILURE);
+        this.builder.externalTransition().from(RtpConnectionState.UPDATING_MODE).to(RtpConnectionState.CLOSING).on(RtpConnectionEvent.CLOSE);
 
         this.builder.onEntry(RtpConnectionState.CORRUPTED).perform(NotifyCorruptAction.INSTANCE);
         this.builder.externalTransition().from(RtpConnectionState.CORRUPTED).to(RtpConnectionState.CLOSING).on(RtpConnectionEvent.CLOSE).when(HasActiveSessionCondition.INSTANCE);
