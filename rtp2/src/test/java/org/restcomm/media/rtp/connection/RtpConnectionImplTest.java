@@ -22,23 +22,27 @@
 package org.restcomm.media.rtp.connection;
 
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 import org.junit.After;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.restcomm.media.network.deprecated.PortManager;
-import org.restcomm.media.network.deprecated.RtpPortManager;
+import org.restcomm.media.rtp.MediaType;
 import org.restcomm.media.rtp.RtpConnection;
 import org.restcomm.media.rtp.RtpSession;
 import org.restcomm.media.rtp.RtpSessionFactory;
 import org.restcomm.media.rtp.sdp.SdpBuilder;
-import org.restcomm.media.sdp.SessionDescription;
+import org.restcomm.media.sdp.SdpException;
 import org.restcomm.media.sdp.SessionDescriptionParser;
 import org.restcomm.media.sdp.fields.MediaDescriptionField;
+import org.restcomm.media.sdp.format.AVProfile;
 import org.restcomm.media.spi.ConnectionMode;
 
 import com.google.common.util.concurrent.FutureCallback;
@@ -52,38 +56,392 @@ public class RtpConnectionImplTest {
     private RtpConnection connection;
 
     @After
-    @SuppressWarnings("unchecked")
     public void after() {
         if (this.connection != null) {
-            this.connection.close(mock(FutureCallback.class));
+            this.connection.close(new FutureCallback<Void>() {
+
+                @Override
+                public void onSuccess(Void result) {
+                    // TODO Auto-generated method stub
+
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    // TODO Auto-generated method stub
+
+                }
+            });
             this.connection = null;
         }
     }
 
     @Test
-    @SuppressWarnings("unchecked")
-    public void testInboundCallFlow() {
+    @SuppressWarnings({ "unchecked" })
+    public void testSuccessfulInboundFlow() {
         // given
-        final String cname = "mock";
+        final StringBuilder remoteSdpString = new StringBuilder("v=0").append(System.lineSeparator());
+        remoteSdpString.append("o=- 1450021652720 1450021652720 IN IP4 127.0.0.1").append(System.lineSeparator());
+        remoteSdpString.append("s=remote peer").append(System.lineSeparator());
+        remoteSdpString.append("c=IN IP4 127.0.0.1").append(System.lineSeparator());
+        remoteSdpString.append("t=0 0").append(System.lineSeparator());
+        remoteSdpString.append("m=audio 6000 RTP/AVP 0 8 101").append(System.lineSeparator());
+        remoteSdpString.append("a=ptime:20").append(System.lineSeparator());
+
+        final SessionDescriptionParser sdpParser = new SessionDescriptionParser();
+        final SdpBuilder sdpBuilder = new SdpBuilder();
+
+        final String cname = "cname";
         final String localAddress = "127.0.0.1";
         final String externalAddress = "";
-        final PortManager portManager = new RtpPortManager(64000, 65000);
+        final RtpConnectionContext context = new RtpConnectionContext(cname, localAddress, externalAddress);
+        final RtpConnectionFsmBuilder fsmBuilder = new RtpConnectionFsmBuilder();
+
+        final PortManager portManager = mock(PortManager.class);
+        when(portManager.next()).thenReturn(65000);
+
         final RtpSessionFactory sessionFactory = mock(RtpSessionFactory.class);
         final RtpSession session = mock(RtpSession.class);
-        final SdpBuilder sdpBuilder = mock(SdpBuilder.class);
-        final SessionDescriptionParser sdpParser = new SessionDescriptionParser();
-        final SessionDescription localSdp = mock(SessionDescription.class);
-        final RtpConnectionContext context = new RtpConnectionContext(cname, localAddress, externalAddress);
-        this.connection = new RtpConnectionImpl(context, sdpParser, sdpBuilder, sessionFactory, portManager);
-        
+
         when(sessionFactory.build()).thenReturn(session);
-        when(sdpBuilder.buildSessionDescription(eq(false), eq(cname), eq(localAddress), eq(externalAddress), eq(session))).thenReturn(localSdp);
+        when(session.getMediaType()).thenReturn(MediaType.AUDIO);
+        when(session.getMode()).thenReturn(ConnectionMode.SEND_RECV);
+        when(session.getRtpAddress()).thenReturn(new InetSocketAddress(localAddress, 65000));
+        when(session.getSsrc()).thenReturn(12345L);
+        when(session.getSupportedFormats()).thenReturn(AVProfile.audio);
+        when(session.isActive()).thenReturn(true);
 
         doAnswer(new Answer<Void>() {
 
             @Override
             public Void answer(InvocationOnMock invocation) throws Throwable {
-                FutureCallback<Void> callback = invocation.getArgumentAt(1, FutureCallback.class);
+                FutureCallback<?> callback = invocation.getArgumentAt(1, FutureCallback.class);
+                callback.onSuccess(null);
+                return null;
+            }
+        }).when(session).open(any(SocketAddress.class), any(FutureCallback.class));
+
+        doAnswer(new Answer<Void>() {
+
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                FutureCallback<?> callback = invocation.getArgumentAt(1, FutureCallback.class);
+                callback.onSuccess(null);
+                return null;
+            }
+        }).when(session).negotiate(any(MediaDescriptionField.class), any(FutureCallback.class));
+
+        doAnswer(new Answer<Void>() {
+            
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                FutureCallback<?> callback = invocation.getArgumentAt(1, FutureCallback.class);
+                callback.onSuccess(null);
+                return null;
+            }
+        }).when(session).updateMode(any(ConnectionMode.class), any(FutureCallback.class));
+
+        doAnswer(new Answer<Void>() {
+
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                FutureCallback<?> callback = invocation.getArgumentAt(0, FutureCallback.class);
+                callback.onSuccess(null);
+                return null;
+            }
+        }).when(session).close(any(FutureCallback.class));
+
+        // when
+        final FutureCallback<String> openCallback = mock(FutureCallback.class);
+        this.connection = new RtpConnectionImpl(sessionFactory, portManager, sdpParser, sdpBuilder, context, fsmBuilder);
+        this.connection.open(remoteSdpString.toString(), openCallback);
+
+        // then
+        ArgumentCaptor<String> openCaptor = ArgumentCaptor.forClass(String.class);
+        verify(openCallback, timeout(100)).onSuccess(openCaptor.capture());
+        assertNotNull(openCaptor.getValue());
+        assertNotNull(context.getRemoteDescription());
+        assertNotNull(context.getLocalDescription());
+        assertNotNull(context.getRtpSession());
+        
+        // when
+        final ConnectionMode mode = ConnectionMode.SEND_ONLY;
+        final FutureCallback<Void> updateModeCallback = mock(FutureCallback.class);
+        this.connection.updateMode(mode, updateModeCallback);
+        
+        // then
+        verify(updateModeCallback, timeout(100)).onSuccess(null);
+        verify(session).updateMode(eq(mode), any(FutureCallback.class));
+        assertEquals(mode, context.getMode());
+
+        // when
+        final FutureCallback<Void> closeCallback = mock(FutureCallback.class);
+        this.connection.close(closeCallback);
+
+        // then
+        verify(closeCallback, timeout(100)).onSuccess(null);
+        assertNull(context.getRemoteDescription());
+        assertNull(context.getLocalDescription());
+        assertNull(context.getRtpSession());
+        assertEquals(ConnectionMode.INACTIVE, context.getMode());
+    }
+
+    @Test
+    @SuppressWarnings({ "unchecked" })
+    public void testCorruptedInboundFlowWhenParsingRemoteDescription() throws SdpException {
+        // given
+        final StringBuilder remoteSdpString = new StringBuilder("v=0").append(System.lineSeparator());
+        remoteSdpString.append("o=- 1450021652720 1450021652720 IN IP4 127.0.0.1").append(System.lineSeparator());
+        remoteSdpString.append("s=remote peer").append(System.lineSeparator());
+        remoteSdpString.append("c=IN IP4 127.0.0.1").append(System.lineSeparator());
+        remoteSdpString.append("t=0 0").append(System.lineSeparator());
+        remoteSdpString.append("m=audio 6000 RTP/AVP 0 8 101").append(System.lineSeparator());
+        remoteSdpString.append("a=ptime:20").append(System.lineSeparator());
+
+        final String cname = "cname";
+        final String localAddress = "127.0.0.1";
+        final String externalAddress = "";
+        final RtpConnectionContext context = new RtpConnectionContext(cname, localAddress, externalAddress);
+        final RtpConnectionFsmBuilder fsmBuilder = new RtpConnectionFsmBuilder();
+
+        final SdpBuilder sdpBuilder = mock(SdpBuilder.class);
+        final SessionDescriptionParser sdpParser = mock(SessionDescriptionParser.class);
+        final SdpException error = new SdpException("testing purposes");
+        when(sdpParser.parse(remoteSdpString.toString())).thenThrow(error);
+
+        final PortManager portManager = mock(PortManager.class);
+        when(portManager.next()).thenReturn(65000);
+
+        final RtpSessionFactory sessionFactory = mock(RtpSessionFactory.class);
+
+        // when
+        final FutureCallback<String> openCallback = mock(FutureCallback.class);
+        this.connection = new RtpConnectionImpl(sessionFactory, portManager, sdpParser, sdpBuilder, context, fsmBuilder);
+        this.connection.open(remoteSdpString.toString(), openCallback);
+
+        // then
+        verify(openCallback, timeout(100)).onFailure(error);
+        verify(sessionFactory, never()).build();
+        verify(sdpBuilder, never()).buildSessionDescription(any(Boolean.class), any(String.class), any(String.class), any(String.class), any(RtpSession[].class));
+        assertNull(context.getRemoteDescription());
+        assertNull(context.getLocalDescription());
+        assertNull(context.getRtpSession());
+
+        // when
+        final FutureCallback<Void> closeCallback = mock(FutureCallback.class);
+        this.connection.close(closeCallback);
+
+        // then
+        verify(closeCallback, timeout(100)).onSuccess(null);
+        assertNull(context.getRemoteDescription());
+        assertNull(context.getLocalDescription());
+        assertNull(context.getRtpSession());
+        assertEquals(ConnectionMode.INACTIVE, context.getMode());
+    }
+    
+    @Test
+    @SuppressWarnings({ "unchecked" })
+    public void testCorruptedInboundFlowWhenAllocatingSession() {
+        // given
+        final StringBuilder remoteSdpString = new StringBuilder("v=0").append(System.lineSeparator());
+        remoteSdpString.append("o=- 1450021652720 1450021652720 IN IP4 127.0.0.1").append(System.lineSeparator());
+        remoteSdpString.append("s=remote peer").append(System.lineSeparator());
+        remoteSdpString.append("c=IN IP4 127.0.0.1").append(System.lineSeparator());
+        remoteSdpString.append("t=0 0").append(System.lineSeparator());
+        remoteSdpString.append("m=audio 6000 RTP/AVP 0 8 101").append(System.lineSeparator());
+        remoteSdpString.append("a=ptime:20").append(System.lineSeparator());
+
+        final SessionDescriptionParser sdpParser = new SessionDescriptionParser();
+        final SdpBuilder sdpBuilder = new SdpBuilder();
+
+        final String cname = "cname";
+        final String localAddress = "127.0.0.1";
+        final String externalAddress = "";
+        final RtpConnectionContext context = new RtpConnectionContext(cname, localAddress, externalAddress);
+        final RtpConnectionFsmBuilder fsmBuilder = new RtpConnectionFsmBuilder();
+
+        final PortManager portManager = mock(PortManager.class);
+        when(portManager.next()).thenReturn(65000);
+
+        final RtpSessionFactory sessionFactory = mock(RtpSessionFactory.class);
+        final RtpSession session = mock(RtpSession.class);
+
+        when(sessionFactory.build()).thenReturn(session);
+        when(session.getMediaType()).thenReturn(MediaType.AUDIO);
+        when(session.getMode()).thenReturn(ConnectionMode.SEND_RECV);
+        when(session.getRtpAddress()).thenReturn(new InetSocketAddress(localAddress, 65000));
+        when(session.getSsrc()).thenReturn(12345L);
+        when(session.getSupportedFormats()).thenReturn(AVProfile.audio);
+        when(session.isActive()).thenReturn(false);
+
+        doAnswer(new Answer<Void>() {
+
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                FutureCallback<?> callback = invocation.getArgumentAt(1, FutureCallback.class);
+                callback.onFailure(new Exception("testing purposes"));
+                return null;
+            }
+        }).when(session).open(any(SocketAddress.class), any(FutureCallback.class));
+
+        // when
+        final FutureCallback<String> openCallback = mock(FutureCallback.class);
+        this.connection = new RtpConnectionImpl(sessionFactory, portManager, sdpParser, sdpBuilder, context, fsmBuilder);
+        this.connection.open(remoteSdpString.toString(), openCallback);
+
+        // then
+        verify(openCallback, timeout(100)).onFailure(any(Throwable.class));
+        verify(session).open(any(SocketAddress.class), any(FutureCallback.class));
+        verify(session, never()).negotiate(any(MediaDescriptionField.class), any(FutureCallback.class));
+        assertNotNull(context.getRemoteDescription());
+        assertNull(context.getLocalDescription());
+        assertNotNull(context.getRtpSession());
+
+        // when
+        final FutureCallback<Void> closeCallback = mock(FutureCallback.class);
+        this.connection.close(closeCallback);
+
+        // then
+        verify(closeCallback, timeout(100)).onSuccess(null);
+        verify(session, never()).close(any(FutureCallback.class));
+        assertNull(context.getRemoteDescription());
+        assertNull(context.getLocalDescription());
+        assertNull(context.getRtpSession());
+        assertEquals(ConnectionMode.INACTIVE, context.getMode());
+    }
+    
+    @Test
+    @SuppressWarnings({ "unchecked" })
+    public void testCorruptedInboundFlowWhenNegotiatingSession() {
+        // given
+        final StringBuilder remoteSdpString = new StringBuilder("v=0").append(System.lineSeparator());
+        remoteSdpString.append("o=- 1450021652720 1450021652720 IN IP4 127.0.0.1").append(System.lineSeparator());
+        remoteSdpString.append("s=remote peer").append(System.lineSeparator());
+        remoteSdpString.append("c=IN IP4 127.0.0.1").append(System.lineSeparator());
+        remoteSdpString.append("t=0 0").append(System.lineSeparator());
+        remoteSdpString.append("m=audio 6000 RTP/AVP 0 8 101").append(System.lineSeparator());
+        remoteSdpString.append("a=ptime:20").append(System.lineSeparator());
+
+        final SessionDescriptionParser sdpParser = new SessionDescriptionParser();
+        final SdpBuilder sdpBuilder = new SdpBuilder();
+
+        final String cname = "cname";
+        final String localAddress = "127.0.0.1";
+        final String externalAddress = "";
+        final RtpConnectionContext context = new RtpConnectionContext(cname, localAddress, externalAddress);
+        final RtpConnectionFsmBuilder fsmBuilder = new RtpConnectionFsmBuilder();
+
+        final PortManager portManager = mock(PortManager.class);
+        when(portManager.next()).thenReturn(65000);
+
+        final RtpSessionFactory sessionFactory = mock(RtpSessionFactory.class);
+        final RtpSession session = mock(RtpSession.class);
+
+        when(sessionFactory.build()).thenReturn(session);
+        when(session.getMediaType()).thenReturn(MediaType.AUDIO);
+        when(session.getMode()).thenReturn(ConnectionMode.SEND_RECV);
+        when(session.getRtpAddress()).thenReturn(new InetSocketAddress(localAddress, 65000));
+        when(session.getSsrc()).thenReturn(12345L);
+        when(session.getSupportedFormats()).thenReturn(AVProfile.audio);
+        when(session.isActive()).thenReturn(true);
+
+        doAnswer(new Answer<Void>() {
+
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                FutureCallback<?> callback = invocation.getArgumentAt(1, FutureCallback.class);
+                callback.onSuccess(null);
+                return null;
+            }
+        }).when(session).open(any(SocketAddress.class), any(FutureCallback.class));
+
+        doAnswer(new Answer<Void>() {
+
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                FutureCallback<?> callback = invocation.getArgumentAt(1, FutureCallback.class);
+                callback.onFailure(new Exception("testing purposes"));
+                return null;
+            }
+        }).when(session).negotiate(any(MediaDescriptionField.class), any(FutureCallback.class));
+
+        doAnswer(new Answer<Void>() {
+
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                FutureCallback<?> callback = invocation.getArgumentAt(0, FutureCallback.class);
+                callback.onSuccess(null);
+                return null;
+            }
+        }).when(session).close(any(FutureCallback.class));
+
+        // when
+        final FutureCallback<String> openCallback = mock(FutureCallback.class);
+        this.connection = new RtpConnectionImpl(sessionFactory, portManager, sdpParser, sdpBuilder, context, fsmBuilder);
+        this.connection.open(remoteSdpString.toString(), openCallback);
+
+        // then
+        verify(openCallback, timeout(100)).onFailure(any(Throwable.class));
+        verify(session).open(any(SocketAddress.class), any(FutureCallback.class));
+        verify(session).negotiate(any(MediaDescriptionField.class), any(FutureCallback.class));
+        assertNotNull(context.getRemoteDescription());
+        assertNull(context.getLocalDescription());
+        assertNotNull(context.getRtpSession());
+
+        // when
+        final FutureCallback<Void> closeCallback = mock(FutureCallback.class);
+        this.connection.close(closeCallback);
+
+        // then
+        verify(closeCallback, timeout(100)).onSuccess(null);
+        verify(session).close(any(FutureCallback.class));
+        assertNull(context.getRemoteDescription());
+        assertNull(context.getLocalDescription());
+        assertNull(context.getRtpSession());
+        assertEquals(ConnectionMode.INACTIVE, context.getMode());
+    }
+
+    @Test
+    @SuppressWarnings({ "unchecked" })
+    public void testCorruptedInboundFlowWhenGeneratingLocalDescription() {
+        // given
+        final StringBuilder remoteSdpString = new StringBuilder("v=0").append(System.lineSeparator());
+        remoteSdpString.append("o=- 1450021652720 1450021652720 IN IP4 127.0.0.1").append(System.lineSeparator());
+        remoteSdpString.append("s=remote peer").append(System.lineSeparator());
+        remoteSdpString.append("c=IN IP4 127.0.0.1").append(System.lineSeparator());
+        remoteSdpString.append("t=0 0").append(System.lineSeparator());
+        remoteSdpString.append("m=audio 6000 RTP/AVP 0 8 101").append(System.lineSeparator());
+        remoteSdpString.append("a=ptime:20").append(System.lineSeparator());
+        
+        final SessionDescriptionParser sdpParser = new SessionDescriptionParser();
+        final SdpBuilder sdpBuilder = mock(SdpBuilder.class);
+        when(sdpBuilder.buildSessionDescription(any(Boolean.class), any(String.class), any(String.class), any(String.class), any(RtpSession[].class))).thenThrow(new RuntimeException("testing purposes"));
+        
+        final String cname = "cname";
+        final String localAddress = "127.0.0.1";
+        final String externalAddress = "";
+        final RtpConnectionContext context = new RtpConnectionContext(cname, localAddress, externalAddress);
+        final RtpConnectionFsmBuilder fsmBuilder = new RtpConnectionFsmBuilder();
+        
+        final PortManager portManager = mock(PortManager.class);
+        when(portManager.next()).thenReturn(65000);
+        
+        final RtpSessionFactory sessionFactory = mock(RtpSessionFactory.class);
+        final RtpSession session = mock(RtpSession.class);
+        
+        when(sessionFactory.build()).thenReturn(session);
+        when(session.getMediaType()).thenReturn(MediaType.AUDIO);
+        when(session.getMode()).thenReturn(ConnectionMode.SEND_RECV);
+        when(session.getRtpAddress()).thenReturn(new InetSocketAddress(localAddress, 65000));
+        when(session.getSsrc()).thenReturn(12345L);
+        when(session.getSupportedFormats()).thenReturn(AVProfile.audio);
+        when(session.isActive()).thenReturn(true);
+        
+        doAnswer(new Answer<Void>() {
+            
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                FutureCallback<?> callback = invocation.getArgumentAt(1, FutureCallback.class);
                 callback.onSuccess(null);
                 return null;
             }
@@ -93,17 +451,7 @@ public class RtpConnectionImplTest {
             
             @Override
             public Void answer(InvocationOnMock invocation) throws Throwable {
-                FutureCallback<Void> callback = invocation.getArgumentAt(1, FutureCallback.class);
-                callback.onSuccess(null);
-                return null;
-            }
-        }).when(session).updateMode(any(ConnectionMode.class), any(FutureCallback.class));
-        
-        doAnswer(new Answer<Void>() {
-            
-            @Override
-            public Void answer(InvocationOnMock invocation) throws Throwable {
-                FutureCallback<Void> callback = invocation.getArgumentAt(1, FutureCallback.class);
+                FutureCallback<?> callback = invocation.getArgumentAt(1, FutureCallback.class);
                 callback.onSuccess(null);
                 return null;
             }
@@ -113,47 +461,147 @@ public class RtpConnectionImplTest {
             
             @Override
             public Void answer(InvocationOnMock invocation) throws Throwable {
-                FutureCallback<Void> callback = invocation.getArgumentAt(0, FutureCallback.class);
+                FutureCallback<?> callback = invocation.getArgumentAt(0, FutureCallback.class);
+                callback.onSuccess(null);
+                return null;
+            }
+        }).when(session).close(any(FutureCallback.class));
+        
+        // when
+        final FutureCallback<String> openCallback = mock(FutureCallback.class);
+        this.connection = new RtpConnectionImpl(sessionFactory, portManager, sdpParser, sdpBuilder, context, fsmBuilder);
+        this.connection.open(remoteSdpString.toString(), openCallback);
+        
+        // then
+        verify(openCallback, timeout(100)).onFailure(any(Throwable.class));
+        verify(session).open(any(SocketAddress.class), any(FutureCallback.class));
+        verify(session).negotiate(any(MediaDescriptionField.class), any(FutureCallback.class));
+        assertNotNull(context.getRemoteDescription());
+        assertNull(context.getLocalDescription());
+        assertNotNull(context.getRtpSession());
+        
+        // when
+        final FutureCallback<Void> closeCallback = mock(FutureCallback.class);
+        this.connection.close(closeCallback);
+        
+        // then
+        verify(closeCallback, timeout(100)).onSuccess(null);
+        verify(session).close(any(FutureCallback.class));
+        assertNull(context.getRemoteDescription());
+        assertNull(context.getLocalDescription());
+        assertNull(context.getRtpSession());
+        assertEquals(ConnectionMode.INACTIVE, context.getMode());
+    }
+    
+
+    @Test
+    @SuppressWarnings({ "unchecked" })
+    public void testCorruptedInboundFlowWhenUpdatingMode() {
+        // given
+        final StringBuilder remoteSdpString = new StringBuilder("v=0").append(System.lineSeparator());
+        remoteSdpString.append("o=- 1450021652720 1450021652720 IN IP4 127.0.0.1").append(System.lineSeparator());
+        remoteSdpString.append("s=remote peer").append(System.lineSeparator());
+        remoteSdpString.append("c=IN IP4 127.0.0.1").append(System.lineSeparator());
+        remoteSdpString.append("t=0 0").append(System.lineSeparator());
+        remoteSdpString.append("m=audio 6000 RTP/AVP 0 8 101").append(System.lineSeparator());
+        remoteSdpString.append("a=ptime:20").append(System.lineSeparator());
+
+        final SessionDescriptionParser sdpParser = new SessionDescriptionParser();
+        final SdpBuilder sdpBuilder = new SdpBuilder();
+
+        final String cname = "cname";
+        final String localAddress = "127.0.0.1";
+        final String externalAddress = "";
+        final RtpConnectionContext context = new RtpConnectionContext(cname, localAddress, externalAddress);
+        final RtpConnectionFsmBuilder fsmBuilder = new RtpConnectionFsmBuilder();
+
+        final PortManager portManager = mock(PortManager.class);
+        when(portManager.next()).thenReturn(65000);
+
+        final RtpSessionFactory sessionFactory = mock(RtpSessionFactory.class);
+        final RtpSession session = mock(RtpSession.class);
+
+        when(sessionFactory.build()).thenReturn(session);
+        when(session.getMediaType()).thenReturn(MediaType.AUDIO);
+        when(session.getMode()).thenReturn(ConnectionMode.SEND_RECV);
+        when(session.getRtpAddress()).thenReturn(new InetSocketAddress(localAddress, 65000));
+        when(session.getSsrc()).thenReturn(12345L);
+        when(session.getSupportedFormats()).thenReturn(AVProfile.audio);
+        when(session.isActive()).thenReturn(true);
+
+        doAnswer(new Answer<Void>() {
+
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                FutureCallback<?> callback = invocation.getArgumentAt(1, FutureCallback.class);
+                callback.onSuccess(null);
+                return null;
+            }
+        }).when(session).open(any(SocketAddress.class), any(FutureCallback.class));
+
+        doAnswer(new Answer<Void>() {
+
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                FutureCallback<?> callback = invocation.getArgumentAt(1, FutureCallback.class);
+                callback.onSuccess(null);
+                return null;
+            }
+        }).when(session).negotiate(any(MediaDescriptionField.class), any(FutureCallback.class));
+
+        doAnswer(new Answer<Void>() {
+            
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                FutureCallback<?> callback = invocation.getArgumentAt(1, FutureCallback.class);
+                callback.onFailure(new Exception("testing purposes"));
+                return null;
+            }
+        }).when(session).updateMode(any(ConnectionMode.class), any(FutureCallback.class));
+
+        doAnswer(new Answer<Void>() {
+
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                FutureCallback<?> callback = invocation.getArgumentAt(0, FutureCallback.class);
                 callback.onSuccess(null);
                 return null;
             }
         }).when(session).close(any(FutureCallback.class));
 
-
-        // when - open connection
-        final StringBuilder remoteSdp = new StringBuilder("v=0").append(System.lineSeparator());
-        remoteSdp.append("o=- 326911306 0 IN IP4 127.0.0.1").append(System.lineSeparator());
-        remoteSdp.append("s=-").append(System.lineSeparator());
-        remoteSdp.append("c=IN IP4 127.0.0.1").append(System.lineSeparator());
-        remoteSdp.append("t=0 0").append(System.lineSeparator());
-        remoteSdp.append("m=audio 6000 RTP/AVP 8 101").append(System.lineSeparator());
-        remoteSdp.append("a=rtpmap:8 PCMA/8000").append(System.lineSeparator());
-        remoteSdp.append("a=rtpmap:101 telephone-event/8000").append(System.lineSeparator());
-        remoteSdp.append("a=fmtp:101 0-15").append(System.lineSeparator());
-        remoteSdp.append("a=sendrecv").append(System.lineSeparator());
-        remoteSdp.append("a=ptime:20").append(System.lineSeparator());
-        final ConnectionMode mode = ConnectionMode.SEND_ONLY;
-        final FutureCallback<Void> openCallback = mock(FutureCallback.class);
-
-        connection.open(mode, remoteSdp.toString(), openCallback);
+        // when
+        final FutureCallback<String> openCallback = mock(FutureCallback.class);
+        this.connection = new RtpConnectionImpl(sessionFactory, portManager, sdpParser, sdpBuilder, context, fsmBuilder);
+        this.connection.open(remoteSdpString.toString(), openCallback);
 
         // then
-        verify(openCallback, timeout(100)).onSuccess(null);
-        assertNotNull(connection.getLocalDescription());
-        assertTrue(connection.getLocalDescription().length() > 0);
-        assertNotNull(connection.getRemoteDescription());
-        assertTrue(connection.getRemoteDescription().length() > 0);
-        assertTrue(connection.isOpen());
+        ArgumentCaptor<String> openCaptor = ArgumentCaptor.forClass(String.class);
+        verify(openCallback, timeout(100)).onSuccess(openCaptor.capture());
+        assertNotNull(openCaptor.getValue());
+        assertNotNull(context.getRemoteDescription());
+        assertNotNull(context.getLocalDescription());
+        assertNotNull(context.getRtpSession());
+        
+        // when
+        final ConnectionMode mode = ConnectionMode.SEND_ONLY;
+        final FutureCallback<Void> updateModeCallback = mock(FutureCallback.class);
+        this.connection.updateMode(mode, updateModeCallback);
+        
+        // then
+        verify(updateModeCallback, timeout(100)).onFailure(any(Throwable.class));
+        verify(session).updateMode(eq(mode), any(FutureCallback.class));
+        assertEquals(mode, context.getMode());
 
-        // when - close connection
+        // when
         final FutureCallback<Void> closeCallback = mock(FutureCallback.class);
-        connection.close(closeCallback);
+        this.connection.close(closeCallback);
 
         // then
         verify(closeCallback, timeout(100)).onSuccess(null);
-        assertTrue(connection.getLocalDescription().isEmpty());
-        assertTrue(connection.getRemoteDescription().isEmpty());
-        assertFalse(connection.isOpen());
+        assertNull(context.getRemoteDescription());
+        assertNull(context.getLocalDescription());
+        assertNull(context.getRtpSession());
+        assertEquals(ConnectionMode.INACTIVE, context.getMode());
     }
 
 }

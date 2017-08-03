@@ -21,32 +21,47 @@
 
 package org.restcomm.media.rtp.connection;
 
+import java.net.SocketAddress;
+
+import org.restcomm.media.rtp.RtpSession;
+import org.restcomm.media.rtp.RtpSessionFactory;
+import org.restcomm.media.rtp.sdp.SdpBuilder;
+import org.restcomm.media.sdp.SessionDescription;
+import org.restcomm.media.sdp.SessionDescriptionParser;
+import org.restcomm.media.spi.ConnectionMode;
+
 import com.google.common.util.concurrent.FutureCallback;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpConnectionBaseContext implements RtpConnectionTransitionContext {
+public enum RtpConnectionTransitionParameter {
 
-    private final FutureCallback<Void> originator;
-    private Throwable throwable;
+    CALLBACK(FutureCallback.class),
+    CNAME(String.class),
+    INBOUND(Boolean.class),
+    LOCAL_SDP(SessionDescription.class),
+    LOCAL_SDP_STRING(String.class),
+    REMOTE_SDP(SessionDescription.class),
+    REMOTE_SDP_STRING(String.class),
+    ERROR(Throwable.class),
+    RTP_SESSION(RtpSession.class),
+    RTP_SESSION_FACTORY(RtpSessionFactory.class),
+    SDP_PARSER(SessionDescriptionParser.class),
+    SDP_BUILDER(SdpBuilder.class),
+    BIND_ADDRESS(SocketAddress.class),
+    EXTERNAL_ADDRESS(String.class),
+    MODE(ConnectionMode.class);
 
-    public RtpConnectionBaseContext(FutureCallback<Void> originator) {
-        this.originator = originator;
+    private final Class<?> type;
+
+    private RtpConnectionTransitionParameter(Class<?> type) {
+        this.type = type;
     }
 
-    @Override
-    public FutureCallback<Void> getOriginator() {
-        return originator;
-    }
-
-    public Throwable getThrowable() {
-        return throwable;
-    }
-
-    protected void setThrowable(Throwable t) {
-        this.throwable = t;
+    public Class<?> getType() {
+        return type;
     }
 
 }

@@ -18,28 +18,30 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
+        
 package org.restcomm.media.rtp.connection;
 
-import org.restcomm.media.rtp.RtpSession;
-
-import com.google.common.util.concurrent.FutureCallback;
+import org.restcomm.media.sdp.SessionDescription;
+import org.squirrelframework.foundation.fsm.AnonymousCondition;
 
 /**
+ * Condition that is valid if there is a Remote Session Description in context.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class CloseContext extends RtpConnectionBaseContext {
-
-    private final RtpSession session;
-
-    public CloseContext(FutureCallback<Void> originator, RtpSession session) {
-        super(originator);
-        this.session = session;
+public class HasRemoteDescriptionCondition extends AnonymousCondition<RtpConnectionTransitionContext> {
+    
+    static final HasRemoteDescriptionCondition INSTANCE = new HasRemoteDescriptionCondition();
+    
+    HasRemoteDescriptionCondition() {
+        super();
     }
 
-    public RtpSession getSession() {
-        return session;
+    @Override
+    public boolean isSatisfied(RtpConnectionTransitionContext context) {
+        SessionDescription remoteSdp = context.get(RtpConnectionTransitionParameter.REMOTE_SDP, SessionDescription.class);
+        return (remoteSdp != null);
     }
 
 }

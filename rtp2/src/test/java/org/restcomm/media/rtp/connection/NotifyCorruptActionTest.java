@@ -21,32 +21,35 @@
 
 package org.restcomm.media.rtp.connection;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
+import org.junit.Test;
+
 import com.google.common.util.concurrent.FutureCallback;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class SessionCloseCallback implements FutureCallback<Void> {
+public class NotifyCorruptActionTest {
 
-    private final RtpConnectionFsm fsm;
-    private final CloseContext context;
+    @Test
+    public void testOpen() {
+        // given
+        final RtpConnectionFsm fsm = mock(RtpConnectionFsm.class);
+        final FutureCallback<?> callback = mock(FutureCallback.class);
+        final Throwable error = new Exception("test purposes");
+        final RtpConnectionTransitionContext context = new RtpConnectionTransitionContext();
+        context.set(RtpConnectionTransitionParameter.CALLBACK, callback);
+        context.set(RtpConnectionTransitionParameter.ERROR, error);
 
-    public SessionCloseCallback(RtpConnectionFsm fsm, CloseContext context) {
-        super();
-        this.fsm = fsm;
-        this.context = context;
-    }
+        // when
+        final NotifyCorruptAction action = new NotifyCorruptAction();
+        action.execute(RtpConnectionState.PARSING_REMOTE_SDP, RtpConnectionState.OPEN, RtpConnectionEvent.GENERATED_LOCAL_SDP, context, fsm);
 
-    @Override
-    public void onSuccess(Void result) {
-        this.fsm.fire(RtpConnectionEvent.SESSION_CLOSED, this.context);
-    }
-
-    @Override
-    public void onFailure(Throwable t) {
-        this.context.setThrowable(t);
-        this.fsm.fire(RtpConnectionEvent.SESSION_CLOSE_FAILURE, this.context);
+        // then
+        verify(callback).onFailure(error);
     }
 
 }

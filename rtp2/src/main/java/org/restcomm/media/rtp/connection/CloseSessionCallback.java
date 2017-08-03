@@ -21,26 +21,36 @@
 
 package org.restcomm.media.rtp.connection;
 
-import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
+import org.apache.log4j.Logger;
+import org.restcomm.media.rtp.RtpSession;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpConnectionFsmImpl
-        extends AbstractStateMachine<RtpConnectionFsm, RtpConnectionState, RtpConnectionEvent, RtpConnectionTransitionContext>
-        implements RtpConnectionFsm {
+public class CloseSessionCallback extends AbstractRtpConnectionActionCallback {
 
-    private final RtpConnectionContext context;
+    private final Logger log = Logger.getLogger(CloseSessionCallback.class);
 
-    public RtpConnectionFsmImpl(RtpConnectionContext context) {
-        super();
-        this.context = context;
+    public CloseSessionCallback(RtpConnectionTransitionContext context, RtpConnectionFsm fsm) {
+        super(context, fsm);
     }
 
     @Override
-    public RtpConnectionContext getContext() {
-        return this.context;
+    public void onSuccess(Void result) {
+        getFsm().fire(RtpConnectionEvent.SESSION_CLOSED, getContext());
+
+    }
+
+    @Override
+    public void onFailure(Throwable t) {
+        final RtpConnectionContext globalContext = getFsm().getContext();
+        final String cname = globalContext.getCname();
+        final RtpSession session = getContext().get(RtpConnectionTransitionParameter.RTP_SESSION, RtpSession.class);
+
+        log.error("RTP Connection " + cname + " could not close session " + session.getSsrc(), t);
+
+        getFsm().fire(RtpConnectionEvent.SESSION_CLOSED, getContext());
     }
 
 }

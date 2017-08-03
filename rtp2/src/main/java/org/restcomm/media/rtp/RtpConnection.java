@@ -18,7 +18,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
+
 package org.restcomm.media.rtp;
 
 import org.restcomm.media.spi.ConnectionMode;
@@ -26,21 +26,43 @@ import org.restcomm.media.spi.ConnectionMode;
 import com.google.common.util.concurrent.FutureCallback;
 
 /**
+ * Connection established between the Media Server and a remote peer from where RTP flows.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
 public interface RtpConnection {
-    
-    String getLocalDescription();
 
-    String getRemoteDescription();
-    
-    boolean isOpen();
-    
+    /**
+     * Half opens the connection.
+     * 
+     * A media session is allocated and the local session description is generated.
+     * 
+     * @param callback Invoked when operation completes or fails. Holds the local session description.
+     */
+    void halfOpen(FutureCallback<String> callback);
+
+    /**
+     * Fully opens the connection.
+     * 
+     * @param remoteDescription The remote session description.
+     * @param callback Invoked when operation completes or fails. Holds the local session description.
+     */
+    void open(String remoteDescription, FutureCallback<String> callback);
+
+    /**
+     * Updates the connection mode.
+     * 
+     * @param mode The new connection mode.
+     * @param callback Invoked when operation completes or fails.
+     */
     void updateMode(ConnectionMode mode, FutureCallback<Void> callback);
-    
-    void open(ConnectionMode mode, String remoteDescription, FutureCallback<Void> callback);
-    
+
+    /**
+     * Closes the connection.
+     * 
+     * @param callback Invoked when operation completes or fails.
+     */
     void close(FutureCallback<Void> callback);
-    
+
 }

@@ -18,29 +18,42 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
+        
 package org.restcomm.media.rtp.connection;
 
-import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
+import org.squirrelframework.foundation.fsm.AnonymousAction;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpConnectionFsmImpl
-        extends AbstractStateMachine<RtpConnectionFsm, RtpConnectionState, RtpConnectionEvent, RtpConnectionTransitionContext>
-        implements RtpConnectionFsm {
+public class SetCallFlowAction extends AnonymousAction<RtpConnectionFsm, RtpConnectionState, RtpConnectionEvent, RtpConnectionTransitionContext> {
 
-    private final RtpConnectionContext context;
-
-    public RtpConnectionFsmImpl(RtpConnectionContext context) {
+    static final SetCallFlowAction INSTANCE = new SetCallFlowAction();
+    
+    SetCallFlowAction() {
         super();
-        this.context = context;
     }
-
+    
     @Override
-    public RtpConnectionContext getContext() {
-        return this.context;
+    public void execute(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext context, RtpConnectionFsm stateMachine) {
+        final boolean inbound;
+        
+        switch (event) {
+            case OPEN:
+                inbound = true; 
+                break;
+
+            case HALF_OPEN:
+                inbound = false;
+                break;
+                
+            default:
+                throw new IllegalArgumentException("Event " + event + " is not allowed.");
+        }
+        
+        stateMachine.getContext().setInbound(inbound);
+        context.set(RtpConnectionTransitionParameter.INBOUND, inbound);
     }
 
 }

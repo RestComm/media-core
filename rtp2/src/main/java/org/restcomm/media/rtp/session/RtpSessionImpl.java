@@ -174,4 +174,20 @@ public class RtpSessionImpl implements RtpSession {
         this.fsm.fire(RtpSessionEvent.OUTGOING_RTP, txContext);
     }
 
+    @Override
+    public boolean isActive() {
+        RtpSessionState state = this.fsm.getCurrentState();
+        switch (state) {
+            case IDLE:
+            case CLOSING:
+            case DEACTIVATING:
+            case DEALLOCATING:
+            case DEALLOCATED:
+            case CLOSED:
+                return true;
+
+            default:
+                return false;
+        }
+    }
 }

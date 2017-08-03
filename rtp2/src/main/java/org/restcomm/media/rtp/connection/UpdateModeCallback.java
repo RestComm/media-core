@@ -18,35 +18,28 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
+        
 package org.restcomm.media.rtp.connection;
-
-import org.restcomm.media.rtp.RtpSession;
-import org.restcomm.media.spi.ConnectionMode;
-
-import com.google.common.util.concurrent.FutureCallback;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class UpdateModeContext extends RtpConnectionBaseContext {
+public class UpdateModeCallback extends AbstractRtpConnectionActionCallback {
 
-    private final ConnectionMode mode;
-    private final RtpSession session;
-
-    public UpdateModeContext(FutureCallback<Void> originator, ConnectionMode mode, RtpSession session) {
-        super(originator);
-        this.mode = mode;
-        this.session = session;
+    public UpdateModeCallback(RtpConnectionTransitionContext context, RtpConnectionFsm fsm) {
+        super(context, fsm);
     }
 
-    public ConnectionMode getMode() {
-        return mode;
+    @Override
+    public void onSuccess(Void result) {
+        getFsm().fire(RtpConnectionEvent.MODE_UPDATED, getContext());
     }
 
-    public RtpSession getSession() {
-        return session;
+    @Override
+    public void onFailure(Throwable t) {
+        getContext().set(RtpConnectionTransitionParameter.ERROR, t);
+        getFsm().fire(RtpConnectionEvent.FAILURE, getContext());
     }
 
 }

@@ -21,32 +21,47 @@
 
 package org.restcomm.media.rtp.connection;
 
+import org.apache.log4j.Logger;
+import org.squirrelframework.foundation.fsm.AnonymousAction;
+
 import com.google.common.util.concurrent.FutureCallback;
 
 /**
+ * Notifies listener that RTP Connection is closed.
+ * <p>
+ * Input parameters:
+ * <ul>
+ * <li>CALLBACK</li>
+ * </ul>
+ * </p>
+ * <p>
+ * Output parameters:
+ * <ul>
+ * <li>n/a</li>
+ * </ul>
+ * </p>
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class UpdateSessionModeCallback implements FutureCallback<Void> {
+public class NotifyClosedAction extends AnonymousAction<RtpConnectionFsm, RtpConnectionState, RtpConnectionEvent, RtpConnectionTransitionContext> {
+
+    private static final Logger log = Logger.getLogger(NotifyClosedAction.class);
     
-    private final RtpConnectionFsm fsm;
-    private final RtpConnectionBaseContext context;
-
-    public UpdateSessionModeCallback(RtpConnectionFsm fsm, RtpConnectionBaseContext context) {
+    static final NotifyClosedAction INSTANCE = new NotifyClosedAction();
+    
+    NotifyClosedAction() {
         super();
-        this.fsm = fsm;
-        this.context = context;
     }
 
     @Override
-    public void onSuccess(Void result) {
-        this.fsm.fire(RtpConnectionEvent.SESSION_MODE_UPDATED, this.context);
-    }
+    public void execute(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event,
+            RtpConnectionTransitionContext context, RtpConnectionFsm stateMachine) {
+        // Get input parameters
+        final FutureCallback<?> callback = context.get(RtpConnectionTransitionParameter.CALLBACK, FutureCallback.class);
 
-    @Override
-    public void onFailure(Throwable t) {
-        this.context.setThrowable(t);
-        this.fsm.fire(RtpConnectionEvent.SESSION_MODE_UPDATE_FAILURE, this.context);
+        // Warn callback that operation failed
+        callback.onSuccess(null);
     }
 
 }

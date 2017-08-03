@@ -21,26 +21,29 @@
 
 package org.restcomm.media.rtp.connection;
 
-import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
+import com.google.common.util.concurrent.FutureCallback;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpConnectionFsmImpl
-        extends AbstractStateMachine<RtpConnectionFsm, RtpConnectionState, RtpConnectionEvent, RtpConnectionTransitionContext>
-        implements RtpConnectionFsm {
+public abstract class AbstractRtpConnectionActionCallback implements FutureCallback<Void> {
 
-    private final RtpConnectionContext context;
+    private final RtpConnectionTransitionContext context;
+    private final RtpConnectionFsm fsm;
 
-    public RtpConnectionFsmImpl(RtpConnectionContext context) {
+    public AbstractRtpConnectionActionCallback(RtpConnectionTransitionContext context, RtpConnectionFsm fsm) {
         super();
         this.context = context;
+        this.fsm = fsm;
     }
 
-    @Override
-    public RtpConnectionContext getContext() {
-        return this.context;
+    protected RtpConnectionTransitionContext getContext() {
+        return context;
+    }
+
+    protected RtpConnectionFsm getFsm() {
+        return fsm;
     }
 
 }

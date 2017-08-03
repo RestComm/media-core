@@ -21,43 +21,54 @@
 
 package org.restcomm.media.rtp.connection;
 
+import org.restcomm.media.rtp.RtpSession;
 import org.restcomm.media.sdp.SessionDescription;
 import org.restcomm.media.spi.ConnectionMode;
 
 /**
+ * Runtime context of an RTP Connection.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpConnectionContext {
+class RtpConnectionContext {
 
     private final String cname;
-    private final String localAddress;
+    private final String bindAddress;
     private final String externalAddress;
 
+    private boolean inbound;
     private ConnectionMode mode;
+    private RtpSession rtpSession;
     private SessionDescription localDescription;
     private SessionDescription remoteDescription;
 
-    public RtpConnectionContext(String cname, String localAddress, String externalAddress) {
+    private Throwable error;
+
+    RtpConnectionContext(String cname, String bindAddress, String externalAddress) {
         this.cname = cname;
-        this.localAddress = localAddress;
+        this.bindAddress = bindAddress;
         this.externalAddress = externalAddress;
-
         this.mode = ConnectionMode.INACTIVE;
-        this.localDescription = null;
-        this.remoteDescription = null;
     }
 
-    public String getCname() {
-        return cname;
+    /*
+     * RTP Connection
+     */
+    public Throwable getError() {
+        return error;
     }
 
-    public String getLocalAddress() {
-        return localAddress;
+    void setError(Throwable error) {
+        this.error = error;
     }
-
-    public String getExternalAddress() {
-        return externalAddress;
+    
+    public boolean isInbound() {
+        return inbound;
+    }
+    
+    void setInbound(boolean inbound) {
+        this.inbound = inbound;
     }
 
     public ConnectionMode getMode() {
@@ -66,6 +77,14 @@ public class RtpConnectionContext {
 
     void setMode(ConnectionMode mode) {
         this.mode = mode;
+    }
+
+    public RtpSession getRtpSession() {
+        return rtpSession;
+    }
+
+    void setRtpSession(RtpSession rtpSession) {
+        this.rtpSession = rtpSession;
     }
 
     public SessionDescription getLocalDescription() {
@@ -82,6 +101,18 @@ public class RtpConnectionContext {
 
     void setRemoteDescription(SessionDescription remoteDescription) {
         this.remoteDescription = remoteDescription;
+    }
+
+    public String getBindAddress() {
+        return bindAddress;
+    }
+
+    public String getExternalAddress() {
+        return externalAddress;
+    }
+
+    public String getCname() {
+        return cname;
     }
 
 }

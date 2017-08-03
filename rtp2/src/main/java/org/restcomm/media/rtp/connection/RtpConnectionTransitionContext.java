@@ -21,14 +21,36 @@
 
 package org.restcomm.media.rtp.connection;
 
-import com.google.common.util.concurrent.FutureCallback;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface RtpConnectionTransitionContext {
+public class RtpConnectionTransitionContext {
 
-    FutureCallback<Void> getOriginator();
+    private final Map<RtpConnectionTransitionParameter, Object> data;
 
+    public RtpConnectionTransitionContext() {
+        this.data = new HashMap<>(10);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T get(RtpConnectionTransitionParameter key, Class<T> type) throws IllegalArgumentException {
+        Object value = data.get(key);
+
+        if (value == null) {
+            return null;
+        } else if (type.isInstance(value)) {
+            return (T) value;
+        } else {
+            throw new IllegalArgumentException("Parameter " + key + "(" + value.getClass().getSimpleName() + ") is not of type " + type);
+        }
+    }
+
+    public void set(RtpConnectionTransitionParameter key, Object value) {
+        this.data.put(key, value);
+    }
+    
 }

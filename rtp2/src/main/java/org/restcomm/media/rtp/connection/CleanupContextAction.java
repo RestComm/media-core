@@ -21,26 +21,30 @@
 
 package org.restcomm.media.rtp.connection;
 
-import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
+import org.restcomm.media.spi.ConnectionMode;
+import org.squirrelframework.foundation.fsm.AnonymousAction;
 
 /**
+ * Cleans up context of an RTP Connection that has been closed.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpConnectionFsmImpl
-        extends AbstractStateMachine<RtpConnectionFsm, RtpConnectionState, RtpConnectionEvent, RtpConnectionTransitionContext>
-        implements RtpConnectionFsm {
+public class CleanupContextAction extends AnonymousAction<RtpConnectionFsm, RtpConnectionState, RtpConnectionEvent, RtpConnectionTransitionContext> {
 
-    private final RtpConnectionContext context;
+    static final CleanupContextAction INSTANCE = new CleanupContextAction();
 
-    public RtpConnectionFsmImpl(RtpConnectionContext context) {
+    CleanupContextAction() {
         super();
-        this.context = context;
     }
 
     @Override
-    public RtpConnectionContext getContext() {
-        return this.context;
+    public void execute(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext context, RtpConnectionFsm stateMachine) {
+        RtpConnectionContext globalContext = stateMachine.getContext();
+        globalContext.setLocalDescription(null);
+        globalContext.setMode(ConnectionMode.INACTIVE);
+        globalContext.setRemoteDescription(null);
+        globalContext.setRtpSession(null);
     }
 
 }

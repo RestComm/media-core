@@ -25,11 +25,9 @@ import java.net.InetSocketAddress;
 
 import org.restcomm.media.network.deprecated.PortManager;
 import org.restcomm.media.rtp.RtpConnection;
-import org.restcomm.media.rtp.RtpSession;
 import org.restcomm.media.rtp.RtpSessionFactory;
-import org.restcomm.media.rtp.connection.exception.RtpConnectionException;
+import org.restcomm.media.rtp.connection.exception.OperationDeniedException;
 import org.restcomm.media.rtp.sdp.SdpBuilder;
-import org.restcomm.media.sdp.SessionDescription;
 import org.restcomm.media.sdp.SessionDescriptionParser;
 import org.restcomm.media.spi.ConnectionMode;
 
@@ -42,101 +40,93 @@ import com.google.common.util.concurrent.FutureCallback;
 public class RtpConnectionImpl implements RtpConnection {
 
     // Dependencies
-    private final SessionDescriptionParser sdpParser;
-    private final SdpBuilder sdpBuilder;
     private final RtpSessionFactory sessionFactory;
     private final PortManager portManager;
+    private final SessionDescriptionParser sdpParser;
+    private final SdpBuilder sdpBuilder;
 
     // RTP Connection
     private final RtpConnectionContext context;
     private final RtpConnectionFsm fsm;
-    private RtpSession session;
 
-    public RtpConnectionImpl(RtpConnectionContext context, SessionDescriptionParser sdpParser, SdpBuilder sdpBuilder, RtpSessionFactory sessionFactory, PortManager portManager) {
-        // Dependencies
-        this.sdpParser = sdpParser;
-        this.sdpBuilder = sdpBuilder;
+    public RtpConnectionImpl(RtpSessionFactory sessionFactory, PortManager portManager, SessionDescriptionParser sdpParser, SdpBuilder sdpBuilder, RtpConnectionContext context, RtpConnectionFsmBuilder fsmBuilder) {
         this.sessionFactory = sessionFactory;
         this.portManager = portManager;
-
-        // RTP Connection
+        this.sdpParser = sdpParser;
+        this.sdpBuilder = sdpBuilder;
         this.context = context;
-        this.fsm = RtpConnectionFsmBuilder.INSTANCE.build(this.context);
-        this.session = null;
-    }
-    
-    @Override
-    public String getLocalDescription() {
-        SessionDescription sdp = this.context.getLocalDescription();
-        return sdp == null ? "" : sdp.toString();
-    }
-    
-    @Override
-    public String getRemoteDescription() {
-        SessionDescription sdp = this.context.getRemoteDescription();
-        return sdp == null ? "" : sdp.toString();
-    }
-    
-    @Override
-    public boolean isOpen() {
-        RtpConnectionState state = this.fsm.getCurrentState();
-        switch (state) {
-            case OPEN:
-            case UPDATING_MODE:
-                return true;
-
-            default:
-                return false;
-        }
+        this.fsm = fsmBuilder.build(context);
     }
 
     @Override
     public void updateMode(ConnectionMode mode, FutureCallback<Void> callback) {
-        if (this.fsm.canAccept(RtpConnectionEvent.UPDATE_MODE)) {
-            // Fire event in FSM to update the connection mode
-            UpdateModeContext txContext = new UpdateModeContext(callback, mode, this.session);
-            this.fsm.fire(RtpConnectionEvent.UPDATE_MODE, txContext);
+        RtpConnectionEvent event = RtpConnectionEvent.UPDATE_MODE;
+        if (this.fsm.canAccept(event)) {
+            // Build transitional context
+            RtpConnectionTransitionContext txContext = new RtpConnectionTransitionContext();
+            txContext.set(RtpConnectionTransitionParameter.MODE, mode);
+            txContext.set(RtpConnectionTransitionParameter.RTP_SESSION, this.context.getRtpSession());
+            txContext.set(RtpConnectionTransitionParameter.CALLBACK, callback);
+
+            // Request connection to open
+            this.fsm.fire(event, txContext);
         } else {
-            // Reject operation
-            denyOperation(callback, RtpConnectionEvent.UPDATE_MODE);
+            // Request cannot be processed
+            denyOperation(event, callback);
         }
     }
 
     @Override
-    public void open(ConnectionMode mode, String sdp, FutureCallback<Void> callback) {
-        if (this.fsm.canAccept(RtpConnectionEvent.OPEN)) {
-            this.session = this.sessionFactory.build();
-            final String localAddress = this.context.getLocalAddress();
-            final String externalAddress = this.context.getExternalAddress();
-            final int port = this.portManager.next();
+    public void open(String remoteDescription, FutureCallback<String> callback) {
+        RtpConnectionEvent event = RtpConnectionEvent.OPEN;
+        if (this.fsm.canAccept(event)) {
+            // Reserve address to connection
+            String localAddress = this.context.getBindAddress();
+            int port = this.portManager.next();
 
-            // Fire event in FSM to open the connection
-            InetSocketAddress bindAddress = new InetSocketAddress(localAddress, port);
-            OpenContext txContext = new OpenContext(callback, this.session, mode, bindAddress, externalAddress, sdp, this.sdpParser, this.sdpBuilder);
-            this.fsm.fire(RtpConnectionEvent.OPEN, txContext);
+            // Build transitional context
+            RtpConnectionTransitionContext txContext = new RtpConnectionTransitionContext();
+            txContext.set(RtpConnectionTransitionParameter.SDP_PARSER, this.sdpParser);
+            txContext.set(RtpConnectionTransitionParameter.SDP_BUILDER, this.sdpBuilder);
+            txContext.set(RtpConnectionTransitionParameter.RTP_SESSION_FACTORY, this.sessionFactory);
+            txContext.set(RtpConnectionTransitionParameter.BIND_ADDRESS, new InetSocketAddress(localAddress, port));
+            txContext.set(RtpConnectionTransitionParameter.REMOTE_SDP_STRING, remoteDescription);
+            txContext.set(RtpConnectionTransitionParameter.CALLBACK, callback);
+
+            // Request connection to open
+            this.fsm.fire(event, txContext);
         } else {
-            // Reject operation
-            denyOperation(callback, RtpConnectionEvent.OPEN);
+            // Request cannot be processed
+            denyOperation(event, callback);
         }
+    }
+
+    @Override
+    public void halfOpen(FutureCallback<String> callback) {
+        // TODO Auto-generated method stub
+
     }
 
     @Override
     public void close(FutureCallback<Void> callback) {
-        if (this.fsm.canAccept(RtpConnectionEvent.CLOSE)) {
-            // Fire event in FSM to close the connection
-            CloseContext txContext = new CloseContext(callback, this.session);
-            this.fsm.fire(RtpConnectionEvent.CLOSE, txContext);
+        RtpConnectionEvent event = RtpConnectionEvent.CLOSE;
+        if (this.fsm.canAccept(event)) {
+            // Build transitional context
+            RtpConnectionTransitionContext txContext = new RtpConnectionTransitionContext();
+            txContext.set(RtpConnectionTransitionParameter.RTP_SESSION, this.context.getRtpSession());
+            txContext.set(RtpConnectionTransitionParameter.CALLBACK, callback);
+
+            // Request connection to close
+            this.fsm.fire(event, txContext);
         } else {
-            // Reject operation
-            denyOperation(callback, RtpConnectionEvent.CLOSE);
+            // Request cannot be processed
+            denyOperation(event, callback);
         }
     }
 
-    private void denyOperation(FutureCallback<Void> callback, RtpConnectionEvent event) {
-        String cname = this.context.getCname();
-        String eventName = RtpConnectionEvent.CLOSE.name();
-        RtpConnectionException exception = new RtpConnectionException("RTP connection " + cname + " denied " + eventName + " operation");
-        callback.onFailure(exception);
+    private void denyOperation(RtpConnectionEvent event, FutureCallback<?> callback) {
+        Throwable t = new OperationDeniedException("RTP Connection " + this.context.getCname() + " denied operation " + event.name());
+        callback.onFailure(t);
     }
 
 }

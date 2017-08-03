@@ -19,28 +19,26 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.rtp.connection;
-
-import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
+package org.restcomm.media.rtp.connection.exception;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpConnectionFsmImpl
-        extends AbstractStateMachine<RtpConnectionFsm, RtpConnectionState, RtpConnectionEvent, RtpConnectionTransitionContext>
-        implements RtpConnectionFsm {
+public class OperationDeniedException extends RtpConnectionException {
 
-    private final RtpConnectionContext context;
+    private static final long serialVersionUID = 7721933157858484573L;
 
-    public RtpConnectionFsmImpl(RtpConnectionContext context) {
-        super();
-        this.context = context;
+    public OperationDeniedException(String message, Throwable cause) {
+        super(message, cause);
     }
 
-    @Override
-    public RtpConnectionContext getContext() {
-        return this.context;
+    public OperationDeniedException(String message) {
+        super(message);
+    }
+
+    public OperationDeniedException(Throwable cause) {
+        super(cause);
     }
 
 }
