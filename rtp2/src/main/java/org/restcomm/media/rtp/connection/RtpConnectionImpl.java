@@ -103,8 +103,25 @@ public class RtpConnectionImpl implements RtpConnection {
 
     @Override
     public void halfOpen(FutureCallback<String> callback) {
-        // TODO Auto-generated method stub
+        RtpConnectionEvent event = RtpConnectionEvent.HALF_OPEN;
+        if (this.fsm.canAccept(event)) {
+            // Reserve address to connection
+            String localAddress = this.context.getBindAddress();
+            int port = this.portManager.next();
 
+            // Build transitional context
+            RtpConnectionTransitionContext txContext = new RtpConnectionTransitionContext();
+            txContext.set(RtpConnectionTransitionParameter.SDP_BUILDER, this.sdpBuilder);
+            txContext.set(RtpConnectionTransitionParameter.RTP_SESSION_FACTORY, this.sessionFactory);
+            txContext.set(RtpConnectionTransitionParameter.BIND_ADDRESS, new InetSocketAddress(localAddress, port));
+            txContext.set(RtpConnectionTransitionParameter.CALLBACK, callback);
+
+            // Request connection to open
+            this.fsm.fire(event, txContext);
+        } else {
+            // Request cannot be processed
+            denyOperation(event, callback);
+        }
     }
 
     @Override
