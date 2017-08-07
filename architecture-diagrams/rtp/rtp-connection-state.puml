@@ -1,12 +1,18 @@
 @startuml
 [*] --> IDLE
 IDLE --> PARSING_REMOTE_SDP : open (inbound = true)
+IDLE --> ALLOCATING_SESSION : half_open (inbound = false)
 IDLE --> CLOSED : close
 
 PARSING_REMOTE_SDP --> ALLOCATING_SESSION : parsedRemoteSdp [no_session]
-ALLOCATING_SESSION --> NEGOTIATING_SESSION : allocated_session [inbound]
+PARSING_REMOTE_SDP --> NEGOTIATING_SESSION : parsedRemoteSdp [has_session]
+ALLOCATING_SESSION -left> NEGOTIATING_SESSION : allocated_session [inbound]
+ALLOCATING_SESSION --> GENERATING_LOCAL_SDP : allocated_session [no_remote_sdp]
 NEGOTIATING_SESSION --> GENERATING_LOCAL_SDP : session_negotiated
 GENERATING_LOCAL_SDP --> OPEN : generated_local_sdp [has_remote_sdp]
+GENERATING_LOCAL_SDP -> HALF_OPEN : generated_local_sdp [no_remote_sdp]
+
+HALF_OPEN -up-> PARSING_REMOTE_SDP : open
 
 OPEN --> UPDATING_MODE : update_mode
 UPDATING_MODE --> OPEN : mode_updated
@@ -22,6 +28,7 @@ PARSING_REMOTE_SDP --> CLOSED : close
 ALLOCATING_SESSION --> CLOSING : close
 NEGOTIATING_SESSION --> CLOSING : close
 GENERATING_LOCAL_SDP -> CLOSING : close
+HALF_OPEN --> CLOSING : close
 OPEN --> CLOSING : close
 CORRUPTED --> CLOSING : close [has_session]
 CORRUPTED --> CLOSED : close [no_session]
