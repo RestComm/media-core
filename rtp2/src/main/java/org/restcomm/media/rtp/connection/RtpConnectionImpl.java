@@ -89,7 +89,9 @@ public class RtpConnectionImpl implements RtpConnection {
             txContext.set(RtpConnectionTransitionParameter.SDP_PARSER, this.sdpParser);
             txContext.set(RtpConnectionTransitionParameter.SDP_BUILDER, this.sdpBuilder);
             txContext.set(RtpConnectionTransitionParameter.RTP_SESSION_FACTORY, this.sessionFactory);
+            txContext.set(RtpConnectionTransitionParameter.CNAME, this.context.getCname());
             txContext.set(RtpConnectionTransitionParameter.BIND_ADDRESS, new InetSocketAddress(localAddress, port));
+            txContext.set(RtpConnectionTransitionParameter.EXTERNAL_ADDRESS, this.context.getExternalAddress());
             txContext.set(RtpConnectionTransitionParameter.REMOTE_SDP_STRING, remoteDescription);
             txContext.set(RtpConnectionTransitionParameter.CALLBACK, callback);
 
@@ -113,7 +115,33 @@ public class RtpConnectionImpl implements RtpConnection {
             RtpConnectionTransitionContext txContext = new RtpConnectionTransitionContext();
             txContext.set(RtpConnectionTransitionParameter.SDP_BUILDER, this.sdpBuilder);
             txContext.set(RtpConnectionTransitionParameter.RTP_SESSION_FACTORY, this.sessionFactory);
+            txContext.set(RtpConnectionTransitionParameter.CNAME, this.context.getCname());
             txContext.set(RtpConnectionTransitionParameter.BIND_ADDRESS, new InetSocketAddress(localAddress, port));
+            txContext.set(RtpConnectionTransitionParameter.EXTERNAL_ADDRESS, this.context.getExternalAddress());
+            txContext.set(RtpConnectionTransitionParameter.CALLBACK, callback);
+
+            // Request connection to open
+            this.fsm.fire(event, txContext);
+        } else {
+            // Request cannot be processed
+            denyOperation(event, callback);
+        }
+    }
+    
+    @Override
+    public void modify(String remoteDescription, FutureCallback<String> callback) {
+        RtpConnectionEvent event = RtpConnectionEvent.MODIFY;
+        if (this.fsm.canAccept(event)) {
+            // Build transitional context
+            RtpConnectionTransitionContext txContext = new RtpConnectionTransitionContext();
+            txContext.set(RtpConnectionTransitionParameter.SDP_PARSER, this.sdpParser);
+            txContext.set(RtpConnectionTransitionParameter.SDP_BUILDER, this.sdpBuilder);
+            txContext.set(RtpConnectionTransitionParameter.RTP_SESSION, this.context.getRtpSession());
+            txContext.set(RtpConnectionTransitionParameter.REMOTE_SDP_STRING, remoteDescription);
+            txContext.set(RtpConnectionTransitionParameter.CNAME, this.context.getCname());
+            txContext.set(RtpConnectionTransitionParameter.INBOUND, this.context.isInbound());
+            txContext.set(RtpConnectionTransitionParameter.BIND_ADDRESS, this.context.getRtpSession().getRtpAddress());
+            txContext.set(RtpConnectionTransitionParameter.EXTERNAL_ADDRESS, this.context.getExternalAddress());
             txContext.set(RtpConnectionTransitionParameter.CALLBACK, callback);
 
             // Request connection to open

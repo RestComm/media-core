@@ -74,8 +74,9 @@ public class RtpConnectionFsmBuilder {
         this.builder.externalTransition().from(RtpConnectionState.HALF_OPEN).to(RtpConnectionState.CLOSING).on(RtpConnectionEvent.CLOSE);
         
         this.builder.onEntry(RtpConnectionState.OPEN).perform(NotifyOpenAction.INSTANCE);
-        this.builder.externalTransition().from(RtpConnectionState.OPEN).to(RtpConnectionState.CLOSING).on(RtpConnectionEvent.CLOSE);
         this.builder.externalTransition().from(RtpConnectionState.OPEN).to(RtpConnectionState.UPDATING_MODE).on(RtpConnectionEvent.UPDATE_MODE);
+        this.builder.externalTransition().from(RtpConnectionState.OPEN).to(RtpConnectionState.PARSING_REMOTE_SDP).on(RtpConnectionEvent.MODIFY);
+        this.builder.externalTransition().from(RtpConnectionState.OPEN).to(RtpConnectionState.CLOSING).on(RtpConnectionEvent.CLOSE);
         
         this.builder.onEntry(RtpConnectionState.UPDATING_MODE).perform(UpdateModeAction.INSTANCE);
         this.builder.externalTransition().from(RtpConnectionState.UPDATING_MODE).to(RtpConnectionState.OPEN).on(RtpConnectionEvent.MODE_UPDATED);
