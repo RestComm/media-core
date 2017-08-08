@@ -21,46 +21,14 @@
 
 package org.restcomm.media.rtp;
 
-import org.restcomm.media.network.deprecated.PortManager;
-import org.restcomm.media.rtp.connection.RtpConnectionContext;
-import org.restcomm.media.rtp.connection.RtpConnectionImpl;
-import org.restcomm.media.rtp.sdp.SdpBuilder;
-import org.restcomm.media.sdp.SessionDescriptionParser;
-
 /**
  * Factory that builds RTP Connections.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpConnectionFactory {
+public interface RtpConnectionFactory {
 
-    private final String externalAddress;
-    private final String localAddress;
-    private final CnameGenerator cnameGenerator;
-    private final SdpBuilder sdpBuilder;
-    private final SessionDescriptionParser sdpParser;
-    private final PortManager portManager;
-    private final RtpSessionFactory sessionFactory;
-
-    public RtpConnectionFactory(String externalAddress, String localAddress, CnameGenerator cnameGenerator,
-            SdpBuilder sdpBuilder, SessionDescriptionParser sdpParser, PortManager portManager,
-            RtpSessionFactory sessionFactory) {
-        super();
-        this.externalAddress = externalAddress;
-        this.localAddress = localAddress;
-        this.cnameGenerator = cnameGenerator;
-        this.sdpBuilder = sdpBuilder;
-        this.sdpParser = sdpParser;
-        this.portManager = portManager;
-        this.sessionFactory = sessionFactory;
-    }
-
-    public RtpConnection build() {
-        final String cname = this.cnameGenerator.generateCname();
-        RtpConnectionContext context = new RtpConnectionContext(cname, localAddress, externalAddress);
-        RtpConnection connection = new RtpConnectionImpl(context, sdpParser, sdpBuilder, sessionFactory, portManager);
-        return connection;
-    }
+    RtpConnection build();
 
 }
