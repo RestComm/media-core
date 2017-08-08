@@ -65,7 +65,7 @@ public class GenerateLocalSdpAction extends AnonymousAction<RtpConnectionFsm, Rt
     public void execute(RtpConnectionState from, RtpConnectionState to, RtpConnectionEvent event, RtpConnectionTransitionContext context, RtpConnectionFsm stateMachine) {
         // Get input parameters
         final String cname = context.get(RtpConnectionTransitionParameter.CNAME, String.class);
-        final boolean inbound = context.get(RtpConnectionTransitionParameter.INBOUND, Boolean.class);
+        final boolean inbound = stateMachine.getContext().isInbound();
         final InetSocketAddress localAddress = context.get(RtpConnectionTransitionParameter.BIND_ADDRESS, InetSocketAddress.class);
         final String externalAddress = context.get(RtpConnectionTransitionParameter.EXTERNAL_ADDRESS, String.class);
         final RtpSession session = context.get(RtpConnectionTransitionParameter.RTP_SESSION, RtpSession.class);
