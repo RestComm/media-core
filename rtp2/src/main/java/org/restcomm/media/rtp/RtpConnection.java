@@ -43,12 +43,20 @@ public interface RtpConnection {
     void halfOpen(FutureCallback<String> callback);
 
     /**
-     * Fully opens the connection.
+     * Fully opens the connection and connects it to remote peer.
      * 
      * @param remoteDescription The remote session description.
      * @param callback Invoked when operation completes or fails. Holds the local session description.
      */
     void open(String remoteDescription, FutureCallback<String> callback);
+
+    /**
+     * Re-negotiates an open connection.
+     * 
+     * @param remoteDescription The remote session description
+     * @param callback Invoked when operation completes or fails. Holds the local session description.
+     */
+    void modify(String remoteDescription, FutureCallback<String> callback);
 
     /**
      * Updates the connection mode.

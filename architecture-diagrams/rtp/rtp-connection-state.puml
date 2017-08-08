@@ -15,6 +15,7 @@ GENERATING_LOCAL_SDP -> HALF_OPEN : generated_local_sdp [no_remote_sdp]
 HALF_OPEN -up-> PARSING_REMOTE_SDP : open
 
 OPEN --> UPDATING_MODE : update_mode
+OPEN -up-> PARSING_REMOTE_SDP : modify
 UPDATING_MODE --> OPEN : mode_updated
 UPDATING_MODE --> CLOSING : close
 UPDATING_MODE --> CORRUPTED : failure
