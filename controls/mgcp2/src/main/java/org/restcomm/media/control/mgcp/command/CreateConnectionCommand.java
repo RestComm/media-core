@@ -170,7 +170,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
         // TODO set call agent
         String localDescription = connection.halfOpen(context.getLocalConnectionOptions());
         context.setLocalDescription(localDescription);
-        connection.setMode(mode);
+        connection.updateMode(mode);
         return connection;
     }
 
@@ -196,7 +196,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
         String localDescription = connection.open(remoteDescription);
         context.setLocalDescription(localDescription);
 
-        connection.setMode(mode);
+        connection.updateMode(mode);
         return connection;
     }
 
@@ -267,8 +267,8 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
             ((MgcpLocalConnection) connection1).join((MgcpLocalConnection) connection2);
             
             // Set connection mode
-            connection1.setMode(context.getConnectionMode());
-            connection2.setMode(ConnectionMode.SEND_RECV);
+            connection1.updateMode(context.getConnectionMode());
+            connection2.updateMode(ConnectionMode.SEND_RECV);
         }
     }
     

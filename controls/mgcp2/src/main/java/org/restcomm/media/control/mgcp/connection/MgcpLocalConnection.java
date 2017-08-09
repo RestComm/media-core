@@ -154,7 +154,7 @@ public class MgcpLocalConnection extends AbstractMgcpConnection {
                     }
 
                     // Deactivate connection
-                    setMode(ConnectionMode.INACTIVE);
+                    updateMode(ConnectionMode.INACTIVE);
 
                     // Update connection state
                     this.state = MgcpConnectionState.CLOSED;
@@ -175,8 +175,8 @@ public class MgcpLocalConnection extends AbstractMgcpConnection {
     }
 
     @Override
-    public void setMode(ConnectionMode mode) throws IllegalStateException {
-        super.setMode(mode);
+    public void updateMode(ConnectionMode mode) throws IllegalStateException {
+        super.updateMode(mode);
         try {
             this.audioChannel.updateMode(mode);
         } catch (ModeNotSupportedException e) {
