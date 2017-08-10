@@ -55,7 +55,7 @@ import com.google.common.util.concurrent.ListeningScheduledExecutorService;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpListener {
+public class MgcpRemoteConnection extends DeprecratedAbstractMgcpConnection implements RtpListener {
 
     private static final Logger log = Logger.getLogger(MgcpRemoteConnection.class);
 

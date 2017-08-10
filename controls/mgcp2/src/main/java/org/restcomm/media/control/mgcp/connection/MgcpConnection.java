@@ -87,13 +87,6 @@ public interface MgcpConnection extends MgcpEventSubject {
     ConnectionMode getMode();
 
     /**
-     * Gets the current state of the connection
-     * 
-     * @return The connection state
-     */
-    MgcpConnectionState getState();
-
-    /**
      * Sets the mode of the connection.
      * 
      * @param mode The new mode of the connection

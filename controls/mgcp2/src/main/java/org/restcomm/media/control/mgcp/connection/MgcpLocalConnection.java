@@ -45,7 +45,7 @@ import com.google.common.util.concurrent.ListeningScheduledExecutorService;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpLocalConnection extends AbstractMgcpConnection {
+public class MgcpLocalConnection extends DeprecratedAbstractMgcpConnection {
 
     private static final Logger log = Logger.getLogger(MgcpLocalConnection.class);
 

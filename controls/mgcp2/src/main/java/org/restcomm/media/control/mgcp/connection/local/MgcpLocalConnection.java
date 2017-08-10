@@ -18,20 +18,18 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
+
 package org.restcomm.media.control.mgcp.connection.local;
 
 import org.apache.log4j.Logger;
 import org.restcomm.media.component.audio.AudioComponent;
 import org.restcomm.media.component.oob.OOBComponent;
-import org.restcomm.media.control.mgcp.connection.AbstractConnection;
-import org.restcomm.media.control.mgcp.connection.MgcpConnectionState;
+import org.restcomm.media.control.mgcp.connection.AbstractMgcpConnection;
 import org.restcomm.media.control.mgcp.exception.UnsupportedMgcpEventException;
 import org.restcomm.media.control.mgcp.message.LocalConnectionOptions;
 import org.restcomm.media.control.mgcp.pkg.MgcpEvent;
 import org.restcomm.media.control.mgcp.pkg.MgcpEventProvider;
 import org.restcomm.media.control.mgcp.pkg.MgcpRequestedEvent;
-import org.restcomm.media.rtp.ChannelsManager;
 import org.restcomm.media.rtp.LocalDataChannel;
 import org.restcomm.media.spi.ConnectionMode;
 
@@ -42,25 +40,18 @@ import com.google.common.util.concurrent.ListeningScheduledExecutorService;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpLocalConnection extends AbstractConnection {
-    
+public class MgcpLocalConnection extends AbstractMgcpConnection {
+
     private static final Logger log = Logger.getLogger(MgcpLocalConnection.class);
 
-    private ConnectionMode mode;
-    private final LocalDataChannel audioChannel;
-
-    public MgcpLocalConnection(int identifier, int callId, int halfOpenTimeout, int openTimeout, MgcpEventProvider eventProvider, ChannelsManager channelProvider, ListeningScheduledExecutorService executor) {
-        super(identifier, callId, halfOpenTimeout, openTimeout, eventProvider, executor);
-        this.audioChannel = channelProvider.getLocalChannel();
-        this.mode = ConnectionMode.INACTIVE;
-    }
-    
-    public MgcpLocalConnection(int identifier, int callId, int timeout, MgcpEventProvider eventProvider, ChannelsManager channelProvider, ListeningScheduledExecutorService executor) {
-        this(identifier, callId, HALF_OPEN_TIMER, timeout, eventProvider, channelProvider, executor);
+    public MgcpLocalConnection(MgcpLocalConnectionContext context, MgcpEventProvider eventProvider,
+            ListeningScheduledExecutorService executor, ConnectionMode mode, LocalDataChannel audioChannel) {
+        super(context, eventProvider, executor);
     }
 
-    public MgcpLocalConnection(int identifier, int callId, MgcpEventProvider eventProvider, ChannelsManager channelProvider, ListeningScheduledExecutorService executor) {
-        this(identifier, callId, HALF_OPEN_TIMER, 0, eventProvider, channelProvider, executor);
+    @Override
+    protected MgcpLocalConnectionContext getContext() {
+        return (MgcpLocalConnectionContext) super.getContext();
     }
 
     @Override
@@ -69,54 +60,45 @@ public class MgcpLocalConnection extends AbstractConnection {
     }
 
     @Override
-    public ConnectionMode getMode() {
-        return this.mode;
-    }
-
-    @Override
-    public MgcpConnectionState getState() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
     public void updateMode(ConnectionMode mode, FutureCallback<Void> callback) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void halfOpen(LocalConnectionOptions options, FutureCallback<String> callback) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void open(String sdp, FutureCallback<String> callback) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void renegotiate(String sdp, FutureCallback<String> callback) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void close(FutureCallback<Void> callback) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public AudioComponent getAudioComponent() {
-        return this.audioChannel.getAudioComponent();
+        final LocalDataChannel audioChannel = getContext().getAudioChannel();
+        return (audioChannel == null) ? null : audioChannel.getAudioComponent();
     }
 
     @Override
     public OOBComponent getOutOfBandComponent() {
-        return this.audioChannel.getOOBComponent();
+        final LocalDataChannel audioChannel = getContext().getAudioChannel();
+        return (audioChannel == null) ? null : audioChannel.getOOBComponent();
     }
 
     @Override
