@@ -23,6 +23,7 @@ package org.restcomm.media.control.mgcp.connection.local;
 
 import org.restcomm.media.spi.ConnectionMode;
 
+import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 
 /**
@@ -31,9 +32,11 @@ import com.google.common.util.concurrent.ListeningScheduledExecutorService;
  */
 public enum MgcpLocalConnectionParameter {
 
+    CALLBACK(FutureCallback.class),
     MODE(ConnectionMode.class),
     OTHER_CONNECTION(MgcpLocalConnection.class),
-    SCHEDULER(ListeningScheduledExecutorService.class);
+    SCHEDULER(ListeningScheduledExecutorService.class), 
+    TIMEOUT(Integer.class);
 
     private final Class<?> type;
 

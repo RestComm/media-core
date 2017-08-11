@@ -21,19 +21,21 @@
 
 package org.restcomm.media.control.mgcp.connection.local;
 
+import java.util.concurrent.TimeUnit;
+
 import org.apache.log4j.Logger;
 import org.squirrelframework.foundation.fsm.AnonymousAction;
 
+import com.google.common.util.concurrent.ListenableScheduledFuture;
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class ScheduleOpenTimerAction extends
-        AnonymousAction<MgcpLocalConnectionFsm, MgcpLocalConnectionState, MgcpLocalConnectionEvent, MgcpLocalConnectionTransitionContext> {
+public class ScheduleTimerAction extends AnonymousAction<MgcpLocalConnectionFsm, MgcpLocalConnectionState, MgcpLocalConnectionEvent, MgcpLocalConnectionTransitionContext> {
 
-    private static final Logger log = Logger.getLogger(ScheduleOpenTimerAction.class);
+    private static final Logger log = Logger.getLogger(ScheduleTimerAction.class);
 
     @Override
     public void execute(MgcpLocalConnectionState from, MgcpLocalConnectionState to, MgcpLocalConnectionEvent event, MgcpLocalConnectionTransitionContext context, MgcpLocalConnectionFsm stateMachine) {
@@ -41,17 +43,16 @@ public class ScheduleOpenTimerAction extends
         final ListeningScheduledExecutorService executor = context.get(MgcpLocalConnectionParameter.SCHEDULER, ListeningScheduledExecutorService.class);
         int timeout = globalContext.getTimeout();
 
-        if(timeout > 0) {
-//            executor.sc
+        if (timeout > 0) {
+            TimeoutConnectionTask timeoutTask = new TimeoutConnectionTask(timeout, stateMachine);
+            ListenableScheduledFuture<?> future = executor.schedule(timeoutTask, timeout, TimeUnit.MILLISECONDS);
+            globalContext.setTimerFuture(future);
+            
+            if (log.isDebugEnabled()) {
+                final String identifier = globalContext.getHexIdentifier();
+                log.debug("Local MGCP connection " + identifier + " is scheduled to timeout in " + timeout + "ms");
+            }
         }
-
-        if (log.isDebugEnabled()) {
-            final String identifier = globalContext.getHexIdentifier();
-
-            log.debug("Local MGCP connection " + identifier + " ");
-
-        }
-
     }
 
 }

@@ -44,9 +44,12 @@ public class MgcpLocalConnection extends AbstractMgcpConnection {
 
     private static final Logger log = Logger.getLogger(MgcpLocalConnection.class);
 
-    public MgcpLocalConnection(MgcpLocalConnectionContext context, MgcpEventProvider eventProvider,
-            ListeningScheduledExecutorService executor, ConnectionMode mode, LocalDataChannel audioChannel) {
+    private final MgcpLocalConnectionFsm fsm;
+
+    public MgcpLocalConnection(MgcpLocalConnectionContext context, MgcpEventProvider eventProvider, ListeningScheduledExecutorService executor, ConnectionMode mode, LocalDataChannel audioChannel) {
         super(context, eventProvider, executor);
+        // TODO initialize FSM
+        this.fsm = null;
     }
 
     @Override
@@ -61,32 +64,60 @@ public class MgcpLocalConnection extends AbstractMgcpConnection {
 
     @Override
     public void updateMode(ConnectionMode mode, FutureCallback<Void> callback) {
-        // TODO Auto-generated method stub
-
+        MgcpLocalConnectionEvent event = MgcpLocalConnectionEvent.UPDATE_MODE;
+        if (this.fsm.canAccept(event)) {
+            MgcpLocalConnectionTransitionContext txContext = new MgcpLocalConnectionTransitionContext();
+            // TODO build tx context
+            this.fsm.fire(event, txContext);
+        } else {
+            denyOperation(event, callback);
+        }
     }
 
     @Override
     public void halfOpen(LocalConnectionOptions options, FutureCallback<String> callback) {
-        // TODO Auto-generated method stub
-
+        MgcpLocalConnectionEvent event = MgcpLocalConnectionEvent.HALF_OPEN;
+        if (this.fsm.canAccept(event)) {
+            MgcpLocalConnectionTransitionContext txContext = new MgcpLocalConnectionTransitionContext();
+            // TODO build tx context
+            this.fsm.fire(event, txContext);
+        } else {
+            denyOperation(event, callback);
+        }
     }
 
     @Override
     public void open(String sdp, FutureCallback<String> callback) {
-        // TODO Auto-generated method stub
-
+        MgcpLocalConnectionEvent event = MgcpLocalConnectionEvent.OPEN;
+        if (this.fsm.canAccept(event)) {
+            MgcpLocalConnectionTransitionContext txContext = new MgcpLocalConnectionTransitionContext();
+            // TODO build tx context
+            this.fsm.fire(event, txContext);
+        } else {
+            denyOperation(event, callback);
+        }
     }
 
     @Override
     public void renegotiate(String sdp, FutureCallback<String> callback) {
-        // TODO Auto-generated method stub
-
+        denyOperation(MgcpLocalConnectionEvent.RENEGOTIATE, callback);
     }
 
     @Override
     public void close(FutureCallback<Void> callback) {
-        // TODO Auto-generated method stub
+        MgcpLocalConnectionEvent event = MgcpLocalConnectionEvent.CLOSE;
+        if (this.fsm.canAccept(event)) {
+            MgcpLocalConnectionTransitionContext txContext = new MgcpLocalConnectionTransitionContext();
+            // TODO build tx context
+            this.fsm.fire(event, txContext);
+        } else {
+            denyOperation(event, callback);
+        }
+    }
 
+    private void denyOperation(MgcpLocalConnectionEvent event, FutureCallback<?> callback) {
+        Throwable t = new IllegalArgumentException("MGCP Connection " + getContext().getHexIdentifier() + " denied operation " + event.name());
+        callback.onFailure(t);
     }
 
     @Override

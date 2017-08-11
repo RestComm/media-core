@@ -18,15 +18,33 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
+
 package org.restcomm.media.control.mgcp.connection.local;
 
 /**
+ * Fires an event to timeout the connection.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum MgcpLocalConnectionEvent {
-    
-    HALF_OPEN, OPEN, RENEGOTIATE, UPDATE_MODE, JOIN, CLOSE, TIMEOUT;
+public class TimeoutConnectionTask implements Runnable {
+
+    private final int timeout;
+    private final MgcpLocalConnectionFsm fsm;
+
+    public TimeoutConnectionTask(int timeout, MgcpLocalConnectionFsm fsm) {
+        this.timeout = timeout;
+        this.fsm = fsm;
+    }
+
+    @Override
+    public void run() {
+        MgcpLocalConnectionTransitionContext txContext = new MgcpLocalConnectionTransitionContext();
+        txContext.set(MgcpLocalConnectionParameter.TIMEOUT, this.timeout);
+
+        if (fsm.canAccept(MgcpLocalConnectionEvent.TIMEOUT)) {
+            fsm.fire(MgcpLocalConnectionEvent.TIMEOUT, txContext);
+        }
+    }
 
 }

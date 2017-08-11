@@ -23,22 +23,24 @@ package org.restcomm.media.control.mgcp.connection;
 
 import org.restcomm.media.spi.ConnectionMode;
 
+import com.google.common.util.concurrent.ListenableScheduledFuture;
+
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
 public class MgcpConnectionContext {
-    
+
     protected static final int HALF_OPEN_TIMEOUT = 30;
     protected static final int NO_TIMEOUT = -1;
-    
 
     // Connection
     private final int identifier;
     private final int callIdentifier;
     private ConnectionMode mode;
-    
+
     // Timers
+    protected ListenableScheduledFuture<?> timerFuture;
     protected final int timeout;
     protected final int halfOpenTimeout;
 
@@ -47,7 +49,7 @@ public class MgcpConnectionContext {
         this.identifier = identifier;
         this.callIdentifier = callIdentifier;
         this.mode = ConnectionMode.INACTIVE;
-        
+
         // Timers
         this.halfOpenTimeout = halfOpenTimeout;
         this.timeout = timeout;
@@ -72,7 +74,7 @@ public class MgcpConnectionContext {
     public int getIdentifier() {
         return identifier;
     }
-    
+
     public String getHexIdentifier() {
         return Integer.toHexString(identifier).toUpperCase();
     }
@@ -80,17 +82,28 @@ public class MgcpConnectionContext {
     public int getCallIdentifier() {
         return callIdentifier;
     }
-    
+
     public String getCallIdentifierHex() {
         return Integer.toHexString(this.callIdentifier).toUpperCase();
     }
-    
+
     public int getTimeout() {
         return timeout;
     }
-    
+
     public int getHalfOpenTimeout() {
         return halfOpenTimeout;
+    }
+
+    public ListenableScheduledFuture<?> getTimerFuture() {
+        return timerFuture;
+    }
+
+    public void setTimerFuture(ListenableScheduledFuture<?> timerFuture) {
+        if (this.timerFuture != null && !this.timerFuture.isDone()) {
+            this.timerFuture.cancel(false);
+        }
+        this.timerFuture = timerFuture;
     }
 
 }
