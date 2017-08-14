@@ -32,9 +32,9 @@ import com.google.common.util.concurrent.ListenableScheduledFuture;
  */
 class CancelTimerAction extends AnonymousAction<MgcpLocalConnectionFsm, MgcpLocalConnectionState, MgcpLocalConnectionEvent, MgcpLocalConnectionTransitionContext> implements MgcpLocalConnectionAction {
 
-    private static final Logger log = Logger.getLogger(CancelTimerAction.class);
+    private static final Logger log = Logger.getLogger(CancelTimerActionTest.class);
     
-    static final CancelTimerAction INSTANCE = new CancelTimerAction();
+    static final CancelTimerActionTest INSTANCE = new CancelTimerActionTest();
     
     CancelTimerAction() {
         super();
@@ -52,7 +52,6 @@ class CancelTimerAction extends AnonymousAction<MgcpLocalConnectionFsm, MgcpLoca
                 log.trace("Local MGCP connection " + identifier + " timeout was canceled");
             }
         }
-
     }
 
 }

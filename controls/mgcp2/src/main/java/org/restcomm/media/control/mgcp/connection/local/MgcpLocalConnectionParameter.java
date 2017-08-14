@@ -34,8 +34,8 @@ public enum MgcpLocalConnectionParameter {
 
     CALLBACK(FutureCallback.class),
     MODE(ConnectionMode.class),
-    CONNECTION(MgcpLocalConnection.class),
-    JOINEE(MgcpLocalConnection.class),
+    CONNECTION(MgcpLocalConnectionImpl.class),
+    JOINEE(MgcpLocalConnectionImpl.class),
     SCHEDULER(ListeningScheduledExecutorService.class), 
     TIMEOUT(Integer.class);
 

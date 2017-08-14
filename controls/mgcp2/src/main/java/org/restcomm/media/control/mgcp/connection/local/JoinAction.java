@@ -46,7 +46,7 @@ public class JoinAction extends AnonymousAction<MgcpLocalConnectionFsm, MgcpLoca
     @Override
     public void execute(MgcpLocalConnectionState from, MgcpLocalConnectionState to, MgcpLocalConnectionEvent event, MgcpLocalConnectionTransitionContext context, MgcpLocalConnectionFsm stateMachine) {
         final MgcpLocalConnectionContext globalContext = stateMachine.getContext();
-        final MgcpLocalConnection otherConnection = context.get(MgcpLocalConnectionParameter.JOINEE, MgcpLocalConnection.class);
+        final MgcpLocalConnectionImpl otherConnection = context.get(MgcpLocalConnectionParameter.JOINEE, MgcpLocalConnectionImpl.class);
         
         try {
             LocalDataChannel audioChannel = globalContext.getAudioChannel();

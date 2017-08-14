@@ -264,7 +264,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
             context.setSecondConnectionId(connection2.getIdentifier());
 
             // Join connections
-            ((MgcpLocalConnection) connection1).join((MgcpLocalConnection) connection2);
+            ((MgcpLocalConnectionImpl) connection1).join((MgcpLocalConnectionImpl) connection2);
             
             // Set connection mode
             connection1.updateMode(context.getConnectionMode());

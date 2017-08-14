@@ -51,7 +51,7 @@ public class MgcpLocalConnectionFsmBuilder {
         this.builder.externalTransition().from(MgcpLocalConnectionState.HALF_OPEN).to(MgcpLocalConnectionState.OPEN).on(MgcpLocalConnectionEvent.OPEN);
         this.builder.externalTransition().from(MgcpLocalConnectionState.HALF_OPEN).toFinal(MgcpLocalConnectionState.CLOSED).on(MgcpLocalConnectionEvent.CLOSE);
         this.builder.externalTransition().from(MgcpLocalConnectionState.HALF_OPEN).toFinal(MgcpLocalConnectionState.CLOSED).on(MgcpLocalConnectionEvent.TIMEOUT);
-        this.builder.onExit(MgcpLocalConnectionState.HALF_OPEN).perform(CancelTimerAction.INSTANCE);
+        this.builder.onExit(MgcpLocalConnectionState.HALF_OPEN).perform(CancelTimerActionTest.INSTANCE);
         
         this.builder.onEntry(MgcpLocalConnectionState.OPEN).perform(openEntryActions);
         this.builder.internalTransition().within(MgcpLocalConnectionState.OPEN).on(MgcpLocalConnectionEvent.JOIN).perform(JoinAction.INSTANCE);

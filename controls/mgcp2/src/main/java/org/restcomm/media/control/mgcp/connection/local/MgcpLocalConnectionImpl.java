@@ -40,13 +40,13 @@ import com.google.common.util.concurrent.ListeningScheduledExecutorService;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpLocalConnection extends AbstractMgcpConnection {
+public class MgcpLocalConnectionImpl extends AbstractMgcpConnection {
 
-    private static final Logger log = Logger.getLogger(MgcpLocalConnection.class);
+    private static final Logger log = Logger.getLogger(MgcpLocalConnectionImpl.class);
 
     private final MgcpLocalConnectionFsm fsm;
 
-    public MgcpLocalConnection(MgcpLocalConnectionContext context, MgcpEventProvider eventProvider, ListeningScheduledExecutorService executor, MgcpLocalConnectionFsmBuilder fsmBuilder) {
+    public MgcpLocalConnectionImpl(MgcpLocalConnectionContext context, MgcpEventProvider eventProvider, ListeningScheduledExecutorService executor, MgcpLocalConnectionFsmBuilder fsmBuilder) {
         super(context, eventProvider, executor);
         this.fsm = fsmBuilder.build(context);
     }
@@ -116,7 +116,7 @@ public class MgcpLocalConnection extends AbstractMgcpConnection {
         }
     }
 
-    public void join(MgcpLocalConnection connection, FutureCallback<Void> callback) {
+    public void join(MgcpLocalConnectionImpl connection, FutureCallback<Void> callback) {
         MgcpLocalConnectionEvent event = MgcpLocalConnectionEvent.JOIN;
         if (this.fsm.canAccept(event)) {
             // Build transition context
@@ -175,7 +175,7 @@ public class MgcpLocalConnection extends AbstractMgcpConnection {
 
     @Override
     protected Logger log() {
-        return MgcpLocalConnection.log;
+        return MgcpLocalConnectionImpl.log;
     }
 
 }
