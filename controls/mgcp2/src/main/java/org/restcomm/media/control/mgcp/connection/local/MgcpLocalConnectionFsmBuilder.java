@@ -21,6 +21,9 @@
 
 package org.restcomm.media.control.mgcp.connection.local;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.squirrelframework.foundation.fsm.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
 
@@ -35,12 +38,32 @@ public class MgcpLocalConnectionFsmBuilder {
     public MgcpLocalConnectionFsmBuilder() {
         this.builder = StateMachineBuilderFactory.<MgcpLocalConnectionFsm, MgcpLocalConnectionState, MgcpLocalConnectionEvent, MgcpLocalConnectionTransitionContext> create(MgcpLocalConnectionFsm.class, MgcpLocalConnectionState.class, MgcpLocalConnectionEvent.class, MgcpLocalConnectionTransitionContext.class);
 
+        this.builder.onEntry(MgcpLocalConnectionState.IDLE);
+        this.builder.externalTransition().from(MgcpLocalConnectionState.IDLE).to(MgcpLocalConnectionState.HALF_OPEN).on(MgcpLocalConnectionEvent.HALF_OPEN);
+        this.builder.externalTransition().from(MgcpLocalConnectionState.IDLE).to(MgcpLocalConnectionState.OPEN).on(MgcpLocalConnectionEvent.OPEN);
+        this.builder.externalTransition().from(MgcpLocalConnectionState.IDLE).toFinal(MgcpLocalConnectionState.CLOSED).on(MgcpLocalConnectionEvent.CLOSE);
         
+        List<MgcpLocalConnectionAction> openEntryActions = new ArrayList<>(2);
+        openEntryActions.add(NotifySuccessAction.INSTANCE);
+        openEntryActions.add(ScheduleTimerAction.INSTANCE);
         
+        this.builder.onEntry(MgcpLocalConnectionState.HALF_OPEN).perform(openEntryActions);
+        this.builder.externalTransition().from(MgcpLocalConnectionState.HALF_OPEN).to(MgcpLocalConnectionState.OPEN).on(MgcpLocalConnectionEvent.OPEN);
+        this.builder.externalTransition().from(MgcpLocalConnectionState.HALF_OPEN).toFinal(MgcpLocalConnectionState.CLOSED).on(MgcpLocalConnectionEvent.CLOSE);
+        this.builder.externalTransition().from(MgcpLocalConnectionState.HALF_OPEN).toFinal(MgcpLocalConnectionState.CLOSED).on(MgcpLocalConnectionEvent.TIMEOUT);
+        this.builder.onExit(MgcpLocalConnectionState.HALF_OPEN).perform(CancelTimerAction.INSTANCE);
+        
+        this.builder.onEntry(MgcpLocalConnectionState.OPEN).perform(openEntryActions);
+        this.builder.internalTransition().within(MgcpLocalConnectionState.OPEN).on(MgcpLocalConnectionEvent.JOIN);
+        this.builder.internalTransition().within(MgcpLocalConnectionState.OPEN).on(MgcpLocalConnectionEvent.UPDATE_MODE);
+        this.builder.externalTransition().from(MgcpLocalConnectionState.OPEN).toFinal(MgcpLocalConnectionState.CLOSED).on(MgcpLocalConnectionEvent.CLOSE);
+        this.builder.externalTransition().from(MgcpLocalConnectionState.HALF_OPEN).toFinal(MgcpLocalConnectionState.CLOSED).on(MgcpLocalConnectionEvent.TIMEOUT);
+        
+        this.builder.onEntry(MgcpLocalConnectionState.CLOSED);
     }
 
-    public MgcpLocalConnectionFsm build() {
-        return null;
+    public MgcpLocalConnectionFsm build(MgcpLocalConnectionContext context) {
+        return this.builder.newStateMachine(MgcpLocalConnectionState.IDLE, context);
     }
 
 }

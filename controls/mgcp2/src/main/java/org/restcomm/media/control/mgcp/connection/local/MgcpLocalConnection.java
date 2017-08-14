@@ -46,10 +46,9 @@ public class MgcpLocalConnection extends AbstractMgcpConnection {
 
     private final MgcpLocalConnectionFsm fsm;
 
-    public MgcpLocalConnection(MgcpLocalConnectionContext context, MgcpEventProvider eventProvider, ListeningScheduledExecutorService executor, ConnectionMode mode, LocalDataChannel audioChannel) {
+    public MgcpLocalConnection(MgcpLocalConnectionContext context, MgcpEventProvider eventProvider, ListeningScheduledExecutorService executor, MgcpLocalConnectionFsmBuilder fsmBuilder) {
         super(context, eventProvider, executor);
-        // TODO initialize FSM
-        this.fsm = null;
+        this.fsm = fsmBuilder.build(context);
     }
 
     @Override
@@ -63,23 +62,16 @@ public class MgcpLocalConnection extends AbstractMgcpConnection {
     }
 
     @Override
-    public void updateMode(ConnectionMode mode, FutureCallback<Void> callback) {
-        MgcpLocalConnectionEvent event = MgcpLocalConnectionEvent.UPDATE_MODE;
-        if (this.fsm.canAccept(event)) {
-            MgcpLocalConnectionTransitionContext txContext = new MgcpLocalConnectionTransitionContext();
-            // TODO build tx context
-            this.fsm.fire(event, txContext);
-        } else {
-            denyOperation(event, callback);
-        }
-    }
-
-    @Override
     public void halfOpen(LocalConnectionOptions options, FutureCallback<String> callback) {
         MgcpLocalConnectionEvent event = MgcpLocalConnectionEvent.HALF_OPEN;
         if (this.fsm.canAccept(event)) {
+            // Build transition context
             MgcpLocalConnectionTransitionContext txContext = new MgcpLocalConnectionTransitionContext();
-            // TODO build tx context
+            txContext.set(MgcpLocalConnectionParameter.CALLBACK, callback);
+            txContext.set(MgcpLocalConnectionParameter.TIMEOUT, getContext().getHalfOpenTimeout());
+            txContext.set(MgcpLocalConnectionParameter.SCHEDULER, getExecutor());
+            
+            // Fire event
             this.fsm.fire(event, txContext);
         } else {
             denyOperation(event, callback);
@@ -90,8 +82,13 @@ public class MgcpLocalConnection extends AbstractMgcpConnection {
     public void open(String sdp, FutureCallback<String> callback) {
         MgcpLocalConnectionEvent event = MgcpLocalConnectionEvent.OPEN;
         if (this.fsm.canAccept(event)) {
+            // Build transition context
             MgcpLocalConnectionTransitionContext txContext = new MgcpLocalConnectionTransitionContext();
-            // TODO build tx context
+            txContext.set(MgcpLocalConnectionParameter.CALLBACK, callback);
+            txContext.set(MgcpLocalConnectionParameter.TIMEOUT, getContext().getTimeout());
+            txContext.set(MgcpLocalConnectionParameter.SCHEDULER, getExecutor());
+            
+            // Fire event
             this.fsm.fire(event, txContext);
         } else {
             denyOperation(event, callback);
@@ -102,13 +99,47 @@ public class MgcpLocalConnection extends AbstractMgcpConnection {
     public void renegotiate(String sdp, FutureCallback<String> callback) {
         denyOperation(MgcpLocalConnectionEvent.RENEGOTIATE, callback);
     }
+    
+    @Override
+    public void updateMode(ConnectionMode mode, FutureCallback<Void> callback) {
+        MgcpLocalConnectionEvent event = MgcpLocalConnectionEvent.UPDATE_MODE;
+        if (this.fsm.canAccept(event)) {
+            // Build transition context
+            MgcpLocalConnectionTransitionContext txContext = new MgcpLocalConnectionTransitionContext();
+            txContext.set(MgcpLocalConnectionParameter.CALLBACK, callback);
+            txContext.set(MgcpLocalConnectionParameter.MODE, mode);
+
+            // Fire event
+            this.fsm.fire(event, txContext);
+        } else {
+            denyOperation(event, callback);
+        }
+    }
+
+    public void join(MgcpLocalConnection connection, FutureCallback<Void> callback) {
+        MgcpLocalConnectionEvent event = MgcpLocalConnectionEvent.JOIN;
+        if (this.fsm.canAccept(event)) {
+            // Build transition context
+            MgcpLocalConnectionTransitionContext txContext = new MgcpLocalConnectionTransitionContext();
+            txContext.set(MgcpLocalConnectionParameter.CALLBACK, callback);
+            txContext.set(MgcpLocalConnectionParameter.JOINEE, connection);
+            
+            // Fire event
+            this.fsm.fire(event, txContext);
+        } else {
+            denyOperation(event, callback);
+        }
+    }
 
     @Override
     public void close(FutureCallback<Void> callback) {
         MgcpLocalConnectionEvent event = MgcpLocalConnectionEvent.CLOSE;
         if (this.fsm.canAccept(event)) {
+            // Build transition context
             MgcpLocalConnectionTransitionContext txContext = new MgcpLocalConnectionTransitionContext();
-            // TODO build tx context
+            txContext.set(MgcpLocalConnectionParameter.CALLBACK, callback);
+
+            // Fire event
             this.fsm.fire(event, txContext);
         } else {
             denyOperation(event, callback);

@@ -18,37 +18,13 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
+        
 package org.restcomm.media.control.mgcp.connection.local;
-
-import org.restcomm.media.control.mgcp.connection.MgcpConnectionContext;
-import org.restcomm.media.rtp.LocalDataChannel;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpLocalConnectionContext extends MgcpConnectionContext {
-
-    private final LocalDataChannel audioChannel;
-
-    public MgcpLocalConnectionContext(int identifier, int callIdentifier, int halfOpenTimeout, int timeout, LocalDataChannel audioChannel) {
-        super(identifier, callIdentifier, halfOpenTimeout, timeout);
-        this.audioChannel = audioChannel;
-    }
-
-    public MgcpLocalConnectionContext(int identifier, int callIdentifier, int timeout, LocalDataChannel audioChannel) {
-        super(identifier, callIdentifier, timeout);
-        this.audioChannel = audioChannel;
-    }
-
-    public MgcpLocalConnectionContext(int identifier, int callIdentifier, LocalDataChannel audioChannel) {
-        super(identifier, callIdentifier);
-        this.audioChannel = audioChannel;
-    }
-
-    public LocalDataChannel getAudioChannel() {
-        return audioChannel;
-    }
+public class CloseAction {
 
 }

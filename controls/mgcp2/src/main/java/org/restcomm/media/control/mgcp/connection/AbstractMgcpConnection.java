@@ -46,7 +46,11 @@ import com.google.common.util.concurrent.ListeningScheduledExecutorService;
  */
 public abstract class AbstractMgcpConnection implements MgcpConnection {
 
+    // Connection State
     private final MgcpConnectionContext context;
+    
+    // Core Components
+    private final ListeningScheduledExecutorService executor;
 
     // Events
     private final MgcpEventProvider eventProvider;
@@ -55,6 +59,9 @@ public abstract class AbstractMgcpConnection implements MgcpConnection {
     public AbstractMgcpConnection(MgcpConnectionContext context, MgcpEventProvider eventProvider, ListeningScheduledExecutorService executor) {
         // Connection State
         this.context = context;
+        
+        // Core Components
+        this.executor = executor;
 
         // Events
         this.eventProvider = eventProvider;
@@ -88,6 +95,10 @@ public abstract class AbstractMgcpConnection implements MgcpConnection {
     @Override
     public ConnectionMode getMode() {
         return this.context.getMode();
+    }
+    
+    protected ListeningScheduledExecutorService getExecutor() {
+        return executor;
     }
 
     public void listen(MgcpRequestedEvent event) throws UnsupportedMgcpEventException {

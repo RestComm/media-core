@@ -18,46 +18,48 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
+        
 package org.restcomm.media.control.mgcp.connection.local;
 
-import java.util.concurrent.TimeUnit;
+import java.io.IOException;
 
 import org.apache.log4j.Logger;
+import org.restcomm.media.rtp.LocalDataChannel;
 import org.squirrelframework.foundation.fsm.AnonymousAction;
 
-import com.google.common.util.concurrent.ListenableScheduledFuture;
-import com.google.common.util.concurrent.ListeningScheduledExecutorService;
+import com.google.common.util.concurrent.FutureCallback;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class ScheduleTimerAction extends AnonymousAction<MgcpLocalConnectionFsm, MgcpLocalConnectionState, MgcpLocalConnectionEvent, MgcpLocalConnectionTransitionContext> implements MgcpLocalConnectionAction {
+public class JoinAction extends AnonymousAction<MgcpLocalConnectionFsm, MgcpLocalConnectionState, MgcpLocalConnectionEvent, MgcpLocalConnectionTransitionContext> implements MgcpLocalConnectionAction {
 
-    private static final Logger log = Logger.getLogger(ScheduleTimerAction.class);
+    private static final Logger log = Logger.getLogger(JoinAction.class);
     
-    static final ScheduleTimerAction INSTANCE = new ScheduleTimerAction();
+    static final JoinAction INSTANCE = new JoinAction();
     
-    ScheduleTimerAction() {
+    JoinAction() {
         super();
     }
 
     @Override
     public void execute(MgcpLocalConnectionState from, MgcpLocalConnectionState to, MgcpLocalConnectionEvent event, MgcpLocalConnectionTransitionContext context, MgcpLocalConnectionFsm stateMachine) {
         final MgcpLocalConnectionContext globalContext = stateMachine.getContext();
-        final ListeningScheduledExecutorService executor = context.get(MgcpLocalConnectionParameter.SCHEDULER, ListeningScheduledExecutorService.class);
-        int timeout = globalContext.getTimeout();
-
-        if (timeout > 0) {
-            TimeoutConnectionTask timeoutTask = new TimeoutConnectionTask(timeout, stateMachine);
-            ListenableScheduledFuture<?> future = executor.schedule(timeoutTask, timeout, TimeUnit.MILLISECONDS);
-            globalContext.setTimerFuture(future);
+        final MgcpLocalConnection otherConnection = context.get(MgcpLocalConnectionParameter.JOINEE, MgcpLocalConnection.class);
+        
+        try {
+            LocalDataChannel audioChannel = globalContext.getAudioChannel();
+            LocalDataChannel otherAudioChannel = otherConnection.getContext().getAudioChannel();
+            audioChannel.join(otherAudioChannel);
             
-            if (log.isDebugEnabled()) {
-                final String identifier = globalContext.getHexIdentifier();
-                log.debug("Local MGCP connection " + identifier + " is scheduled to timeout in " + timeout + "ms");
+            if(log.isDebugEnabled()) {
+                log.debug("MGCP Connection " + globalContext.getHexIdentifier() + " joined with Connection " + otherConnection.getCallIdentifierHex());
             }
+        } catch (IOException e) {
+            log.error("MGCP Connection " + globalContext.getHexIdentifier() + " could not join with Connection " + otherConnection.getCallIdentifierHex(), e);
+            FutureCallback<?> callback = context.get(MgcpLocalConnectionParameter.CALLBACK, FutureCallback.class);
+            callback.onFailure(e);
         }
     }
 
