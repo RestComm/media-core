@@ -22,6 +22,7 @@
 package org.restcomm.media.control.mgcp.connection.local;
 
 import org.apache.log4j.Logger;
+import org.squirrelframework.foundation.fsm.StateMachineStatus;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
 
 /**
@@ -48,6 +49,17 @@ public class MgcpLocalConnectionFsmImpl extends AbstractStateMachine<MgcpLocalCo
         if (log.isDebugEnabled()) {
             log.debug("MGCP local connection " + this.context.getHexIdentifier() + " is " + toState.name());
         }
+    }
+    
+    @Override
+    protected void afterTransitionCausedException(MgcpLocalConnectionState fromState, MgcpLocalConnectionState toState,
+            MgcpLocalConnectionEvent event, MgcpLocalConnectionTransitionContext context) {
+        // Set FSM state to IDLE so it can be process other events
+        setStatus(StateMachineStatus.IDLE);
+        
+        // Move FSM to CORRUPTED so it can be cleaned properly in future
+        context.set(MgcpLocalConnectionParameter.ERROR, getLastException().getTargetException());
+        fireImmediate(MgcpLocalConnectionEvent.FAILURE, context);
     }
 
 }

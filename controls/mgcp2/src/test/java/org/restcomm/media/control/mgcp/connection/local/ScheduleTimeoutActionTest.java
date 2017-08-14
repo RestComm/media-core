@@ -18,68 +18,82 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
+        
 package org.restcomm.media.control.mgcp.connection.local;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
+
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 import org.restcomm.media.rtp.LocalDataChannel;
 
 import com.google.common.util.concurrent.ListenableScheduledFuture;
+import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class CancelTimerActionTest {
-
+public class ScheduleTimeoutActionTest {
+    
     @Test
-    public void testCancelTimer() {
+    public void testScheduleTimeout() {
         // given
         final int identifier = 1;
         final int callIdentifier = 1;
         final LocalDataChannel dataChannel = mock(LocalDataChannel.class);
-        final MgcpLocalConnectionContext context = new MgcpLocalConnectionContext(identifier, callIdentifier, dataChannel);
+        final MgcpLocalConnectionContext context = spy(new MgcpLocalConnectionContext(identifier, callIdentifier, dataChannel));
         final MgcpLocalConnectionTransitionContext txContext = new MgcpLocalConnectionTransitionContext();
         final MgcpLocalConnectionFsm fsm = mock(MgcpLocalConnectionFsm.class);
+        final ListeningScheduledExecutorService scheduler = mock(ListeningScheduledExecutorService.class);
+        final long timeout = 10000;
+        
         final ListenableScheduledFuture<?> timerFuture = mock(ListenableScheduledFuture.class);
 
         when(fsm.getContext()).thenReturn(context);
-
-        context.setTimerFuture(timerFuture);
-        when(timerFuture.isDone()).thenReturn(false);
+        doReturn(timerFuture).when(scheduler).schedule(any(TimeoutConnectionTask.class), eq(timeout), eq(TimeUnit.MILLISECONDS));
+        
+        txContext.set(MgcpLocalConnectionParameter.TIMEOUT, timeout);
+        txContext.set(MgcpLocalConnectionParameter.SCHEDULER, scheduler);
 
         // when
-        final CancelTimeoutAction action = new CancelTimeoutAction();
-        action.execute(MgcpLocalConnectionState.HALF_OPEN, MgcpLocalConnectionState.OPEN, MgcpLocalConnectionEvent.OPEN, txContext, fsm);
+        final ScheduleTimeoutAction action = new ScheduleTimeoutAction();
+        action.execute(MgcpLocalConnectionState.IDLE, MgcpLocalConnectionState.OPEN, MgcpLocalConnectionEvent.OPEN, txContext, fsm);
 
         // then
-        verify(timerFuture).cancel(any(Boolean.class));
+        verify(scheduler).schedule(any(TimeoutConnectionTask.class), eq(timeout), eq(TimeUnit.MILLISECONDS));
+        verify(context).setTimerFuture(timerFuture);
     }
 
     @Test
-    public void testCancelTimerWhenFutureAlreadyDone() {
+    public void testNoTimeoutDefined() {
         // given
         final int identifier = 1;
         final int callIdentifier = 1;
         final LocalDataChannel dataChannel = mock(LocalDataChannel.class);
-        final MgcpLocalConnectionContext context = new MgcpLocalConnectionContext(identifier, callIdentifier, dataChannel);
+        final MgcpLocalConnectionContext context = spy(new MgcpLocalConnectionContext(identifier, callIdentifier, dataChannel));
         final MgcpLocalConnectionTransitionContext txContext = new MgcpLocalConnectionTransitionContext();
         final MgcpLocalConnectionFsm fsm = mock(MgcpLocalConnectionFsm.class);
+        final ListeningScheduledExecutorService scheduler = mock(ListeningScheduledExecutorService.class);
+        final long timeout = 0;
+        
         final ListenableScheduledFuture<?> timerFuture = mock(ListenableScheduledFuture.class);
-
+        
         when(fsm.getContext()).thenReturn(context);
-
-        context.setTimerFuture(timerFuture);
-        when(timerFuture.isDone()).thenReturn(true);
-
+        doReturn(timerFuture).when(scheduler).schedule(any(TimeoutConnectionTask.class), eq(timeout), eq(TimeUnit.MILLISECONDS));
+        
+        txContext.set(MgcpLocalConnectionParameter.TIMEOUT, timeout);
+        txContext.set(MgcpLocalConnectionParameter.SCHEDULER, scheduler);
+        
         // when
-        final CancelTimeoutAction action = new CancelTimeoutAction();
-        action.execute(MgcpLocalConnectionState.HALF_OPEN, MgcpLocalConnectionState.OPEN, MgcpLocalConnectionEvent.OPEN, txContext, fsm);
-
+        final ScheduleTimeoutAction action = new ScheduleTimeoutAction();
+        action.execute(MgcpLocalConnectionState.IDLE, MgcpLocalConnectionState.OPEN, MgcpLocalConnectionEvent.OPEN, txContext, fsm);
+        
         // then
-        verify(timerFuture, never()).cancel(any(Boolean.class));
+        verify(scheduler, never()).schedule(any(TimeoutConnectionTask.class), eq(timeout), eq(TimeUnit.MILLISECONDS));
+        verify(context, never()).setTimerFuture(timerFuture);
     }
 
 }

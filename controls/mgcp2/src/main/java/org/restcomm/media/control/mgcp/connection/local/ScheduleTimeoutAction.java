@@ -33,13 +33,13 @@ import com.google.common.util.concurrent.ListeningScheduledExecutorService;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class ScheduleTimerAction extends AnonymousAction<MgcpLocalConnectionFsm, MgcpLocalConnectionState, MgcpLocalConnectionEvent, MgcpLocalConnectionTransitionContext> implements MgcpLocalConnectionAction {
+public class ScheduleTimeoutAction extends AnonymousAction<MgcpLocalConnectionFsm, MgcpLocalConnectionState, MgcpLocalConnectionEvent, MgcpLocalConnectionTransitionContext> implements MgcpLocalConnectionAction {
 
-    private static final Logger log = Logger.getLogger(ScheduleTimerAction.class);
+    private static final Logger log = Logger.getLogger(ScheduleTimeoutAction.class);
     
-    static final ScheduleTimerAction INSTANCE = new ScheduleTimerAction();
+    static final ScheduleTimeoutAction INSTANCE = new ScheduleTimeoutAction();
     
-    ScheduleTimerAction() {
+    ScheduleTimeoutAction() {
         super();
     }
 
@@ -47,7 +47,7 @@ public class ScheduleTimerAction extends AnonymousAction<MgcpLocalConnectionFsm,
     public void execute(MgcpLocalConnectionState from, MgcpLocalConnectionState to, MgcpLocalConnectionEvent event, MgcpLocalConnectionTransitionContext context, MgcpLocalConnectionFsm stateMachine) {
         final MgcpLocalConnectionContext globalContext = stateMachine.getContext();
         final ListeningScheduledExecutorService executor = context.get(MgcpLocalConnectionParameter.SCHEDULER, ListeningScheduledExecutorService.class);
-        int timeout = globalContext.getTimeout();
+        final long timeout = context.get(MgcpLocalConnectionParameter.TIMEOUT, Long.class);
 
         if (timeout > 0) {
             TimeoutConnectionTask timeoutTask = new TimeoutConnectionTask(timeout, stateMachine);

@@ -29,10 +29,10 @@ package org.restcomm.media.control.mgcp.connection.local;
  */
 public class TimeoutConnectionTask implements Runnable {
 
-    private final int timeout;
+    private final long timeout;
     private final MgcpLocalConnectionFsm fsm;
 
-    public TimeoutConnectionTask(int timeout, MgcpLocalConnectionFsm fsm) {
+    public TimeoutConnectionTask(long timeout, MgcpLocalConnectionFsm fsm) {
         this.timeout = timeout;
         this.fsm = fsm;
     }

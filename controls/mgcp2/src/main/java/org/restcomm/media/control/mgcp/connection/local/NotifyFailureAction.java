@@ -18,40 +18,31 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
+        
 package org.restcomm.media.control.mgcp.connection.local;
 
-import org.apache.log4j.Logger;
 import org.squirrelframework.foundation.fsm.AnonymousAction;
 
-import com.google.common.util.concurrent.ListenableScheduledFuture;
+import com.google.common.util.concurrent.FutureCallback;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-class CancelTimerAction extends AnonymousAction<MgcpLocalConnectionFsm, MgcpLocalConnectionState, MgcpLocalConnectionEvent, MgcpLocalConnectionTransitionContext> implements MgcpLocalConnectionAction {
+public class NotifyFailureAction extends AnonymousAction<MgcpLocalConnectionFsm, MgcpLocalConnectionState, MgcpLocalConnectionEvent, MgcpLocalConnectionTransitionContext> implements MgcpLocalConnectionAction  {
 
-    private static final Logger log = Logger.getLogger(CancelTimerActionTest.class);
+    static final NotifyFailureAction INSTANCE = new NotifyFailureAction();
     
-    static final CancelTimerActionTest INSTANCE = new CancelTimerActionTest();
-    
-    CancelTimerAction() {
+    NotifyFailureAction() {
         super();
     }
-
+    
     @Override
     public void execute(MgcpLocalConnectionState from, MgcpLocalConnectionState to, MgcpLocalConnectionEvent event, MgcpLocalConnectionTransitionContext context, MgcpLocalConnectionFsm stateMachine) {
-        final MgcpLocalConnectionContext globalContext = stateMachine.getContext();
-        ListenableScheduledFuture<?> future = globalContext.getTimerFuture();
+        FutureCallback<?> callback = context.get(MgcpLocalConnectionParameter.CALLBACK, FutureCallback.class);
+        Throwable throwable = context.get(MgcpLocalConnectionParameter.ERROR, Throwable.class);
 
-        if (future != null && !future.isDone()) {
-            future.cancel(false);
-            if (log.isTraceEnabled()) {
-                final String identifier = globalContext.getHexIdentifier();
-                log.trace("Local MGCP connection " + identifier + " timeout was canceled");
-            }
-        }
+        callback.onFailure(throwable);
     }
 
 }

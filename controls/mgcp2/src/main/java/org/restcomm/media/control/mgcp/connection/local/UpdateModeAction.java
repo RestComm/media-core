@@ -18,7 +18,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
+
 package org.restcomm.media.control.mgcp.connection.local;
 
 import org.apache.log4j.Logger;
@@ -27,19 +27,18 @@ import org.restcomm.media.spi.ConnectionMode;
 import org.restcomm.media.spi.ModeNotSupportedException;
 import org.squirrelframework.foundation.fsm.AnonymousAction;
 
-import com.google.common.util.concurrent.FutureCallback;
-
-
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class UpdateModeAction extends AnonymousAction<MgcpLocalConnectionFsm, MgcpLocalConnectionState, MgcpLocalConnectionEvent, MgcpLocalConnectionTransitionContext> implements MgcpLocalConnectionAction {
+public class UpdateModeAction extends
+        AnonymousAction<MgcpLocalConnectionFsm, MgcpLocalConnectionState, MgcpLocalConnectionEvent, MgcpLocalConnectionTransitionContext>
+        implements MgcpLocalConnectionAction {
 
     private static final Logger log = Logger.getLogger(UpdateModeAction.class);
-    
+
     static final UpdateModeAction INSTANCE = new UpdateModeAction();
-    
+
     UpdateModeAction() {
         super();
     }
@@ -50,28 +49,22 @@ public class UpdateModeAction extends AnonymousAction<MgcpLocalConnectionFsm, Mg
         LocalDataChannel audioChannel = globalContext.getAudioChannel();
         ConnectionMode currentMode = globalContext.getMode();
         ConnectionMode newMode = context.get(MgcpLocalConnectionParameter.MODE, ConnectionMode.class);
-        FutureCallback<?> callback = context.get(MgcpLocalConnectionParameter.CALLBACK, FutureCallback.class);
 
-        if(currentMode.equals(newMode)) {
-            // Mode is the same. Take no further action
-            callback.onSuccess(null);
-        } else {
+        if (!currentMode.equals(newMode)) {
             try {
                 // Update data channel mode
                 audioChannel.updateMode(newMode);
-                
+
                 // Update mode in context
                 globalContext.setMode(newMode);
-                
-                if(log.isDebugEnabled()) {
+
+                if (log.isDebugEnabled()) {
                     log.debug("MGCP local connection " + globalContext.getHexIdentifier() + " mode is set to " + newMode.name());
                 }
-                
-                // Notify callback
-                callback.onSuccess(null);
             } catch (ModeNotSupportedException e) {
                 log.warn("Could not update data channel mode of local connection " + globalContext.getHexIdentifier());
-                callback.onFailure(e);
+                context.set(MgcpLocalConnectionParameter.ERROR, e);
+                stateMachine.fireImmediate(MgcpLocalConnectionEvent.FAILURE, context);
             }
         }
     }

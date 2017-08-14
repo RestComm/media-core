@@ -21,46 +21,36 @@
 
 package org.restcomm.media.control.mgcp.connection.local;
 
-import java.io.IOException;
-
 import org.apache.log4j.Logger;
-import org.restcomm.media.rtp.LocalDataChannel;
 import org.squirrelframework.foundation.fsm.AnonymousAction;
+
+import com.google.common.util.concurrent.ListenableScheduledFuture;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class JoinAction extends
-        AnonymousAction<MgcpLocalConnectionFsm, MgcpLocalConnectionState, MgcpLocalConnectionEvent, MgcpLocalConnectionTransitionContext>
-        implements MgcpLocalConnectionAction {
+class CancelTimeoutAction extends AnonymousAction<MgcpLocalConnectionFsm, MgcpLocalConnectionState, MgcpLocalConnectionEvent, MgcpLocalConnectionTransitionContext> implements MgcpLocalConnectionAction {
 
-    private static final Logger log = Logger.getLogger(JoinAction.class);
-
-    static final JoinAction INSTANCE = new JoinAction();
-
-    JoinAction() {
+    private static final Logger log = Logger.getLogger(CancelTimerActionTest.class);
+    
+    static final CancelTimeoutAction INSTANCE = new CancelTimeoutAction();
+    
+    CancelTimeoutAction() {
         super();
     }
 
     @Override
     public void execute(MgcpLocalConnectionState from, MgcpLocalConnectionState to, MgcpLocalConnectionEvent event, MgcpLocalConnectionTransitionContext context, MgcpLocalConnectionFsm stateMachine) {
         final MgcpLocalConnectionContext globalContext = stateMachine.getContext();
-        final MgcpLocalConnectionImpl otherConnection = context.get(MgcpLocalConnectionParameter.JOINEE, MgcpLocalConnectionImpl.class);
+        ListenableScheduledFuture<?> future = globalContext.getTimerFuture();
 
-        try {
-            // Join both connections
-            LocalDataChannel audioChannel = globalContext.getAudioChannel();
-            LocalDataChannel otherAudioChannel = otherConnection.getContext().getAudioChannel();
-            audioChannel.join(otherAudioChannel);
-
-            if (log.isDebugEnabled()) {
-                log.debug("MGCP Connection " + globalContext.getHexIdentifier() + " joined with Connection " + otherConnection.getCallIdentifierHex());
+        if (future != null && !future.isDone()) {
+            future.cancel(false);
+            if (log.isTraceEnabled()) {
+                final String identifier = globalContext.getHexIdentifier();
+                log.trace("Local MGCP connection " + identifier + " timeout was canceled");
             }
-        } catch (IOException e) {
-            log.error("MGCP Connection " + globalContext.getHexIdentifier() + " could not join with Connection " + otherConnection.getCallIdentifierHex(), e);
-            context.set(MgcpLocalConnectionParameter.ERROR, e);
-            stateMachine.fire(MgcpLocalConnectionEvent.FAILURE, context);
         }
     }
 

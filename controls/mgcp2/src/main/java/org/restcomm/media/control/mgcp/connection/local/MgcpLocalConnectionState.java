@@ -29,5 +29,6 @@ package org.restcomm.media.control.mgcp.connection.local;
  */
 public enum MgcpLocalConnectionState {
 
-    IDLE, HALF_OPEN, OPEN, CLOSED;
+    IDLE, HALF_OPEN, OPEN, CORRUPTED, CLOSED;
+
 }

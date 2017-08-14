@@ -27,6 +27,6 @@ package org.restcomm.media.control.mgcp.connection.local;
  */
 public enum MgcpLocalConnectionEvent {
     
-    HALF_OPEN, OPEN, RENEGOTIATE, UPDATE_MODE, JOIN, CLOSE, TIMEOUT;
+    HALF_OPEN, OPEN, RENEGOTIATE, UPDATE_MODE, JOIN, CLOSE, TIMEOUT, FAILURE;
 
 }

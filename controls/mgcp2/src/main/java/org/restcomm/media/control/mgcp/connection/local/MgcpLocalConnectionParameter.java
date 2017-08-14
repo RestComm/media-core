@@ -37,7 +37,8 @@ public enum MgcpLocalConnectionParameter {
     CONNECTION(MgcpLocalConnectionImpl.class),
     JOINEE(MgcpLocalConnectionImpl.class),
     SCHEDULER(ListeningScheduledExecutorService.class), 
-    TIMEOUT(Integer.class);
+    TIMEOUT(Integer.class), 
+    ERROR(Throwable.class);
 
     private final Class<?> type;
 
