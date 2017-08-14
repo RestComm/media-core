@@ -18,13 +18,36 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
+
 package org.restcomm.media.control.mgcp.connection.local;
+
+import org.apache.log4j.Logger;
+import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class CloseAction {
+public class MgcpLocalConnectionFsmImpl extends AbstractStateMachine<MgcpLocalConnectionFsm, MgcpLocalConnectionState, MgcpLocalConnectionEvent, MgcpLocalConnectionTransitionContext> {
+
+    private static final Logger log = Logger.getLogger(MgcpLocalConnectionFsmImpl.class);
+
+    private final MgcpLocalConnectionContext context;
+
+    public MgcpLocalConnectionFsmImpl(MgcpLocalConnectionContext context) {
+        super();
+        this.context = context;
+    }
+
+    public MgcpLocalConnectionContext getContext() {
+        return context;
+    }
+
+    @Override
+    protected void afterTransitionCompleted(MgcpLocalConnectionState fromState, MgcpLocalConnectionState toState, MgcpLocalConnectionEvent event, MgcpLocalConnectionTransitionContext context) {
+        if (log.isDebugEnabled()) {
+            log.debug("MGCP local connection " + this.context.getHexIdentifier() + " is " + toState.name());
+        }
+    }
 
 }

@@ -44,8 +44,8 @@ public class MgcpLocalConnectionFsmBuilder {
         this.builder.externalTransition().from(MgcpLocalConnectionState.IDLE).toFinal(MgcpLocalConnectionState.CLOSED).on(MgcpLocalConnectionEvent.CLOSE);
         
         List<MgcpLocalConnectionAction> openEntryActions = new ArrayList<>(2);
-        openEntryActions.add(NotifySuccessAction.INSTANCE);
         openEntryActions.add(ScheduleTimerAction.INSTANCE);
+        openEntryActions.add(NotifySuccessAction.INSTANCE);
         
         this.builder.onEntry(MgcpLocalConnectionState.HALF_OPEN).perform(openEntryActions);
         this.builder.externalTransition().from(MgcpLocalConnectionState.HALF_OPEN).to(MgcpLocalConnectionState.OPEN).on(MgcpLocalConnectionEvent.OPEN);
@@ -54,12 +54,15 @@ public class MgcpLocalConnectionFsmBuilder {
         this.builder.onExit(MgcpLocalConnectionState.HALF_OPEN).perform(CancelTimerAction.INSTANCE);
         
         this.builder.onEntry(MgcpLocalConnectionState.OPEN).perform(openEntryActions);
-        this.builder.internalTransition().within(MgcpLocalConnectionState.OPEN).on(MgcpLocalConnectionEvent.JOIN);
-        this.builder.internalTransition().within(MgcpLocalConnectionState.OPEN).on(MgcpLocalConnectionEvent.UPDATE_MODE);
+        this.builder.internalTransition().within(MgcpLocalConnectionState.OPEN).on(MgcpLocalConnectionEvent.JOIN).perform(JoinAction.INSTANCE);
+        this.builder.internalTransition().within(MgcpLocalConnectionState.OPEN).on(MgcpLocalConnectionEvent.UPDATE_MODE).perform(UpdateModeAction.INSTANCE);
         this.builder.externalTransition().from(MgcpLocalConnectionState.OPEN).toFinal(MgcpLocalConnectionState.CLOSED).on(MgcpLocalConnectionEvent.CLOSE);
         this.builder.externalTransition().from(MgcpLocalConnectionState.HALF_OPEN).toFinal(MgcpLocalConnectionState.CLOSED).on(MgcpLocalConnectionEvent.TIMEOUT);
         
-        this.builder.onEntry(MgcpLocalConnectionState.CLOSED);
+        List<MgcpLocalConnectionAction> closeEntryActions = new ArrayList<>(2);
+        closeEntryActions.add(UnjoinAction.INSTANCE);
+        closeEntryActions.add(NotifySuccessAction.INSTANCE);
+        this.builder.onEntry(MgcpLocalConnectionState.CLOSED).perform(UnjoinAction.INSTANCE);
     }
 
     public MgcpLocalConnectionFsm build(MgcpLocalConnectionContext context) {
