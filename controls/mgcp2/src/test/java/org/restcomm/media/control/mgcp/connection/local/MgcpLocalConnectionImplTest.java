@@ -18,14 +18,11 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
+
 package org.restcomm.media.control.mgcp.connection.local;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import java.util.concurrent.Executors;
 
@@ -36,6 +33,7 @@ import org.restcomm.media.control.mgcp.connection.MgcpLocalConnection;
 import org.restcomm.media.control.mgcp.message.LocalConnectionOptions;
 import org.restcomm.media.control.mgcp.pkg.MgcpEventProvider;
 import org.restcomm.media.rtp.LocalDataChannel;
+import org.restcomm.media.spi.ConnectionMode;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.ListenableScheduledFuture;
@@ -47,20 +45,20 @@ import com.google.common.util.concurrent.MoreExecutors;
  *
  */
 public class MgcpLocalConnectionImplTest {
-    
+
     private final MgcpLocalConnectionFsmBuilder fsmBuilder = new MgcpLocalConnectionFsmBuilder();
     private ListeningScheduledExecutorService executor;
     private MgcpLocalConnection connection;
-    
+
     @Before
     public void before() {
         this.executor = MoreExecutors.listeningDecorator(Executors.newScheduledThreadPool(1));
     }
-    
+
     @After
     @SuppressWarnings("unchecked")
     public void after() {
-        if(this.connection != null) {
+        if (this.connection != null) {
             this.connection.close(mock(FutureCallback.class));
             this.connection = null;
         }
@@ -79,20 +77,20 @@ public class MgcpLocalConnectionImplTest {
         final LocalDataChannel dataChannel = mock(LocalDataChannel.class);
         final MgcpLocalConnectionContext context = new MgcpLocalConnectionContext(identifier, callIdentifier, halfOpenTimeout, openTimeout, dataChannel);
         final MgcpEventProvider eventProvider = mock(MgcpEventProvider.class);
-        final MgcpLocalConnection connection = new MgcpLocalConnectionImpl(context, eventProvider, this.executor, this.fsmBuilder);
-        
+        this.connection = new MgcpLocalConnectionImpl(context, eventProvider, this.executor, this.fsmBuilder);
+
         // when
         FutureCallback<String> halfOpenCallback = mock(FutureCallback.class);
         connection.halfOpen(mock(LocalConnectionOptions.class), halfOpenCallback);
-        
+
         // then
         verify(halfOpenCallback, timeout(100)).onSuccess(null);
         ListenableScheduledFuture<?> timerFuture = context.getTimerFuture();
         assertNotNull(timerFuture);
-        
+
         // when
         Thread.sleep(halfOpenTimeout);
-        
+
         // then
         assertTrue(timerFuture.isDone());
     }
@@ -107,7 +105,35 @@ public class MgcpLocalConnectionImplTest {
         final LocalDataChannel dataChannel = mock(LocalDataChannel.class);
         final MgcpLocalConnectionContext context = new MgcpLocalConnectionContext(identifier, callIdentifier, openTimeout, dataChannel);
         final MgcpEventProvider eventProvider = mock(MgcpEventProvider.class);
-        final MgcpLocalConnection connection = new MgcpLocalConnectionImpl(context, eventProvider, this.executor, this.fsmBuilder);
+        this.connection = new MgcpLocalConnectionImpl(context, eventProvider, this.executor, this.fsmBuilder);
+
+        // when
+        FutureCallback<String> openCallback = mock(FutureCallback.class);
+        connection.open("", openCallback);
+
+        // then
+        verify(openCallback, timeout(100)).onSuccess(null);
+        ListenableScheduledFuture<?> timerFuture = context.getTimerFuture();
+        assertNotNull(timerFuture);
+
+        // when
+        Thread.sleep(openTimeout);
+
+        // then
+        assertTrue(timerFuture.isDone());
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testNoOpenTimeout() throws InterruptedException {
+        // given
+        final int identifier = 1;
+        final int callIdentifier = 1;
+        final int openTimeout = 0;
+        final LocalDataChannel dataChannel = mock(LocalDataChannel.class);
+        final MgcpLocalConnectionContext context = new MgcpLocalConnectionContext(identifier, callIdentifier, openTimeout, dataChannel);
+        final MgcpEventProvider eventProvider = mock(MgcpEventProvider.class);
+        this.connection = new MgcpLocalConnectionImpl(context, eventProvider, this.executor, this.fsmBuilder);
         
         // when
         FutureCallback<String> openCallback = mock(FutureCallback.class);
@@ -116,13 +142,60 @@ public class MgcpLocalConnectionImplTest {
         // then
         verify(openCallback, timeout(100)).onSuccess(null);
         ListenableScheduledFuture<?> timerFuture = context.getTimerFuture();
-        assertNotNull(timerFuture);
+        assertNull(timerFuture);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testJoinAndUpdateMode() throws Exception {
+        // given
+        final int identifier = 1;
+        final int callIdentifier = 1;
+        final LocalDataChannel dataChannel = mock(LocalDataChannel.class);
+        final MgcpLocalConnectionContext context = new MgcpLocalConnectionContext(identifier, callIdentifier, dataChannel);
+        final MgcpEventProvider eventProvider = mock(MgcpEventProvider.class);
+        this.connection = spy(new MgcpLocalConnectionImpl(context, eventProvider, this.executor, this.fsmBuilder));
+
+        final int identifier2 = 1;
+        final int callIdentifier2 = 1;
+        final LocalDataChannel dataChannel2 = mock(LocalDataChannel.class);
+        final MgcpLocalConnectionContext context2 = new MgcpLocalConnectionContext(identifier2, callIdentifier2, dataChannel2);
+        final MgcpLocalConnectionImpl joinee = mock(MgcpLocalConnectionImpl.class);
+
+        when(joinee.getContext()).thenReturn(context2);
+
+        // when
+        FutureCallback<String> openCallback = mock(FutureCallback.class);
+        connection.open("", openCallback);
+
+        // then
+        verify(openCallback, timeout(100)).onSuccess(null);
+
+        // when
+        FutureCallback<Void> joinCallback = mock(FutureCallback.class);
+        connection.join(joinee, joinCallback);
+
+        // then
+        verify(joinCallback, timeout(100)).onSuccess(null);
+        verify(connection).join(joinee, joinCallback);
         
         // when
-        Thread.sleep(openTimeout);
+        FutureCallback<Void> updateModeCallback = mock(FutureCallback.class);
+        ConnectionMode mode = ConnectionMode.SEND_RECV;
+        connection.updateMode(mode, updateModeCallback);
         
         // then
-        assertTrue(timerFuture.isDone());
+        verify(updateModeCallback, timeout(100)).onSuccess(null);
+        verify(dataChannel).updateMode(mode);
+        assertEquals(mode, context.getMode());
+        
+        // when
+        FutureCallback<Void> closeCallback = mock(FutureCallback.class);
+        connection.close(closeCallback);
+        
+        // then
+        verify(closeCallback, timeout(100)).onSuccess(null);
+        verify(dataChannel).unjoin();
     }
 
 }

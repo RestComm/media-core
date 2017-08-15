@@ -29,20 +29,26 @@ import com.google.common.util.concurrent.FutureCallback;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class NotifyFailureAction extends AnonymousAction<MgcpLocalConnectionFsm, MgcpLocalConnectionState, MgcpLocalConnectionEvent, MgcpLocalConnectionTransitionContext> implements MgcpLocalConnectionAction  {
+public class NotifyCallbackAction extends AnonymousAction<MgcpLocalConnectionFsm, MgcpLocalConnectionState, MgcpLocalConnectionEvent, MgcpLocalConnectionTransitionContext> implements MgcpLocalConnectionAction  {
 
-    static final NotifyFailureAction INSTANCE = new NotifyFailureAction();
+    static final NotifyCallbackAction INSTANCE = new NotifyCallbackAction();
     
-    NotifyFailureAction() {
+    NotifyCallbackAction() {
         super();
     }
     
     @Override
     public void execute(MgcpLocalConnectionState from, MgcpLocalConnectionState to, MgcpLocalConnectionEvent event, MgcpLocalConnectionTransitionContext context, MgcpLocalConnectionFsm stateMachine) {
         FutureCallback<?> callback = context.get(MgcpLocalConnectionParameter.CALLBACK, FutureCallback.class);
-        Throwable throwable = context.get(MgcpLocalConnectionParameter.ERROR, Throwable.class);
-
-        callback.onFailure(throwable);
+        
+        if(callback != null) {
+            Throwable t = context.get(MgcpLocalConnectionParameter.ERROR, Throwable.class);
+            if(t == null) {
+                callback.onSuccess(null);
+            } else {
+                callback.onFailure(t);
+            }
+        }
     }
 
 }

@@ -39,36 +39,36 @@ public class MgcpLocalConnectionFsmBuilder {
         this.builder = StateMachineBuilderFactory.<MgcpLocalConnectionFsm, MgcpLocalConnectionState, MgcpLocalConnectionEvent, MgcpLocalConnectionTransitionContext> create(MgcpLocalConnectionFsmImpl.class, MgcpLocalConnectionState.class, MgcpLocalConnectionEvent.class, MgcpLocalConnectionTransitionContext.class, MgcpLocalConnectionContext.class);
 
         this.builder.onEntry(MgcpLocalConnectionState.IDLE);
-        this.builder.externalTransition().from(MgcpLocalConnectionState.IDLE).to(MgcpLocalConnectionState.HALF_OPEN).on(MgcpLocalConnectionEvent.HALF_OPEN);
-        this.builder.externalTransition().from(MgcpLocalConnectionState.IDLE).to(MgcpLocalConnectionState.OPEN).on(MgcpLocalConnectionEvent.OPEN);
-        this.builder.externalTransition().from(MgcpLocalConnectionState.IDLE).toFinal(MgcpLocalConnectionState.CLOSED).on(MgcpLocalConnectionEvent.CLOSE);
+        this.builder.externalTransition().from(MgcpLocalConnectionState.IDLE).to(MgcpLocalConnectionState.HALF_OPEN).on(MgcpLocalConnectionEvent.HALF_OPEN).perform(NotifyCallbackAction.INSTANCE);
+        this.builder.externalTransition().from(MgcpLocalConnectionState.IDLE).to(MgcpLocalConnectionState.OPEN).on(MgcpLocalConnectionEvent.OPEN).perform(NotifyCallbackAction.INSTANCE);
+        this.builder.externalTransition().from(MgcpLocalConnectionState.IDLE).toFinal(MgcpLocalConnectionState.CLOSED).on(MgcpLocalConnectionEvent.CLOSE).perform(NotifyCallbackAction.INSTANCE);
 
-        List<MgcpLocalConnectionAction> openEntryActions = new ArrayList<>(2);
-        openEntryActions.add(ScheduleTimeoutAction.INSTANCE);
-        openEntryActions.add(NotifySuccessAction.INSTANCE);
-
-        this.builder.onEntry(MgcpLocalConnectionState.HALF_OPEN).perform(openEntryActions);
-        this.builder.externalTransition().from(MgcpLocalConnectionState.HALF_OPEN).to(MgcpLocalConnectionState.OPEN).on(MgcpLocalConnectionEvent.OPEN);
+        this.builder.onEntry(MgcpLocalConnectionState.HALF_OPEN).perform(ScheduleTimeoutAction.INSTANCE);
+        this.builder.externalTransition().from(MgcpLocalConnectionState.HALF_OPEN).to(MgcpLocalConnectionState.OPEN).on(MgcpLocalConnectionEvent.OPEN).perform(NotifyCallbackAction.INSTANCE);
         this.builder.externalTransition().from(MgcpLocalConnectionState.HALF_OPEN).to(MgcpLocalConnectionState.CORRUPTED).on(MgcpLocalConnectionEvent.FAILURE);
-        this.builder.externalTransition().from(MgcpLocalConnectionState.HALF_OPEN).toFinal(MgcpLocalConnectionState.CLOSED).on(MgcpLocalConnectionEvent.CLOSE);
+        this.builder.externalTransition().from(MgcpLocalConnectionState.HALF_OPEN).toFinal(MgcpLocalConnectionState.CLOSED).on(MgcpLocalConnectionEvent.CLOSE).perform(NotifyCallbackAction.INSTANCE);
         this.builder.externalTransition().from(MgcpLocalConnectionState.HALF_OPEN).toFinal(MgcpLocalConnectionState.CLOSED).on(MgcpLocalConnectionEvent.TIMEOUT);
         this.builder.onExit(MgcpLocalConnectionState.HALF_OPEN).perform(CancelTimeoutAction.INSTANCE);
+        
+        List<MgcpLocalConnectionAction> joinActions = new ArrayList<>(2);
+        joinActions.add(JoinAction.INSTANCE);
+        joinActions.add(NotifyCallbackAction.INSTANCE);
 
-        this.builder.onEntry(MgcpLocalConnectionState.OPEN).perform(openEntryActions);
-        this.builder.externalTransition().from(MgcpLocalConnectionState.OPEN).to(MgcpLocalConnectionState.OPEN).on(MgcpLocalConnectionEvent.JOIN).perform(JoinAction.INSTANCE);
-        this.builder.externalTransition().from(MgcpLocalConnectionState.OPEN).to(MgcpLocalConnectionState.OPEN).on(MgcpLocalConnectionEvent.UPDATE_MODE).perform(UpdateModeAction.INSTANCE);
+        List<MgcpLocalConnectionAction> updateModeActions = new ArrayList<>(2);
+        updateModeActions.add(UpdateModeAction.INSTANCE);
+        updateModeActions.add(NotifyCallbackAction.INSTANCE);
+
+        this.builder.onEntry(MgcpLocalConnectionState.OPEN).perform(ScheduleTimeoutAction.INSTANCE);
+        this.builder.internalTransition().within(MgcpLocalConnectionState.OPEN).on(MgcpLocalConnectionEvent.JOIN).perform(joinActions);
+        this.builder.internalTransition().within(MgcpLocalConnectionState.OPEN).on(MgcpLocalConnectionEvent.UPDATE_MODE).perform(updateModeActions);
         this.builder.externalTransition().from(MgcpLocalConnectionState.OPEN).to(MgcpLocalConnectionState.CORRUPTED).on(MgcpLocalConnectionEvent.FAILURE);
-        this.builder.externalTransition().from(MgcpLocalConnectionState.OPEN).toFinal(MgcpLocalConnectionState.CLOSED).on(MgcpLocalConnectionEvent.CLOSE);
+        this.builder.externalTransition().from(MgcpLocalConnectionState.OPEN).toFinal(MgcpLocalConnectionState.CLOSED).on(MgcpLocalConnectionEvent.CLOSE).perform(NotifyCallbackAction.INSTANCE);
         this.builder.externalTransition().from(MgcpLocalConnectionState.OPEN).toFinal(MgcpLocalConnectionState.CLOSED).on(MgcpLocalConnectionEvent.TIMEOUT);
         this.builder.onExit(MgcpLocalConnectionState.OPEN).perform(CancelTimeoutAction.INSTANCE);
 
-        this.builder.onEntry(MgcpLocalConnectionState.CORRUPTED).perform(NotifyFailureAction.INSTANCE);
-        this.builder.externalTransition().from(MgcpLocalConnectionState.CORRUPTED).to(MgcpLocalConnectionState.CLOSED).on(MgcpLocalConnectionEvent.CLOSE);
-        this.builder.externalTransition().from(MgcpLocalConnectionState.CORRUPTED).to(MgcpLocalConnectionState.CLOSED).on(MgcpLocalConnectionEvent.TIMEOUT);
+        this.builder.onEntry(MgcpLocalConnectionState.CORRUPTED).perform(NotifyCallbackAction.INSTANCE);
+        this.builder.externalTransition().from(MgcpLocalConnectionState.CORRUPTED).toFinal(MgcpLocalConnectionState.CLOSED).on(MgcpLocalConnectionEvent.CLOSE).perform(NotifyCallbackAction.INSTANCE);
 
-        List<MgcpLocalConnectionAction> closeEntryActions = new ArrayList<>(2);
-        closeEntryActions.add(UnjoinAction.INSTANCE);
-        closeEntryActions.add(NotifySuccessAction.INSTANCE);
         this.builder.onEntry(MgcpLocalConnectionState.CLOSED).perform(UnjoinAction.INSTANCE);
     }
 

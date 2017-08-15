@@ -55,11 +55,36 @@ public class NotifySuccessActionTest {
         final MgcpLocalConnectionTransitionContext txContext = new MgcpLocalConnectionTransitionContext();
         txContext.set(MgcpLocalConnectionParameter.CALLBACK, callback);
 
-        final NotifySuccessAction action = new NotifySuccessAction();
+        final NotifyCallbackAction action = new NotifyCallbackAction();
         action.execute(MgcpLocalConnectionState.IDLE, MgcpLocalConnectionState.OPEN, MgcpLocalConnectionEvent.OPEN, txContext, fsm);
 
         // then
         verify(callback).onSuccess(null);
+    }
+
+    @Test
+    public void testNotifyFailure() throws IOException {
+        // given
+        final int identifier = 1;
+        final int callIdentifier = 1;
+        final LocalDataChannel dataChannel = mock(LocalDataChannel.class);
+        final MgcpLocalConnectionContext context = new MgcpLocalConnectionContext(identifier, callIdentifier, dataChannel);
+        final MgcpLocalConnectionFsm fsm = mock(MgcpLocalConnectionFsm.class);
+        final Exception error = new Exception();
+        final FutureCallback<?> callback = mock(FutureCallback.class);
+
+        when(fsm.getContext()).thenReturn(context);
+
+        // when
+        final MgcpLocalConnectionTransitionContext txContext = new MgcpLocalConnectionTransitionContext();
+        txContext.set(MgcpLocalConnectionParameter.CALLBACK, callback);
+        txContext.set(MgcpLocalConnectionParameter.ERROR, error);
+
+        final NotifyCallbackAction action = new NotifyCallbackAction();
+        action.execute(MgcpLocalConnectionState.OPEN, MgcpLocalConnectionState.CORRUPTED, MgcpLocalConnectionEvent.JOIN, txContext, fsm);
+
+        // then
+        verify(callback).onFailure(error);
     }
 
 }
