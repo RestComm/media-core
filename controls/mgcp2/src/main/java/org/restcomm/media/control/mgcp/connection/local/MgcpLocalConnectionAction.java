@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
+ * Copyright 2011-2017, Telestax Inc and individual contributors
  * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
@@ -18,16 +18,15 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
+        
+package org.restcomm.media.control.mgcp.connection.local;
 
-package org.restcomm.media.control.mgcp.connection;
+import org.squirrelframework.foundation.fsm.Action;
 
 /**
- * Enumeration of possible MGCP connection states.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum MgcpConnectionState {
+public interface MgcpLocalConnectionAction extends Action<MgcpLocalConnectionFsm, MgcpLocalConnectionState, MgcpLocalConnectionEvent, MgcpLocalConnectionTransitionContext> {
 
-    IDLE, HALF_OPENING, HALF_OPEN, OPENING, OPEN, CORRUPTED, CLOSING, CLOSED;
 }

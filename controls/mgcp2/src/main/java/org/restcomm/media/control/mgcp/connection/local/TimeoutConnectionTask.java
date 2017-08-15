@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
+ * Copyright 2011-2017, Telestax Inc and individual contributors
  * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
@@ -19,15 +19,32 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.control.mgcp.connection;
+package org.restcomm.media.control.mgcp.connection.local;
 
 /**
- * Enumeration of possible MGCP connection states.
+ * Fires an event to timeout the connection.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum MgcpConnectionState {
+public class TimeoutConnectionTask implements Runnable {
 
-    IDLE, HALF_OPENING, HALF_OPEN, OPENING, OPEN, CORRUPTED, CLOSING, CLOSED;
+    private final long timeout;
+    private final MgcpLocalConnectionFsm fsm;
+
+    public TimeoutConnectionTask(long timeout, MgcpLocalConnectionFsm fsm) {
+        this.timeout = timeout;
+        this.fsm = fsm;
+    }
+
+    @Override
+    public void run() {
+        MgcpLocalConnectionTransitionContext txContext = new MgcpLocalConnectionTransitionContext();
+        txContext.set(MgcpLocalConnectionParameter.TIMEOUT, this.timeout);
+
+        if (fsm.canAccept(MgcpLocalConnectionEvent.TIMEOUT)) {
+            fsm.fire(MgcpLocalConnectionEvent.TIMEOUT, txContext);
+        }
+    }
+
 }

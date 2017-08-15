@@ -80,7 +80,7 @@ public class ModifyConnectionCommandTest {
         mdcx.execute(callback);
 
         // then
-        verify(connection, times(1)).setMode(ConnectionMode.SEND_ONLY);
+        verify(connection, times(1)).updateMode(ConnectionMode.SEND_ONLY);
         verify(connection, never()).open(any(String.class));
 
         verify(callback).onSuccess(resultCaptor.capture());
@@ -130,7 +130,7 @@ public class ModifyConnectionCommandTest {
         mdcx.execute(callback);
 
         // then
-        verify(connection, times(1)).setMode(ConnectionMode.SEND_RECV);
+        verify(connection, times(1)).updateMode(ConnectionMode.SEND_RECV);
         verify(connection, times(1)).open(builderSdp.toString());
 
         verify(callback).onSuccess(resultCaptor.capture());

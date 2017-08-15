@@ -86,7 +86,7 @@ public class MgcpLocalConnectionTest {
         // when
         when(channelProvider.getLocalChannel()).thenReturn(dataChannel);
 
-        final MgcpLocalConnection connection = new MgcpLocalConnection(identifier, callId, halfOpenTimeout, openTimeout, eventProvider, channelProvider, this.executor);
+        final MgcpLocalConnectionImpl connection = new MgcpLocalConnectionImpl(identifier, callId, halfOpenTimeout, openTimeout, eventProvider, channelProvider, this.executor);
         connection.observe(observer);
         connection.halfOpen(new LocalConnectionOptions());
         Thread.sleep(halfOpenTimeout * 1000 + 200);
@@ -113,11 +113,11 @@ public class MgcpLocalConnectionTest {
         // when
         when(channelProvider.getLocalChannel()).thenReturn(dataChannel);
 
-        final MgcpLocalConnection connection1 = new MgcpLocalConnection(1, callId, halfOpenTimeout, openTimeout, eventProvider, channelProvider, this.executor);
+        final MgcpLocalConnectionImpl connection1 = new MgcpLocalConnectionImpl(1, callId, halfOpenTimeout, openTimeout, eventProvider, channelProvider, this.executor);
         connection1.observe(observer);
         final String sdp1 = connection1.halfOpen(new LocalConnectionOptions());
 
-        final MgcpLocalConnection connection2 = new MgcpLocalConnection(2, callId, halfOpenTimeout, openTimeout, eventProvider, channelProvider, this.executor);
+        final MgcpLocalConnectionImpl connection2 = new MgcpLocalConnectionImpl(2, callId, halfOpenTimeout, openTimeout, eventProvider, channelProvider, this.executor);
         connection2.observe(observer);
         connection2.open(sdp1);
 
@@ -151,11 +151,11 @@ public class MgcpLocalConnectionTest {
         // when
         when(channelProvider.getLocalChannel()).thenReturn(dataChannel);
 
-        final MgcpLocalConnection connection1 = new MgcpLocalConnection(1, halfOpenTimeout, openTimeout, eventProvider, channelProvider, this.executor);
+        final MgcpLocalConnectionImpl connection1 = new MgcpLocalConnectionImpl(1, halfOpenTimeout, openTimeout, eventProvider, channelProvider, this.executor);
         connection1.observe(observer);
         final String sdp1 = connection1.halfOpen(new LocalConnectionOptions());
 
-        final MgcpLocalConnection connection2 = new MgcpLocalConnection(2, halfOpenTimeout, openTimeout, eventProvider, channelProvider, this.executor);
+        final MgcpLocalConnectionImpl connection2 = new MgcpLocalConnectionImpl(2, halfOpenTimeout, openTimeout, eventProvider, channelProvider, this.executor);
         connection2.observe(observer);
         final String sdp2 = connection2.open(sdp1);
 
@@ -193,7 +193,7 @@ public class MgcpLocalConnectionTest {
         // when
         when(channelProvider.getLocalChannel()).thenReturn(dataChannel);
 
-        final MgcpLocalConnection connection = new MgcpLocalConnection(identifier, halfOpenTimeout, openTimeout, eventProvider, channelProvider, this.executor);
+        final MgcpLocalConnectionImpl connection = new MgcpLocalConnectionImpl(identifier, halfOpenTimeout, openTimeout, eventProvider, channelProvider, this.executor);
         connection.observe(observer);
         connection.halfOpen(new LocalConnectionOptions());
 
@@ -221,11 +221,11 @@ public class MgcpLocalConnectionTest {
         // when
         when(channelProvider.getLocalChannel()).thenReturn(dataChannel);
 
-        final MgcpLocalConnection connection1 = new MgcpLocalConnection(connectionId1, callId, halfOpenTimeout, openTimeout, eventProvider, channelProvider, this.executor);
+        final MgcpLocalConnectionImpl connection1 = new MgcpLocalConnectionImpl(connectionId1, callId, halfOpenTimeout, openTimeout, eventProvider, channelProvider, this.executor);
         connection1.observe(observer);
         final String sdp1 = connection1.halfOpen(new LocalConnectionOptions());
 
-        final MgcpLocalConnection connection2 = new MgcpLocalConnection(connectionId2, callId, halfOpenTimeout, openTimeout, eventProvider, channelProvider, this.executor);
+        final MgcpLocalConnectionImpl connection2 = new MgcpLocalConnectionImpl(connectionId2, callId, halfOpenTimeout, openTimeout, eventProvider, channelProvider, this.executor);
         connection2.observe(observer);
         connection2.open(sdp1);
 

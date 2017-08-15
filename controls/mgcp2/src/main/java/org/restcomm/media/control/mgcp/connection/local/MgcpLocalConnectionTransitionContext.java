@@ -19,24 +19,38 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.control.mgcp.connection;
+package org.restcomm.media.control.mgcp.connection.local;
 
-import org.restcomm.media.control.mgcp.connection.local.MgcpLocalConnectionImpl;
-
-import com.google.common.util.concurrent.FutureCallback;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpLocalConnection extends MgcpConnection {
+public class MgcpLocalConnectionTransitionContext {
 
-    /**
-     * Joins two local connections.
-     * 
-     * @param connection The connection to join to.
-     * @param callback The callback that warns about success or failure of the operation.
-     */
-    void join(MgcpLocalConnectionImpl connection, FutureCallback<Void> callback);
+    private final Map<MgcpLocalConnectionParameter, Object> data;
+
+    public MgcpLocalConnectionTransitionContext() {
+        this.data = new HashMap<>(10);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T get(MgcpLocalConnectionParameter key, Class<T> type) throws IllegalArgumentException {
+        Object value = data.get(key);
+
+        if (value == null) {
+            return null;
+        } else if (type.isInstance(value)) {
+            return (T) value;
+        } else {
+            throw new IllegalArgumentException("Parameter " + key + "(" + value.getClass().getSimpleName() + ") is not of type " + type);
+        }
+    }
+
+    public void set(MgcpLocalConnectionParameter key, Object value) {
+        this.data.put(key, value);
+    }
 
 }

@@ -76,7 +76,7 @@ public class GenericMgcpEndpointTest {
         final int connectionId1 = 3;
         final int connectionId2 = 4;
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
-        final MgcpLocalConnection connection1 = mock(MgcpLocalConnection.class);
+        final MgcpLocalConnectionImpl connection1 = mock(MgcpLocalConnectionImpl.class);
         final MgcpRemoteConnection connection2 = mock(MgcpRemoteConnection.class);
         final MediaGroup mediaGroup = mock(MediaGroup.class);
         final EndpointIdentifier endpointId = new EndpointIdentifier("mobicents/endpoint/1", "127.0.0.1");
@@ -107,7 +107,7 @@ public class GenericMgcpEndpointTest {
         final int connectionId1 = 3;
         final int connectionId2 = 4;
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
-        final MgcpLocalConnection connection1 = mock(MgcpLocalConnection.class);
+        final MgcpLocalConnectionImpl connection1 = mock(MgcpLocalConnectionImpl.class);
         final MgcpRemoteConnection connection2 = mock(MgcpRemoteConnection.class);
         final MediaGroup mediaGroup = mock(MediaGroup.class);
         final EndpointIdentifier endpointId = new EndpointIdentifier("mobicents/endpoint/1", "127.0.0.1");
@@ -139,7 +139,7 @@ public class GenericMgcpEndpointTest {
         final int callId2 = 2;
         final int connectionId1 = 3;
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
-        final MgcpLocalConnection connection1 = mock(MgcpLocalConnection.class);
+        final MgcpLocalConnectionImpl connection1 = mock(MgcpLocalConnectionImpl.class);
         final MediaGroup mediaGroup = mock(MediaGroup.class);
         final EndpointIdentifier endpointId = new EndpointIdentifier("mobicents/endpoint/1", "127.0.0.1");
         final GenericMgcpEndpoint endpoint = new GenericMgcpEndpoint(endpointId, connectionProvider, mediaGroup);
@@ -160,7 +160,7 @@ public class GenericMgcpEndpointTest {
         final int connectionId1 = 3;
         final int connectionId2 = 4;
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
-        final MgcpLocalConnection connection1 = mock(MgcpLocalConnection.class);
+        final MgcpLocalConnectionImpl connection1 = mock(MgcpLocalConnectionImpl.class);
         final MediaGroup mediaGroup = mock(MediaGroup.class);
         final EndpointIdentifier endpointId = new EndpointIdentifier("mobicents/endpoint/1", "127.0.0.1");
         final GenericMgcpEndpoint endpoint = new GenericMgcpEndpoint(endpointId, connectionProvider, mediaGroup);
@@ -183,7 +183,7 @@ public class GenericMgcpEndpointTest {
         final int connectionId2 = 4;
         final int connectionId3 = 5;
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
-        final MgcpLocalConnection connection1 = mock(MgcpLocalConnection.class);
+        final MgcpLocalConnectionImpl connection1 = mock(MgcpLocalConnectionImpl.class);
         final MgcpRemoteConnection connection2 = mock(MgcpRemoteConnection.class);
         final MgcpRemoteConnection connection3 = mock(MgcpRemoteConnection.class);
         final MediaGroup mediaGroup = mock(MediaGroup.class);
@@ -224,7 +224,7 @@ public class GenericMgcpEndpointTest {
         final int connectionId2 = 4;
         final int connectionId3 = 5;
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
-        final MgcpLocalConnection connection1 = mock(MgcpLocalConnection.class);
+        final MgcpLocalConnectionImpl connection1 = mock(MgcpLocalConnectionImpl.class);
         final MgcpRemoteConnection connection2 = mock(MgcpRemoteConnection.class);
         final MgcpRemoteConnection connection3 = mock(MgcpRemoteConnection.class);
         final MediaGroup mediaGroup = mock(MediaGroup.class);
@@ -399,7 +399,7 @@ public class GenericMgcpEndpointTest {
         final NotificationRequest rqnt1 = new NotificationRequest(1, "1a", notifiedEntity, requestedEvents, signal1, signal2);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final int connectionId = 7;
-        final MgcpLocalConnection connection = mock(MgcpLocalConnection.class);
+        final MgcpLocalConnectionImpl connection = mock(MgcpLocalConnectionImpl.class);
         final MediaGroup mediaGroup = mock(MediaGroup.class);
         final EndpointIdentifier endpointId = new EndpointIdentifier("mobicents/endpoint/1", "127.0.0.1");
         final MgcpEndpoint genericMgcpEndpoint = new GenericMgcpEndpoint(endpointId, connectionProvider, mediaGroup);
@@ -613,7 +613,7 @@ public class GenericMgcpEndpointTest {
 
         final MgcpSignal signal = mock(MgcpSignal.class);
         final MgcpEvent timeoutEvent = new RtpTimeoutEvent(1, 10);
-        final MgcpLocalConnection connection = mock(MgcpLocalConnection.class);
+        final MgcpLocalConnectionImpl connection = mock(MgcpLocalConnectionImpl.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MediaGroup mediaGroup = mock(MediaGroup.class);
         final EndpointIdentifier endpointId = new EndpointIdentifier("mobicents/endpoint/1", "127.0.0.1");

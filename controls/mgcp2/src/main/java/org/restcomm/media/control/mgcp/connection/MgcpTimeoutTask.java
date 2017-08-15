@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
+ * Copyright 2011-2017, Telestax Inc and individual contributors
  * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
@@ -22,12 +22,11 @@
 package org.restcomm.media.control.mgcp.connection;
 
 /**
- * Enumeration of possible MGCP connection states.
+ * Closes an MGCP connection due to timeout.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum MgcpConnectionState {
-
-    IDLE, HALF_OPENING, HALF_OPEN, OPENING, OPEN, CORRUPTED, CLOSING, CLOSED;
+public class MgcpTimeoutTask {
+    
 }

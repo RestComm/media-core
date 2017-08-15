@@ -74,8 +74,8 @@ public class CreateConnectionCommandTest {
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
         final MgcpEndpoint ivrEndpoint = mock(MgcpEndpoint.class);
-        final MgcpLocalConnection connection1 = mock(MgcpLocalConnection.class);
-        final MgcpLocalConnection connection2 = mock(MgcpLocalConnection.class);
+        final MgcpLocalConnectionImpl connection1 = mock(MgcpLocalConnectionImpl.class);
+        final MgcpLocalConnectionImpl connection2 = mock(MgcpLocalConnectionImpl.class);
         final EndpointIdentifier bridgeEndpointId = new EndpointIdentifier("mobicents/bridge/1", "127.0.0.1:2427");
         final EndpointIdentifier ivrEndpointId = new EndpointIdentifier("mobicents/ivr/1", "127.0.0.1:2427");
         final CreateConnectionCommand crcx = new CreateConnectionCommand(transactionId, request.getParameters(), endpointManager);
@@ -479,8 +479,8 @@ public class CreateConnectionCommandTest {
         final MgcpEndpoint ivrEndpoint = mock(MgcpEndpoint.class);
         final EndpointIdentifier bridgeEndpointId = new EndpointIdentifier("mobicents/bridge/1", "127.0.0.1:2427");
         final EndpointIdentifier ivrEndpointId = new EndpointIdentifier("mobicents/ivr/2", "127.0.0.1:2427");
-        final MgcpLocalConnection connection1 = mock(MgcpLocalConnection.class);
-        final MgcpLocalConnection connection2 = mock(MgcpLocalConnection.class);
+        final MgcpLocalConnectionImpl connection1 = mock(MgcpLocalConnectionImpl.class);
+        final MgcpLocalConnectionImpl connection2 = mock(MgcpLocalConnectionImpl.class);
         final CreateConnectionCommand crcx = new CreateConnectionCommand(transactionId, request.getParameters(), endpointManager);
 
         // when

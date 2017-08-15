@@ -115,7 +115,7 @@ public class ModifyConnectionCommand extends AbstractMgcpCommand {
         // Set Mode (if specified)
         ConnectionMode mode = context.mode;
         if (mode != null) {
-            connection.setMode(mode);
+            connection.updateMode(mode);
         }
 
         // Set Remote Description (if defined)

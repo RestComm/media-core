@@ -55,7 +55,7 @@ import com.google.common.util.concurrent.ListeningScheduledExecutorService;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpListener {
+public class MgcpRemoteConnection extends DeprecratedAbstractMgcpConnection implements RtpListener {
 
     private static final Logger log = Logger.getLogger(MgcpRemoteConnection.class);
 
@@ -102,8 +102,8 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
     }
 
     @Override
-    public void setMode(ConnectionMode mode) throws IllegalStateException {
-        super.setMode(mode);
+    public void updateMode(ConnectionMode mode) throws IllegalStateException {
+        super.updateMode(mode);
         this.audioChannel.setConnectionMode(mode);
     }
 
@@ -432,7 +432,7 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
                     }
 
                     // Deactivate connection
-                    setMode(ConnectionMode.INACTIVE);
+                    updateMode(ConnectionMode.INACTIVE);
                     
                     // Update connection state
                     this.state = MgcpConnectionState.CLOSED;

@@ -86,7 +86,7 @@ public class MgcpSplitterEndpointTest {
     public void testOpenCloseLocalConnection() throws MgcpException {
         // given
         final int callId = 1;
-        final MgcpLocalConnection connection = mock(MgcpLocalConnection.class);
+        final MgcpLocalConnectionImpl connection = mock(MgcpLocalConnectionImpl.class);
         final AudioSplitter inbandSplitter = mock(AudioSplitter.class);
         final OOBSplitter outbandSplitter = mock(OOBSplitter.class);
         final MgcpConnectionProvider connections = mock(MgcpConnectionProvider.class);
