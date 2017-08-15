@@ -39,8 +39,10 @@ public class NotifySuccessAction extends AnonymousAction<MgcpLocalConnectionFsm,
     
     @Override
     public void execute(MgcpLocalConnectionState from, MgcpLocalConnectionState to, MgcpLocalConnectionEvent event, MgcpLocalConnectionTransitionContext context, MgcpLocalConnectionFsm stateMachine) {
-        FutureCallback<?> callback = context.get(MgcpLocalConnectionParameter.CALLBACK, FutureCallback.class);
-        callback.onSuccess(null);
+        if(!MgcpLocalConnectionEvent.TIMEOUT.equals(event)) {
+            FutureCallback<?> callback = context.get(MgcpLocalConnectionParameter.CALLBACK, FutureCallback.class);
+            callback.onSuccess(null);
+        }
     }
 
 }

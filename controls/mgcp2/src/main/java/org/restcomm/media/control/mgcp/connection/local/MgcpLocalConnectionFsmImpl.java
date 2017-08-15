@@ -29,7 +29,9 @@ import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpLocalConnectionFsmImpl extends AbstractStateMachine<MgcpLocalConnectionFsm, MgcpLocalConnectionState, MgcpLocalConnectionEvent, MgcpLocalConnectionTransitionContext> {
+public class MgcpLocalConnectionFsmImpl extends
+        AbstractStateMachine<MgcpLocalConnectionFsm, MgcpLocalConnectionState, MgcpLocalConnectionEvent, MgcpLocalConnectionTransitionContext>
+        implements MgcpLocalConnectionFsm {
 
     private static final Logger log = Logger.getLogger(MgcpLocalConnectionFsmImpl.class);
 

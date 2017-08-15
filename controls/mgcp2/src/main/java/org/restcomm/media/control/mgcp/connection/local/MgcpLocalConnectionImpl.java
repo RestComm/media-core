@@ -25,6 +25,7 @@ import org.apache.log4j.Logger;
 import org.restcomm.media.component.audio.AudioComponent;
 import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.control.mgcp.connection.AbstractMgcpConnection;
+import org.restcomm.media.control.mgcp.connection.MgcpLocalConnection;
 import org.restcomm.media.control.mgcp.exception.UnsupportedMgcpEventException;
 import org.restcomm.media.control.mgcp.message.LocalConnectionOptions;
 import org.restcomm.media.control.mgcp.pkg.MgcpEvent;
@@ -40,7 +41,7 @@ import com.google.common.util.concurrent.ListeningScheduledExecutorService;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpLocalConnectionImpl extends AbstractMgcpConnection {
+public class MgcpLocalConnectionImpl extends AbstractMgcpConnection implements MgcpLocalConnection {
 
     private static final Logger log = Logger.getLogger(MgcpLocalConnectionImpl.class);
 
@@ -49,6 +50,7 @@ public class MgcpLocalConnectionImpl extends AbstractMgcpConnection {
     public MgcpLocalConnectionImpl(MgcpLocalConnectionContext context, MgcpEventProvider eventProvider, ListeningScheduledExecutorService executor, MgcpLocalConnectionFsmBuilder fsmBuilder) {
         super(context, eventProvider, executor);
         this.fsm = fsmBuilder.build(context);
+        this.fsm.start();
     }
 
     @Override
@@ -116,6 +118,7 @@ public class MgcpLocalConnectionImpl extends AbstractMgcpConnection {
         }
     }
 
+    @Override
     public void join(MgcpLocalConnectionImpl connection, FutureCallback<Void> callback) {
         MgcpLocalConnectionEvent event = MgcpLocalConnectionEvent.JOIN;
         if (this.fsm.canAccept(event)) {

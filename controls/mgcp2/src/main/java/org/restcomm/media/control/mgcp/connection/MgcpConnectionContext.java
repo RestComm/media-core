@@ -41,10 +41,10 @@ public class MgcpConnectionContext {
 
     // Timers
     protected ListenableScheduledFuture<?> timerFuture;
-    protected final int timeout;
-    protected final int halfOpenTimeout;
+    protected final long timeout;
+    protected final long halfOpenTimeout;
 
-    public MgcpConnectionContext(int identifier, int callIdentifier, int halfOpenTimeout, int timeout) {
+    public MgcpConnectionContext(int identifier, int callIdentifier, long halfOpenTimeout, long timeout) {
         // Connection
         this.identifier = identifier;
         this.callIdentifier = callIdentifier;
@@ -55,7 +55,7 @@ public class MgcpConnectionContext {
         this.timeout = timeout;
     }
 
-    public MgcpConnectionContext(int identifier, int callIdentifier, int timeout) {
+    public MgcpConnectionContext(int identifier, int callIdentifier, long timeout) {
         this(identifier, callIdentifier, HALF_OPEN_TIMEOUT, timeout);
     }
 
@@ -87,11 +87,11 @@ public class MgcpConnectionContext {
         return Integer.toHexString(this.callIdentifier).toUpperCase();
     }
 
-    public int getTimeout() {
+    public long getTimeout() {
         return timeout;
     }
 
-    public int getHalfOpenTimeout() {
+    public long getHalfOpenTimeout() {
         return halfOpenTimeout;
     }
 

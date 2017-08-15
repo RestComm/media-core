@@ -36,7 +36,7 @@ public class MgcpLocalConnectionFsmBuilder {
     private final StateMachineBuilder<MgcpLocalConnectionFsm, MgcpLocalConnectionState, MgcpLocalConnectionEvent, MgcpLocalConnectionTransitionContext> builder;
 
     public MgcpLocalConnectionFsmBuilder() {
-        this.builder = StateMachineBuilderFactory.<MgcpLocalConnectionFsm, MgcpLocalConnectionState, MgcpLocalConnectionEvent, MgcpLocalConnectionTransitionContext> create(MgcpLocalConnectionFsm.class, MgcpLocalConnectionState.class, MgcpLocalConnectionEvent.class, MgcpLocalConnectionTransitionContext.class);
+        this.builder = StateMachineBuilderFactory.<MgcpLocalConnectionFsm, MgcpLocalConnectionState, MgcpLocalConnectionEvent, MgcpLocalConnectionTransitionContext> create(MgcpLocalConnectionFsmImpl.class, MgcpLocalConnectionState.class, MgcpLocalConnectionEvent.class, MgcpLocalConnectionTransitionContext.class, MgcpLocalConnectionContext.class);
 
         this.builder.onEntry(MgcpLocalConnectionState.IDLE);
         this.builder.externalTransition().from(MgcpLocalConnectionState.IDLE).to(MgcpLocalConnectionState.HALF_OPEN).on(MgcpLocalConnectionEvent.HALF_OPEN);
@@ -60,6 +60,7 @@ public class MgcpLocalConnectionFsmBuilder {
         this.builder.externalTransition().from(MgcpLocalConnectionState.OPEN).to(MgcpLocalConnectionState.CORRUPTED).on(MgcpLocalConnectionEvent.FAILURE);
         this.builder.externalTransition().from(MgcpLocalConnectionState.OPEN).toFinal(MgcpLocalConnectionState.CLOSED).on(MgcpLocalConnectionEvent.CLOSE);
         this.builder.externalTransition().from(MgcpLocalConnectionState.OPEN).toFinal(MgcpLocalConnectionState.CLOSED).on(MgcpLocalConnectionEvent.TIMEOUT);
+        this.builder.onExit(MgcpLocalConnectionState.OPEN).perform(CancelTimeoutAction.INSTANCE);
 
         this.builder.onEntry(MgcpLocalConnectionState.CORRUPTED).perform(NotifyFailureAction.INSTANCE);
         this.builder.externalTransition().from(MgcpLocalConnectionState.CORRUPTED).to(MgcpLocalConnectionState.CLOSED).on(MgcpLocalConnectionEvent.CLOSE);

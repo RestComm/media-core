@@ -32,12 +32,12 @@ public class MgcpLocalConnectionContext extends MgcpConnectionContext {
 
     private final LocalDataChannel audioChannel;
 
-    public MgcpLocalConnectionContext(int identifier, int callIdentifier, int halfOpenTimeout, int timeout, LocalDataChannel audioChannel) {
+    public MgcpLocalConnectionContext(int identifier, int callIdentifier, long halfOpenTimeout, long timeout, LocalDataChannel audioChannel) {
         super(identifier, callIdentifier, halfOpenTimeout, timeout);
         this.audioChannel = audioChannel;
     }
 
-    public MgcpLocalConnectionContext(int identifier, int callIdentifier, int timeout, LocalDataChannel audioChannel) {
+    public MgcpLocalConnectionContext(int identifier, int callIdentifier, long timeout, LocalDataChannel audioChannel) {
         super(identifier, callIdentifier, timeout);
         this.audioChannel = audioChannel;
     }
