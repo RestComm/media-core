@@ -56,6 +56,11 @@
 			<artifactId>rtp</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.restcomm.media</groupId>
+			<artifactId>rtp2</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
 		<!-- External -->
 		<dependency>
