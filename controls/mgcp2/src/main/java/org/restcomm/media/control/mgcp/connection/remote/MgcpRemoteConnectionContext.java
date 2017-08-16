@@ -32,17 +32,17 @@ public class MgcpRemoteConnectionContext extends MgcpConnectionContext {
     
     private final RtpConnection rtpConnection;
 
-    MgcpRemoteConnectionContext(int identifier, int callIdentifier, long halfOpenTimeout, long timeout, RtpConnection rtpConnection) {
+    public MgcpRemoteConnectionContext(int identifier, int callIdentifier, long halfOpenTimeout, long timeout, RtpConnection rtpConnection) {
         super(identifier, callIdentifier, halfOpenTimeout, timeout);
         this.rtpConnection = rtpConnection;
     }
 
-    MgcpRemoteConnectionContext(int identifier, int callIdentifier, long timeout, RtpConnection rtpConnection) {
+    public MgcpRemoteConnectionContext(int identifier, int callIdentifier, long timeout, RtpConnection rtpConnection) {
         super(identifier, callIdentifier, timeout);
         this.rtpConnection = rtpConnection;
     }
 
-    MgcpRemoteConnectionContext(int identifier, int callIdentifier, RtpConnection rtpConnection) {
+    public MgcpRemoteConnectionContext(int identifier, int callIdentifier, RtpConnection rtpConnection) {
         super(identifier, callIdentifier);
         this.rtpConnection = rtpConnection;
     }

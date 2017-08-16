@@ -32,6 +32,8 @@ import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
  *
  */
 public class MgcpLocalConnectionFsmBuilder {
+    
+    public static final MgcpLocalConnectionFsmBuilder INSTANCE = new MgcpLocalConnectionFsmBuilder();
 
     private final StateMachineBuilder<MgcpLocalConnectionFsm, MgcpLocalConnectionState, MgcpLocalConnectionEvent, MgcpLocalConnectionTransitionContext> builder;
 

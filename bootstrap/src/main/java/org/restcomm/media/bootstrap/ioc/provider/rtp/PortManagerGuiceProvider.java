@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
+ * Copyright 2011-2017, Telestax Inc and individual contributors
  * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
@@ -19,11 +19,12 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.bootstrap.ioc.provider.media;
+package org.restcomm.media.bootstrap.ioc.provider.rtp;
 
-import org.restcomm.media.rtp.ChannelsManager;
-import org.restcomm.media.rtp.channels.MediaChannelProvider;
-import org.restcomm.media.spi.dsp.DspFactory;
+import org.restcomm.media.core.configuration.MediaConfiguration;
+import org.restcomm.media.core.configuration.MediaServerConfiguration;
+import org.restcomm.media.network.deprecated.PortManager;
+import org.restcomm.media.rtp.RtpPortManager;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -32,21 +33,22 @@ import com.google.inject.Provider;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-@Deprecated
-public class MediaChannelProviderProvider implements Provider<MediaChannelProvider> {
+public class PortManagerGuiceProvider implements Provider<PortManager> {
 
-    private final ChannelsManager channelsManager;
-    private final DspFactory dspFactory;
+    private final MediaServerConfiguration configuration;
 
     @Inject
-    public MediaChannelProviderProvider(ChannelsManager channelsManager, DspFactory dspFactory) {
-        this.channelsManager = channelsManager;
-        this.dspFactory = dspFactory;
+    public PortManagerGuiceProvider(MediaServerConfiguration configuration) {
+        super();
+        this.configuration = configuration;
     }
 
     @Override
-    public MediaChannelProvider get() {
-        return new MediaChannelProvider(channelsManager, dspFactory);
+    public PortManager get() {
+        MediaConfiguration mediaConfig = this.configuration.getMediaConfiguration();
+        int minimum = mediaConfig.getLowPort();
+        int maximum = mediaConfig.getHighPort();
+        return new RtpPortManager(minimum, maximum);
     }
 
 }

@@ -22,7 +22,6 @@
 package org.restcomm.media.control.mgcp.connection.local;
 
 import org.restcomm.media.control.mgcp.connection.MgcpConnectionContext;
-import org.restcomm.media.rtp.LocalDataChannel;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)

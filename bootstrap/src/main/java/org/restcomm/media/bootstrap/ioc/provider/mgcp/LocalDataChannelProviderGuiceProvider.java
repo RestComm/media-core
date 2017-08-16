@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
+ * Copyright 2011-2017, Telestax Inc and individual contributors
  * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
@@ -19,34 +19,36 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.bootstrap.ioc.provider.media;
+package org.restcomm.media.bootstrap.ioc.provider.mgcp;
 
-import org.restcomm.media.rtp.ChannelsManager;
-import org.restcomm.media.rtp.channels.MediaChannelProvider;
-import org.restcomm.media.spi.dsp.DspFactory;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.restcomm.media.control.mgcp.connection.local.LocalDataChannelProvider;
+import org.restcomm.media.scheduler.PriorityQueueScheduler;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.google.inject.name.Named;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-@Deprecated
-public class MediaChannelProviderProvider implements Provider<MediaChannelProvider> {
+public class LocalDataChannelProviderGuiceProvider implements Provider<LocalDataChannelProvider> {
 
-    private final ChannelsManager channelsManager;
-    private final DspFactory dspFactory;
+    private final AtomicInteger idGenerator;
+    private final PriorityQueueScheduler scheduler;
 
     @Inject
-    public MediaChannelProviderProvider(ChannelsManager channelsManager, DspFactory dspFactory) {
-        this.channelsManager = channelsManager;
-        this.dspFactory = dspFactory;
+    public LocalDataChannelProviderGuiceProvider(@Named("component-id-generator") AtomicInteger idGenerator, PriorityQueueScheduler scheduler) {
+        super();
+        this.idGenerator = idGenerator;
+        this.scheduler = scheduler;
     }
 
     @Override
-    public MediaChannelProvider get() {
-        return new MediaChannelProvider(channelsManager, dspFactory);
+    public LocalDataChannelProvider get() {
+        return new LocalDataChannelProvider(idGenerator, scheduler);
     }
 
 }

@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
+ * Copyright 2011-2017, Telestax Inc and individual contributors
  * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
@@ -18,35 +18,22 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
+        
+package org.restcomm.media.bootstrap.ioc.provider.sdp;
 
-package org.restcomm.media.bootstrap.ioc.provider.media;
+import org.restcomm.media.rtp.sdp.SdpBuilder;
 
-import org.restcomm.media.rtp.ChannelsManager;
-import org.restcomm.media.rtp.channels.MediaChannelProvider;
-import org.restcomm.media.spi.dsp.DspFactory;
-
-import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-@Deprecated
-public class MediaChannelProviderProvider implements Provider<MediaChannelProvider> {
-
-    private final ChannelsManager channelsManager;
-    private final DspFactory dspFactory;
-
-    @Inject
-    public MediaChannelProviderProvider(ChannelsManager channelsManager, DspFactory dspFactory) {
-        this.channelsManager = channelsManager;
-        this.dspFactory = dspFactory;
-    }
+public class SdpBuilderGuiceProvider implements Provider<SdpBuilder> {
 
     @Override
-    public MediaChannelProvider get() {
-        return new MediaChannelProvider(channelsManager, dspFactory);
+    public SdpBuilder get() {
+        return new SdpBuilder();
     }
 
 }

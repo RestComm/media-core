@@ -24,7 +24,6 @@ package org.restcomm.media.control.mgcp.connection.local;
 import static org.mockito.Mockito.*;
 
 import org.junit.Test;
-import org.restcomm.media.rtp.LocalDataChannel;
 
 import com.google.common.util.concurrent.ListenableScheduledFuture;
 
