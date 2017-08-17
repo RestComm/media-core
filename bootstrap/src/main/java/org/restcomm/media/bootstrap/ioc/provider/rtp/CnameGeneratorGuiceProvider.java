@@ -18,13 +18,22 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
+        
+package org.restcomm.media.bootstrap.ioc.provider.rtp;
 
-package org.restcomm.media.control.mgcp.connection;
+import org.restcomm.media.rtp.CnameGenerator;
+
+import com.google.inject.Provider;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpRemoteConnection extends MgcpConnection {
+public class CnameGeneratorGuiceProvider implements Provider<CnameGenerator> {
+
+    @Override
+    public CnameGenerator get() {
+        return new CnameGenerator();
+    }
 
 }

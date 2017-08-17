@@ -18,14 +18,21 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
+
 package org.restcomm.media.control.mgcp.connection;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.restcomm.media.control.mgcp.connection.local.LocalDataChannel;
+import org.restcomm.media.control.mgcp.connection.local.LocalDataChannelProvider;
+import org.restcomm.media.control.mgcp.connection.local.MgcpLocalConnectionContext;
+import org.restcomm.media.control.mgcp.connection.local.MgcpLocalConnectionFsmBuilder;
+import org.restcomm.media.control.mgcp.connection.local.MgcpLocalConnectionImpl;
+import org.restcomm.media.control.mgcp.connection.remote.MgcpRemoteConnectionContext;
+import org.restcomm.media.control.mgcp.connection.remote.MgcpRemoteConnectionImpl;
 import org.restcomm.media.control.mgcp.pkg.MgcpEventProvider;
-import org.restcomm.media.rtp.ChannelsManager;
-import org.restcomm.media.rtp.channels.MediaChannelProvider;
+import org.restcomm.media.rtp.RtpConnection;
+import org.restcomm.media.rtp.RtpConnectionFactory;
 
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 
@@ -34,29 +41,35 @@ import com.google.common.util.concurrent.ListeningScheduledExecutorService;
  *
  */
 public class MgcpConnectionProvider {
-    
+
     private final AtomicInteger idGenerator;
     private final int timeout;
-    private final MediaChannelProvider channelProvider;
-    private final ChannelsManager channelsManager;
     private final ListeningScheduledExecutorService executor;
     private final MgcpEventProvider eventProvider;
-    
-    public MgcpConnectionProvider(int timeout, MgcpEventProvider eventProvider, MediaChannelProvider channelProvider, ChannelsManager channelsManager, ListeningScheduledExecutorService executor) {
+    private final LocalDataChannelProvider localDataChannelProvider;
+    private final RtpConnectionFactory rtpConnectionFactory;
+
+    public MgcpConnectionProvider(int timeout, MgcpEventProvider eventProvider,
+            LocalDataChannelProvider localDataChannelProvider, RtpConnectionFactory rtpConnectionFactory,
+            ListeningScheduledExecutorService executor) {
         this.idGenerator = new AtomicInteger(0);
         this.timeout = timeout;
         this.eventProvider = eventProvider;
-        this.channelProvider = channelProvider;
-        this.channelsManager = channelsManager;
         this.executor = executor;
+        this.localDataChannelProvider = localDataChannelProvider;
+        this.rtpConnectionFactory = rtpConnectionFactory;
     }
-    
+
     public MgcpRemoteConnection provideRemote(int callId) {
-        return new MgcpRemoteConnection(this.idGenerator.incrementAndGet(), callId, this.timeout, eventProvider, channelProvider, executor);
+        RtpConnection rtpConnection = this.rtpConnectionFactory.build();
+        MgcpRemoteConnectionContext context = new MgcpRemoteConnectionContext(idGenerator.incrementAndGet(), callId, this.timeout, rtpConnection);
+        return new MgcpRemoteConnectionImpl(context, this.eventProvider, this.executor);
     }
-    
-    public MgcpLocalConnectionImpl provideLocal(int callId) {
-        return new MgcpLocalConnectionImpl(this.idGenerator.incrementAndGet(), callId, this.timeout, eventProvider, channelsManager, executor);
+
+    public MgcpLocalConnection provideLocal(int callId) {
+        LocalDataChannel dataChannel = this.localDataChannelProvider.provide();
+        MgcpLocalConnectionContext context = new MgcpLocalConnectionContext(idGenerator.incrementAndGet(), callId, dataChannel);
+        return new MgcpLocalConnectionImpl(context, this.eventProvider, this.executor, MgcpLocalConnectionFsmBuilder.INSTANCE);
     }
 
 }

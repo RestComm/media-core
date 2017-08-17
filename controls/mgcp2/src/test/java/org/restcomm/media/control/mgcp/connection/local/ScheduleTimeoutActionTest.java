@@ -27,7 +27,6 @@ import static org.mockito.Mockito.*;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
-import org.restcomm.media.rtp.LocalDataChannel;
 
 import com.google.common.util.concurrent.ListenableScheduledFuture;
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;

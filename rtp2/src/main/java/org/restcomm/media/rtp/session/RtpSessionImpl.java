@@ -24,6 +24,8 @@ package org.restcomm.media.rtp.session;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
+import org.restcomm.media.component.audio.AudioComponent;
+import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.rtp.JitterBuffer;
 import org.restcomm.media.rtp.MediaType;
 import org.restcomm.media.rtp.RtpChannel;
@@ -189,5 +191,17 @@ public class RtpSessionImpl implements RtpSession {
             default:
                 return false;
         }
+    }
+    
+    @Override
+    public AudioComponent getAudioComponent() {
+        // TODO RtpSession.getAudioComponent
+        return null;
+    }
+    
+    @Override
+    public OOBComponent getOOBComponent() {
+        // TODO RtpSession.getOOBComponent
+        return null;
     }
 }

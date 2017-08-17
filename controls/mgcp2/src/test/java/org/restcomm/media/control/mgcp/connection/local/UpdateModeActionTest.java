@@ -29,7 +29,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.junit.Test;
-import org.restcomm.media.rtp.LocalDataChannel;
 import org.restcomm.media.spi.ConnectionMode;
 import org.restcomm.media.spi.ModeNotSupportedException;
 

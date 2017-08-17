@@ -18,13 +18,22 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
+        
+package org.restcomm.media.bootstrap.ioc.provider.sdp;
 
-package org.restcomm.media.control.mgcp.connection;
+import org.restcomm.media.sdp.SessionDescriptionParser;
+
+import com.google.inject.Provider;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpRemoteConnection extends MgcpConnection {
+public class SdpParserGuiceProvider implements Provider<SessionDescriptionParser> {
+
+    @Override
+    public SessionDescriptionParser get() {
+        return new SessionDescriptionParser();
+    }
 
 }

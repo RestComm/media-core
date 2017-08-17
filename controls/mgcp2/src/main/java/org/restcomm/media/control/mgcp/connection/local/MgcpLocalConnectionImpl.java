@@ -31,7 +31,6 @@ import org.restcomm.media.control.mgcp.message.LocalConnectionOptions;
 import org.restcomm.media.control.mgcp.pkg.MgcpEvent;
 import org.restcomm.media.control.mgcp.pkg.MgcpEventProvider;
 import org.restcomm.media.control.mgcp.pkg.MgcpRequestedEvent;
-import org.restcomm.media.rtp.LocalDataChannel;
 import org.restcomm.media.spi.ConnectionMode;
 
 import com.google.common.util.concurrent.FutureCallback;
@@ -157,7 +156,7 @@ public class MgcpLocalConnectionImpl extends AbstractMgcpConnection implements M
     @Override
     public AudioComponent getAudioComponent() {
         final LocalDataChannel audioChannel = getContext().getAudioChannel();
-        return (audioChannel == null) ? null : audioChannel.getAudioComponent();
+        return (audioChannel == null) ? null : audioChannel.getInbandComponent();
     }
 
     @Override

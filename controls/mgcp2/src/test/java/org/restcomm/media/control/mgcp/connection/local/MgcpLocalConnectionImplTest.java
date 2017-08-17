@@ -32,7 +32,6 @@ import org.junit.Test;
 import org.restcomm.media.control.mgcp.connection.MgcpLocalConnection;
 import org.restcomm.media.control.mgcp.message.LocalConnectionOptions;
 import org.restcomm.media.control.mgcp.pkg.MgcpEventProvider;
-import org.restcomm.media.rtp.LocalDataChannel;
 import org.restcomm.media.spi.ConnectionMode;
 
 import com.google.common.util.concurrent.FutureCallback;

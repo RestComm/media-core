@@ -19,12 +19,36 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.control.mgcp.connection;
+package org.restcomm.media.bootstrap.ioc.provider.mgcp;
+
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.restcomm.media.control.mgcp.connection.local.LocalDataChannelProvider;
+import org.restcomm.media.scheduler.PriorityQueueScheduler;
+
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.name.Named;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpRemoteConnection extends MgcpConnection {
+public class LocalDataChannelProviderGuiceProvider implements Provider<LocalDataChannelProvider> {
+
+    private final AtomicInteger idGenerator;
+    private final PriorityQueueScheduler scheduler;
+
+    @Inject
+    public LocalDataChannelProviderGuiceProvider(@Named("component-id-generator") AtomicInteger idGenerator, PriorityQueueScheduler scheduler) {
+        super();
+        this.idGenerator = idGenerator;
+        this.scheduler = scheduler;
+    }
+
+    @Override
+    public LocalDataChannelProvider get() {
+        return new LocalDataChannelProvider(idGenerator, scheduler);
+    }
 
 }

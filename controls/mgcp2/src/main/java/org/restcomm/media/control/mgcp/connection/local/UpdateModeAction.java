@@ -22,7 +22,6 @@
 package org.restcomm.media.control.mgcp.connection.local;
 
 import org.apache.log4j.Logger;
-import org.restcomm.media.rtp.LocalDataChannel;
 import org.restcomm.media.spi.ConnectionMode;
 import org.restcomm.media.spi.ModeNotSupportedException;
 import org.squirrelframework.foundation.fsm.AnonymousAction;

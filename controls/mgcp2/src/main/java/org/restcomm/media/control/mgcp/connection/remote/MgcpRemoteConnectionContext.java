@@ -19,35 +19,36 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.control.mgcp.connection.local;
+package org.restcomm.media.control.mgcp.connection.remote;
 
 import org.restcomm.media.control.mgcp.connection.MgcpConnectionContext;
+import org.restcomm.media.rtp.RtpConnection;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpLocalConnectionContext extends MgcpConnectionContext {
+public class MgcpRemoteConnectionContext extends MgcpConnectionContext {
+    
+    private final RtpConnection rtpConnection;
 
-    private final LocalDataChannel audioChannel;
-
-    public MgcpLocalConnectionContext(int identifier, int callIdentifier, long halfOpenTimeout, long timeout, LocalDataChannel audioChannel) {
+    public MgcpRemoteConnectionContext(int identifier, int callIdentifier, long halfOpenTimeout, long timeout, RtpConnection rtpConnection) {
         super(identifier, callIdentifier, halfOpenTimeout, timeout);
-        this.audioChannel = audioChannel;
+        this.rtpConnection = rtpConnection;
     }
 
-    public MgcpLocalConnectionContext(int identifier, int callIdentifier, long timeout, LocalDataChannel audioChannel) {
+    public MgcpRemoteConnectionContext(int identifier, int callIdentifier, long timeout, RtpConnection rtpConnection) {
         super(identifier, callIdentifier, timeout);
-        this.audioChannel = audioChannel;
+        this.rtpConnection = rtpConnection;
     }
 
-    public MgcpLocalConnectionContext(int identifier, int callIdentifier, LocalDataChannel audioChannel) {
+    public MgcpRemoteConnectionContext(int identifier, int callIdentifier, RtpConnection rtpConnection) {
         super(identifier, callIdentifier);
-        this.audioChannel = audioChannel;
+        this.rtpConnection = rtpConnection;
     }
-
-    public LocalDataChannel getAudioChannel() {
-        return audioChannel;
+    
+    public RtpConnection getRtpConnection() {
+        return rtpConnection;
     }
 
 }

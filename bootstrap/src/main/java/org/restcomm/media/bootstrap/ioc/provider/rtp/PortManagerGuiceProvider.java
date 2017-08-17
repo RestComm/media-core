@@ -19,12 +19,36 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.control.mgcp.connection;
+package org.restcomm.media.bootstrap.ioc.provider.rtp;
+
+import org.restcomm.media.core.configuration.MediaConfiguration;
+import org.restcomm.media.core.configuration.MediaServerConfiguration;
+import org.restcomm.media.network.deprecated.PortManager;
+import org.restcomm.media.rtp.RtpPortManager;
+
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpRemoteConnection extends MgcpConnection {
+public class PortManagerGuiceProvider implements Provider<PortManager> {
+
+    private final MediaServerConfiguration configuration;
+
+    @Inject
+    public PortManagerGuiceProvider(MediaServerConfiguration configuration) {
+        super();
+        this.configuration = configuration;
+    }
+
+    @Override
+    public PortManager get() {
+        MediaConfiguration mediaConfig = this.configuration.getMediaConfiguration();
+        int minimum = mediaConfig.getLowPort();
+        int maximum = mediaConfig.getHighPort();
+        return new RtpPortManager(minimum, maximum);
+    }
 
 }

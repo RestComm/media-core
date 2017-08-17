@@ -27,6 +27,8 @@ import org.restcomm.media.bootstrap.configuration.XmlConfigurationLoader;
 import org.restcomm.media.bootstrap.ioc.CoreModule;
 import org.restcomm.media.bootstrap.ioc.MediaModule;
 import org.restcomm.media.bootstrap.ioc.MgcpModule;
+import org.restcomm.media.bootstrap.ioc.RtpModule;
+import org.restcomm.media.bootstrap.ioc.SdpModule;
 import org.restcomm.media.bootstrap.main.RestCommMediaServer;
 import org.restcomm.media.core.configuration.MediaServerConfiguration;
 import org.restcomm.media.spi.MediaServer;
@@ -55,7 +57,7 @@ public class Bootstrapper {
     public void start() {
         try {
             MediaServerConfiguration conf = configurationLoader.load(this.filepath);
-            Injector injector = Guice.createInjector(new CoreModule(conf), new MediaModule(), new MgcpModule());
+            Injector injector = Guice.createInjector(new CoreModule(conf), new MediaModule(), new MgcpModule(), new RtpModule(), new SdpModule());
             this.mediaServer = injector.getInstance(RestCommMediaServer.class);
             this.mediaServer.start();
         } catch (Exception e) {

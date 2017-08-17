@@ -53,7 +53,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.restcomm.media</groupId>
-			<artifactId>rtp</artifactId>
+			<artifactId>rtp2</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 

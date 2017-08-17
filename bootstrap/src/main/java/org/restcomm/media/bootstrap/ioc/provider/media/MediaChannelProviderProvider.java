@@ -32,6 +32,7 @@ import com.google.inject.Provider;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
+@Deprecated
 public class MediaChannelProviderProvider implements Provider<MediaChannelProvider> {
 
     private final ChannelsManager channelsManager;
