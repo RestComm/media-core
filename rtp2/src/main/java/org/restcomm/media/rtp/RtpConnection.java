@@ -21,6 +21,8 @@
 
 package org.restcomm.media.rtp;
 
+import org.restcomm.media.component.audio.AudioComponent;
+import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.spi.ConnectionMode;
 
 import com.google.common.util.concurrent.FutureCallback;
@@ -72,5 +74,19 @@ public interface RtpConnection {
      * @param callback Invoked when operation completes or fails.
      */
     void close(FutureCallback<Void> callback);
+
+    /**
+     * Gets the in-band audio component of the connection.
+     * 
+     * @return The in-band media component
+     */
+    AudioComponent getAudioComponent();
+
+    /**
+     * Gets the out-of-band audio component of the connection.
+     * 
+     * @return The out-of-band media component
+     */
+    OOBComponent getOOBComponent();
 
 }

@@ -29,5 +29,5 @@ package org.restcomm.media.control.mgcp.connection;
  */
 public enum MgcpConnectionState {
 
-    CLOSED, HALF_OPEN, OPEN;
+    IDLE, HALF_OPENING, HALF_OPEN, OPENING, OPEN, CORRUPTED, CLOSING, CLOSED;
 }

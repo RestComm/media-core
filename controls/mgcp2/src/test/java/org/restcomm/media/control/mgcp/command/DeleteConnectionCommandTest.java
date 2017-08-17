@@ -110,7 +110,7 @@ public class DeleteConnectionCommandTest {
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpRemoteConnection connection1 = mock(MgcpRemoteConnection.class);
-        final MgcpLocalConnection connection2 = mock(MgcpLocalConnection.class);
+        final MgcpLocalConnectionImpl connection2 = mock(MgcpLocalConnectionImpl.class);
         final List<MgcpConnection> connections = new ArrayList<>();
         final MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
         final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(transactionId, request.getParameters(), endpointManager);

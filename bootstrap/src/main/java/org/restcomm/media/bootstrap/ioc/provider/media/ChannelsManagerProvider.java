@@ -40,6 +40,7 @@ import com.google.inject.Provider;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
+@Deprecated
 public class ChannelsManagerProvider implements Provider<ChannelsManager> {
 
     private final UdpManager udpManager;

@@ -22,10 +22,10 @@
 package org.restcomm.media.bootstrap.ioc.provider.mgcp;
 
 import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
+import org.restcomm.media.control.mgcp.connection.local.LocalDataChannelProvider;
 import org.restcomm.media.control.mgcp.pkg.MgcpEventProvider;
 import org.restcomm.media.core.configuration.MediaServerConfiguration;
-import org.restcomm.media.rtp.ChannelsManager;
-import org.restcomm.media.rtp.channels.MediaChannelProvider;
+import org.restcomm.media.rtp.RtpConnectionFactory;
 
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 import com.google.inject.Inject;
@@ -35,28 +35,30 @@ import com.google.inject.Provider;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpConnectionProviderProvider implements Provider<MgcpConnectionProvider> {
+public class MgcpConnectionGuiceProvider implements Provider<MgcpConnectionProvider> {
 
     private final MediaServerConfiguration configuration;
-    private final MediaChannelProvider mediaChannelProvider;
-    private final ChannelsManager channelsManager;
     private final ListeningScheduledExecutorService executor;
     private final MgcpEventProvider eventProvider;
+    private final LocalDataChannelProvider localDataChannelProvider;
+    private final RtpConnectionFactory rtpConnectionFactory;
 
     @Inject
-    public MgcpConnectionProviderProvider(MediaServerConfiguration configuration, MgcpEventProvider eventProvider, MediaChannelProvider mediaChannelProvider, ChannelsManager channelsManager, ListeningScheduledExecutorService executor) {
+    public MgcpConnectionGuiceProvider(MediaServerConfiguration configuration, MgcpEventProvider eventProvider,
+            LocalDataChannelProvider localDataChannelProvider, RtpConnectionFactory rtpConnectionFactory,
+            ListeningScheduledExecutorService executor) {
         super();
         this.configuration = configuration;
         this.eventProvider = eventProvider;
-        this.mediaChannelProvider = mediaChannelProvider;
-        this.channelsManager = channelsManager;
+        this.localDataChannelProvider = localDataChannelProvider;
+        this.rtpConnectionFactory = rtpConnectionFactory;
         this.executor = executor;
     }
 
     @Override
     public MgcpConnectionProvider get() {
         int timeout = this.configuration.getMediaConfiguration().getMaxDuration();
-        return new MgcpConnectionProvider(timeout, this.eventProvider, this.mediaChannelProvider, this.channelsManager, executor);
+        return new MgcpConnectionProvider(timeout, this.eventProvider, this.localDataChannelProvider, this.rtpConnectionFactory, executor);
     }
 
 }
