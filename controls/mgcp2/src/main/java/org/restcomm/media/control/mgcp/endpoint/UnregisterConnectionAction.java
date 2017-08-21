@@ -97,7 +97,7 @@ public class UnregisterConnectionAction
             }
 
             // warn FSM that connection was unregistered
-            stateMachine.fire(MgcpEndpointEvent.UNREGISTER_CONNECTION, context);
+            stateMachine.fire(MgcpEndpointEvent.UNREGISTERED_CONNECTION, context);
 
             // warn callback that operation completed successfully
             callback.onSuccess(connection);

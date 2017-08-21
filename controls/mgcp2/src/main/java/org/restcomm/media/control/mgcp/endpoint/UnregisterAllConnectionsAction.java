@@ -40,7 +40,7 @@ import com.google.common.util.concurrent.FutureCallback;
  * <p>
  * Input parameters:
  * <ul>
- * <li>CALL_ID</li>
+ * <li>n/a</li>
  * </ul>
  * </p>
  * <p>
@@ -76,8 +76,7 @@ public class UnregisterAllConnectionsAction
                 String endpointId = globalContext.getEndpointId().toString();
                 String hexIdentifiers = Arrays.toString(getConnectionHexId(unregistered));
                 int connectionCount = globalContext.getConnections().size();
-                log.debug("Endpoint " + endpointId.toString() + " unregistered " + unregistered.length + " connections: "
-                        + hexIdentifiers + ". Connection count: " + connectionCount);
+                log.debug("Endpoint " + endpointId.toString() + " unregistered " + unregistered.length + " connections: " + hexIdentifiers + ". Connection count: " + connectionCount);
             }
 
             // Let the FSM know that connections were removed
