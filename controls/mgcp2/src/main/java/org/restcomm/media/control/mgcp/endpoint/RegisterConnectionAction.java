@@ -49,7 +49,7 @@ public class RegisterConnectionAction
         FutureCallback<?> callback = context.get(MgcpEndpointParameter.CALLBACK, FutureCallback.class);
 
         int connectionId = connection.getIdentifier();
-        if (connections.containsKey(connectionId)) {
+        if (!connections.containsKey(connectionId)) {
             // Register Connection
             connections.put(connectionId, connection);
 

@@ -65,9 +65,10 @@ public class UnregisterAllConnectionsAction
             MgcpEndpointTransitionContext context, MgcpEndpointFsm stateMachine) {
         MgcpEndpointContext globalContext = stateMachine.getContext();
         FutureCallback<MgcpConnection[]> callback = context.get(MgcpEndpointParameter.CALLBACK, FutureCallback.class);
-
+        MgcpEventObserver observer = context.get(MgcpEndpointParameter.EVENT_OBSERVER, MgcpEventObserver.class);
+        
         // Unregister all connections bound to a call
-        MgcpConnection[] unregistered = unregisterConnections(globalContext);
+        MgcpConnection[] unregistered = unregisterConnections(observer, globalContext);
 
         if (unregistered.length > 0) {
             // Log deleted calls
