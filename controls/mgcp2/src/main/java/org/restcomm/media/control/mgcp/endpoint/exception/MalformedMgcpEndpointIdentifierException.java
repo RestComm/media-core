@@ -19,16 +19,26 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.control.mgcp.endpoint;
+package org.restcomm.media.control.mgcp.endpoint.exception;
+
+import org.restcomm.media.control.mgcp.exception.MgcpEndpointException;
 
 /**
- * List of possible states of an MGCP Endpoint.
+ * Thrown when an MGCP Endpoint Identifier is malformed.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum MgcpEndpointState {
+public class MalformedMgcpEndpointIdentifierException extends MgcpEndpointException {
 
-    IDLE, ACTIVE, TERMINATED;
+    private static final long serialVersionUID = -5090718013826757327L;
+
+    public MalformedMgcpEndpointIdentifierException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public MalformedMgcpEndpointIdentifierException(String message) {
+        super(message);
+    }
 
 }

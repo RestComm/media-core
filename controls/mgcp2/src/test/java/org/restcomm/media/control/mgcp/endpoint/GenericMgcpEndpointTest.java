@@ -90,8 +90,8 @@ public class GenericMgcpEndpointTest {
         when(connection2.getIdentifier()).thenReturn(connectionId2);
         when(connection2.getCallIdentifier()).thenReturn(callId2);
 
-        final MgcpConnection created1 = endpoint.createConnection(callId1, true);
-        final MgcpConnection created2 = endpoint.createConnection(callId2, false);
+        final MgcpConnection created1 = endpoint.registerConnection(callId1, true);
+        final MgcpConnection created2 = endpoint.registerConnection(callId2, false);
 
         // then
         assertTrue(endpoint.hasConnections());
@@ -121,9 +121,9 @@ public class GenericMgcpEndpointTest {
         when(connection2.getIdentifier()).thenReturn(connectionId2);
         when(connection2.getCallIdentifier()).thenReturn(callId2);
 
-        endpoint.createConnection(callId1, true);
-        endpoint.createConnection(callId2, false);
-        MgcpConnection deleted = endpoint.deleteConnection(callId2, connectionId2);
+        endpoint.registerConnection(callId1, true);
+        endpoint.registerConnection(callId2, false);
+        MgcpConnection deleted = endpoint.unregisterConnection(callId2, connectionId2);
         MgcpConnection existing = endpoint.getConnection(callId1, connectionId1);
 
         // then
@@ -149,8 +149,8 @@ public class GenericMgcpEndpointTest {
         when(connection1.getIdentifier()).thenReturn(connectionId1);
         when(connection1.getCallIdentifier()).thenReturn(callId1);
 
-        endpoint.createConnection(callId1, true);
-        endpoint.deleteConnection(callId2, connectionId1);
+        endpoint.registerConnection(callId1, true);
+        endpoint.unregisterConnection(callId2, connectionId1);
     }
 
     @Test(expected = MgcpConnectionNotFoundException.class)
@@ -170,8 +170,8 @@ public class GenericMgcpEndpointTest {
         when(connection1.getIdentifier()).thenReturn(connectionId1);
         when(connection1.getCallIdentifier()).thenReturn(callId1);
 
-        endpoint.createConnection(callId1, true);
-        endpoint.deleteConnection(callId1, connectionId2);
+        endpoint.registerConnection(callId1, true);
+        endpoint.unregisterConnection(callId1, connectionId2);
     }
 
     @Test
@@ -200,11 +200,11 @@ public class GenericMgcpEndpointTest {
         when(connection3.getIdentifier()).thenReturn(connectionId3);
         when(connection3.getCallIdentifier()).thenReturn(callId2);
 
-        endpoint.createConnection(callId1, true);
-        endpoint.createConnection(callId2, false);
-        endpoint.createConnection(callId2, false);
+        endpoint.registerConnection(callId1, true);
+        endpoint.registerConnection(callId2, false);
+        endpoint.registerConnection(callId2, false);
 
-        List<MgcpConnection> deleted = endpoint.deleteConnections(callId2);
+        List<MgcpConnection> deleted = endpoint.unregisterConnections(callId2);
         MgcpConnection existing = endpoint.getConnection(callId1, connectionId1);
 
         // then
@@ -241,11 +241,11 @@ public class GenericMgcpEndpointTest {
         when(connection3.getIdentifier()).thenReturn(connectionId3);
         when(connection3.getCallIdentifier()).thenReturn(callId2);
 
-        endpoint.createConnection(callId1, true);
-        endpoint.createConnection(callId2, false);
-        endpoint.createConnection(callId2, false);
+        endpoint.registerConnection(callId1, true);
+        endpoint.registerConnection(callId2, false);
+        endpoint.registerConnection(callId2, false);
 
-        List<MgcpConnection> deleted = endpoint.deleteConnections();
+        List<MgcpConnection> deleted = endpoint.unregisterConnections();
 
         // then
         assertFalse(endpoint.hasConnections());
@@ -264,7 +264,7 @@ public class GenericMgcpEndpointTest {
         final GenericMgcpEndpoint endpoint = new GenericMgcpEndpoint(endpointId, connectionProvider, mediaGroup);
 
         // when
-        List<MgcpConnection> deleted = endpoint.deleteConnections();
+        List<MgcpConnection> deleted = endpoint.unregisterConnections();
 
         // then
         assertNotNull(deleted);
@@ -414,7 +414,7 @@ public class GenericMgcpEndpointTest {
         when(signal2.getSignalType()).thenReturn(SignalType.TIME_OUT);
         when(signal2.getName()).thenReturn("AU/pc");
         
-        genericMgcpEndpoint.createConnection(callId, true);
+        genericMgcpEndpoint.registerConnection(callId, true);
         genericMgcpEndpoint.requestNotification(rqnt1);
         
         // then
@@ -424,7 +424,7 @@ public class GenericMgcpEndpointTest {
         verify(signal2, times(0)).cancel();
 
         // when
-        genericMgcpEndpoint.deleteConnection(callId, connectionId);
+        genericMgcpEndpoint.unregisterConnection(callId, connectionId);
         
         // then
         verify(signal1, times(1)).cancel();
@@ -630,7 +630,7 @@ public class GenericMgcpEndpointTest {
 
         endpoint.observe(endpointObserver);
         endpoint.observe(msgObserver);
-        final MgcpConnection createdConnection = endpoint.createConnection(callId, true);
+        final MgcpConnection createdConnection = endpoint.registerConnection(callId, true);
 
         // then
         assertEquals(connection, createdConnection);

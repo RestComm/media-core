@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
+ * Copyright 2011-2017, Telestax Inc and individual contributors
  * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
@@ -21,14 +21,36 @@
 
 package org.restcomm.media.control.mgcp.endpoint;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * List of possible states of an MGCP Endpoint.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum MgcpEndpointState {
+public class MgcpEndpointTransitionContext {
 
-    IDLE, ACTIVE, TERMINATED;
+    private final Map<MgcpEndpointParameter, Object> data;
+
+    public MgcpEndpointTransitionContext() {
+        this.data = new HashMap<>(10);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T get(MgcpEndpointParameter key, Class<T> type) throws IllegalArgumentException {
+        Object value = data.get(key);
+
+        if (value == null) {
+            return null;
+        } else if (type.isInstance(value)) {
+            return (T) value;
+        } else {
+            throw new IllegalArgumentException("Parameter " + key + "(" + value.getClass().getSimpleName() + ") is not of type " + type);
+        }
+    }
+
+    public void set(MgcpEndpointParameter key, Object value) {
+        this.data.put(key, value);
+    }
 
 }

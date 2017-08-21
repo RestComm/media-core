@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
+ * Copyright 2011-2017, Telestax Inc and individual contributors
  * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
@@ -21,14 +21,34 @@
 
 package org.restcomm.media.control.mgcp.endpoint;
 
+import org.restcomm.media.control.mgcp.command.NotificationRequest;
+import org.restcomm.media.control.mgcp.connection.MgcpConnection;
+import org.restcomm.media.control.mgcp.pkg.MgcpEventObserver;
+
+import com.google.common.util.concurrent.FutureCallback;
+
 /**
- * List of possible states of an MGCP Endpoint.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum MgcpEndpointState {
+public enum MgcpEndpointParameter {
 
-    IDLE, ACTIVE, TERMINATED;
+    CALL_ID(Integer.class),
+    CONNECTION_ID(Integer.class),
+    REGISTERED_CONNECTION(MgcpConnection.class),
+    EVENT_OBSERVER(MgcpEventObserver.class),
+    UNREGISTERED_CONNECTIONS(MgcpConnection[].class), 
+    REQUESTED_NOTIFICATION(NotificationRequest.class),
+    CALLBACK(FutureCallback.class);
+
+    private final Class<?> type;
+
+    private MgcpEndpointParameter(Class<?> type) {
+        this.type = type;
+    }
+
+    public Class<?> type() {
+        return type;
+    }
 
 }

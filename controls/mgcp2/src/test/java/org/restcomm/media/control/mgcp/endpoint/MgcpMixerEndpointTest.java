@@ -64,7 +64,7 @@ public class MgcpMixerEndpointTest {
         when(connection.getCallIdentifier()).thenReturn(callId);
         when(connection.getMode()).thenReturn(ConnectionMode.SEND_RECV);
 
-        endpoint.createConnection(callId, false);
+        endpoint.registerConnection(callId, false);
 
         // then
         // 2 components are registered: one for the connection, another for the media group of the endpoint upon activation
@@ -72,7 +72,7 @@ public class MgcpMixerEndpointTest {
         verify(outbandMixer, times(2)).addComponent(any(OOBComponent.class));
 
         // when - close connection
-        endpoint.deleteConnection(callId, connection.getIdentifier());
+        endpoint.unregisterConnection(callId, connection.getIdentifier());
 
         // then
         verify(inbandMixer, times(2)).release(any(AudioComponent.class));

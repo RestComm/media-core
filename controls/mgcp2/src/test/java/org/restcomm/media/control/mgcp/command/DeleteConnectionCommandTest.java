@@ -75,7 +75,7 @@ public class DeleteConnectionCommandTest {
 
         // when
         when(endpointManager.getEndpoint("mobicents/bridge/1@127.0.0.1:2427")).thenReturn(bridgeEndpoint);
-        when(bridgeEndpoint.deleteConnection(1, 1)).thenReturn(connection);
+        when(bridgeEndpoint.unregisterConnection(1, 1)).thenReturn(connection);
         when(connection.getIdentifier()).thenReturn(1);
 
         ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
@@ -83,7 +83,7 @@ public class DeleteConnectionCommandTest {
         dlcx.execute(callback);
 
         // then
-        verify(bridgeEndpoint, times(1)).deleteConnection(1, 1);
+        verify(bridgeEndpoint, times(1)).unregisterConnection(1, 1);
 
         verify(callback).onSuccess(resultCaptor.capture());
         MgcpCommandResult result = resultCaptor.getValue();
@@ -117,7 +117,7 @@ public class DeleteConnectionCommandTest {
 
         // when
         when(endpointManager.getEndpoint("mobicents/bridge/1@127.0.0.1:2427")).thenReturn(bridgeEndpoint);
-        when(bridgeEndpoint.deleteConnections(1)).thenReturn(connections);
+        when(bridgeEndpoint.unregisterConnections(1)).thenReturn(connections);
         connections.add(connection1);
         connections.add(connection2);
 
@@ -126,7 +126,7 @@ public class DeleteConnectionCommandTest {
         dlcx.execute(callback);
 
         // then
-        verify(bridgeEndpoint, times(1)).deleteConnections(1);
+        verify(bridgeEndpoint, times(1)).unregisterConnections(1);
 
         verify(callback).onSuccess(resultCaptor.capture());
         MgcpCommandResult result = resultCaptor.getValue();
@@ -156,14 +156,14 @@ public class DeleteConnectionCommandTest {
 
         // when
         when(endpointManager.getEndpoint("mobicents/bridge/1@127.0.0.1:2427")).thenReturn(bridgeEndpoint);
-        when(bridgeEndpoint.deleteConnections()).thenReturn(connections);
+        when(bridgeEndpoint.unregisterConnections()).thenReturn(connections);
         
         ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
         FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
         dlcx.execute(callback);
         
         // then
-        verify(bridgeEndpoint, times(1)).deleteConnections();
+        verify(bridgeEndpoint, times(1)).unregisterConnections();
         
         verify(callback).onSuccess(resultCaptor.capture());
         MgcpCommandResult result = resultCaptor.getValue();
@@ -194,14 +194,14 @@ public class DeleteConnectionCommandTest {
 
         // when
         when(endpointManager.getEndpoint("mobicents/bridge/1@127.0.0.1:2427")).thenReturn(bridgeEndpoint);
-        when(bridgeEndpoint.deleteConnection(1, 1)).thenThrow(new MgcpConnectionNotFoundException(""));
+        when(bridgeEndpoint.unregisterConnection(1, 1)).thenThrow(new MgcpConnectionNotFoundException(""));
 
         ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
         FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
         dlcx.execute(callback);
 
         // then
-        verify(bridgeEndpoint, times(1)).deleteConnection(1, 1);
+        verify(bridgeEndpoint, times(1)).unregisterConnection(1, 1);
 
         verify(callback).onSuccess(resultCaptor.capture());
         MgcpCommandResult result = resultCaptor.getValue();
@@ -231,14 +231,14 @@ public class DeleteConnectionCommandTest {
 
         // when
         when(endpointManager.getEndpoint("mobicents/bridge/1@127.0.0.1:2427")).thenReturn(bridgeEndpoint);
-        when(bridgeEndpoint.deleteConnection(1, 1)).thenThrow(new MgcpCallNotFoundException(""));
+        when(bridgeEndpoint.unregisterConnection(1, 1)).thenThrow(new MgcpCallNotFoundException(""));
 
         ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
         FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
         dlcx.execute(callback);
 
         // then
-        verify(bridgeEndpoint, times(1)).deleteConnection(1, 1);
+        verify(bridgeEndpoint, times(1)).unregisterConnection(1, 1);
         
         verify(callback).onSuccess(resultCaptor.capture());
         MgcpCommandResult result = resultCaptor.getValue();
@@ -267,14 +267,14 @@ public class DeleteConnectionCommandTest {
 
         // when
         when(endpointManager.getEndpoint("mobicents/bridge/1@127.0.0.1:2427")).thenReturn(bridgeEndpoint);
-        when(bridgeEndpoint.deleteConnections(1)).thenThrow(new MgcpCallNotFoundException(""));
+        when(bridgeEndpoint.unregisterConnections(1)).thenThrow(new MgcpCallNotFoundException(""));
 
         ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
         FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
         dlcx.execute(callback);
 
         // then
-        verify(bridgeEndpoint, times(1)).deleteConnections(1);
+        verify(bridgeEndpoint, times(1)).unregisterConnections(1);
         
         verify(callback).onSuccess(resultCaptor.capture());
         MgcpCommandResult result = resultCaptor.getValue();

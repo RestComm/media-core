@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
+ * Copyright 2011-2017, Telestax Inc and individual contributors
  * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
@@ -19,26 +19,36 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.control.mgcp.endpoint;
+package org.restcomm.media.control.mgcp.endpoint.exception;
 
 import org.restcomm.media.control.mgcp.exception.MgcpEndpointException;
 
 /**
- * Thrown when an MGCP Endpoint Identifier is malformed.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MalformedMgcpEndpointIdentifier extends MgcpEndpointException {
+public class DuplicateMgcpConnectionException extends MgcpEndpointException {
 
-    private static final long serialVersionUID = -5090718013826757327L;
+    private static final long serialVersionUID = -8560060438484151707L;
 
-    public MalformedMgcpEndpointIdentifier(String message, Throwable cause) {
+    private final int connectionId;
+
+    public DuplicateMgcpConnectionException(int connectionId, String message, Throwable cause) {
         super(message, cause);
+        this.connectionId = connectionId;
     }
 
-    public MalformedMgcpEndpointIdentifier(String message) {
+    public DuplicateMgcpConnectionException(int connectionId, String message) {
         super(message);
+        this.connectionId = connectionId;
+    }
+
+    public int getConnectionId() {
+        return connectionId;
+    }
+
+    public String getConnectionIdHex() {
+        return Integer.toHexString(getConnectionId()).toUpperCase();
     }
 
 }

@@ -164,7 +164,7 @@ public class GenericMgcpEndpoint implements MgcpEndpoint {
     }
 
     @Override
-    public MgcpConnection createConnection(int callId, boolean local) {
+    public MgcpConnection registerConnection(int callId, boolean local) {
         MgcpConnection connection = local ? this.connectionProvider.provideLocal(callId) : this.connectionProvider.provideRemote(callId);
         registerConnection(callId, connection);
         if (!connection.isLocal()) {
@@ -174,7 +174,7 @@ public class GenericMgcpEndpoint implements MgcpEndpoint {
     }
 
     @Override
-    public MgcpConnection deleteConnection(int callId, int connectionId) throws MgcpCallNotFoundException, MgcpConnectionNotFoundException {
+    public MgcpConnection unregisterConnection(int callId, int connectionId) throws MgcpCallNotFoundException, MgcpConnectionNotFoundException {
         MgcpConnection connection = this.connections.get(connectionId);
         
         if(connection == null) {
@@ -211,7 +211,7 @@ public class GenericMgcpEndpoint implements MgcpEndpoint {
     }
 
     @Override
-    public List<MgcpConnection> deleteConnections(int callId) throws MgcpCallNotFoundException {
+    public List<MgcpConnection> unregisterConnections(int callId) throws MgcpCallNotFoundException {
         // Fetch all current connections
         Collection<MgcpConnection> current = this.connections.values();
         List<MgcpConnection> deleted = new ArrayList<>(current.size());
@@ -245,7 +245,7 @@ public class GenericMgcpEndpoint implements MgcpEndpoint {
     }
 
     @Override
-    public List<MgcpConnection> deleteConnections() {
+    public List<MgcpConnection> unregisterConnections() {
         Set<Integer> keys = this.connections.keySet();
         List<MgcpConnection> deleted = new ArrayList<>(keys.size());
         
@@ -599,7 +599,7 @@ public class GenericMgcpEndpoint implements MgcpEndpoint {
             // Special case: Connection timeout after allowed lifetime.
             if(event instanceof RtpTimeoutEvent) {
                 try {
-                    deleteConnection(connection.getCallIdentifier(), connectionId);
+                    unregisterConnection(connection.getCallIdentifier(), connectionId);
                 } catch (MgcpConnectionNotFoundException | MgcpCallNotFoundException e) {
                     log.warn("Could not delete timed out connection " + connection.getHexIdentifier(), e);
                 }

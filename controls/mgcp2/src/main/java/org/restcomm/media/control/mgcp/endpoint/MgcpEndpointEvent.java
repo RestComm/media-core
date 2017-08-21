@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
+ * Copyright 2011-2017, Telestax Inc and individual contributors
  * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
@@ -18,17 +18,15 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
+        
 package org.restcomm.media.control.mgcp.endpoint;
 
 /**
- * List of possible states of an MGCP Endpoint.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum MgcpEndpointState {
-
-    IDLE, ACTIVE, TERMINATED;
+public enum MgcpEndpointEvent {
+    
+    REGISTER_CONNECTION, REGISTERED_CONNECTION, UNREGISTER_CONNECTION, UNREGISTERED_CONNECTION, REQUEST_NOTIFICATION, TERMINATE;
 
 }

@@ -90,8 +90,8 @@ public class CreateConnectionCommandTest {
         when(endpointManager.registerEndpoint("mobicents/ivr/")).thenReturn(ivrEndpoint);
         when(bridgeEndpoint.getEndpointId()).thenReturn(bridgeEndpointId);
         when(ivrEndpoint.getEndpointId()).thenReturn(ivrEndpointId);
-        when(bridgeEndpoint.createConnection(callId, true)).thenReturn(connection1);
-        when(ivrEndpoint.createConnection(callId, true)).thenReturn(connection2);
+        when(bridgeEndpoint.registerConnection(callId, true)).thenReturn(connection1);
+        when(ivrEndpoint.registerConnection(callId, true)).thenReturn(connection2);
         
         ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
         FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
@@ -100,8 +100,8 @@ public class CreateConnectionCommandTest {
         // then
         verify(endpointManager, times(1)).registerEndpoint("mobicents/bridge/");
         verify(endpointManager, times(1)).registerEndpoint("mobicents/ivr/");
-        verify(bridgeEndpoint, times(1)).createConnection(callId, true);
-        verify(ivrEndpoint, times(1)).createConnection(callId, true);
+        verify(bridgeEndpoint, times(1)).registerConnection(callId, true);
+        verify(ivrEndpoint, times(1)).registerConnection(callId, true);
         verify(connection1, times(1)).join(connection2);
         
         verify(callback).onSuccess(resultCaptor.capture());
@@ -145,7 +145,7 @@ public class CreateConnectionCommandTest {
         when(connectionProvider.provideRemote(callId)).thenReturn(connection);
         when(endpointManager.registerEndpoint("mobicents/bridge/")).thenReturn(bridgeEndpoint);
         when(bridgeEndpoint.getEndpointId()).thenReturn(bridgeEndpointId);
-        when(bridgeEndpoint.createConnection(callId, false)).thenReturn(connection);
+        when(bridgeEndpoint.registerConnection(callId, false)).thenReturn(connection);
         
         ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
         FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
@@ -153,7 +153,7 @@ public class CreateConnectionCommandTest {
 
         // then
         verify(endpointManager, times(1)).registerEndpoint("mobicents/bridge/");
-        verify(bridgeEndpoint, times(1)).createConnection(callId, false);
+        verify(bridgeEndpoint, times(1)).registerConnection(callId, false);
         verify(connection, times(1)).halfOpen(any(LocalConnectionOptions.class));
         
         verify(callback).onSuccess(resultCaptor.capture());
@@ -206,7 +206,7 @@ public class CreateConnectionCommandTest {
         when(connection.open(builderSdp.toString())).thenReturn("answer");
         when(endpointManager.registerEndpoint("mobicents/bridge/")).thenReturn(bridgeEndpoint);
         when(bridgeEndpoint.getEndpointId()).thenReturn(bridgeEndpointId);
-        when(bridgeEndpoint.createConnection(callId, false)).thenReturn(connection);
+        when(bridgeEndpoint.registerConnection(callId, false)).thenReturn(connection);
 
         ArgumentCaptor<MgcpCommandResult> resultCaptor = ArgumentCaptor.forClass(MgcpCommandResult.class);
         FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
@@ -214,7 +214,7 @@ public class CreateConnectionCommandTest {
 
         // then
         verify(endpointManager, times(1)).registerEndpoint("mobicents/bridge/");
-        verify(bridgeEndpoint, times(1)).createConnection(callId, false);
+        verify(bridgeEndpoint, times(1)).registerConnection(callId, false);
         verify(connection, times(1)).open(builderSdp.toString());
 
         verify(callback).onSuccess(resultCaptor.capture());
@@ -495,8 +495,8 @@ public class CreateConnectionCommandTest {
         when(endpointManager.registerEndpoint("mobicents/ivr/")).thenReturn(ivrEndpoint);
         when(endpointManager.getEndpoint(bridgeEndpoint.getEndpointId().toString())).thenReturn(bridgeEndpoint);
         when(endpointManager.getEndpoint(ivrEndpoint.getEndpointId().toString())).thenReturn(ivrEndpoint);
-        when(bridgeEndpoint.createConnection(callId, true)).thenReturn(connection1);
-        when(ivrEndpoint.createConnection(callId, true)).thenReturn(connection2);
+        when(bridgeEndpoint.registerConnection(callId, true)).thenReturn(connection1);
+        when(ivrEndpoint.registerConnection(callId, true)).thenReturn(connection2);
 
         doThrow(MgcpConnectionException.class).when(connection1).join(connection2);
 
@@ -505,8 +505,8 @@ public class CreateConnectionCommandTest {
         crcx.execute(callback);
 
         // then
-        verify(bridgeEndpoint, times(1)).deleteConnection(callId, connection1.getIdentifier());
-        verify(ivrEndpoint, times(1)).deleteConnection(callId, connection2.getIdentifier());
+        verify(bridgeEndpoint, times(1)).unregisterConnection(callId, connection1.getIdentifier());
+        verify(ivrEndpoint, times(1)).unregisterConnection(callId, connection2.getIdentifier());
 
         verify(callback).onSuccess(resultCaptor.capture());
         MgcpCommandResult result = resultCaptor.getValue();

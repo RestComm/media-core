@@ -67,32 +67,33 @@ public interface MgcpEndpoint extends MgcpEndpointSubject, MgcpMessageSubject, M
      * Registers a connection.
      * 
      * @param callId The identifier of the call where the connection belongs to.
-     * @param local Whether a local or remote connection is to be created.
+     * @param connection The connection to be registered
      */
-    MgcpConnection createConnection(int callId, boolean local);
+    void registerConnection(MgcpConnection connection);
 
     /**
-     * Deletes an active connection.
+     * Unregisters a connection from the endpoint. <b>It is the caller's responsibility to close the connection</b>
      * 
      * @param callId The ID of the call where the connection is stored.
      * @param connectionId The connection ID
      * @throws MgcpCallNotFoundException When call with such ID cannot be found.
      * @throws MgcpConnectionNotFoundException When call does not contain connection with such ID.
      */
-    MgcpConnection deleteConnection(int callId, int connectionId) throws MgcpCallNotFoundException, MgcpConnectionNotFoundException;
+    MgcpConnection unregisterConnection(int callId, int connectionId) throws MgcpCallNotFoundException, MgcpConnectionNotFoundException;
 
     /**
-     * Deletes all currently active connections.
+     * Unregisters all currently active connections. <b>It is the caller's responsibility to close the connection</b>
      */
-    List<MgcpConnection> deleteConnections();
+    List<MgcpConnection> unregisterConnections();
 
     /**
-     * Deletes all currently active connections within a specific call.
+     * Deletes all currently active connections within a specific call. <b>It is the caller's responsibility to close the
+     * connection</b>
      * 
      * @param callId the call identifier
      * @throws MgcpCallNotFoundException When call with such ID cannot be found.
      */
-    List<MgcpConnection> deleteConnections(int callId) throws MgcpCallNotFoundException;
+    List<MgcpConnection> unregisterConnections(int callId) throws MgcpCallNotFoundException;
 
     /**
      * Requests a notification to be fired when an event happens in the endpoint.

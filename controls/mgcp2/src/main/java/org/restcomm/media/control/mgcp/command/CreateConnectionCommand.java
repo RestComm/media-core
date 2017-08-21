@@ -166,7 +166,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
      */
     private MgcpConnection createRemoteConnection(int callId, ConnectionMode mode, MgcpEndpoint endpoint, CrcxContext context) throws MgcpConnectionException {
         // Create connection
-        MgcpConnection connection = endpoint.createConnection(callId, false);
+        MgcpConnection connection = endpoint.registerConnection(callId, false);
         // TODO set call agent
         String localDescription = connection.halfOpen(context.getLocalConnectionOptions());
         context.setLocalDescription(localDescription);
@@ -191,7 +191,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
      * @throws MgcpConnectionException If connection could not be opened
      */
     private MgcpConnection createRemoteConnection(int callId, ConnectionMode mode, String remoteDescription, MgcpEndpoint endpoint, CrcxContext context) throws MgcpConnectionException {
-        MgcpConnection connection = endpoint.createConnection(callId, false);
+        MgcpConnection connection = endpoint.registerConnection(callId, false);
         // TODO set call agent
         String localDescription = connection.open(remoteDescription);
         context.setLocalDescription(localDescription);
@@ -214,7 +214,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
      * @throws MgcpException If connection could not be opened.
      */
     private MgcpConnection createLocalConnection(int callId, MgcpEndpoint endpoint) throws MgcpConnectionException {
-        MgcpConnection connection = endpoint.createConnection(callId, true);
+        MgcpConnection connection = endpoint.registerConnection(callId, true);
         connection.open(null);
         return connection;
     }
@@ -286,7 +286,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
         // Delete created endpoints
         if (endpoint1 != null && connectionId > 0) {
             try {
-                endpoint1.deleteConnection(callId, connectionId);
+                endpoint1.unregisterConnection(callId, connectionId);
             } catch (MgcpCallNotFoundException | MgcpConnectionNotFoundException e) {
                 log.error("Could not delete primary connection. " + e.getMessage());
             }
@@ -294,7 +294,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
 
         if (endpoint2 != null && secondConnectionId > 0) {
             try {
-                endpoint2.deleteConnection(callId, secondConnectionId);
+                endpoint2.unregisterConnection(callId, secondConnectionId);
             } catch (MgcpCallNotFoundException | MgcpConnectionNotFoundException e) {
                 log.error("Could not delete secondary connection. " + e.getMessage());
             }

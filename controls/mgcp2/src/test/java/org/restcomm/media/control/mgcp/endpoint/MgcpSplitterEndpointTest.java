@@ -68,14 +68,14 @@ public class MgcpSplitterEndpointTest {
         when(connection.getCallIdentifier()).thenReturn(callId);
         when(connection.isLocal()).thenReturn(false);
         when(connection.getMode()).thenReturn(ConnectionMode.SEND_RECV);
-        endpoint.createConnection(callId, false);
+        endpoint.registerConnection(callId, false);
 
         // then
         verify(inbandMixer, times(1)).addOutsideComponent(any(AudioComponent.class));
         verify(outbandMixer, times(1)).addOutsideComponent(any(OOBComponent.class));
 
         // when - close connection
-        endpoint.deleteConnection(1, connection.getIdentifier());
+        endpoint.unregisterConnection(1, connection.getIdentifier());
 
         // then
         verify(inbandMixer, times(1)).releaseOutsideComponent(any(AudioComponent.class));
@@ -100,14 +100,14 @@ public class MgcpSplitterEndpointTest {
         when(connection.getCallIdentifier()).thenReturn(callId);
         when(connection.isLocal()).thenReturn(true);
         when(connection.getMode()).thenReturn(ConnectionMode.SEND_RECV);
-        endpoint.createConnection(callId, true);
+        endpoint.registerConnection(callId, true);
 
         // then
         verify(inbandSplitter, times(1)).addInsideComponent(any(AudioComponent.class));
         verify(outbandSplitter, times(1)).addInsideComponent(any(OOBComponent.class));
 
         // when - close connection
-        endpoint.deleteConnection(callId, connection.getIdentifier());
+        endpoint.unregisterConnection(callId, connection.getIdentifier());
 
         // then
         verify(inbandSplitter, times(1)).releaseInsideComponent(any(AudioComponent.class));

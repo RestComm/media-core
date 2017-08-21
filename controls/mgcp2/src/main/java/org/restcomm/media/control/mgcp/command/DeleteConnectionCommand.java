@@ -95,11 +95,11 @@ public class DeleteConnectionCommand extends AbstractMgcpCommand {
             // Delete multiple endpoints...
             if(callId == -1) {
                 // ... all connections in the endpoint
-                endpoint.deleteConnections();
+                endpoint.unregisterConnections();
             } else {
                 // ... all connections involved in a particular call
                 try {
-                    endpoint.deleteConnections(callId);
+                    endpoint.unregisterConnections(callId);
                 } catch (MgcpCallNotFoundException e) {
                     /*
                      * https://tools.ietf.org/html/rfc3435#section-2.3.9
@@ -111,7 +111,7 @@ public class DeleteConnectionCommand extends AbstractMgcpCommand {
             }
         } else {
             // Delete single connection bound to a specific call
-            MgcpConnection deleted = endpoint.deleteConnection(callId, connectionId);
+            MgcpConnection deleted = endpoint.unregisterConnection(callId, connectionId);
             // TODO Gather statistics from connection
             context.connectionParams = "PS=" + 0 + ", PR=" + 0;
         }
