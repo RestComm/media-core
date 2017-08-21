@@ -58,6 +58,12 @@ public class UnregisterAllConnectionsAction
         implements MgcpEndpointAction {
 
     private static final Logger log = Logger.getLogger(UnregisterAllConnectionsAction.class);
+    
+    static final UnregisterAllConnectionsAction INSTANCE = new UnregisterAllConnectionsAction();
+    
+    UnregisterAllConnectionsAction() {
+        super();
+    }
 
     @Override
     @SuppressWarnings("unchecked")
@@ -78,6 +84,9 @@ public class UnregisterAllConnectionsAction
                 int connectionCount = globalContext.getConnections().size();
                 log.debug("Endpoint " + endpointId.toString() + " unregistered " + unregistered.length + " connections: " + hexIdentifiers + ". Connection count: " + connectionCount);
             }
+            
+            // set output parameters
+            context.set(MgcpEndpointParameter.CONNECTION_COUNT, globalContext.getConnections().size());
 
             // Let the FSM know that connections were removed
             stateMachine.fire(MgcpEndpointEvent.UNREGISTERED_CONNECTION, context);

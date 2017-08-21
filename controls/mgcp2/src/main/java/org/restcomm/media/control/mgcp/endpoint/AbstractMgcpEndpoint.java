@@ -23,19 +23,18 @@ package org.restcomm.media.control.mgcp.endpoint;
 
 import java.net.InetSocketAddress;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 import org.restcomm.media.control.mgcp.command.NotificationRequest;
 import org.restcomm.media.control.mgcp.connection.MgcpConnection;
-import org.restcomm.media.control.mgcp.exception.MgcpCallNotFoundException;
-import org.restcomm.media.control.mgcp.exception.MgcpConnectionNotFoundException;
 import org.restcomm.media.control.mgcp.message.MessageDirection;
 import org.restcomm.media.control.mgcp.message.MgcpMessage;
 import org.restcomm.media.control.mgcp.message.MgcpMessageObserver;
 import org.restcomm.media.control.mgcp.pkg.MgcpEvent;
+
+import com.google.common.util.concurrent.FutureCallback;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -46,10 +45,12 @@ public class AbstractMgcpEndpoint implements MgcpEndpoint {
     private static final Logger log = Logger.getLogger(AbstractMgcpEndpoint.class);
 
     private final MgcpEndpointContext context;
+    private final MgcpEndpointFsm fsm;
 
     public AbstractMgcpEndpoint(MgcpEndpointContext context) {
         super();
         this.context = context;
+        this.fsm = null; // TODO initialize FSM
     }
 
     @Override
@@ -133,37 +134,72 @@ public class AbstractMgcpEndpoint implements MgcpEndpoint {
 
     @Override
     public MgcpConnection getConnection(int callId, int connectionId) {
-        ConcurrentHashMap<Integer,MgcpConnection> connections = this.context.getConnections();
+        ConcurrentHashMap<Integer, MgcpConnection> connections = this.context.getConnections();
         MgcpConnection connection = connections.get(connectionId);
-        if(connection != null && connection.getCallIdentifier() == callId) {
+        if (connection != null && connection.getCallIdentifier() == callId) {
             return connection;
         }
         return null;
     }
 
     @Override
-    public void registerConnection(int callId, boolean local, MgcpConnection connection) {
-        // TODO Auto-generated method stub
-        return null;
+    public void registerConnection(MgcpConnection connection, FutureCallback<Void> callback) {
+        MgcpEndpointTransitionContext txContext = new MgcpEndpointTransitionContext();
+        txContext.set(MgcpEndpointParameter.CALLBACK, callback);
+        txContext.set(MgcpEndpointParameter.REGISTERED_CONNECTION, connection);
+        txContext.set(MgcpEndpointParameter.EVENT_OBSERVER, this);
+
+        MgcpEndpointEvent event = MgcpEndpointEvent.REGISTER_CONNECTION;
+        if (this.fsm.canAccept(event)) {
+            fsm.fire(event, txContext);
+        } else {
+            denyOperation(event, callback);
+        }
     }
 
     @Override
-    public MgcpConnection unregisterConnection(int callId, int connectionId)
-            throws MgcpCallNotFoundException, MgcpConnectionNotFoundException {
-        // TODO Auto-generated method stub
-        return null;
+    public void unregisterConnection(int callId, int connectionId, FutureCallback<MgcpConnection> callback) {
+        MgcpEndpointTransitionContext txContext = new MgcpEndpointTransitionContext();
+        txContext.set(MgcpEndpointParameter.CALLBACK, callback);
+        txContext.set(MgcpEndpointParameter.CALL_ID, callId);
+        txContext.set(MgcpEndpointParameter.CONNECTION_ID, connectionId);
+        txContext.set(MgcpEndpointParameter.EVENT_OBSERVER, this);
+
+        MgcpEndpointEvent event = MgcpEndpointEvent.UNREGISTER_CONNECTION;
+        if (this.fsm.canAccept(event)) {
+            fsm.fire(event, txContext);
+        } else {
+            denyOperation(event, callback);
+        }
     }
 
     @Override
-    public List<MgcpConnection> unregisterConnections() {
-        // TODO Auto-generated method stub
-        return null;
+    public void unregisterConnections(FutureCallback<MgcpConnection[]> callback) {
+        MgcpEndpointTransitionContext txContext = new MgcpEndpointTransitionContext();
+        txContext.set(MgcpEndpointParameter.CALLBACK, callback);
+        txContext.set(MgcpEndpointParameter.EVENT_OBSERVER, this);
+
+        MgcpEndpointEvent event = MgcpEndpointEvent.UNREGISTER_CONNECTION;
+        if (this.fsm.canAccept(event)) {
+            fsm.fire(event, txContext);
+        } else {
+            denyOperation(event, callback);
+        }
     }
 
     @Override
-    public List<MgcpConnection> unregisterConnections(int callId) throws MgcpCallNotFoundException {
-        // TODO Auto-generated method stub
-        return null;
+    public void unregisterConnections(int callId, FutureCallback<MgcpConnection[]> callback) {
+        MgcpEndpointTransitionContext txContext = new MgcpEndpointTransitionContext();
+        txContext.set(MgcpEndpointParameter.CALLBACK, callback);
+        txContext.set(MgcpEndpointParameter.CALL_ID, callId);
+        txContext.set(MgcpEndpointParameter.EVENT_OBSERVER, this);
+
+        MgcpEndpointEvent event = MgcpEndpointEvent.UNREGISTER_CONNECTION;
+        if (this.fsm.canAccept(event)) {
+            fsm.fire(event, txContext);
+        } else {
+            denyOperation(event, callback);
+        }
     }
 
     @Override
@@ -180,8 +216,12 @@ public class AbstractMgcpEndpoint implements MgcpEndpoint {
 
     @Override
     public MediaGroup getMediaGroup() {
-        // TODO Auto-generated method stub
-        return null;
+        return this.context.getMediaGroup();
+    }
+
+    private void denyOperation(MgcpEndpointEvent event, FutureCallback<?> callback) {
+        Throwable t = new IllegalStateException("Endpoint " + this.context.getEndpointId() + " denied operation " + event.name());
+        callback.onFailure(t);
     }
 
 }

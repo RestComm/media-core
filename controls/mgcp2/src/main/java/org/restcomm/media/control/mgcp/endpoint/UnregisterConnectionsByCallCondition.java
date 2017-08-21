@@ -21,35 +21,25 @@
 
 package org.restcomm.media.control.mgcp.endpoint;
 
-import org.restcomm.media.control.mgcp.command.NotificationRequest;
-import org.restcomm.media.control.mgcp.connection.MgcpConnection;
-import org.restcomm.media.control.mgcp.pkg.MgcpEventObserver;
-
-import com.google.common.util.concurrent.FutureCallback;
+import org.squirrelframework.foundation.fsm.AnonymousCondition;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum MgcpEndpointParameter {
+public class UnregisterConnectionsByCallCondition extends AnonymousCondition<MgcpEndpointTransitionContext> {
 
-    CALL_ID(Integer.class),
-    CONNECTION_ID(Integer.class),
-    CONNECTION_COUNT(Integer.class),
-    REGISTERED_CONNECTION(MgcpConnection.class),
-    EVENT_OBSERVER(MgcpEventObserver.class),
-    UNREGISTERED_CONNECTIONS(MgcpConnection[].class), 
-    REQUESTED_NOTIFICATION(NotificationRequest.class),
-    CALLBACK(FutureCallback.class);
+    static final UnregisterConnectionsByCallCondition INSTANCE = new UnregisterConnectionsByCallCondition();
 
-    private final Class<?> type;
-
-    private MgcpEndpointParameter(Class<?> type) {
-        this.type = type;
+    public UnregisterConnectionsByCallCondition() {
+        super();
     }
 
-    public Class<?> type() {
-        return type;
+    @Override
+    public boolean isSatisfied(MgcpEndpointTransitionContext context) {
+        Integer callId = context.get(MgcpEndpointParameter.CALL_ID, Integer.class);
+        Integer connectionId = context.get(MgcpEndpointParameter.CONNECTION_ID, Integer.class);
+        return (callId != null && connectionId == null);
     }
 
 }

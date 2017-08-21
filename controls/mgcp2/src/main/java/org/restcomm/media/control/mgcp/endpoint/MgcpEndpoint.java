@@ -21,14 +21,12 @@
 
 package org.restcomm.media.control.mgcp.endpoint;
 
-import java.util.List;
-
 import org.restcomm.media.control.mgcp.command.NotificationRequest;
 import org.restcomm.media.control.mgcp.connection.MgcpConnection;
-import org.restcomm.media.control.mgcp.exception.MgcpCallNotFoundException;
-import org.restcomm.media.control.mgcp.exception.MgcpConnectionNotFoundException;
 import org.restcomm.media.control.mgcp.message.MgcpMessageSubject;
 import org.restcomm.media.control.mgcp.pkg.MgcpEventObserver;
+
+import com.google.common.util.concurrent.FutureCallback;
 
 /**
  * An Endpoint is a logical representation of a physical entity, such as an analog phone or a channel in a trunk.
@@ -66,34 +64,38 @@ public interface MgcpEndpoint extends MgcpEndpointSubject, MgcpMessageSubject, M
     /**
      * Registers a connection.
      * 
-     * @param callId The identifier of the call where the connection belongs to.
      * @param connection The connection to be registered
+     * @param callback The callback that will be triggered once task completes.
      */
-    void registerConnection(MgcpConnection connection);
+    void registerConnection(MgcpConnection connection, FutureCallback<Void> callback);
 
     /**
      * Unregisters a connection from the endpoint. <b>It is the caller's responsibility to close the connection</b>
      * 
      * @param callId The ID of the call where the connection is stored.
      * @param connectionId The connection ID
-     * @throws MgcpCallNotFoundException When call with such ID cannot be found.
-     * @throws MgcpConnectionNotFoundException When call does not contain connection with such ID.
+     * @param callback Callback that holds unregistered connection. May hold MgcpCallNotFoundException or
+     *        MgcpConnectionNotFoundException if operation is not successful.
      */
-    MgcpConnection unregisterConnection(int callId, int connectionId) throws MgcpCallNotFoundException, MgcpConnectionNotFoundException;
+    void unregisterConnection(int callId, int connectionId, FutureCallback<MgcpConnection> callback);
 
     /**
      * Unregisters all currently active connections. <b>It is the caller's responsibility to close the connection</b>
+     * 
+     * @param callback The callback that holds a list of unregistered connections. The list may be empty if the endpoint does
+     *        not contain any connections.
      */
-    List<MgcpConnection> unregisterConnections();
+    void unregisterConnections(FutureCallback<MgcpConnection[]> callback);
 
     /**
      * Deletes all currently active connections within a specific call. <b>It is the caller's responsibility to close the
      * connection</b>
      * 
      * @param callId the call identifier
-     * @throws MgcpCallNotFoundException When call with such ID cannot be found.
+     * @param callback The callback that holds a list of unregistered connections. May hold MgcpCallNotFoundException if there
+     *        are no connections bound to the call-id in the endpoint.
      */
-    List<MgcpConnection> unregisterConnections(int callId) throws MgcpCallNotFoundException;
+    void unregisterConnections(int callId, FutureCallback<MgcpConnection[]> callback);
 
     /**
      * Requests a notification to be fired when an event happens in the endpoint.

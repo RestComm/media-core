@@ -32,6 +32,23 @@ import org.squirrelframework.foundation.fsm.AnonymousAction;
 import com.google.common.util.concurrent.FutureCallback;
 
 /**
+ * Registers a connection in the endpoint. The connection becomes bound to the endpoint's media relay.
+ * 
+ * <p>
+ * Input parameters:
+ * <ul>
+ * <li>REGISTERED_CONNECTION</li>
+ * <li>EVENT_OBSERVER</li>
+ * <li>CALLBACK</li>
+ * </ul>
+ * </p>
+ * <p>
+ * Output parameters:
+ * <ul>
+ * <li>CONNECTION_COUNT</li>
+ * </ul>
+ * </p>
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
@@ -40,6 +57,12 @@ public class RegisterConnectionAction
         implements MgcpEndpointAction {
 
     private static final Logger log = Logger.getLogger(RegisterConnectionAction.class);
+    
+    static final RegisterConnectionAction INSTANCE = new RegisterConnectionAction();
+    
+    RegisterConnectionAction() {
+        super();
+    }
 
     @Override
     public void execute(MgcpEndpointState from, MgcpEndpointState to, MgcpEndpointEvent event, MgcpEndpointTransitionContext context, MgcpEndpointFsm stateMachine) {
@@ -66,6 +89,12 @@ public class RegisterConnectionAction
 
                 log.debug("Registered connection " + connectionIdHex + " in endpoint " + endpointId + ". Count: " + connectionCount);
             }
+            
+            // Set output parameters
+            context.set(MgcpEndpointParameter.CONNECTION_COUNT, connections.size());
+            
+            // Warn FSM that a connection was successfully registered
+            stateMachine.fire(MgcpEndpointEvent.REGISTERED_CONNECTION, context);
 
             // Notify callback that operation was successful
             callback.onSuccess(null);

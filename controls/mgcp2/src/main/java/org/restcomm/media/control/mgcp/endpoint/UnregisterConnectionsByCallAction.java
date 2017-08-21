@@ -61,6 +61,12 @@ public class UnregisterConnectionsByCallAction
     
     private static final Logger log = Logger.getLogger(UnregisterConnectionsByCallAction.class);
     
+    static final UnregisterConnectionsByCallAction INSTANCE = new UnregisterConnectionsByCallAction();
+    
+    UnregisterConnectionsByCallAction() {
+        super();
+    }
+    
     @Override
     @SuppressWarnings("unchecked")
     public void execute(MgcpEndpointState from, MgcpEndpointState to, MgcpEndpointEvent event,
@@ -88,7 +94,10 @@ public class UnregisterConnectionsByCallAction
                 int connectionCount = globalContext.getConnections().size();
                 log.debug("Endpoint " + endpointId.toString() + " deleted " + unregistered.length + " connections from call " + callIdHex + ": "+ hexIdentifiers +". Connection count: " + connectionCount);
             }
-            
+
+            // set output parameters
+            context.set(MgcpEndpointParameter.CONNECTION_COUNT, globalContext.getConnections().size());
+
             // Let the FSM know that connections were removed
             stateMachine.fire(MgcpEndpointEvent.UNREGISTERED_CONNECTION, context);
 

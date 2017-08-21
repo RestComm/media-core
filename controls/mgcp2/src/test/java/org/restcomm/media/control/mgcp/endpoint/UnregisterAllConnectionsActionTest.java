@@ -21,8 +21,7 @@
 
 package org.restcomm.media.control.mgcp.endpoint;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -94,6 +93,9 @@ public class UnregisterAllConnectionsActionTest {
 
         // then
         assertTrue(connections.isEmpty());
+        Integer connectionCount = txContext.get(MgcpEndpointParameter.CONNECTION_COUNT, Integer.class);
+        assertNotNull(connectionCount);
+        assertEquals(0, connectionCount.intValue());
         verify(connection1).forget(observer);
         verify(connection2).forget(observer);
         verify(connection3).forget(observer);
@@ -127,6 +129,8 @@ public class UnregisterAllConnectionsActionTest {
         action.execute(MgcpEndpointState.ACTIVE, MgcpEndpointState.IDLE, MgcpEndpointEvent.UNREGISTER_CONNECTION, txContext, fsm);
 
         // then
+        Integer connectionCount = txContext.get(MgcpEndpointParameter.CONNECTION_COUNT, Integer.class);
+        assertNull(connectionCount);
         final ArgumentCaptor<MgcpConnection[]> captor = ArgumentCaptor.forClass(MgcpConnection[].class);
         verify(callback).onSuccess(captor.capture());
         assertEquals(0, captor.getValue().length);

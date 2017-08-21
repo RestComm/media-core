@@ -21,7 +21,7 @@
 
 package org.restcomm.media.control.mgcp.endpoint;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import java.util.Map;
@@ -71,6 +71,9 @@ public class RegisterConnectionActionTest {
         Map<Integer, MgcpConnection> connections = context.getConnections();
         assertEquals(1, connections.size());
         assertEquals(connection, connections.get(connectionId));
+        Integer connectionCount = txContext.get(MgcpEndpointParameter.CONNECTION_COUNT, Integer.class);
+        assertNotNull(connectionCount);
+        assertEquals(connections.size(), connectionCount.intValue());
         verify(connection).observe(observer);
         verify(callback).onSuccess(null);
     }
@@ -105,6 +108,8 @@ public class RegisterConnectionActionTest {
         // then
         Map<Integer, MgcpConnection> connections = context.getConnections();
         assertEquals(1, connections.size());
+        Integer connectionCount = txContext.get(MgcpEndpointParameter.CONNECTION_COUNT, Integer.class);
+        assertNull(connectionCount);
         verify(connection, never()).observe(observer);
         verify(callback).onFailure(any(DuplicateMgcpConnectionException.class));
     }

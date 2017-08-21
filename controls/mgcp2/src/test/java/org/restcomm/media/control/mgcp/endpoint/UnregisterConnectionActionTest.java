@@ -21,8 +21,7 @@
 
 package org.restcomm.media.control.mgcp.endpoint;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -83,6 +82,9 @@ public class UnregisterConnectionActionTest {
 
         // then
         assertFalse(connections.containsKey(connectionId));
+        Integer connectionCount = txContext.get(MgcpEndpointParameter.CONNECTION_COUNT, Integer.class);
+        assertNotNull(connectionCount);
+        assertEquals(connections.size(), connectionCount.intValue());
         verify(connection).forget(observer);
         verify(callback).onSuccess(connection);
         verify(fsm).fire(MgcpEndpointEvent.UNREGISTERED_CONNECTION, txContext);
@@ -117,6 +119,8 @@ public class UnregisterConnectionActionTest {
         action.execute(MgcpEndpointState.ACTIVE, MgcpEndpointState.IDLE, MgcpEndpointEvent.UNREGISTER_CONNECTION, txContext, fsm);
 
         // then
+        Integer connectionCount = txContext.get(MgcpEndpointParameter.CONNECTION_COUNT, Integer.class);
+        assertNull(connectionCount);
         verify(callback).onFailure(any(MgcpConnectionNotFoundException.class));
         verify(fsm, never()).fire(MgcpEndpointEvent.UNREGISTERED_CONNECTION, txContext);
     }
@@ -159,6 +163,8 @@ public class UnregisterConnectionActionTest {
 
         // then
         assertTrue(connections.containsKey(connectionId));
+        Integer connectionCount = txContext.get(MgcpEndpointParameter.CONNECTION_COUNT, Integer.class);
+        assertNull(connectionCount);
         verify(connection, never()).forget(any(MgcpEventObserver.class));
         verify(callback).onFailure(any(MgcpCallNotFoundException.class));
         verify(fsm, never()).fire(MgcpEndpointEvent.UNREGISTERED_CONNECTION, txContext);
