@@ -45,12 +45,15 @@ public class AbstractMgcpEndpoint implements MgcpEndpoint {
     private static final Logger log = Logger.getLogger(AbstractMgcpEndpoint.class);
 
     private final MgcpEndpointContext context;
+    private final MgcpEndpointFsmListener fsmListener;
     private final MgcpEndpointFsm fsm;
 
-    public AbstractMgcpEndpoint(MgcpEndpointContext context) {
+    public AbstractMgcpEndpoint(MgcpEndpointContext context, MgcpEndpointFsmBuilder fsmBuilder) {
         super();
         this.context = context;
-        this.fsm = null; // TODO initialize FSM
+        this.fsmListener = new MgcpEndpointFsmListener(this, this.context);
+        this.fsm = fsmBuilder.build(this.context);
+        this.fsm.addDeclarativeListener(this.fsmListener);
     }
 
     @Override

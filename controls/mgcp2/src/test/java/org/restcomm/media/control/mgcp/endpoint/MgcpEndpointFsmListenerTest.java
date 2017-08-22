@@ -28,12 +28,14 @@ import java.util.Set;
 import org.junit.Test;
 import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
 
+import com.google.common.util.concurrent.FutureCallback;
+
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class NotifyStateChangedActionTest {
-
+public class MgcpEndpointFsmListenerTest {
+    
     @Test
     public void testNotifyStateChanged() {
         // given
@@ -45,7 +47,6 @@ public class NotifyStateChangedActionTest {
 
         final MgcpEndpointFsm fsm = mock(MgcpEndpointFsm.class);
         when(fsm.getContext()).thenReturn(context);
-        when(fsm.getEndpoint()).thenReturn(endpoint);
         
         final MgcpEndpointObserver observer1 = mock(MgcpEndpointObserver.class);
         final MgcpEndpointObserver observer2 = mock(MgcpEndpointObserver.class);
@@ -55,8 +56,8 @@ public class NotifyStateChangedActionTest {
 
         // when
         final MgcpEndpointTransitionContext txContext = new MgcpEndpointTransitionContext();
-        NotifyStateChangedAction action = new NotifyStateChangedAction();
-        action.execute(MgcpEndpointState.IDLE, MgcpEndpointState.ACTIVE, MgcpEndpointEvent.REGISTER_CONNECTION, txContext, fsm);
+        MgcpEndpointFsmListener listener = new MgcpEndpointFsmListener(endpoint, context);
+        listener.transitionComplete(MgcpEndpointState.IDLE, MgcpEndpointState.ACTIVE, MgcpEndpointEvent.REGISTER_CONNECTION, txContext);
 
         // then
         verify(observer1).onEndpointStateChanged(endpoint, MgcpEndpointState.ACTIVE);
@@ -74,7 +75,6 @@ public class NotifyStateChangedActionTest {
         
         final MgcpEndpointFsm fsm = mock(MgcpEndpointFsm.class);
         when(fsm.getContext()).thenReturn(context);
-        when(fsm.getEndpoint()).thenReturn(endpoint);
         
         final MgcpEndpointObserver observer1 = mock(MgcpEndpointObserver.class);
         final MgcpEndpointObserver observer2 = mock(MgcpEndpointObserver.class);
@@ -84,12 +84,37 @@ public class NotifyStateChangedActionTest {
         
         // when
         final MgcpEndpointTransitionContext txContext = new MgcpEndpointTransitionContext();
-        NotifyStateChangedAction action = new NotifyStateChangedAction();
-        action.execute(null, MgcpEndpointState.IDLE, MgcpEndpointEvent.REGISTER_CONNECTION, txContext, fsm);
-        
+        MgcpEndpointFsmListener listener = new MgcpEndpointFsmListener(endpoint, context);
+        listener.transitionComplete(null, MgcpEndpointState.ACTIVE, MgcpEndpointEvent.REGISTER_CONNECTION, txContext);
+
         // then
         verify(observer1, never()).onEndpointStateChanged(endpoint, MgcpEndpointState.ACTIVE);
         verify(observer2, never()).onEndpointStateChanged(endpoint, MgcpEndpointState.ACTIVE);
+    }
+
+    @Test
+    public void testTransitionDeclined() {
+        // given
+        final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/bridge/1", "127.0.0.1:2427");
+        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
+        final MediaGroup mediaGroup = mock(MediaGroup.class);
+        final MgcpEndpointContext context = new MgcpEndpointContext(endpointId, connectionProvider, mediaGroup);
+        final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
+        
+        final MgcpEndpointFsm fsm = mock(MgcpEndpointFsm.class);
+        when(fsm.getContext()).thenReturn(context);
+        
+        final FutureCallback<?> callback = mock(FutureCallback.class);
+        
+        // when
+        final MgcpEndpointTransitionContext txContext = new MgcpEndpointTransitionContext();
+        txContext.set(MgcpEndpointParameter.CALLBACK, callback);
+        
+        MgcpEndpointFsmListener listener = new MgcpEndpointFsmListener(endpoint, context);
+        listener.transitionDeclined(MgcpEndpointState.ACTIVE, MgcpEndpointState.TERMINATED, MgcpEndpointEvent.TERMINATE, txContext);
+        
+        // then
+        verify(callback).onFailure(any(IllegalStateException.class));
     }
 
 }

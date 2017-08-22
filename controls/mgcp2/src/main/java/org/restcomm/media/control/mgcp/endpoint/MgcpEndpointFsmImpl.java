@@ -21,14 +21,26 @@
 
 package org.restcomm.media.control.mgcp.endpoint;
 
-import org.squirrelframework.foundation.fsm.StateMachine;
+import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpEndpointFsm extends StateMachine<MgcpEndpointFsm, MgcpEndpointState, MgcpEndpointEvent, MgcpEndpointTransitionContext> {
+public class MgcpEndpointFsmImpl
+        extends AbstractStateMachine<MgcpEndpointFsm, MgcpEndpointState, MgcpEndpointEvent, MgcpEndpointTransitionContext>
+        implements MgcpEndpointFsm {
 
-    MgcpEndpointContext getContext();
+    private final MgcpEndpointContext context;
+
+    public MgcpEndpointFsmImpl(MgcpEndpointContext context) {
+        super();
+        this.context = context;
+    }
+
+    @Override
+    public MgcpEndpointContext getContext() {
+        return this.context;
+    }
 
 }

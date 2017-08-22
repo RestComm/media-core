@@ -33,7 +33,7 @@ public class MgcpEndpointFsmBuilder {
     private final StateMachineBuilder<MgcpEndpointFsm, MgcpEndpointState, MgcpEndpointEvent, MgcpEndpointTransitionContext> builder;
 
     public MgcpEndpointFsmBuilder() {
-        this.builder = StateMachineBuilderFactory.create(MgcpEndpointFsm.class, MgcpEndpointState.class, MgcpEndpointEvent.class, MgcpEndpointTransitionContext.class, MgcpEndpointContext.class);
+        this.builder = StateMachineBuilderFactory.<MgcpEndpointFsm, MgcpEndpointState, MgcpEndpointEvent, MgcpEndpointTransitionContext>create(MgcpEndpointFsmImpl.class, MgcpEndpointState.class, MgcpEndpointEvent.class, MgcpEndpointTransitionContext.class, MgcpEndpointContext.class);
 
         this.builder.onEntry(MgcpEndpointState.IDLE).perform(NotifyStateChangedAction.INSTANCE);
         this.builder.internalTransition().within(MgcpEndpointState.IDLE).on(MgcpEndpointEvent.REGISTER_CONNECTION).perform(RegisterConnectionAction.INSTANCE);
@@ -51,7 +51,7 @@ public class MgcpEndpointFsmBuilder {
     }
 
     public MgcpEndpointFsm build(MgcpEndpointContext context) {
-        return null;
+        return this.builder.newStateMachine(MgcpEndpointState.IDLE, context);
     }
 
 }
