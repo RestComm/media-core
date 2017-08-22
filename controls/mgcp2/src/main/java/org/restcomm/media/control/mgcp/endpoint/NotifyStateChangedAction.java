@@ -58,7 +58,14 @@ public class NotifyStateChangedAction
     }
 
     @Override
-    public void execute(MgcpEndpointState from, MgcpEndpointState to, MgcpEndpointEvent event, MgcpEndpointTransitionContext context, MgcpEndpointFsm stateMachine) {
+    public void execute(MgcpEndpointState from, MgcpEndpointState to, MgcpEndpointEvent event,
+            MgcpEndpointTransitionContext context, MgcpEndpointFsm stateMachine) {
+        // Do not notify when passing to initial state
+        if (from == null) {
+            return;
+        }
+
+        // Gather required data from context
         MgcpEndpointContext globalContext = stateMachine.getContext();
         MgcpEndpoint endpoint = stateMachine.getEndpoint();
         Set<MgcpEndpointObserver> observers = globalContext.getEndpointObservers();
@@ -67,7 +74,8 @@ public class NotifyStateChangedAction
             EndpointIdentifier endpointId = globalContext.getEndpointId();
             log.trace("Endpoint " + endpointId + "is notifying observers that state changed to " + to.name());
         }
-        
+
+        // Notify observers (if any)
         for (MgcpEndpointObserver observer : observers) {
             observer.onEndpointStateChanged(endpoint, to);
         }
