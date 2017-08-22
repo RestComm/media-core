@@ -30,5 +30,7 @@ import org.squirrelframework.foundation.fsm.StateMachine;
 public interface MgcpEndpointFsm extends StateMachine<MgcpEndpointFsm, MgcpEndpointState, MgcpEndpointEvent, MgcpEndpointTransitionContext> {
 
     MgcpEndpointContext getContext();
+    
+    MgcpEndpoint getEndpoint();
 
 }

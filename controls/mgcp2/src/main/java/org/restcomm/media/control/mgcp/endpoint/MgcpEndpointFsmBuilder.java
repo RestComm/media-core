@@ -38,19 +38,16 @@ public class MgcpEndpointFsmBuilder {
         this.builder.onEntry(MgcpEndpointState.IDLE);
         this.builder.internalTransition().within(MgcpEndpointState.IDLE).on(MgcpEndpointEvent.REGISTER_CONNECTION).perform(RegisterConnectionAction.INSTANCE);
         this.builder.externalTransition().from(MgcpEndpointState.IDLE).to(MgcpEndpointState.ACTIVE).on(MgcpEndpointEvent.REGISTERED_CONNECTION);
-        this.builder.externalTransition().from(MgcpEndpointState.IDLE).to(MgcpEndpointState.TERMINATED).on(MgcpEndpointEvent.TERMINATE);
+        this.builder.externalTransition().from(MgcpEndpointState.IDLE).toFinal(MgcpEndpointState.TERMINATED).on(MgcpEndpointEvent.TERMINATE);
 
         this.builder.onEntry(MgcpEndpointState.ACTIVE);
         this.builder.internalTransition().within(MgcpEndpointState.ACTIVE).on(MgcpEndpointEvent.REGISTER_CONNECTION).perform(RegisterConnectionAction.INSTANCE);
-        this.builder.internalTransition().within(MgcpEndpointState.ACTIVE).on(MgcpEndpointEvent.REGISTERED_CONNECTION);
         this.builder.internalTransition().within(MgcpEndpointState.ACTIVE).on(MgcpEndpointEvent.UNREGISTER_CONNECTION).when(UnregisterAllConnectionsCondition.INSTANCE).perform(UnregisterAllConnectionsAction.INSTANCE);
         this.builder.internalTransition().within(MgcpEndpointState.ACTIVE).on(MgcpEndpointEvent.UNREGISTER_CONNECTION).when(UnregisterConnectionsByCallCondition.INSTANCE).perform(UnregisterConnectionsByCallAction.INSTANCE);
         this.builder.internalTransition().within(MgcpEndpointState.ACTIVE).on(MgcpEndpointEvent.UNREGISTER_CONNECTION).when(UnregisterConnectionCondition.INSTANCE).perform(UnregisterConnectionAction.INSTANCE);
-        this.builder.internalTransition().within(MgcpEndpointState.ACTIVE).on(MgcpEndpointEvent.UNREGISTERED_CONNECTION).when(HasConnectionsCondition.INSTANCE);
         this.builder.externalTransition().from(MgcpEndpointState.ACTIVE).to(MgcpEndpointState.IDLE).on(MgcpEndpointEvent.UNREGISTERED_CONNECTION).when(NoConnectionsCondition.INSTANCE);
 
         this.builder.onEntry(MgcpEndpointState.TERMINATED);
-
     }
 
     public MgcpEndpointFsm build(MgcpEndpointContext context) {
