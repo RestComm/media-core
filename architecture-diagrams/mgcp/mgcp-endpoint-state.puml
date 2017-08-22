@@ -1,0 +1,13 @@
+@startuml
+[*] --> IDLE
+
+IDLE -> IDLE : register_connection
+IDLE --> ACTIVE : registered_connection
+IDLE --> TERMINATED : terminate
+
+ACTIVE -> ACTIVE : register_connection
+ACTIVE -> ACTIVE : request_notification
+ACTIVE -up-> IDLE : unregistered_connection [no_connections]
+
+TERMINATED --> [*]
+@enduml
