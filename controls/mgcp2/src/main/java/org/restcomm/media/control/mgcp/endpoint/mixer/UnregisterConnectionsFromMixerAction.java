@@ -50,41 +50,44 @@ import org.squirrelframework.foundation.fsm.AnonymousAction;
  * <li>n/a</li>
  * </ul>
  * </p>
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class UnregisterConnectionFromMixerAction
+public class UnregisterConnectionsFromMixerAction
         extends AnonymousAction<MgcpEndpointFsm, MgcpEndpointState, MgcpEndpointEvent, MgcpEndpointTransitionContext> {
 
-    private static final Logger log = Logger.getLogger(UnregisterConnectionFromMixerAction.class);
+    private static final Logger log = Logger.getLogger(UnregisterConnectionsFromMixerAction.class);
 
     @Override
     public void execute(MgcpEndpointState from, MgcpEndpointState to, MgcpEndpointEvent event, MgcpEndpointTransitionContext context, MgcpEndpointFsm stateMachine) {
-        MgcpConnection connection = context.get(MgcpEndpointParameter.UNREGISTERED_CONNECTIONS, MgcpConnection.class);
         MgcpMixerEndpointContext globalContext = (MgcpMixerEndpointContext) stateMachine.getContext();
+        MgcpConnection[] connections = context.get(MgcpEndpointParameter.UNREGISTERED_CONNECTIONS, MgcpConnection[].class);
 
-        // Register connection to in-band mixer
-        AudioComponent component = connection.getAudioComponent();
-        AudioMixer mixer = globalContext.getMixer();
-        mixer.addComponent(component);
+        for (MgcpConnection connection : connections) {
+            // Unregister connection to in-band mixer
+            AudioComponent component = connection.getAudioComponent();
+            AudioMixer mixer = globalContext.getMixer();
+            mixer.addComponent(component);
 
-        if (log.isTraceEnabled()) {
-            EndpointIdentifier endpointId = globalContext.getEndpointId();
-            String connectionIdHex = connection.getHexIdentifier();
-            int componentId = component.getComponentId();
-            log.trace("Endpoint " + endpointId + " unregistered connection " + connectionIdHex + " component " + componentId + " in the in-band mixer.");
-        }
+            if (log.isTraceEnabled()) {
+                EndpointIdentifier endpointId = globalContext.getEndpointId();
+                String connectionIdHex = connection.getHexIdentifier();
+                int componentId = component.getComponentId();
+                log.trace("Endpoint " + endpointId + " unregistered connection " + connectionIdHex + " component " + componentId + " in the in-band mixer.");
+            }
 
-        // Register connection to out-of-band mixer
-        OOBComponent oobComponent = connection.getOutOfBandComponent();
-        OOBMixer oobMixer = globalContext.getOobMixer();
-        oobMixer.addComponent(oobComponent);
+            // Register connection to out-of-band mixer
+            OOBComponent oobComponent = connection.getOutOfBandComponent();
+            OOBMixer oobMixer = globalContext.getOobMixer();
+            oobMixer.addComponent(oobComponent);
 
-        if (log.isTraceEnabled()) {
-            EndpointIdentifier endpointId = globalContext.getEndpointId();
-            String connectionIdHex = connection.getHexIdentifier();
-            int componentId = oobComponent.getComponentId();
-            log.trace("Endpoint " + endpointId + " unregistered connection " + connectionIdHex + " component " + componentId + " in the out-of-band mixer.");
+            if (log.isTraceEnabled()) {
+                EndpointIdentifier endpointId = globalContext.getEndpointId();
+                String connectionIdHex = connection.getHexIdentifier();
+                int componentId = oobComponent.getComponentId();
+                log.trace("Endpoint " + endpointId + " unregistered connection " + connectionIdHex + " component " + componentId + " in the out-of-band mixer.");
+            }
         }
     }
 
