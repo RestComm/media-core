@@ -65,7 +65,7 @@ public class MgcpEndpointFsmListener {
     @OnTransitionDecline
     public void transitionDeclined(MgcpEndpointState from, MgcpEndpointState to, MgcpEndpointEvent event, MgcpEndpointTransitionContext txContext) {
         FutureCallback<?> callback = txContext.get(MgcpEndpointParameter.CALLBACK, FutureCallback.class);
-        
+
         if(callback != null) {
             Throwable t = new IllegalStateException("Endpoint " + this.context.getEndpointId() + " denied operation " + event.name());
             callback.onFailure(t);

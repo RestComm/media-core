@@ -47,6 +47,7 @@ import com.google.common.util.concurrent.FutureCallback;
  * Output parameters:
  * <ul>
  * <li>CONNECTION_COUNT</li>
+ * <li>UNREGISTERED_CONNECTIONS</li>
  * </ul>
  * </p>
  * 
@@ -104,6 +105,7 @@ public class UnregisterConnectionAction
             
             // set output parameters
             context.set(MgcpEndpointParameter.CONNECTION_COUNT, connections.size());
+            context.set(MgcpEndpointParameter.UNREGISTERED_CONNECTIONS, new MgcpConnection[] { connection });
 
             // warn FSM that connection was unregistered
             stateMachine.fire(MgcpEndpointEvent.UNREGISTERED_CONNECTION, context);

@@ -92,6 +92,9 @@ public class UnregisterConnectionsByCallActionTest {
 
         // then
         assertEquals(1, connections.size());
+        MgcpConnection[] unregistered = txContext.get(MgcpEndpointParameter.UNREGISTERED_CONNECTIONS, MgcpConnection[].class);
+        assertNotNull(unregistered);
+        assertEquals(2, unregistered.length);
         Integer connectionCount = txContext.get(MgcpEndpointParameter.CONNECTION_COUNT, Integer.class);
         assertNotNull(connectionCount);
         assertEquals(1, connectionCount.intValue());
@@ -149,6 +152,8 @@ public class UnregisterConnectionsByCallActionTest {
         
         // then
         assertEquals(2, connections.size());
+        MgcpConnection[] unregistered = txContext.get(MgcpEndpointParameter.UNREGISTERED_CONNECTIONS, MgcpConnection[].class);
+        assertNull(unregistered);
         Integer connectionCount = txContext.get(MgcpEndpointParameter.CONNECTION_COUNT, Integer.class);
         assertNull(connectionCount);
         verify(connection1, never()).forget(observer);

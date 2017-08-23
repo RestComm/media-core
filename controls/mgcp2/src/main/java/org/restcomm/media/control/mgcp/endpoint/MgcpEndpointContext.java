@@ -40,7 +40,7 @@ import com.google.common.collect.Sets;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-class MgcpEndpointContext {
+public class MgcpEndpointContext {
 
     static final MgcpRequestedEvent[] EMPTY_ENDPOINT_EVENTS = new MgcpRequestedEvent[0];
 
@@ -62,7 +62,7 @@ class MgcpEndpointContext {
     private final Set<MgcpEndpointObserver> endpointObservers;
     private final Set<MgcpMessageObserver> messageObservers;
 
-    MgcpEndpointContext(EndpointIdentifier endpointId, MgcpConnectionProvider connectionProvider, MediaGroup mediaGroup) {
+    protected MgcpEndpointContext(EndpointIdentifier endpointId, MgcpConnectionProvider connectionProvider, MediaGroup mediaGroup) {
         // Endpoint Properties
         this.endpointId = endpointId;
         this.connections = new ConcurrentHashMap<>(5);
@@ -81,35 +81,35 @@ class MgcpEndpointContext {
         this.messageObservers = Sets.newConcurrentHashSet();
     }
 
-    protected NotifiedEntity getNotifiedEntity() {
+    public NotifiedEntity getNotifiedEntity() {
         return notifiedEntity;
     }
 
-    protected void setNotifiedEntity(NotifiedEntity notifiedEntity) {
+    public void setNotifiedEntity(NotifiedEntity notifiedEntity) {
         this.notifiedEntity = notifiedEntity;
     }
 
-    protected ConcurrentHashMap<String, MgcpSignal> getSignals() {
+    public ConcurrentHashMap<String, MgcpSignal> getSignals() {
         return signals;
     }
 
-    protected void setSignals(ConcurrentHashMap<String, MgcpSignal> signals) {
+    public void setSignals(ConcurrentHashMap<String, MgcpSignal> signals) {
         this.signals = signals;
     }
 
-    protected MgcpRequestedEvent[] getRequestedEndpointEvents() {
+    public MgcpRequestedEvent[] getRequestedEndpointEvents() {
         return requestedEndpointEvents;
     }
 
-    protected void setRequestedEndpointEvents(MgcpRequestedEvent[] requestedEndpointEvents) {
+    public void setRequestedEndpointEvents(MgcpRequestedEvent[] requestedEndpointEvents) {
         this.requestedEndpointEvents = requestedEndpointEvents;
     }
 
-    protected MediaGroup getMediaGroup() {
+    public MediaGroup getMediaGroup() {
         return mediaGroup;
     }
 
-    protected EndpointIdentifier getEndpointId() {
+    public EndpointIdentifier getEndpointId() {
         return endpointId;
     }
 
@@ -117,19 +117,19 @@ class MgcpEndpointContext {
         return !this.connections.isEmpty();
     }
 
-    protected ConcurrentHashMap<Integer, MgcpConnection> getConnections() {
+    public ConcurrentHashMap<Integer, MgcpConnection> getConnections() {
         return connections;
     }
 
-    protected Multimap<Integer, MgcpRequestedEvent> getRequestedConnectionEvents() {
+    public Multimap<Integer, MgcpRequestedEvent> getRequestedConnectionEvents() {
         return requestedConnectionEvents;
     }
 
-    protected Set<MgcpEndpointObserver> getEndpointObservers() {
+    public Set<MgcpEndpointObserver> getEndpointObservers() {
         return endpointObservers;
     }
 
-    protected Set<MgcpMessageObserver> getMessageObservers() {
+    public Set<MgcpMessageObserver> getMessageObservers() {
         return messageObservers;
     }
 

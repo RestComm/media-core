@@ -147,6 +147,7 @@ public class AbstractMgcpEndpoint implements MgcpEndpoint {
 
     @Override
     public void registerConnection(MgcpConnection connection, FutureCallback<Void> callback) {
+        // Build transition context
         MgcpEndpointTransitionContext txContext = new MgcpEndpointTransitionContext();
         txContext.set(MgcpEndpointParameter.CALLBACK, callback);
         txContext.set(MgcpEndpointParameter.REGISTERED_CONNECTION, connection);
@@ -154,14 +155,17 @@ public class AbstractMgcpEndpoint implements MgcpEndpoint {
 
         MgcpEndpointEvent event = MgcpEndpointEvent.REGISTER_CONNECTION;
         if (this.fsm.canAccept(event)) {
+            // Fire event to process operation
             fsm.fire(event, txContext);
         } else {
+            // FSM cannot process request. Alert callback of operation failure.
             denyOperation(event, callback);
         }
     }
 
     @Override
     public void unregisterConnection(int callId, int connectionId, FutureCallback<MgcpConnection> callback) {
+        // Build transition context
         MgcpEndpointTransitionContext txContext = new MgcpEndpointTransitionContext();
         txContext.set(MgcpEndpointParameter.CALLBACK, callback);
         txContext.set(MgcpEndpointParameter.CALL_ID, callId);
@@ -170,28 +174,34 @@ public class AbstractMgcpEndpoint implements MgcpEndpoint {
 
         MgcpEndpointEvent event = MgcpEndpointEvent.UNREGISTER_CONNECTION;
         if (this.fsm.canAccept(event)) {
+            // Fire event to process operation
             fsm.fire(event, txContext);
         } else {
+            // FSM cannot process request. Alert callback of operation failure.
             denyOperation(event, callback);
         }
     }
 
     @Override
     public void unregisterConnections(FutureCallback<MgcpConnection[]> callback) {
+        // Build transition context
         MgcpEndpointTransitionContext txContext = new MgcpEndpointTransitionContext();
         txContext.set(MgcpEndpointParameter.CALLBACK, callback);
         txContext.set(MgcpEndpointParameter.EVENT_OBSERVER, this);
 
         MgcpEndpointEvent event = MgcpEndpointEvent.UNREGISTER_CONNECTION;
         if (this.fsm.canAccept(event)) {
+            // Fire event to process operation
             fsm.fire(event, txContext);
         } else {
+            // FSM cannot process request. Alert callback of operation failure.
             denyOperation(event, callback);
         }
     }
 
     @Override
     public void unregisterConnections(int callId, FutureCallback<MgcpConnection[]> callback) {
+        // Build transition context
         MgcpEndpointTransitionContext txContext = new MgcpEndpointTransitionContext();
         txContext.set(MgcpEndpointParameter.CALLBACK, callback);
         txContext.set(MgcpEndpointParameter.CALL_ID, callId);
@@ -199,8 +209,10 @@ public class AbstractMgcpEndpoint implements MgcpEndpoint {
 
         MgcpEndpointEvent event = MgcpEndpointEvent.UNREGISTER_CONNECTION;
         if (this.fsm.canAccept(event)) {
+            // Fire event to process operation
             fsm.fire(event, txContext);
         } else {
+            // FSM cannot process request. Alert callback of operation failure.
             denyOperation(event, callback);
         }
     }
@@ -223,7 +235,8 @@ public class AbstractMgcpEndpoint implements MgcpEndpoint {
     }
 
     private void denyOperation(MgcpEndpointEvent event, FutureCallback<?> callback) {
-        Throwable t = new IllegalStateException("Endpoint " + this.context.getEndpointId() + " denied operation " + event.name());
+        EndpointIdentifier endpointId = this.context.getEndpointId();
+        Throwable t = new IllegalStateException("Endpoint " + endpointId + " denied operation " + event.name());
         callback.onFailure(t);
     }
 
