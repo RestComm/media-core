@@ -28,6 +28,7 @@ import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.component.oob.OOBMixer;
 import org.restcomm.media.control.mgcp.endpoint.EndpointIdentifier;
 import org.restcomm.media.control.mgcp.endpoint.MediaGroupImpl;
+import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointAction;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointEvent;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointFsm;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointState;
@@ -54,9 +55,12 @@ import org.squirrelframework.foundation.fsm.AnonymousAction;
  *
  */
 public class RegisterMediaGroupInMixerAction
-        extends AnonymousAction<MgcpEndpointFsm, MgcpEndpointState, MgcpEndpointEvent, MgcpEndpointTransitionContext> {
+        extends AnonymousAction<MgcpEndpointFsm, MgcpEndpointState, MgcpEndpointEvent, MgcpEndpointTransitionContext>
+        implements MgcpEndpointAction {
 
     private static final Logger log = Logger.getLogger(RegisterMediaGroupInMixerAction.class);
+    
+    static final MgcpEndpointAction INSTANCE = new RegisterMediaGroupInMixerAction();
 
     @Override
     public void execute(MgcpEndpointState from, MgcpEndpointState to, MgcpEndpointEvent event, MgcpEndpointTransitionContext context, MgcpEndpointFsm stateMachine) {

@@ -48,12 +48,13 @@ public class AbstractMgcpEndpoint implements MgcpEndpoint {
     private final MgcpEndpointFsmListener fsmListener;
     private final MgcpEndpointFsm fsm;
 
-    public AbstractMgcpEndpoint(MgcpEndpointContext context, MgcpEndpointFsmBuilder fsmBuilder) {
+    public AbstractMgcpEndpoint(MgcpEndpointContext context, MgcpEndpointFsm fsm) {
         super();
         this.context = context;
         this.fsmListener = new MgcpEndpointFsmListener(this, this.context);
-        this.fsm = fsmBuilder.build(this.context);
+        this.fsm = fsm;
         this.fsm.addDeclarativeListener(this.fsmListener);
+        this.fsm.start();
     }
 
     @Override

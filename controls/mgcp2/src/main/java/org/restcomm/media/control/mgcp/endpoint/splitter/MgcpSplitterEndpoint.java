@@ -18,27 +18,20 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
+        
+package org.restcomm.media.control.mgcp.endpoint.splitter;
 
-package org.restcomm.media.control.mgcp.endpoint;
-
-import org.squirrelframework.foundation.fsm.AnonymousCondition;
+import org.restcomm.media.control.mgcp.endpoint.AbstractMgcpEndpoint;
+import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointFsm;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class NoConnectionsCondition extends AnonymousCondition<MgcpEndpointTransitionContext> {
+public class MgcpSplitterEndpoint extends AbstractMgcpEndpoint {
 
-    static final NoConnectionsCondition INSTANCE = new NoConnectionsCondition();
-
-    public NoConnectionsCondition() {
-        super();
-    }
-
-    @Override
-    public boolean isSatisfied(MgcpEndpointTransitionContext context) {
-        Integer count = context.get(MgcpEndpointParameter.CONNECTION_COUNT, Integer.class);
-        return (count == 0);
+    public MgcpSplitterEndpoint(MgcpSplitterEndpointContext context, MgcpEndpointFsm fsm) {
+        super(context, fsm);
     }
 
 }

@@ -64,7 +64,7 @@ public class UnregisterMediaGroupMixerActionTest {
 
         // when
         final MgcpEndpointTransitionContext txContext = new MgcpEndpointTransitionContext();
-        final UnregisterMediaGroupInMixerAction action = new UnregisterMediaGroupInMixerAction();
+        final UnregisterMediaGroupFromMixerAction action = new UnregisterMediaGroupFromMixerAction();
         action.execute(MgcpEndpointState.IDLE, MgcpEndpointState.ACTIVE, MgcpEndpointEvent.REGISTERED_CONNECTION, txContext, fsm);
 
         // then

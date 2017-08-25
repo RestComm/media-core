@@ -27,18 +27,18 @@ import org.squirrelframework.foundation.fsm.AnonymousCondition;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class NoConnectionsCondition extends AnonymousCondition<MgcpEndpointTransitionContext> {
+public class HasConnectionsCondition extends AnonymousCondition<MgcpEndpointTransitionContext> {
 
-    static final NoConnectionsCondition INSTANCE = new NoConnectionsCondition();
+    static final HasConnectionsCondition INSTANCE = new HasConnectionsCondition();
 
-    public NoConnectionsCondition() {
+    public HasConnectionsCondition() {
         super();
     }
 
     @Override
     public boolean isSatisfied(MgcpEndpointTransitionContext context) {
         Integer count = context.get(MgcpEndpointParameter.CONNECTION_COUNT, Integer.class);
-        return (count == 0);
+        return (count > 0);
     }
 
 }

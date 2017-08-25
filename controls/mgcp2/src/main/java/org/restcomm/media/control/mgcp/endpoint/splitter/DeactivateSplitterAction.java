@@ -23,6 +23,7 @@ package org.restcomm.media.control.mgcp.endpoint.splitter;
 
 import org.apache.log4j.Logger;
 import org.restcomm.media.control.mgcp.endpoint.EndpointIdentifier;
+import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointAction;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointEvent;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointFsm;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointState;
@@ -33,9 +34,13 @@ import org.squirrelframework.foundation.fsm.AnonymousAction;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class DeactivateSplitterAction extends AnonymousAction<MgcpEndpointFsm, MgcpEndpointState, MgcpEndpointEvent, MgcpEndpointTransitionContext> {
+public class DeactivateSplitterAction
+        extends AnonymousAction<MgcpEndpointFsm, MgcpEndpointState, MgcpEndpointEvent, MgcpEndpointTransitionContext>
+        implements MgcpEndpointAction {
 
     private static final Logger log = Logger.getLogger(DeactivateSplitterAction.class);
+    
+    static final MgcpEndpointAction INSTANCE = new DeactivateSplitterAction();
 
     @Override
     public void execute(MgcpEndpointState from, MgcpEndpointState to, MgcpEndpointEvent event, MgcpEndpointTransitionContext context, MgcpEndpointFsm stateMachine) {
