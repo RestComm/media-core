@@ -19,13 +19,13 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.control.mgcp.endpoint.mixer;
+package org.restcomm.media.control.mgcp.endpoint.splitter;
 
 import org.apache.log4j.Logger;
 import org.restcomm.media.component.audio.AudioComponent;
-import org.restcomm.media.component.audio.AudioMixer;
+import org.restcomm.media.component.audio.AudioSplitter;
 import org.restcomm.media.component.oob.OOBComponent;
-import org.restcomm.media.component.oob.OOBMixer;
+import org.restcomm.media.component.oob.OOBSplitter;
 import org.restcomm.media.control.mgcp.connection.MgcpConnection;
 import org.restcomm.media.control.mgcp.endpoint.EndpointIdentifier;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointEvent;
@@ -54,39 +54,54 @@ import org.squirrelframework.foundation.fsm.AnonymousAction;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class UnregisterConnectionsFromMixerAction
-        extends AnonymousAction<MgcpEndpointFsm, MgcpEndpointState, MgcpEndpointEvent, MgcpEndpointTransitionContext> {
+public class UnregisterConnectionsFromSplitterAction extends AnonymousAction<MgcpEndpointFsm, MgcpEndpointState, MgcpEndpointEvent, MgcpEndpointTransitionContext> {
 
-    private static final Logger log = Logger.getLogger(UnregisterConnectionsFromMixerAction.class);
+    private static final Logger log = Logger.getLogger(UnregisterConnectionsFromSplitterAction.class);
 
     @Override
     public void execute(MgcpEndpointState from, MgcpEndpointState to, MgcpEndpointEvent event, MgcpEndpointTransitionContext context, MgcpEndpointFsm stateMachine) {
-        MgcpMixerEndpointContext globalContext = (MgcpMixerEndpointContext) stateMachine.getContext();
+        MgcpSplitterEndpointContext globalContext = (MgcpSplitterEndpointContext) stateMachine.getContext();
+        EndpointIdentifier endpointId = globalContext.getEndpointId();
         MgcpConnection[] connections = context.get(MgcpEndpointParameter.UNREGISTERED_CONNECTIONS, MgcpConnection[].class);
 
+        AudioSplitter splitter = globalContext.getSplitter();
+        OOBSplitter oobSplitter = globalContext.getOobSplitter();
         for (MgcpConnection connection : connections) {
-            // Unregister connection to in-band mixer
-            AudioComponent component = connection.getAudioComponent();
-            AudioMixer mixer = globalContext.getMixer();
-            mixer.release(component);
+            unregisterConnection(endpointId, connection, splitter, oobSplitter);
+        }
+    }
+    
+    private void unregisterConnection(EndpointIdentifier endpointId, MgcpConnection connection, AudioSplitter splitter, OOBSplitter oobSplitter) {
+        AudioComponent component = connection.getAudioComponent();
+        OOBComponent oobComponent = connection.getOutOfBandComponent();
 
+        if (connection.isLocal()) {
+            splitter.releaseInsideComponent(component);
             if (log.isTraceEnabled()) {
-                EndpointIdentifier endpointId = globalContext.getEndpointId();
                 String connectionIdHex = connection.getHexIdentifier();
                 int componentId = component.getComponentId();
-                log.trace("Endpoint " + endpointId + " unregistered connection " + connectionIdHex + " component " + componentId + " in the in-band mixer.");
+                log.trace("Endpoint " + endpointId + " unregistered local connection " + connectionIdHex + " inside component " + componentId + " from the in-band splitter.");
             }
-
-            // Register connection to out-of-band mixer
-            OOBComponent oobComponent = connection.getOutOfBandComponent();
-            OOBMixer oobMixer = globalContext.getOobMixer();
-            oobMixer.release(oobComponent);
-
+            
+            oobSplitter.releaseInsideComponent(oobComponent);
             if (log.isTraceEnabled()) {
-                EndpointIdentifier endpointId = globalContext.getEndpointId();
                 String connectionIdHex = connection.getHexIdentifier();
                 int componentId = oobComponent.getComponentId();
-                log.trace("Endpoint " + endpointId + " unregistered connection " + connectionIdHex + " component " + componentId + " in the out-of-band mixer.");
+                log.trace("Endpoint " + endpointId + " unregistered local connection " + connectionIdHex + " inside component " + componentId + " from the out-of-band splitter.");
+            }
+        } else {
+            splitter.releaseOutsideComponent(component);
+            if (log.isTraceEnabled()) {
+                String connectionIdHex = connection.getHexIdentifier();
+                int componentId = component.getComponentId();
+                log.trace("Endpoint " + endpointId + " unregistered remote connection " + connectionIdHex + " outside component " + componentId + " from the out-of-band splitter.");
+            }
+            
+            oobSplitter.releaseOutsideComponent(oobComponent);
+            if (log.isTraceEnabled()) {
+                String connectionIdHex = connection.getHexIdentifier();
+                int componentId = oobComponent.getComponentId();
+                log.trace("Endpoint " + endpointId + " unregistered remote connection " + connectionIdHex + " outside component " + componentId + " from the out-of-band  splitter.");
             }
         }
     }
