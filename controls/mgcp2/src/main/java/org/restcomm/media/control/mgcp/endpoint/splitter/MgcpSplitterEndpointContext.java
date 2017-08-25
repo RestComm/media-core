@@ -23,7 +23,6 @@ package org.restcomm.media.control.mgcp.endpoint.splitter;
 
 import org.restcomm.media.component.audio.AudioSplitter;
 import org.restcomm.media.component.oob.OOBSplitter;
-import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.restcomm.media.control.mgcp.endpoint.EndpointIdentifier;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointContext;
 
@@ -36,8 +35,8 @@ public class MgcpSplitterEndpointContext extends MgcpEndpointContext {
     private final AudioSplitter splitter;
     private final OOBSplitter oobSplitter;
 
-    MgcpSplitterEndpointContext(EndpointIdentifier endpointId, MgcpConnectionProvider connectionProvider, AudioSplitter splitter, OOBSplitter oobSplitter) {
-        super(endpointId, connectionProvider, null);
+    MgcpSplitterEndpointContext(EndpointIdentifier endpointId, AudioSplitter splitter, OOBSplitter oobSplitter) {
+        super(endpointId, null);
         this.splitter = splitter;
         this.oobSplitter = oobSplitter;
     }

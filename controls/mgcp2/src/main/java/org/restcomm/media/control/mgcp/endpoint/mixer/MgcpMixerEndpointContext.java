@@ -23,7 +23,6 @@ package org.restcomm.media.control.mgcp.endpoint.mixer;
 
 import org.restcomm.media.component.audio.AudioMixer;
 import org.restcomm.media.component.oob.OOBMixer;
-import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.restcomm.media.control.mgcp.endpoint.EndpointIdentifier;
 import org.restcomm.media.control.mgcp.endpoint.MediaGroup;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointContext;
@@ -37,8 +36,8 @@ public class MgcpMixerEndpointContext extends MgcpEndpointContext {
     private final AudioMixer mixer;
     private final OOBMixer oobMixer;
 
-    MgcpMixerEndpointContext(EndpointIdentifier endpointId, MgcpConnectionProvider connectionProvider, MediaGroup mediaGroup, AudioMixer mixer, OOBMixer oobMixer) {
-        super(endpointId, connectionProvider, mediaGroup);
+    MgcpMixerEndpointContext(EndpointIdentifier endpointId, MediaGroup mediaGroup, AudioMixer mixer, OOBMixer oobMixer) {
+        super(endpointId, mediaGroup);
         this.mixer = mixer;
         this.oobMixer = oobMixer;
     }

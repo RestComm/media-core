@@ -48,7 +48,7 @@ public class MgcpEndpointFsmListener {
 
     @OnTransitionComplete
     public void transitionComplete(MgcpEndpointState from, MgcpEndpointState to, MgcpEndpointEvent event, MgcpEndpointTransitionContext txContext) {
-        if (from != null) {
+        if (from != null && (from != to)) {
             Set<MgcpEndpointObserver> observers = context.getEndpointObservers();
             
             if (log.isTraceEnabled()) {

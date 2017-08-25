@@ -26,7 +26,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.restcomm.media.control.mgcp.command.param.NotifiedEntity;
 import org.restcomm.media.control.mgcp.connection.MgcpConnection;
-import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.restcomm.media.control.mgcp.message.MgcpMessageObserver;
 import org.restcomm.media.control.mgcp.pkg.MgcpRequestedEvent;
 import org.restcomm.media.control.mgcp.pkg.MgcpSignal;
@@ -62,7 +61,7 @@ public class MgcpEndpointContext {
     private final Set<MgcpEndpointObserver> endpointObservers;
     private final Set<MgcpMessageObserver> messageObservers;
 
-    protected MgcpEndpointContext(EndpointIdentifier endpointId, MgcpConnectionProvider connectionProvider, MediaGroup mediaGroup) {
+    protected MgcpEndpointContext(EndpointIdentifier endpointId, MediaGroup mediaGroup) {
         // Endpoint Properties
         this.endpointId = endpointId;
         this.connections = new ConcurrentHashMap<>(5);
