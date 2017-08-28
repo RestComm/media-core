@@ -30,7 +30,6 @@ import org.restcomm.media.component.audio.AudioComponent;
 import org.restcomm.media.component.audio.AudioMixer;
 import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.component.oob.OOBMixer;
-import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.restcomm.media.control.mgcp.endpoint.EndpointIdentifier;
 import org.restcomm.media.control.mgcp.endpoint.MediaGroupImpl;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointEvent;
@@ -48,11 +47,10 @@ public class RegisterMediaGroupMixerActionTest {
     public void testRegisterMediaGrouInMixer() {
         // given
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/mock", "127.0.0.1:2427");
-        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MediaGroupImpl mediaGroup = mock(MediaGroupImpl.class);
         final AudioMixer mixer = mock(AudioMixer.class);
         final OOBMixer oobMixer = mock(OOBMixer.class);
-        final MgcpMixerEndpointContext context = new MgcpMixerEndpointContext(endpointId, connectionProvider, mediaGroup, mixer, oobMixer);
+        final MgcpMixerEndpointContext context = new MgcpMixerEndpointContext(endpointId, mediaGroup, mixer, oobMixer);
 
         final MgcpEndpointFsm fsm = mock(MgcpEndpointFsm.class);
         when(fsm.getContext()).thenReturn(context);

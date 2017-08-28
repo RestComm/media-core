@@ -33,7 +33,6 @@ import org.restcomm.media.component.audio.AudioSplitter;
 import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.component.oob.OOBSplitter;
 import org.restcomm.media.control.mgcp.connection.MgcpConnection;
-import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.restcomm.media.control.mgcp.endpoint.EndpointIdentifier;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointEvent;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointFsm;
@@ -51,10 +50,9 @@ public class UnregisterConnectionsFromSplitterActionTest {
     public void testUnregisterConnectionsFromSplitter() {
         // given
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/mock", "127.0.0.1:2427");
-        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final AudioSplitter splitter = mock(AudioSplitter.class);
         final OOBSplitter oobSplitter = mock(OOBSplitter.class);
-        final MgcpSplitterEndpointContext context = new MgcpSplitterEndpointContext(endpointId, connectionProvider, splitter, oobSplitter);
+        final MgcpSplitterEndpointContext context = new MgcpSplitterEndpointContext(endpointId, splitter, oobSplitter);
 
         final MgcpEndpointFsm fsm = mock(MgcpEndpointFsm.class);
         when(fsm.getContext()).thenReturn(context);

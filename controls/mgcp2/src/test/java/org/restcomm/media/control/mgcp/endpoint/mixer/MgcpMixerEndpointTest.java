@@ -92,7 +92,11 @@ public class MgcpMixerEndpointTest {
         // then
         verify(registerCallback, timeout(100)).onSuccess(null);
         verify(mixer).start();
+        verify(mixer).addComponent(connectionComponent);
+        verify(mixer).addComponent(mediaGroupComponent);
         verify(oobMixer).start();
+        verify(oobMixer).addComponent(connectionOobComponent);
+        verify(oobMixer).addComponent(mediaGroupOobComponent);
         verify(observer).onEndpointStateChanged(endpoint, MgcpEndpointState.ACTIVE);
         
         // when
@@ -106,7 +110,11 @@ public class MgcpMixerEndpointTest {
         assertNotNull(unregisterCaptor.getValue());
         assertEquals(1, unregisterCaptor.getValue().length);
         verify(mixer, times(2)).stop(); // times(2) because IDLE is entered as initial state
+        verify(mixer, times(2)).release(mediaGroupComponent);
+        verify(mixer, times(1)).release(connectionComponent);
         verify(oobMixer, times(2)).stop(); // times(2) because IDLE is entered as initial state
+        verify(oobMixer, times(2)).release(mediaGroupOobComponent);
+        verify(oobMixer, times(1)).release(connectionOobComponent);
         verify(observer, times(1)).onEndpointStateChanged(endpoint, MgcpEndpointState.IDLE);
     }
 
