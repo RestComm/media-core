@@ -21,7 +21,10 @@
 
 package org.restcomm.media.control.mgcp.endpoint;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -32,7 +35,6 @@ import java.util.Map;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.restcomm.media.control.mgcp.connection.MgcpConnection;
-import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.restcomm.media.control.mgcp.pkg.MgcpEventObserver;
 
 import com.google.common.util.concurrent.FutureCallback;
@@ -48,9 +50,8 @@ public class UnregisterAllConnectionsActionTest {
     public void testUnregisterAllConnections() {
         // given
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/bridge/1", "127.0.0.1:2427");
-        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MediaGroup mediaGroup = mock(MediaGroup.class);
-        final MgcpEndpointContext context = new MgcpEndpointContext(endpointId, connectionProvider, mediaGroup);
+        final MgcpEndpointContext context = new MgcpEndpointContext(endpointId, mediaGroup);
         final Map<Integer, MgcpConnection> connections = context.getConnections();
 
         final MgcpEndpointFsm fsm = mock(MgcpEndpointFsm.class);
@@ -113,9 +114,8 @@ public class UnregisterAllConnectionsActionTest {
     public void testUnregisterAllConnectionsWhenIdle() {
         // given
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/bridge/1", "127.0.0.1:2427");
-        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MediaGroup mediaGroup = mock(MediaGroup.class);
-        final MgcpEndpointContext context = new MgcpEndpointContext(endpointId, connectionProvider, mediaGroup);
+        final MgcpEndpointContext context = new MgcpEndpointContext(endpointId, mediaGroup);
 
         final MgcpEndpointFsm fsm = mock(MgcpEndpointFsm.class);
         when(fsm.getContext()).thenReturn(context);

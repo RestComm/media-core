@@ -21,7 +21,11 @@
 
 package org.restcomm.media.control.mgcp.endpoint;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -32,7 +36,6 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.restcomm.media.control.mgcp.connection.MgcpConnection;
-import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.restcomm.media.control.mgcp.exception.MgcpCallNotFoundException;
 import org.restcomm.media.control.mgcp.exception.MgcpConnectionNotFoundException;
 import org.restcomm.media.control.mgcp.pkg.MgcpEventObserver;
@@ -50,9 +53,8 @@ public class UnregisterConnectionActionTest {
     public void testUnregisterConnection() {
         // given
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/bridge/1", "127.0.0.1:2427");
-        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MediaGroup mediaGroup = mock(MediaGroup.class);
-        final MgcpEndpointContext context = new MgcpEndpointContext(endpointId, connectionProvider, mediaGroup);
+        final MgcpEndpointContext context = new MgcpEndpointContext(endpointId, mediaGroup);
         final Map<Integer, MgcpConnection> connections = context.getConnections();
 
         final MgcpEndpointFsm fsm = mock(MgcpEndpointFsm.class);
@@ -99,9 +101,8 @@ public class UnregisterConnectionActionTest {
     public void testUnregisterUnknownConnection() {
         // given
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/bridge/1", "127.0.0.1:2427");
-        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MediaGroup mediaGroup = mock(MediaGroup.class);
-        final MgcpEndpointContext context = new MgcpEndpointContext(endpointId, connectionProvider, mediaGroup);
+        final MgcpEndpointContext context = new MgcpEndpointContext(endpointId, mediaGroup);
 
         final MgcpEndpointFsm fsm = mock(MgcpEndpointFsm.class);
         when(fsm.getContext()).thenReturn(context);
@@ -136,9 +137,8 @@ public class UnregisterConnectionActionTest {
     public void testUnregisterConnectionWithUnknownCallId() {
         // given
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/bridge/1", "127.0.0.1:2427");
-        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MediaGroup mediaGroup = mock(MediaGroup.class);
-        final MgcpEndpointContext context = new MgcpEndpointContext(endpointId, connectionProvider, mediaGroup);
+        final MgcpEndpointContext context = new MgcpEndpointContext(endpointId, mediaGroup);
         Map<Integer, MgcpConnection> connections = context.getConnections();
 
         final MgcpEndpointFsm fsm = mock(MgcpEndpointFsm.class);
