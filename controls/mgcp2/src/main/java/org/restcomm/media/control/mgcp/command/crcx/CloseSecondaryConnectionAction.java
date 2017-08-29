@@ -18,15 +18,31 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
+
 package org.restcomm.media.control.mgcp.command.crcx;
 
+import org.restcomm.media.control.mgcp.connection.MgcpConnection;
+import org.squirrelframework.foundation.fsm.AnonymousAction;
+
 /**
+ * Action that closes the primary connection.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum CreateConnectionEvent {
-    
-    EXECUTE, VALIDATED_PARAMETERS, CONNECTION_OPENED, CONNECTION_MODE_UPDATED, CONNECTION_REGISTERED, CONNECTIONS_JOINED, CONNECTION_UNREGISTERED, CONNECTION_CLOSED, ABORT;
+public class CloseSecondaryConnectionAction
+        extends AnonymousAction<CreateConnectionFsm, CreateConnectionState, CreateConnectionEvent, CreateConnectionContext>
+        implements CreateConnectionAction {
+
+    @Override
+    public void execute(CreateConnectionState from, CreateConnectionState to, CreateConnectionEvent event, CreateConnectionContext context, CreateConnectionFsm stateMachine) {
+        final MgcpConnection connection = context.getSecondaryConnection();
+
+        // Close connection
+        CloseConnectionCallback callback = new CloseConnectionCallback(stateMachine, context);
+        connection.close(callback);
+        
+        // Callback will handle rest of the logic
+    }
 
 }

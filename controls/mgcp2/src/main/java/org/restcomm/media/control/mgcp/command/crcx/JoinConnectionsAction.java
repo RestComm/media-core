@@ -21,37 +21,28 @@
 
 package org.restcomm.media.control.mgcp.command.crcx;
 
-import org.restcomm.media.control.mgcp.connection.MgcpConnection;
-import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
+import org.restcomm.media.control.mgcp.connection.MgcpLocalConnection;
 import org.squirrelframework.foundation.fsm.AnonymousAction;
 
 /**
- * Action that fully opens a remote connection.
+ * Action that joins the Primary and Secondary Connections.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class OpenRemoteConnectionAction
+public class JoinConnectionsAction
         extends AnonymousAction<CreateConnectionFsm, CreateConnectionState, CreateConnectionEvent, CreateConnectionContext>
         implements CreateConnectionAction {
 
     @Override
-    public void execute(CreateConnectionState from, CreateConnectionState to, CreateConnectionEvent event,
-            CreateConnectionContext context, CreateConnectionFsm stateMachine) {
-        final MgcpConnectionProvider connectionProvider = context.getConnectionProvider();
-        final String remoteDescription = context.getRemoteDescription();
-        final int callId = context.getCallId();
-
-        // Create new connection
-        MgcpConnection connection = connectionProvider.provideRemote(callId);
-
-        // Save connection into context
-        context.setPrimaryConnection(connection);
-
-        // Half-open connection
-        OpenPrimaryConnectionCallback callback = new OpenPrimaryConnectionCallback(stateMachine, context);
-        connection.open(remoteDescription, callback);
-
+    public void execute(CreateConnectionState from, CreateConnectionState to, CreateConnectionEvent event, CreateConnectionContext context, CreateConnectionFsm stateMachine) {
+        MgcpLocalConnection primaryConnection = (MgcpLocalConnection) context.getPrimaryConnection();
+        MgcpLocalConnection secondaryConnection = (MgcpLocalConnection) context.getSecondaryConnection();
+        
+        // Join both connections
+        JoinConnectionsCallback callback = new JoinConnectionsCallback(stateMachine, context);
+        primaryConnection.join(secondaryConnection, callback);
+        
         // Callback will handle rest of the logic
     }
 

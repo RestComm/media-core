@@ -21,8 +21,8 @@
 
 package org.restcomm.media.control.mgcp.command.crcx;
 
-import org.restcomm.media.control.mgcp.command.MgcpCommandException;
 import org.restcomm.media.control.mgcp.command.MgcpCommandResult;
+import org.restcomm.media.control.mgcp.connection.MgcpConnection;
 import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointManager;
@@ -52,14 +52,15 @@ public class CreateConnectionContext {
     private MgcpEndpoint primaryEndpoint;
     private String secondaryEndpointId;
     private MgcpEndpoint secondaryEndpoint;
-    private int primaryConnectionId;
-    private int secondaryConnectionId;
+    private MgcpConnection primaryConnection;
+    private MgcpConnection secondaryConnection;
     private ConnectionMode connectionMode;
     private String remoteDescription;
+    private String localDescription;
     private LocalConnectionOptions localConnectionOptions;
 
     private FutureCallback<MgcpCommandResult> callback;
-    private MgcpCommandException error;
+    private Throwable error;
 
     public CreateConnectionContext(MgcpConnectionProvider connectionProvider, MgcpEndpointManager endpointManager, int transitionId, Parameters<MgcpParameterType> parameters) {
         this.connectionProvider = connectionProvider;
@@ -108,20 +109,20 @@ public class CreateConnectionContext {
         this.secondaryEndpoint = secondaryEndpoint;
     }
 
-    protected int getPrimaryConnectionId() {
-        return primaryConnectionId;
+    protected MgcpConnection getPrimaryConnection() {
+        return primaryConnection;
     }
 
-    protected void setPrimaryConnectionId(int primaryConnectionId) {
-        this.primaryConnectionId = primaryConnectionId;
+    protected void setPrimaryConnection(MgcpConnection primaryConnection) {
+        this.primaryConnection = primaryConnection;
     }
 
-    protected int getSecondaryConnectionId() {
-        return secondaryConnectionId;
+    protected MgcpConnection getSecondaryConnection() {
+        return secondaryConnection;
     }
 
-    protected void setSecondaryConnectionId(int secondaryConnectionId) {
-        this.secondaryConnectionId = secondaryConnectionId;
+    protected void setSecondaryConnection(MgcpConnection secondaryConnection) {
+        this.secondaryConnection = secondaryConnection;
     }
 
     protected ConnectionMode getConnectionMode() {
@@ -138,6 +139,14 @@ public class CreateConnectionContext {
 
     protected void setRemoteDescription(String remoteDescription) {
         this.remoteDescription = remoteDescription;
+    }
+    
+    public String getLocalDescription() {
+        return localDescription;
+    }
+    
+    public void setLocalDescription(String localDescription) {
+        this.localDescription = localDescription;
     }
 
     protected LocalConnectionOptions getLocalConnectionOptions() {
@@ -172,11 +181,11 @@ public class CreateConnectionContext {
         this.callback = callback;
     }
 
-    protected MgcpCommandException getError() {
+    protected Throwable getError() {
         return error;
     }
 
-    protected void setError(MgcpCommandException error) {
+    protected void setError(Throwable error) {
         this.error = error;
     }
 

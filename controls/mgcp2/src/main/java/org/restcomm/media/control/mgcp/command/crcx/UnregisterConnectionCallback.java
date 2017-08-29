@@ -18,15 +18,36 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
+
 package org.restcomm.media.control.mgcp.command.crcx;
+
+import org.restcomm.media.control.mgcp.connection.MgcpConnection;
+
+import com.google.common.util.concurrent.FutureCallback;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum CreateConnectionEvent {
-    
-    EXECUTE, VALIDATED_PARAMETERS, CONNECTION_OPENED, CONNECTION_MODE_UPDATED, CONNECTION_REGISTERED, CONNECTIONS_JOINED, CONNECTION_UNREGISTERED, CONNECTION_CLOSED, ABORT;
+public class UnregisterConnectionCallback implements FutureCallback<MgcpConnection> {
+
+    private final CreateConnectionFsm fsm;
+    private final CreateConnectionContext context;
+
+    public UnregisterConnectionCallback(CreateConnectionFsm fsm, CreateConnectionContext context) {
+        this.fsm = fsm;
+        this.context = context;
+    }
+
+    @Override
+    public void onSuccess(MgcpConnection result) {
+        this.fsm.fire(CreateConnectionEvent.CONNECTION_UNREGISTERED, this.context);
+    }
+
+    @Override
+    public void onFailure(Throwable t) {
+        this.context.setError(t);
+        this.fsm.fireImmediate(CreateConnectionEvent.ABORT, this.context);
+    }
 
 }

@@ -18,15 +18,41 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
+
 package org.restcomm.media.control.mgcp.command.crcx;
+
+import com.google.common.util.concurrent.FutureCallback;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum CreateConnectionEvent {
-    
-    EXECUTE, VALIDATED_PARAMETERS, CONNECTION_OPENED, CONNECTION_MODE_UPDATED, CONNECTION_REGISTERED, CONNECTIONS_JOINED, CONNECTION_UNREGISTERED, CONNECTION_CLOSED, ABORT;
+public class OpenPrimaryConnectionCallback implements FutureCallback<String> {
+
+    private final CreateConnectionFsm fsm;
+    private final CreateConnectionContext context;
+
+    public OpenPrimaryConnectionCallback(CreateConnectionFsm fsm, CreateConnectionContext context) {
+        this.fsm = fsm;
+        this.context = context;
+    }
+
+    @Override
+    public void onSuccess(String result) {
+        // Save data into context
+        this.context.setLocalDescription(result);
+        
+        // Move to next state
+        this.fsm.fire(CreateConnectionEvent.CONNECTION_OPENED, this.context);
+    }
+
+    @Override
+    public void onFailure(Throwable t) {
+        // Save error in context
+        context.setError(t);
+        
+        // Fail command
+        this.fsm.fire(CreateConnectionEvent.ABORT, this.context);
+    }
 
 }

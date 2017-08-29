@@ -22,37 +22,31 @@
 package org.restcomm.media.control.mgcp.command.crcx;
 
 import org.restcomm.media.control.mgcp.connection.MgcpConnection;
-import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
+import org.restcomm.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.squirrelframework.foundation.fsm.AnonymousAction;
 
 /**
- * Action that fully opens a remote connection.
+ * Action that registers the Primary Connection the the MGCP Endpoint.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class OpenRemoteConnectionAction
+public class UnregisterPrimaryConnectionAction
         extends AnonymousAction<CreateConnectionFsm, CreateConnectionState, CreateConnectionEvent, CreateConnectionContext>
         implements CreateConnectionAction {
 
     @Override
     public void execute(CreateConnectionState from, CreateConnectionState to, CreateConnectionEvent event,
             CreateConnectionContext context, CreateConnectionFsm stateMachine) {
-        final MgcpConnectionProvider connectionProvider = context.getConnectionProvider();
-        final String remoteDescription = context.getRemoteDescription();
+        final MgcpEndpoint endpoint = context.getPrimaryEndpoint();
+        final MgcpConnection connection = context.getPrimaryConnection();
         final int callId = context.getCallId();
 
-        // Create new connection
-        MgcpConnection connection = connectionProvider.provideRemote(callId);
-
-        // Save connection into context
-        context.setPrimaryConnection(connection);
-
-        // Half-open connection
-        OpenPrimaryConnectionCallback callback = new OpenPrimaryConnectionCallback(stateMachine, context);
-        connection.open(remoteDescription, callback);
-
-        // Callback will handle rest of the logic
+        // Register connection into the endpoint
+        UnregisterConnectionCallback callback = new UnregisterConnectionCallback(stateMachine, context);
+        endpoint.unregisterConnection(callId, connection.getIdentifier(), callback);
+        
+        // Callback will handle logic from here
     }
 
 }

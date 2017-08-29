@@ -22,36 +22,28 @@
 package org.restcomm.media.control.mgcp.command.crcx;
 
 import org.restcomm.media.control.mgcp.connection.MgcpConnection;
-import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
+import org.restcomm.media.spi.ConnectionMode;
 import org.squirrelframework.foundation.fsm.AnonymousAction;
 
 /**
- * Action that fully opens a remote connection.
+ * Action that updates the mode of the primary connection.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class OpenRemoteConnectionAction
+public class UpdateSecondaryConnectionMode
         extends AnonymousAction<CreateConnectionFsm, CreateConnectionState, CreateConnectionEvent, CreateConnectionContext>
         implements CreateConnectionAction {
 
     @Override
-    public void execute(CreateConnectionState from, CreateConnectionState to, CreateConnectionEvent event,
-            CreateConnectionContext context, CreateConnectionFsm stateMachine) {
-        final MgcpConnectionProvider connectionProvider = context.getConnectionProvider();
-        final String remoteDescription = context.getRemoteDescription();
-        final int callId = context.getCallId();
-
-        // Create new connection
-        MgcpConnection connection = connectionProvider.provideRemote(callId);
-
-        // Save connection into context
-        context.setPrimaryConnection(connection);
-
-        // Half-open connection
-        OpenPrimaryConnectionCallback callback = new OpenPrimaryConnectionCallback(stateMachine, context);
-        connection.open(remoteDescription, callback);
-
+    public void execute(CreateConnectionState from, CreateConnectionState to, CreateConnectionEvent event, CreateConnectionContext context, CreateConnectionFsm stateMachine) {
+        final MgcpConnection connection = context.getSecondaryConnection();
+        final ConnectionMode mode = context.getConnectionMode();
+        
+        // Update the connection mode
+        UpdateConnectionModeCallback callback = new UpdateConnectionModeCallback(stateMachine, context);
+        connection.updateMode(mode, callback);
+        
         // Callback will handle rest of the logic
     }
 

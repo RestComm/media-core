@@ -21,8 +21,6 @@
 
 package org.restcomm.media.control.mgcp.connection;
 
-import org.restcomm.media.control.mgcp.connection.local.MgcpLocalConnectionImpl;
-
 import com.google.common.util.concurrent.FutureCallback;
 
 /**
@@ -37,6 +35,6 @@ public interface MgcpLocalConnection extends MgcpConnection {
      * @param connection The connection to join to.
      * @param callback The callback that warns about success or failure of the operation.
      */
-    void join(MgcpLocalConnectionImpl connection, FutureCallback<Void> callback);
+    void join(MgcpLocalConnection connection, FutureCallback<Void> callback);
 
 }

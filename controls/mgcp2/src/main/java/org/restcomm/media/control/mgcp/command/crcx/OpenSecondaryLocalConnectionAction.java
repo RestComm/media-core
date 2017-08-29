@@ -26,12 +26,12 @@ import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.squirrelframework.foundation.fsm.AnonymousAction;
 
 /**
- * Action that fully opens a remote connection.
+ * Action that fully opens the secondary connection.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class OpenRemoteConnectionAction
+public class OpenSecondaryLocalConnectionAction
         extends AnonymousAction<CreateConnectionFsm, CreateConnectionState, CreateConnectionEvent, CreateConnectionContext>
         implements CreateConnectionAction {
 
@@ -43,10 +43,10 @@ public class OpenRemoteConnectionAction
         final int callId = context.getCallId();
 
         // Create new connection
-        MgcpConnection connection = connectionProvider.provideRemote(callId);
+        MgcpConnection connection = connectionProvider.provideLocal(callId);
 
         // Save connection into context
-        context.setPrimaryConnection(connection);
+        context.setSecondaryConnection(connection);
 
         // Half-open connection
         OpenPrimaryConnectionCallback callback = new OpenPrimaryConnectionCallback(stateMachine, context);
