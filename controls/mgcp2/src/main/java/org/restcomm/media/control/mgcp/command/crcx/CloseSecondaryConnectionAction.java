@@ -30,9 +30,15 @@ import org.squirrelframework.foundation.fsm.AnonymousAction;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class CloseSecondaryConnectionAction
+class CloseSecondaryConnectionAction
         extends AnonymousAction<CreateConnectionFsm, CreateConnectionState, CreateConnectionEvent, CreateConnectionContext>
         implements CreateConnectionAction {
+
+    static final CloseSecondaryConnectionAction INSTANCE = new CloseSecondaryConnectionAction();
+
+    CloseSecondaryConnectionAction() {
+        super();
+    }
 
     @Override
     public void execute(CreateConnectionState from, CreateConnectionState to, CreateConnectionEvent event, CreateConnectionContext context, CreateConnectionFsm stateMachine) {
@@ -41,7 +47,7 @@ public class CloseSecondaryConnectionAction
         // Close connection
         CloseConnectionCallback callback = new CloseConnectionCallback(stateMachine, context);
         connection.close(callback);
-        
+
         // Callback will handle rest of the logic
     }
 
