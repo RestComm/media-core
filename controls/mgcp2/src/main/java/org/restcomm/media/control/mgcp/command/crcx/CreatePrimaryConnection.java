@@ -26,33 +26,29 @@ import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.squirrelframework.foundation.fsm.AnonymousAction;
 
 /**
- * Action that fully opens the primary connection.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class OpenPrimaryLocalConnectionAction
+abstract class CreatePrimaryConnection
         extends AnonymousAction<CreateConnectionFsm, CreateConnectionState, CreateConnectionEvent, CreateConnectionContext>
         implements CreateConnectionAction {
 
     @Override
     public void execute(CreateConnectionState from, CreateConnectionState to, CreateConnectionEvent event,
             CreateConnectionContext context, CreateConnectionFsm stateMachine) {
-        final MgcpConnectionProvider connectionProvider = context.getConnectionProvider();
-        final String remoteDescription = context.getRemoteDescription();
+        final MgcpConnectionProvider provider = context.getConnectionProvider();
         final int callId = context.getCallId();
-
-        // Create new connection
-        MgcpConnection connection = connectionProvider.provideLocal(callId);
-
-        // Save connection into context
+        
+        // Create connection
+        MgcpConnection connection = createConnection(callId, provider);
+        
+        // Update context
         context.setPrimaryConnection(connection);
-
-        // Half-open connection
-        OpenConnectionCallback callback = new OpenConnectionCallback(stateMachine, context);
-        connection.open(remoteDescription, callback);
-
-        // Callback will handle rest of the logic
+        
+        // Move to next state
+        stateMachine.fire(CreateConnectionEvent.CONNECTION_CREATED, context);
     }
+    
+    protected abstract MgcpConnection createConnection(int callId, MgcpConnectionProvider provider);
 
 }

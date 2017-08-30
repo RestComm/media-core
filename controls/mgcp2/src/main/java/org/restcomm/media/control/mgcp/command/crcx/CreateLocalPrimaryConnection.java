@@ -18,15 +18,29 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
+
 package org.restcomm.media.control.mgcp.command.crcx;
 
+import org.restcomm.media.control.mgcp.connection.MgcpConnection;
+import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
+
 /**
+ * Action that creates a Local Primary Connection.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum CreateConnectionEvent {
-    
-    EXECUTE, VALIDATED_PARAMETERS, CONNECTION_CREATED, CONNECTION_OPENED, CONNECTION_MODE_UPDATED, CONNECTION_REGISTERED, CONNECTIONS_JOINED, CONNECTION_UNREGISTERED, CONNECTION_CLOSED, ABORT;
+class CreateLocalPrimaryConnection extends CreatePrimaryConnection {
+
+    static final CreateLocalPrimaryConnection INSTANCE = new CreateLocalPrimaryConnection();
+
+    CreateLocalPrimaryConnection() {
+        super();
+    }
+
+    @Override
+    protected MgcpConnection createConnection(int callId, MgcpConnectionProvider provider) {
+        return provider.provideLocal(callId);
+    }
 
 }

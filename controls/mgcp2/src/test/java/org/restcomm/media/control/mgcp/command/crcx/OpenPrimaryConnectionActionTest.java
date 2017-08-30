@@ -38,14 +38,16 @@ import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointManager;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class ClosePrimaryConnectionActionTest {
+public class OpenPrimaryConnectionActionTest {
 
     @Test
-    public void testClosePrimaryConnection() {
+    public void testOpenPrimaryConnection() {
         // given
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final int transactionId = 6;
+        final String remoteSdp = "remote-sdp-mock";
+        final String localSdp = "local-sdp-mock";
         final MgcpCommandParameters parameters = new MgcpCommandParameters();
         final CreateConnectionContext context = new CreateConnectionContext(connectionProvider, endpointManager, transactionId, parameters);
         final CreateConnectionFsm stateMachine = mock(CreateConnectionFsm.class);
@@ -55,57 +57,62 @@ public class ClosePrimaryConnectionActionTest {
 
             @Override
             public Void answer(InvocationOnMock invocation) throws Throwable {
-                CloseConnectionCallback callback = invocation.getArgumentAt(0, CloseConnectionCallback.class);
-                callback.onSuccess(null);
+                OpenConnectionCallback callback = invocation.getArgumentAt(1, OpenConnectionCallback.class);
+                callback.onSuccess(localSdp);
                 return null;
             }
 
-        }).when(connection).close(any(CloseConnectionCallback.class));
+        }).when(connection).open(eq(remoteSdp), any(OpenConnectionCallback.class));
 
         context.setPrimaryConnection(connection);
+        context.setRemoteDescription(remoteSdp);
 
         // when
-        ClosePrimaryConnectionAction action = new ClosePrimaryConnectionAction();
+        OpenPrimaryConnectionAction action = new OpenPrimaryConnectionAction();
         action.execute(CreateConnectionState.EXECUTING, CreateConnectionState.ROLLING_BACK, CreateConnectionEvent.ABORT, context, stateMachine);
 
         // then
-        verify(connection, timeout(50)).close(any(CloseConnectionCallback.class));
-        verify(stateMachine).fire(CreateConnectionEvent.CONNECTION_CLOSED, context);
+        verify(connection).open(eq(remoteSdp), any(OpenConnectionCallback.class));
+        verify(stateMachine).fire(CreateConnectionEvent.CONNECTION_OPENED, context);
+        assertEquals(localSdp, context.getLocalDescription());
         assertNull(context.getError());
     }
-
+    
     @Test
-    public void testClosePrimaryConnectionFailure() {
+    public void testOpenPrimaryConnectionFailure() {
         // given
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final int transactionId = 6;
+        final String remoteSdp = "remote-sdp-mock";
         final MgcpCommandParameters parameters = new MgcpCommandParameters();
         final CreateConnectionContext context = new CreateConnectionContext(connectionProvider, endpointManager, transactionId, parameters);
         final CreateConnectionFsm stateMachine = mock(CreateConnectionFsm.class);
-
-        final Exception error = new Exception("testing purposes");
+        
+        final Exception error = new Exception("test purposes");
         final MgcpConnection connection = mock(MgcpConnection.class);
         doAnswer(new Answer<Void>() {
-
+            
             @Override
             public Void answer(InvocationOnMock invocation) throws Throwable {
-                CloseConnectionCallback callback = invocation.getArgumentAt(0, CloseConnectionCallback.class);
+                OpenConnectionCallback callback = invocation.getArgumentAt(1, OpenConnectionCallback.class);
                 callback.onFailure(error);
                 return null;
             }
-
-        }).when(connection).close(any(CloseConnectionCallback.class));
-
+            
+        }).when(connection).open(eq(remoteSdp), any(OpenConnectionCallback.class));
+        
         context.setPrimaryConnection(connection);
-
+        context.setRemoteDescription(remoteSdp);
+        
         // when
-        ClosePrimaryConnectionAction action = new ClosePrimaryConnectionAction();
+        OpenPrimaryConnectionAction action = new OpenPrimaryConnectionAction();
         action.execute(CreateConnectionState.EXECUTING, CreateConnectionState.ROLLING_BACK, CreateConnectionEvent.ABORT, context, stateMachine);
-
+        
         // then
-        verify(connection, timeout(50)).close(any(CloseConnectionCallback.class));
+        verify(connection).open(eq(remoteSdp), any(OpenConnectionCallback.class));
         verify(stateMachine).fire(CreateConnectionEvent.ABORT, context);
+        assertEquals("", context.getLocalDescription());
         assertEquals(error, context.getError());
     }
 

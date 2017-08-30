@@ -18,15 +18,28 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
+
 package org.restcomm.media.control.mgcp.command.crcx;
 
+import org.restcomm.media.control.mgcp.connection.MgcpConnection;
+
 /**
+ * Action that fully opens the secondary connection.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum CreateConnectionEvent {
-    
-    EXECUTE, VALIDATED_PARAMETERS, CONNECTION_CREATED, CONNECTION_OPENED, CONNECTION_MODE_UPDATED, CONNECTION_REGISTERED, CONNECTIONS_JOINED, CONNECTION_UNREGISTERED, CONNECTION_CLOSED, ABORT;
+public class OpenSecondaryConnectionAction extends OpenConnectionAction {
+
+    static final OpenSecondaryConnectionAction INSTANCE = new OpenSecondaryConnectionAction();
+
+    public OpenSecondaryConnectionAction() {
+        super();
+    }
+
+    @Override
+    MgcpConnection getConnection(CreateConnectionContext context) {
+        return context.getSecondaryConnection();
+    }
 
 }

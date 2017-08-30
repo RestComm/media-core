@@ -54,7 +54,6 @@ public class HalfOpenRemoteConnectionActionTest {
         final CreateConnectionFsm stateMachine = mock(CreateConnectionFsm.class);
 
         final MgcpRemoteConnection connection = mock(MgcpRemoteConnection.class);
-        when(connectionProvider.provideRemote(callId)).thenReturn(connection);
         doAnswer(new Answer<Void>() {
 
             @Override
@@ -67,14 +66,14 @@ public class HalfOpenRemoteConnectionActionTest {
         }).when(connection).halfOpen(any(LocalConnectionOptions.class), any(OpenConnectionCallback.class));
 
         context.setCallId(callId);
+        context.setPrimaryConnection(connection);
         context.setLocalConnectionOptions(lcOptions);
 
         // when
-        HalfOpenRemoteConnectionAction action = new HalfOpenRemoteConnectionAction();
+        HalfOpenPrimaryConnectionAction action = new HalfOpenPrimaryConnectionAction();
         action.execute(CreateConnectionState.VALIDATING_PARAMETERS, CreateConnectionState.EXECUTING, CreateConnectionEvent.VALIDATED_PARAMETERS, context, stateMachine);
 
         // then
-        verify(connectionProvider).provideRemote(callId);
         verify(connection, timeout(50)).halfOpen(eq(lcOptions), any(OpenConnectionCallback.class));
         verify(stateMachine).fire(CreateConnectionEvent.CONNECTION_OPENED, context);
         assertEquals(connection, context.getPrimaryConnection());
@@ -96,7 +95,6 @@ public class HalfOpenRemoteConnectionActionTest {
 
         final Exception error = new Exception("testing purposes");
         final MgcpRemoteConnection connection = mock(MgcpRemoteConnection.class);
-        when(connectionProvider.provideRemote(callId)).thenReturn(connection);
         doAnswer(new Answer<Void>() {
 
             @Override
@@ -109,14 +107,14 @@ public class HalfOpenRemoteConnectionActionTest {
         }).when(connection).halfOpen(any(LocalConnectionOptions.class), any(OpenConnectionCallback.class));
 
         context.setCallId(callId);
+        context.setPrimaryConnection(connection);
         context.setLocalConnectionOptions(lcOptions);
 
         // when
-        HalfOpenRemoteConnectionAction action = new HalfOpenRemoteConnectionAction();
+        HalfOpenPrimaryConnectionAction action = new HalfOpenPrimaryConnectionAction();
         action.execute(CreateConnectionState.VALIDATING_PARAMETERS, CreateConnectionState.EXECUTING, CreateConnectionEvent.VALIDATED_PARAMETERS, context, stateMachine);
 
         // then
-        verify(connectionProvider).provideRemote(callId);
         verify(connection, timeout(50)).halfOpen(eq(lcOptions), any(OpenConnectionCallback.class));
         verify(stateMachine).fire(CreateConnectionEvent.ABORT, context);
         assertEquals(connection, context.getPrimaryConnection());
