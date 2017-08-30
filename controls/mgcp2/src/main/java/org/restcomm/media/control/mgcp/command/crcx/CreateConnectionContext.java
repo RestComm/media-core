@@ -37,7 +37,7 @@ import com.google.common.util.concurrent.FutureCallback;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class CreateConnectionContext {
+class CreateConnectionContext {
 
     // Dependencies
     private final MgcpConnectionProvider connectionProvider;
@@ -62,10 +62,10 @@ public class CreateConnectionContext {
     private FutureCallback<MgcpCommandResult> callback;
     private Throwable error;
 
-    public CreateConnectionContext(MgcpConnectionProvider connectionProvider, MgcpEndpointManager endpointManager, int transitionId, Parameters<MgcpParameterType> parameters) {
+    CreateConnectionContext(MgcpConnectionProvider connectionProvider, MgcpEndpointManager endpointManager, int transactionId, Parameters<MgcpParameterType> parameters) {
         this.connectionProvider = connectionProvider;
         this.endpointManager = endpointManager;
-        this.transactionId = transitionId;
+        this.transactionId = transactionId;
         this.parameters = parameters;
     }
 

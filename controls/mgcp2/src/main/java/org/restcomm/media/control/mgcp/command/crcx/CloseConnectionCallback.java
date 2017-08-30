@@ -27,12 +27,12 @@ import com.google.common.util.concurrent.FutureCallback;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class CloseConnectionCallback implements FutureCallback<Void> {
+class CloseConnectionCallback implements FutureCallback<Void> {
 
     private final CreateConnectionFsm fsm;
     private final CreateConnectionContext context;
 
-    public CloseConnectionCallback(CreateConnectionFsm fsm, CreateConnectionContext context) {
+    CloseConnectionCallback(CreateConnectionFsm fsm, CreateConnectionContext context) {
         this.fsm = fsm;
         this.context = context;
     }

@@ -33,6 +33,12 @@ import org.squirrelframework.foundation.fsm.AnonymousAction;
 public class ClosePrimaryConnectionAction
         extends AnonymousAction<CreateConnectionFsm, CreateConnectionState, CreateConnectionEvent, CreateConnectionContext>
         implements CreateConnectionAction {
+    
+    static final ClosePrimaryConnectionAction INSTANCE = new ClosePrimaryConnectionAction();
+    
+    ClosePrimaryConnectionAction() {
+        super();
+    }
 
     @Override
     public void execute(CreateConnectionState from, CreateConnectionState to, CreateConnectionEvent event, CreateConnectionContext context, CreateConnectionFsm stateMachine) {
