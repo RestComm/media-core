@@ -34,15 +34,21 @@ public class JoinConnectionsAction
         extends AnonymousAction<CreateConnectionFsm, CreateConnectionState, CreateConnectionEvent, CreateConnectionContext>
         implements CreateConnectionAction {
 
+    static final JoinConnectionsAction INSTANCE = new JoinConnectionsAction();
+
+    JoinConnectionsAction() {
+        super();
+    }
+
     @Override
     public void execute(CreateConnectionState from, CreateConnectionState to, CreateConnectionEvent event, CreateConnectionContext context, CreateConnectionFsm stateMachine) {
         MgcpLocalConnection primaryConnection = (MgcpLocalConnection) context.getPrimaryConnection();
         MgcpLocalConnection secondaryConnection = (MgcpLocalConnection) context.getSecondaryConnection();
-        
+
         // Join both connections
         JoinConnectionsCallback callback = new JoinConnectionsCallback(stateMachine, context);
         primaryConnection.join(secondaryConnection, callback);
-        
+
         // Callback will handle rest of the logic
     }
 
