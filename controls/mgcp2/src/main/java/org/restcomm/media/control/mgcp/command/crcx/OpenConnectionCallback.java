@@ -27,12 +27,12 @@ import com.google.common.util.concurrent.FutureCallback;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class OpenPrimaryConnectionCallback implements FutureCallback<String> {
+public class OpenConnectionCallback implements FutureCallback<String> {
 
     private final CreateConnectionFsm fsm;
     private final CreateConnectionContext context;
 
-    public OpenPrimaryConnectionCallback(CreateConnectionFsm fsm, CreateConnectionContext context) {
+    public OpenConnectionCallback(CreateConnectionFsm fsm, CreateConnectionContext context) {
         this.fsm = fsm;
         this.context = context;
     }

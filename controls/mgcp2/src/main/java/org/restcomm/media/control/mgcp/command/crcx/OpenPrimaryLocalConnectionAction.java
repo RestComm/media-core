@@ -49,7 +49,7 @@ public class OpenPrimaryLocalConnectionAction
         context.setPrimaryConnection(connection);
 
         // Half-open connection
-        OpenPrimaryConnectionCallback callback = new OpenPrimaryConnectionCallback(stateMachine, context);
+        OpenConnectionCallback callback = new OpenConnectionCallback(stateMachine, context);
         connection.open(remoteDescription, callback);
 
         // Callback will handle rest of the logic

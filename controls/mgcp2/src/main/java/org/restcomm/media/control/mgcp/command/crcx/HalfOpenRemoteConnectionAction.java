@@ -35,6 +35,12 @@ import org.squirrelframework.foundation.fsm.AnonymousAction;
 public class HalfOpenRemoteConnectionAction
         extends AnonymousAction<CreateConnectionFsm, CreateConnectionState, CreateConnectionEvent, CreateConnectionContext>
         implements CreateConnectionAction {
+    
+    static final HalfOpenRemoteConnectionAction INSTANCE = new HalfOpenRemoteConnectionAction();
+    
+    HalfOpenRemoteConnectionAction() {
+        super();
+    }
 
     @Override
     public void execute(CreateConnectionState from, CreateConnectionState to, CreateConnectionEvent event, CreateConnectionContext context, CreateConnectionFsm stateMachine) {
@@ -49,7 +55,7 @@ public class HalfOpenRemoteConnectionAction
         context.setPrimaryConnection(connection);
 
         // Half-open connection
-        OpenPrimaryConnectionCallback callback = new OpenPrimaryConnectionCallback(stateMachine, context);
+        OpenConnectionCallback callback = new OpenConnectionCallback(stateMachine, context);
         connection.halfOpen(lcOptions, callback);
 
         // Callback will handle rest of the logic

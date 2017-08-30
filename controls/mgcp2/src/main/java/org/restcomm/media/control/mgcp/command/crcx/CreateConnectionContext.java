@@ -63,10 +63,28 @@ class CreateConnectionContext {
     private Throwable error;
 
     CreateConnectionContext(MgcpConnectionProvider connectionProvider, MgcpEndpointManager endpointManager, int transactionId, Parameters<MgcpParameterType> parameters) {
+        // Dependencies
         this.connectionProvider = connectionProvider;
         this.endpointManager = endpointManager;
+        
+        // MGCP Command
         this.transactionId = transactionId;
         this.parameters = parameters;
+        
+        this.callId = 0;
+        this.primaryEndpointId = "";
+        this.primaryEndpoint = null;
+        this.secondaryEndpointId = "";
+        this.secondaryEndpoint = null;
+        this.primaryConnection = null;
+        this.secondaryConnection = null;
+        this.connectionMode = ConnectionMode.INACTIVE;
+        this.remoteDescription = "";
+        this.localDescription = "";
+        this.localConnectionOptions = new LocalConnectionOptions();
+        
+        this.callback = null;
+        this.error = null;
     }
 
     protected int getCallId() {
@@ -91,6 +109,9 @@ class CreateConnectionContext {
     
     public void setPrimaryEndpoint(MgcpEndpoint primaryEndpoint) {
         this.primaryEndpoint = primaryEndpoint;
+        if(this.primaryEndpoint != null) {
+            setPrimaryEndpointId(this.primaryEndpoint.getEndpointId().toString());
+        }
     }
 
     protected String getSecondaryEndpointId() {
@@ -107,6 +128,9 @@ class CreateConnectionContext {
     
     public void setSecondaryEndpoint(MgcpEndpoint secondaryEndpoint) {
         this.secondaryEndpoint = secondaryEndpoint;
+        if(this.secondaryEndpoint != null) {
+            setSecondaryEndpointId(this.secondaryEndpoint.getEndpointId().toString());
+        }
     }
 
     protected MgcpConnection getPrimaryConnection() {
