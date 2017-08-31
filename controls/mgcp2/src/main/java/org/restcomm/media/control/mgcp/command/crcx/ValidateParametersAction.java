@@ -84,7 +84,7 @@ class ValidateParametersAction extends
             stateMachine.fire(CreateConnectionEvent.VALIDATED_PARAMETERS, context);
         } catch (MgcpCommandException e) {
             context.setError(e);
-            stateMachine.fireImmediate(CreateConnectionEvent.ABORT, context);
+            stateMachine.fireImmediate(CreateConnectionEvent.FAILURE, context);
         }
     }
 

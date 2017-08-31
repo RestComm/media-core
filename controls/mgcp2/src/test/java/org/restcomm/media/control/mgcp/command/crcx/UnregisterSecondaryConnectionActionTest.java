@@ -81,7 +81,7 @@ public class UnregisterSecondaryConnectionActionTest {
 
         // when
         UnregisterSecondaryConnectionAction action = new UnregisterSecondaryConnectionAction();
-        action.execute(CreateConnectionState.EXECUTING, CreateConnectionState.ROLLING_BACK, CreateConnectionEvent.ABORT, context, stateMachine);
+        action.execute(CreateConnectionState.EXECUTING, CreateConnectionState.ROLLING_BACK, CreateConnectionEvent.FAILURE, context, stateMachine);
 
         // then
         verify(endpoint).unregisterConnection(eq(callId), eq(connectionId), any(UnregisterConnectionCallback.class));
@@ -126,7 +126,7 @@ public class UnregisterSecondaryConnectionActionTest {
         
         // when
         UnregisterSecondaryConnectionAction action = new UnregisterSecondaryConnectionAction();
-        action.execute(CreateConnectionState.EXECUTING, CreateConnectionState.ROLLING_BACK, CreateConnectionEvent.ABORT, context, stateMachine);
+        action.execute(CreateConnectionState.EXECUTING, CreateConnectionState.ROLLING_BACK, CreateConnectionEvent.FAILURE, context, stateMachine);
         
         // then
         verify(endpoint).unregisterConnection(eq(callId), eq(connectionId), any(UnregisterConnectionCallback.class));

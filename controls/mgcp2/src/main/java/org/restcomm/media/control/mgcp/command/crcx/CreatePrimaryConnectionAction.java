@@ -29,7 +29,7 @@ import org.squirrelframework.foundation.fsm.AnonymousAction;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-abstract class CreatePrimaryConnection
+abstract class CreatePrimaryConnectionAction
         extends AnonymousAction<CreateConnectionFsm, CreateConnectionState, CreateConnectionEvent, CreateConnectionContext>
         implements CreateConnectionAction {
 

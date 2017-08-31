@@ -62,7 +62,7 @@ public class RespondFailureActionTest {
 
         // when
         RespondFailureAction action = new RespondFailureAction();
-        action.execute(CreateConnectionState.EXECUTING, CreateConnectionState.ROLLING_BACK, CreateConnectionEvent.ABORT, context, stateMachine);
+        action.execute(CreateConnectionState.EXECUTING, CreateConnectionState.ROLLING_BACK, CreateConnectionEvent.FAILURE, context, stateMachine);
 
         // then
         ArgumentCaptor<MgcpCommandResult> captor = ArgumentCaptor.forClass(MgcpCommandResult.class);
@@ -90,7 +90,7 @@ public class RespondFailureActionTest {
         
         // when
         RespondFailureAction action = new RespondFailureAction();
-        action.execute(CreateConnectionState.EXECUTING, CreateConnectionState.ROLLING_BACK, CreateConnectionEvent.ABORT, context, stateMachine);
+        action.execute(CreateConnectionState.EXECUTING, CreateConnectionState.ROLLING_BACK, CreateConnectionEvent.FAILURE, context, stateMachine);
         
         // then
         ArgumentCaptor<MgcpCommandResult> captor = ArgumentCaptor.forClass(MgcpCommandResult.class);

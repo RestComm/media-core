@@ -72,7 +72,7 @@ public class OpenSecondaryConnectionActionTest {
 
         // when
         OpenSecondaryConnectionAction action = new OpenSecondaryConnectionAction();
-        action.execute(CreateConnectionState.EXECUTING, CreateConnectionState.ROLLING_BACK, CreateConnectionEvent.ABORT, context, stateMachine);
+        action.execute(CreateConnectionState.EXECUTING, CreateConnectionState.ROLLING_BACK, CreateConnectionEvent.FAILURE, context, stateMachine);
 
         // then
         verify(connection).open(eq(remoteSdp), any(OpenConnectionCallback.class));
@@ -110,11 +110,11 @@ public class OpenSecondaryConnectionActionTest {
         
         // when
         OpenSecondaryConnectionAction action = new OpenSecondaryConnectionAction();
-        action.execute(CreateConnectionState.EXECUTING, CreateConnectionState.ROLLING_BACK, CreateConnectionEvent.ABORT, context, stateMachine);
+        action.execute(CreateConnectionState.EXECUTING, CreateConnectionState.ROLLING_BACK, CreateConnectionEvent.FAILURE, context, stateMachine);
         
         // then
         verify(connection).open(eq(remoteSdp), any(OpenConnectionCallback.class));
-        verify(stateMachine).fire(CreateConnectionEvent.ABORT, context);
+        verify(stateMachine).fire(CreateConnectionEvent.FAILURE, context);
         assertEquals("", context.getLocalDescription());
         assertEquals(error, context.getError());
     }

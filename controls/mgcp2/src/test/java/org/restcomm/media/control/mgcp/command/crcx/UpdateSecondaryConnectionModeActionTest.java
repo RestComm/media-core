@@ -59,7 +59,7 @@ public class UpdateSecondaryConnectionModeActionTest {
 
         // when
         UpdateSecondaryConnectionModeAction action = new UpdateSecondaryConnectionModeAction();
-        action.execute(CreateConnectionState.EXECUTING, CreateConnectionState.ROLLING_BACK, CreateConnectionEvent.ABORT, context, stateMachine);
+        action.execute(CreateConnectionState.EXECUTING, CreateConnectionState.ROLLING_BACK, CreateConnectionEvent.FAILURE, context, stateMachine);
 
         // then
         final ArgumentCaptor<UpdateConnectionModeCallback> captor = ArgumentCaptor.forClass(UpdateConnectionModeCallback.class);
@@ -92,7 +92,7 @@ public class UpdateSecondaryConnectionModeActionTest {
 
         // when
         UpdateSecondaryConnectionModeAction action = new UpdateSecondaryConnectionModeAction();
-        action.execute(CreateConnectionState.EXECUTING, CreateConnectionState.ROLLING_BACK, CreateConnectionEvent.ABORT, context, stateMachine);
+        action.execute(CreateConnectionState.EXECUTING, CreateConnectionState.ROLLING_BACK, CreateConnectionEvent.FAILURE, context, stateMachine);
 
         // then
         final ArgumentCaptor<UpdateConnectionModeCallback> captor = ArgumentCaptor.forClass(UpdateConnectionModeCallback.class);
@@ -104,7 +104,7 @@ public class UpdateSecondaryConnectionModeActionTest {
         callback.onFailure(error);
 
         // then
-        verify(stateMachine).fireImmediate(CreateConnectionEvent.ABORT, context);
+        verify(stateMachine).fireImmediate(CreateConnectionEvent.FAILURE, context);
         assertEquals(error, context.getError());
     }
 

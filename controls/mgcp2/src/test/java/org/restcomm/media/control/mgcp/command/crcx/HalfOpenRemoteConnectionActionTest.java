@@ -116,7 +116,7 @@ public class HalfOpenRemoteConnectionActionTest {
 
         // then
         verify(connection, timeout(50)).halfOpen(eq(lcOptions), any(OpenConnectionCallback.class));
-        verify(stateMachine).fire(CreateConnectionEvent.ABORT, context);
+        verify(stateMachine).fire(CreateConnectionEvent.FAILURE, context);
         assertEquals(connection, context.getPrimaryConnection());
         assertEquals("", context.getLocalDescription());
         assertEquals(error, context.getError());

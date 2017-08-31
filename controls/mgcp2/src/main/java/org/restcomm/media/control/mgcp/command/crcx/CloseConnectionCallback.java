@@ -49,7 +49,7 @@ class CloseConnectionCallback implements FutureCallback<Void> {
         context.setError(t);
         
         // Fail command
-        this.fsm.fire(CreateConnectionEvent.ABORT, this.context);
+        this.fsm.fire(CreateConnectionEvent.FAILURE, this.context);
     }
 
 }

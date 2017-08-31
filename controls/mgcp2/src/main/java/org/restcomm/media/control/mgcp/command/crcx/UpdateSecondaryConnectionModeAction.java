@@ -29,7 +29,13 @@ import org.restcomm.media.control.mgcp.connection.MgcpConnection;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class UpdateSecondaryConnectionModeAction extends UpdateConnectionModeAction {
+class UpdateSecondaryConnectionModeAction extends UpdateConnectionModeAction {
+
+    static final UpdateSecondaryConnectionModeAction INSTANCE = new UpdateSecondaryConnectionModeAction();
+
+    UpdateSecondaryConnectionModeAction() {
+        super();
+    }
 
     @Override
     protected MgcpConnection getConnection(CreateConnectionContext context) {

@@ -45,7 +45,7 @@ public class RegisterConnectionCallback implements FutureCallback<Void> {
     @Override
     public void onFailure(Throwable t) {
         this.context.setError(t);
-        this.fsm.fireImmediate(CreateConnectionEvent.ABORT, this.context);
+        this.fsm.fireImmediate(CreateConnectionEvent.FAILURE, this.context);
     }
 
 }

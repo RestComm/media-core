@@ -21,9 +21,13 @@
 
 package org.restcomm.media.control.mgcp.command.crcx;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import org.junit.Test;
 import org.restcomm.media.control.mgcp.command.MgcpCommandException;
@@ -150,7 +154,7 @@ public class ValidateParametersActionTest {
         action.execute(null, CreateConnectionState.VALIDATING_PARAMETERS, CreateConnectionEvent.EXECUTE, context, stateMachine);
         
         // then
-        verify(stateMachine).fireImmediate(CreateConnectionEvent.ABORT, context);
+        verify(stateMachine).fireImmediate(CreateConnectionEvent.FAILURE, context);
         assertNotNull(context.getError());
         assertTrue(context.getError() instanceof MgcpCommandException);
         MgcpCommandException error = (MgcpCommandException) context.getError();
@@ -189,7 +193,7 @@ public class ValidateParametersActionTest {
         action.execute(null, CreateConnectionState.VALIDATING_PARAMETERS, CreateConnectionEvent.EXECUTE, context, stateMachine);
         
         // then
-        verify(stateMachine).fireImmediate(CreateConnectionEvent.ABORT, context);
+        verify(stateMachine).fireImmediate(CreateConnectionEvent.FAILURE, context);
         assertNotNull(context.getError());
         assertTrue(context.getError() instanceof MgcpCommandException);
         MgcpCommandException error = (MgcpCommandException) context.getError();
@@ -224,7 +228,7 @@ public class ValidateParametersActionTest {
         action.execute(null, CreateConnectionState.VALIDATING_PARAMETERS, CreateConnectionEvent.EXECUTE, context, stateMachine);
         
         // then
-        verify(stateMachine).fireImmediate(CreateConnectionEvent.ABORT, context);
+        verify(stateMachine).fireImmediate(CreateConnectionEvent.FAILURE, context);
         assertNotNull(context.getError());
         assertTrue(context.getError() instanceof MgcpCommandException);
         MgcpCommandException error = (MgcpCommandException) context.getError();
@@ -265,7 +269,7 @@ public class ValidateParametersActionTest {
         action.execute(null, CreateConnectionState.VALIDATING_PARAMETERS, CreateConnectionEvent.EXECUTE, context, stateMachine);
         
         // then
-        verify(stateMachine).fireImmediate(CreateConnectionEvent.ABORT, context);
+        verify(stateMachine).fireImmediate(CreateConnectionEvent.FAILURE, context);
         assertNotNull(context.getError());
         assertTrue(context.getError() instanceof MgcpCommandException);
         MgcpCommandException error = (MgcpCommandException) context.getError();
@@ -306,7 +310,7 @@ public class ValidateParametersActionTest {
         action.execute(null, CreateConnectionState.VALIDATING_PARAMETERS, CreateConnectionEvent.EXECUTE, context, stateMachine);
         
         // then
-        verify(stateMachine).fireImmediate(CreateConnectionEvent.ABORT, context);
+        verify(stateMachine).fireImmediate(CreateConnectionEvent.FAILURE, context);
         assertNotNull(context.getError());
         assertTrue(context.getError() instanceof MgcpCommandException);
         MgcpCommandException error = (MgcpCommandException) context.getError();
@@ -347,7 +351,7 @@ public class ValidateParametersActionTest {
         action.execute(null, CreateConnectionState.VALIDATING_PARAMETERS, CreateConnectionEvent.EXECUTE, context, stateMachine);
         
         // then
-        verify(stateMachine).fireImmediate(CreateConnectionEvent.ABORT, context);
+        verify(stateMachine).fireImmediate(CreateConnectionEvent.FAILURE, context);
         assertNotNull(context.getError());
         assertTrue(context.getError() instanceof MgcpCommandException);
         MgcpCommandException error = (MgcpCommandException) context.getError();
@@ -388,7 +392,7 @@ public class ValidateParametersActionTest {
         action.execute(null, CreateConnectionState.VALIDATING_PARAMETERS, CreateConnectionEvent.EXECUTE, context, stateMachine);
         
         // then
-        verify(stateMachine).fireImmediate(CreateConnectionEvent.ABORT, context);
+        verify(stateMachine).fireImmediate(CreateConnectionEvent.FAILURE, context);
         assertNotNull(context.getError());
         assertTrue(context.getError() instanceof MgcpCommandException);
         MgcpCommandException error = (MgcpCommandException) context.getError();
@@ -427,7 +431,7 @@ public class ValidateParametersActionTest {
         action.execute(null, CreateConnectionState.VALIDATING_PARAMETERS, CreateConnectionEvent.EXECUTE, context, stateMachine);
         
         // then
-        verify(stateMachine).fireImmediate(CreateConnectionEvent.ABORT, context);
+        verify(stateMachine).fireImmediate(CreateConnectionEvent.FAILURE, context);
         assertNotNull(context.getError());
         assertTrue(context.getError() instanceof MgcpCommandException);
         MgcpCommandException error = (MgcpCommandException) context.getError();
@@ -468,7 +472,7 @@ public class ValidateParametersActionTest {
         action.execute(null, CreateConnectionState.VALIDATING_PARAMETERS, CreateConnectionEvent.EXECUTE, context, stateMachine);
         
         // then
-        verify(stateMachine).fireImmediate(CreateConnectionEvent.ABORT, context);
+        verify(stateMachine).fireImmediate(CreateConnectionEvent.FAILURE, context);
         assertNotNull(context.getError());
         assertTrue(context.getError() instanceof MgcpCommandException);
         MgcpCommandException error = (MgcpCommandException) context.getError();

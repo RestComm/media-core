@@ -21,31 +21,12 @@
 
 package org.restcomm.media.control.mgcp.command.crcx;
 
-import com.google.common.util.concurrent.FutureCallback;
-
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class UpdateConnectionModeCallback implements FutureCallback<Void> {
+public interface CreateConnectionFsmBuilder {
 
-    private final CreateConnectionFsm fsm;
-    private final CreateConnectionContext context;
-
-    public UpdateConnectionModeCallback(CreateConnectionFsm fsm, CreateConnectionContext context) {
-        this.fsm = fsm;
-        this.context = context;
-    }
-
-    @Override
-    public void onSuccess(Void result) {
-        this.fsm.fire(CreateConnectionEvent.CONNECTION_MODE_UPDATED, this.context);
-    }
-
-    @Override
-    public void onFailure(Throwable t) {
-        this.context.setError(t);
-        this.fsm.fireImmediate(CreateConnectionEvent.FAILURE, this.context);
-    }
+    CreateConnectionFsm build();
 
 }

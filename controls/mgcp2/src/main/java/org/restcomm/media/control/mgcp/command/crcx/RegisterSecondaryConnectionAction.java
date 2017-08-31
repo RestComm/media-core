@@ -30,7 +30,7 @@ import org.restcomm.media.control.mgcp.endpoint.MgcpEndpoint;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RegisterSecondaryConnectionAction extends RegisterConnectionAction {
+class RegisterSecondaryConnectionAction extends RegisterConnectionAction {
 
     static final RegisterSecondaryConnectionAction INSTANCE = new RegisterSecondaryConnectionAction();
 

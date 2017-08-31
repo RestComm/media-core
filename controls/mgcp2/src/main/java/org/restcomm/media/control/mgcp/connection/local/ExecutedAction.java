@@ -18,29 +18,23 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
+        
+package org.restcomm.media.control.mgcp.connection.local;
 
-package org.restcomm.media.control.mgcp.command.crcx;
-
-import org.restcomm.media.control.mgcp.connection.MgcpConnection;
-import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
+import org.restcomm.media.control.mgcp.command.crcx.CreateConnectionEvent;
+import org.restcomm.media.control.mgcp.command.crcx.CreateConnectionState;
+import org.squirrelframework.foundation.fsm.AnonymousAction;
 
 /**
- * Action that creates a Local Primary Connection.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-class CreateLocalPrimaryConnection extends CreatePrimaryConnection {
-
-    static final CreateLocalPrimaryConnection INSTANCE = new CreateLocalPrimaryConnection();
-
-    CreateLocalPrimaryConnection() {
-        super();
-    }
+public class ExecutedAction extends AnonymousAction<MgcpLocalConnectionFsm, MgcpLocalConnectionState, MgcpLocalConnectionEvent, MgcpLocalConnectionTransitionContext> implements MgcpLocalConnectionAction {
 
     @Override
-    protected MgcpConnection createConnection(int callId, MgcpConnectionProvider provider) {
-        return provider.provideLocal(callId);
+    public void execute(MgcpLocalConnectionState from, MgcpLocalConnectionState to, MgcpLocalConnectionEvent event, MgcpLocalConnectionTransitionContext context, MgcpLocalConnectionFsm stateMachine) {
+        stateMachine.fireImmediate(CreateConnectionEvent.EXECUTED, context);
+        
     }
 
 }

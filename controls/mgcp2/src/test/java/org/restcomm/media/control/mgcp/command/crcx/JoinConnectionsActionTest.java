@@ -113,7 +113,7 @@ public class JoinConnectionsActionTest {
 
         // then
         verify(primaryConnection).join(eq(secondaryConnection), any(JoinConnectionsCallback.class));
-        verify(stateMachine).fire(CreateConnectionEvent.ABORT, context);
+        verify(stateMachine).fire(CreateConnectionEvent.FAILURE, context);
         assertEquals(error, context.getError());
     }
 

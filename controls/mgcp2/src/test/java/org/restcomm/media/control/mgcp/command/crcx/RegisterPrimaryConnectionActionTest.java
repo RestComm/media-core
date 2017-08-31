@@ -71,7 +71,7 @@ public class RegisterPrimaryConnectionActionTest {
 
         // when
         RegisterPrimaryConnectionAction action = new RegisterPrimaryConnectionAction();
-        action.execute(CreateConnectionState.EXECUTING, CreateConnectionState.ROLLING_BACK, CreateConnectionEvent.ABORT, context, stateMachine);
+        action.execute(CreateConnectionState.EXECUTING, CreateConnectionState.ROLLING_BACK, CreateConnectionEvent.FAILURE, context, stateMachine);
 
         // then
         verify(endpoint).registerConnection(eq(connection), any(RegisterConnectionCallback.class));
@@ -110,11 +110,11 @@ public class RegisterPrimaryConnectionActionTest {
         
         // when
         RegisterPrimaryConnectionAction action = new RegisterPrimaryConnectionAction();
-        action.execute(CreateConnectionState.EXECUTING, CreateConnectionState.ROLLING_BACK, CreateConnectionEvent.ABORT, context, stateMachine);
+        action.execute(CreateConnectionState.EXECUTING, CreateConnectionState.ROLLING_BACK, CreateConnectionEvent.FAILURE, context, stateMachine);
         
         // then
         verify(endpoint).registerConnection(eq(connection), any(RegisterConnectionCallback.class));
-        verify(stateMachine).fireImmediate(CreateConnectionEvent.ABORT, context);
+        verify(stateMachine).fireImmediate(CreateConnectionEvent.FAILURE, context);
         assertEquals(error, context.getError());
     }
 

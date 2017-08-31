@@ -66,7 +66,7 @@ public class CloseSecondaryConnectionActionTest {
 
         // when
         CloseSecondaryConnectionAction action = new CloseSecondaryConnectionAction();
-        action.execute(CreateConnectionState.EXECUTING, CreateConnectionState.ROLLING_BACK, CreateConnectionEvent.ABORT, context, stateMachine);
+        action.execute(CreateConnectionState.EXECUTING, CreateConnectionState.ROLLING_BACK, CreateConnectionEvent.FAILURE, context, stateMachine);
 
         // then
         verify(connection, timeout(50)).close(any(CloseConnectionCallback.class));
@@ -101,11 +101,11 @@ public class CloseSecondaryConnectionActionTest {
 
         // when
         CloseSecondaryConnectionAction action = new CloseSecondaryConnectionAction();
-        action.execute(CreateConnectionState.EXECUTING, CreateConnectionState.ROLLING_BACK, CreateConnectionEvent.ABORT, context, stateMachine);
+        action.execute(CreateConnectionState.EXECUTING, CreateConnectionState.ROLLING_BACK, CreateConnectionEvent.FAILURE, context, stateMachine);
 
         // then
         verify(connection, timeout(50)).close(any(CloseConnectionCallback.class));
-        verify(stateMachine).fire(CreateConnectionEvent.ABORT, context);
+        verify(stateMachine).fire(CreateConnectionEvent.FAILURE, context);
         assertEquals(error, context.getError());
     }
 

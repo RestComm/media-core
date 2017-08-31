@@ -23,24 +23,37 @@ package org.restcomm.media.control.mgcp.command.crcx;
 
 import org.restcomm.media.control.mgcp.connection.MgcpConnection;
 import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
+import org.squirrelframework.foundation.fsm.AnonymousAction;
 
 /**
- * Action that creates a Remote Primary Connection.
+ * Action that creates a Local Primary Connection.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-class CreateRemotePrimaryConnection extends CreatePrimaryConnectionAction {
+class CreateLocalSecondaryConnectionAction
+        extends AnonymousAction<CreateConnectionFsm, CreateConnectionState, CreateConnectionEvent, CreateConnectionContext>
+        implements CreateConnectionAction {
 
-    static final CreateRemotePrimaryConnection INSTANCE = new CreateRemotePrimaryConnection();
+    static final CreateLocalSecondaryConnectionAction INSTANCE = new CreateLocalSecondaryConnectionAction();
 
-    CreateRemotePrimaryConnection() {
+    CreateLocalSecondaryConnectionAction() {
         super();
     }
 
     @Override
-    protected MgcpConnection createConnection(int callId, MgcpConnectionProvider provider) {
-        return provider.provideRemote(callId);
+    public void execute(CreateConnectionState from, CreateConnectionState to, CreateConnectionEvent event, CreateConnectionContext context, CreateConnectionFsm stateMachine) {
+        final MgcpConnectionProvider provider = context.getConnectionProvider();
+        final int callId = context.getCallId();
+
+        // Create connection
+        MgcpConnection connection = provider.provideLocal(callId);
+
+        // Update context
+        context.setSecondaryConnection(connection);
+
+        // Move to next state
+        stateMachine.fire(CreateConnectionEvent.CONNECTION_CREATED, context);
     }
 
 }

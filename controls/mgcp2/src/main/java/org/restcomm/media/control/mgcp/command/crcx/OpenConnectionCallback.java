@@ -52,7 +52,7 @@ public class OpenConnectionCallback implements FutureCallback<String> {
         context.setError(t);
         
         // Fail command
-        this.fsm.fire(CreateConnectionEvent.ABORT, this.context);
+        this.fsm.fire(CreateConnectionEvent.FAILURE, this.context);
     }
 
 }
