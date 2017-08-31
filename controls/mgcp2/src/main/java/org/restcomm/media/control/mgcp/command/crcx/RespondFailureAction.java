@@ -36,11 +36,17 @@ import com.google.common.util.concurrent.FutureCallback;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RespondFailureAction
+class RespondFailureAction
         extends AnonymousAction<CreateConnectionFsm, CreateConnectionState, CreateConnectionEvent, CreateConnectionContext>
         implements CreateConnectionAction {
-    
+
     private static final Logger log = Logger.getLogger(RespondFailureAction.class);
+
+    static final RespondFailureAction INSTANCE = new RespondFailureAction();
+
+    public RespondFailureAction() {
+        super();
+    }
 
     @Override
     public void execute(CreateConnectionState from, CreateConnectionState to, CreateConnectionEvent event,
@@ -58,9 +64,9 @@ public class RespondFailureAction
             MgcpResponseCode responseCode = MgcpResponseCode.PROTOCOL_ERROR;
             result = new MgcpCommandResult(transactionId, responseCode.code(), responseCode.message(), parameters);
         }
-        
+
         log.error("An error occurred during tx=" + transactionId + " execution. Reason: " + error.getMessage() + ". Rolled back.");
-        
+
         callback.onSuccess(result);
     }
 

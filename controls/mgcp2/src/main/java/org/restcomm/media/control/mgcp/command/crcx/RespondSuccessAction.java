@@ -38,9 +38,15 @@ import com.google.common.util.concurrent.FutureCallback;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RespondSuccessAction
+class RespondSuccessAction
         extends AnonymousAction<CreateConnectionFsm, CreateConnectionState, CreateConnectionEvent, CreateConnectionContext>
         implements CreateConnectionAction {
+    
+    static final RespondSuccessAction INSTANCE = new RespondSuccessAction();
+    
+    RespondSuccessAction() {
+        super();
+    }
 
     @Override
     public void execute(CreateConnectionState from, CreateConnectionState to, CreateConnectionEvent event, CreateConnectionContext context, CreateConnectionFsm stateMachine) {
