@@ -40,25 +40,18 @@ import com.google.common.base.Optional;
 /**
  * Parses and validates the parameters passed to the CRCX Command.
  * 
- * <p>
- * Input parameters:
- * <ul>
- * <li>PARAMETERS</li>
- * </ul>
- * </p>
- * <p>
- * Output parameters:
- * <ul>
- * <li>ERROR (optional)</li>
- * </ul>
- * </p>
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class ValidateParametersAction extends
+class ValidateParametersAction extends
         AnonymousAction<CreateConnectionFsm, CreateConnectionState, CreateConnectionEvent, CreateConnectionContext>
         implements CreateConnectionAction {
+    
+    static final ValidateParametersAction INSTANCE = new ValidateParametersAction();
+    
+    ValidateParametersAction() {
+        super();
+    }
 
     @Override
     public void execute(CreateConnectionState from, CreateConnectionState to, CreateConnectionEvent event, CreateConnectionContext context, CreateConnectionFsm stateMachine) {
@@ -75,7 +68,7 @@ public class ValidateParametersAction extends
             // Verify existence of required resources
             final MgcpEndpointManager endpointManager = context.getEndpointManager();
             MgcpEndpoint primaryEndpoint = retrieveEndpoint(primaryEndpointId, endpointManager);
-            MgcpEndpoint secondaryEndpoint = retrieveEndpoint(secondaryEndpointId, endpointManager);
+            MgcpEndpoint secondaryEndpoint = secondaryEndpointId.isEmpty() ? null : retrieveEndpoint(secondaryEndpointId, endpointManager) ;
 
             // Persist parameters into global context
             context.setCallId(callId);

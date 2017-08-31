@@ -22,8 +22,6 @@
 package org.restcomm.media.control.mgcp.command.crcx;
 
 import org.restcomm.media.control.mgcp.connection.MgcpConnection;
-import org.restcomm.media.spi.ConnectionMode;
-import org.squirrelframework.foundation.fsm.AnonymousAction;
 
 /**
  * Action that updates the mode of the primary connection.
@@ -31,20 +29,17 @@ import org.squirrelframework.foundation.fsm.AnonymousAction;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class UpdatePrimaryConnectionMode
-        extends AnonymousAction<CreateConnectionFsm, CreateConnectionState, CreateConnectionEvent, CreateConnectionContext>
-        implements CreateConnectionAction {
+public class UpdatePrimaryConnectionModeAction extends UpdateConnectionModeAction {
+    
+    static final UpdatePrimaryConnectionModeAction INSTANCE = new UpdatePrimaryConnectionModeAction();
+    
+    UpdatePrimaryConnectionModeAction() {
+        super();
+    }
 
     @Override
-    public void execute(CreateConnectionState from, CreateConnectionState to, CreateConnectionEvent event, CreateConnectionContext context, CreateConnectionFsm stateMachine) {
-        final MgcpConnection connection = context.getPrimaryConnection();
-        final ConnectionMode mode = context.getConnectionMode();
-        
-        // Update the connection mode
-        UpdateConnectionModeCallback callback = new UpdateConnectionModeCallback(stateMachine, context);
-        connection.updateMode(mode, callback);
-        
-        // Callback will handle rest of the logic
+    protected MgcpConnection getConnection(CreateConnectionContext context) {
+        return context.getPrimaryConnection();
     }
 
 }
