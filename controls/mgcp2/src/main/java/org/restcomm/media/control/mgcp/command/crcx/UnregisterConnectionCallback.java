@@ -21,6 +21,7 @@
 
 package org.restcomm.media.control.mgcp.command.crcx;
 
+import org.apache.log4j.Logger;
 import org.restcomm.media.control.mgcp.connection.MgcpConnection;
 
 import com.google.common.util.concurrent.FutureCallback;
@@ -30,24 +31,40 @@ import com.google.common.util.concurrent.FutureCallback;
  *
  */
 public class UnregisterConnectionCallback implements FutureCallback<MgcpConnection> {
+    
+    private static final Logger log = Logger.getLogger(UnregisterConnectionCallback.class);
 
     private final CreateConnectionFsm fsm;
     private final CreateConnectionContext context;
+    private final boolean primary;
 
-    public UnregisterConnectionCallback(CreateConnectionFsm fsm, CreateConnectionContext context) {
+    public UnregisterConnectionCallback(boolean primary, CreateConnectionFsm fsm, CreateConnectionContext context) {
         this.fsm = fsm;
         this.context = context;
+        this.primary = primary;
     }
 
     @Override
     public void onSuccess(MgcpConnection result) {
+        // Continue with cleanup
         this.fsm.fire(CreateConnectionEvent.CONNECTION_UNREGISTERED, this.context);
     }
 
     @Override
     public void onFailure(Throwable t) {
-        this.context.setError(t);
-        this.fsm.fireImmediate(CreateConnectionEvent.ABORT, this.context);
+        // Log error
+        final int transactionId = context.getTransactionId();
+        final String connectionHexId = getConnectionHexId();
+        
+        log.warn("Could not unregister connection " + connectionHexId + " safely during tx=" + transactionId + " execution. Reason: " + t.getMessage());
+        
+        // Continue with cleanup
+        this.fsm.fire(CreateConnectionEvent.CONNECTION_UNREGISTERED, this.context);
+    }
+    
+    private String getConnectionHexId() {
+        MgcpConnection connection = this.primary ? this.context.getPrimaryConnection() : this.context.getSecondaryConnection();
+        return connection.getHexIdentifier();
     }
 
 }

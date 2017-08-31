@@ -23,7 +23,6 @@ package org.restcomm.media.control.mgcp.command.crcx;
 
 import org.restcomm.media.control.mgcp.connection.MgcpConnection;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpoint;
-import org.squirrelframework.foundation.fsm.AnonymousAction;
 
 /**
  * Action that registers the Primary Connection the the MGCP Endpoint.
@@ -31,21 +30,22 @@ import org.squirrelframework.foundation.fsm.AnonymousAction;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class UnregisterSecondaryConnectionAction
-        extends AnonymousAction<CreateConnectionFsm, CreateConnectionState, CreateConnectionEvent, CreateConnectionContext>
-        implements CreateConnectionAction {
+class UnregisterSecondaryConnectionAction extends UnregisterConnectionAction {
+
+    static final UnregisterSecondaryConnectionAction INSTANCE = new UnregisterSecondaryConnectionAction();
+
+    UnregisterSecondaryConnectionAction() {
+        super();
+    }
 
     @Override
-    public void execute(CreateConnectionState from, CreateConnectionState to, CreateConnectionEvent event, CreateConnectionContext context, CreateConnectionFsm stateMachine) {
-        final MgcpEndpoint endpoint = context.getSecondaryEndpoint();
-        final MgcpConnection connection = context.getSecondaryConnection();
-        final int callId = context.getCallId();
+    protected MgcpConnection getConnection(CreateConnectionContext context) {
+        return context.getSecondaryConnection();
+    }
 
-        // Register connection into the endpoint
-        UnregisterConnectionCallback callback = new UnregisterConnectionCallback(stateMachine, context);
-        endpoint.unregisterConnection(callId, connection.getIdentifier(), callback);
-        
-        // Callback will handle logic from here
+    @Override
+    protected MgcpEndpoint getEndpoint(CreateConnectionContext context) {
+        return context.getSecondaryEndpoint();
     }
 
 }
