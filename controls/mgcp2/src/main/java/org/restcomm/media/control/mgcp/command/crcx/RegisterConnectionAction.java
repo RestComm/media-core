@@ -23,28 +23,36 @@ package org.restcomm.media.control.mgcp.command.crcx;
 
 import org.restcomm.media.control.mgcp.connection.MgcpConnection;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpoint;
+import org.squirrelframework.foundation.fsm.AnonymousAction;
 
 /**
- * Action that registers the Primary Connection the the MGCP Endpoint.
+ * Action that registers a Connection in the MGCP Endpoint.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RegisterPrimaryConnectionAction extends RegisterConnectionAction {
+public abstract class RegisterConnectionAction
+        extends AnonymousAction<CreateConnectionFsm, CreateConnectionState, CreateConnectionEvent, CreateConnectionContext>
+        implements CreateConnectionAction {
 
-    static final RegisterPrimaryConnectionAction INSTANCE = new RegisterPrimaryConnectionAction();
-
-    RegisterPrimaryConnectionAction() {
+    public RegisterConnectionAction() {
         super();
     }
 
     @Override
-    protected MgcpEndpoint getEndpoint(CreateConnectionContext context) {
-        return context.getPrimaryEndpoint();
+    public void execute(CreateConnectionState from, CreateConnectionState to, CreateConnectionEvent event, CreateConnectionContext context, CreateConnectionFsm stateMachine) {
+        final MgcpEndpoint endpoint = getEndpoint(context);
+        final MgcpConnection connection = getConnection(context);
+
+        // Register connection into the endpoint
+        RegisterConnectionCallback callback = new RegisterConnectionCallback(stateMachine, context);
+        endpoint.registerConnection(connection, callback);
+
+        // Callback will handle logic from here
     }
 
-    protected MgcpConnection getConnection(CreateConnectionContext context) {
-        return context.getPrimaryConnection();
-    }
+    protected abstract MgcpEndpoint getEndpoint(CreateConnectionContext context);
+
+    protected abstract MgcpConnection getConnection(CreateConnectionContext context);
 
 }
