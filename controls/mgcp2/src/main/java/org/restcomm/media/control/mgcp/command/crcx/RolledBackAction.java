@@ -18,18 +18,29 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
+
 package org.restcomm.media.control.mgcp.command.crcx;
+
+import org.squirrelframework.foundation.fsm.AnonymousAction;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum CreateConnectionState {
-    
-    VALIDATING_PARAMETERS, EXECUTING, ROLLING_BACK, SUCCEEDED, FAILED,
-    CREATING_PRIMARY_CONNECTION, OPENING_PRIMARY_CONNECTION, CREATING_SECONDARY_CONNECTION, OPENING_SECONDARY_CONNECTION, JOINING_CONNECTIONS, UPDATING_PRIMARY_CONNECTION_MODE, UPDATING_SECONDARY_CONNECTION_MODE, REGISTERING_PRIMARY_CONNECTION, REGISTERING_SECONDARY_CONNECTION, EXECUTED_COMMAND,
-    UNREGISTERING_PRIMARY_CONNECTION, CLOSING_PRIMARY_CONNECTION, UNREGISTERING_SECONDARY_CONNECTION, CLOSING_SECONDARY_CONNECTION, ROLLED_BACK
-    ;
+class RolledBackAction
+        extends AnonymousAction<CreateConnectionFsm, CreateConnectionState, CreateConnectionEvent, CreateConnectionContext>
+        implements CreateConnectionAction {
+
+    static final RolledBackAction INSTANCE = new RolledBackAction();
+
+    RolledBackAction() {
+        super();
+    }
+
+    @Override
+    public void execute(CreateConnectionState from, CreateConnectionState to, CreateConnectionEvent event,
+            CreateConnectionContext context, CreateConnectionFsm stateMachine) {
+        stateMachine.fireImmediate(CreateConnectionEvent.ROLLED_BACK, context);
+    }
 
 }

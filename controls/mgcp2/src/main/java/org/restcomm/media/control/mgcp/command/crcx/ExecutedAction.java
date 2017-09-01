@@ -18,23 +18,29 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
-package org.restcomm.media.control.mgcp.connection.local;
 
-import org.restcomm.media.control.mgcp.command.crcx.CreateConnectionEvent;
-import org.restcomm.media.control.mgcp.command.crcx.CreateConnectionState;
+package org.restcomm.media.control.mgcp.command.crcx;
+
 import org.squirrelframework.foundation.fsm.AnonymousAction;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class ExecutedAction extends AnonymousAction<MgcpLocalConnectionFsm, MgcpLocalConnectionState, MgcpLocalConnectionEvent, MgcpLocalConnectionTransitionContext> implements MgcpLocalConnectionAction {
+class ExecutedAction
+        extends AnonymousAction<CreateConnectionFsm, CreateConnectionState, CreateConnectionEvent, CreateConnectionContext>
+        implements CreateConnectionAction {
+
+    static final ExecutedAction INSTANCE = new ExecutedAction();
+
+    ExecutedAction() {
+        super();
+    }
 
     @Override
-    public void execute(MgcpLocalConnectionState from, MgcpLocalConnectionState to, MgcpLocalConnectionEvent event, MgcpLocalConnectionTransitionContext context, MgcpLocalConnectionFsm stateMachine) {
+    public void execute(CreateConnectionState from, CreateConnectionState to, CreateConnectionEvent event,
+            CreateConnectionContext context, CreateConnectionFsm stateMachine) {
         stateMachine.fireImmediate(CreateConnectionEvent.EXECUTED, context);
-        
     }
 
 }
