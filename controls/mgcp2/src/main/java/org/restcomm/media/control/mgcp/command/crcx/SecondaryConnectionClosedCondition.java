@@ -27,17 +27,17 @@ import org.squirrelframework.foundation.fsm.AnonymousCondition;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-class PrimaryConnectionClosedCondition extends AnonymousCondition<CreateConnectionContext> implements CreateConnectionCondition {
+class SecondaryConnectionClosedCondition extends AnonymousCondition<CreateConnectionContext> implements CreateConnectionCondition {
 
-    static final PrimaryConnectionClosedCondition INSTANCE = new PrimaryConnectionClosedCondition();
+    static final SecondaryConnectionClosedCondition INSTANCE = new SecondaryConnectionClosedCondition();
     
-    PrimaryConnectionClosedCondition() {
+    SecondaryConnectionClosedCondition() {
         super();
     }
     
     @Override
     public boolean isSatisfied(CreateConnectionContext context) {
-        return !context.isPrimaryConnectionOpen();
+        return !context.isSecondaryConnectionOpen();
     }
 
 }

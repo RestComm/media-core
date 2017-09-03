@@ -29,22 +29,22 @@ import org.squirrelframework.foundation.fsm.AnonymousCondition;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-class PrimaryConnectionNotRegisteredAndOpenCondition extends AnonymousCondition<CreateConnectionContext> implements CreateConnectionCondition {
+class SecondaryConnectionNotRegisteredAndOpenedCondition extends AnonymousCondition<CreateConnectionContext> implements CreateConnectionCondition {
 
-    static final PrimaryConnectionNotRegisteredAndOpenCondition INSTANCE = new PrimaryConnectionNotRegisteredAndOpenCondition();
+    static final SecondaryConnectionNotRegisteredAndOpenedCondition INSTANCE = new SecondaryConnectionNotRegisteredAndOpenedCondition();
     
-    PrimaryConnectionNotRegisteredAndOpenCondition() {
+    SecondaryConnectionNotRegisteredAndOpenedCondition() {
         super();
     }
     
     @Override
     public boolean isSatisfied(CreateConnectionContext context) {
-        final MgcpEndpoint endpoint = context.getPrimaryEndpoint();
-        final MgcpConnection connection = context.getPrimaryConnection();
+        final MgcpEndpoint endpoint = context.getSecondaryEndpoint();
+        final MgcpConnection connection = context.getSecondaryConnection();
         final int callId = connection.getCallIdentifier();
         final int connectionId = connection.getIdentifier();
         
-        return !endpoint.isRegistered(callId, connectionId) && connection.isOpen();
+        return !endpoint.isRegistered(callId, connectionId) && context.isSecondaryConnectionOpen();
     }
 
 }

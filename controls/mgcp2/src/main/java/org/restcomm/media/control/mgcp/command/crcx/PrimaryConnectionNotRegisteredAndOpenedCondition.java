@@ -21,23 +21,30 @@
         
 package org.restcomm.media.control.mgcp.command.crcx;
 
+import org.restcomm.media.control.mgcp.connection.MgcpConnection;
+import org.restcomm.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.squirrelframework.foundation.fsm.AnonymousCondition;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-class PrimaryConnectionClosedCondition extends AnonymousCondition<CreateConnectionContext> implements CreateConnectionCondition {
+class PrimaryConnectionNotRegisteredAndOpenedCondition extends AnonymousCondition<CreateConnectionContext> implements CreateConnectionCondition {
 
-    static final PrimaryConnectionClosedCondition INSTANCE = new PrimaryConnectionClosedCondition();
+    static final PrimaryConnectionNotRegisteredAndOpenedCondition INSTANCE = new PrimaryConnectionNotRegisteredAndOpenedCondition();
     
-    PrimaryConnectionClosedCondition() {
+    PrimaryConnectionNotRegisteredAndOpenedCondition() {
         super();
     }
     
     @Override
     public boolean isSatisfied(CreateConnectionContext context) {
-        return !context.isPrimaryConnectionOpen();
+        final MgcpEndpoint endpoint = context.getPrimaryEndpoint();
+        final MgcpConnection connection = context.getPrimaryConnection();
+        final int callId = connection.getCallIdentifier();
+        final int connectionId = connection.getIdentifier();
+        
+        return !endpoint.isRegistered(callId, connectionId) && context.isPrimaryConnectionOpen();
     }
 
 }

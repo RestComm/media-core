@@ -74,7 +74,7 @@ class CreateRemoteConnectionFsmBuilder extends AbstractCreateConnectionFsmBuilde
     @Override
     protected void configureRollbackStates(StateMachineBuilder<CreateConnectionFsm, CreateConnectionState, CreateConnectionEvent, CreateConnectionContext> builder) {
         builder.localTransition().from(ROLLING_BACK).to(UNREGISTERING_PRIMARY_CONNECTION).on(ROLLBACK).when(PrimaryConnectionRegisteredCondition.INSTANCE);
-        builder.localTransition().from(ROLLING_BACK).to(CLOSING_PRIMARY_CONNECTION).on(ROLLBACK).when(PrimaryConnectionNotRegisteredAndOpenCondition.INSTANCE);
+        builder.localTransition().from(ROLLING_BACK).to(CLOSING_PRIMARY_CONNECTION).on(ROLLBACK).when(PrimaryConnectionNotRegisteredAndOpenedCondition.INSTANCE);
         builder.localTransition().from(ROLLING_BACK).to(CreateConnectionState.ROLLED_BACK).on(ROLLBACK).when(PrimaryConnectionClosedCondition.INSTANCE);
         
         builder.onEntry(UNREGISTERING_PRIMARY_CONNECTION).perform(UnregisterPrimaryConnectionAction.INSTANCE);

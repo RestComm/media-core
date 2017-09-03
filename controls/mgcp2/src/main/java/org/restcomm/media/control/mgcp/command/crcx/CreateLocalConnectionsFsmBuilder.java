@@ -87,11 +87,17 @@ class CreateLocalConnectionsFsmBuilder extends AbstractCreateConnectionFsmBuilde
 
     @Override
     protected void configureRollbackStates(StateMachineBuilder<CreateConnectionFsm, CreateConnectionState, CreateConnectionEvent, CreateConnectionContext> builder) {
+        builder.localTransition().from(ROLLING_BACK).to(UNREGISTERING_PRIMARY_CONNECTION).on(ROLLBACK).when(PrimaryConnectionRegisteredCondition.INSTANCE);
+        builder.localTransition().from(ROLLING_BACK).to(CLOSING_PRIMARY_CONNECTION).on(ROLLBACK).when(PrimaryConnectionNotRegisteredAndOpenedCondition.INSTANCE);
+        builder.localTransition().from(ROLLING_BACK).to(CreateConnectionState.ROLLED_BACK).on(ROLLBACK).when(PrimaryConnectionClosedCondition.INSTANCE);
+        
         builder.onEntry(UNREGISTERING_PRIMARY_CONNECTION).perform(UnregisterPrimaryConnectionAction.INSTANCE);
         builder.localTransition().from(UNREGISTERING_PRIMARY_CONNECTION).to(CLOSING_PRIMARY_CONNECTION).on(CONNECTION_UNREGISTERED);
 
         builder.onEntry(CLOSING_PRIMARY_CONNECTION).perform(ClosePrimaryConnectionAction.INSTANCE);
-        builder.localTransition().from(CLOSING_PRIMARY_CONNECTION).to(UNREGISTERING_SECONDARY_CONNECTION).on(CONNECTION_CLOSED);
+        builder.localTransition().from(CLOSING_PRIMARY_CONNECTION).to(UNREGISTERING_SECONDARY_CONNECTION).on(CONNECTION_CLOSED).when(SecondaryConnectionRegisteredCondition.INSTANCE);
+        builder.localTransition().from(CLOSING_PRIMARY_CONNECTION).to(CreateConnectionState.CLOSING_SECONDARY_CONNECTION).on(CONNECTION_CLOSED).when(SecondaryConnectionNotRegisteredAndOpenedCondition.INSTANCE);
+        builder.localTransition().from(CLOSING_PRIMARY_CONNECTION).to(CreateConnectionState.ROLLED_BACK).on(CONNECTION_CLOSED).when(SecondaryConnectionClosedCondition.INSTANCE);
         
         builder.onEntry(UNREGISTERING_SECONDARY_CONNECTION).perform(UnregisterSecondaryConnectionAction.INSTANCE);
         builder.localTransition().from(UNREGISTERING_SECONDARY_CONNECTION).to(CLOSING_SECONDARY_CONNECTION).on(CONNECTION_UNREGISTERED);
