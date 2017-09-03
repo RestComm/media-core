@@ -43,8 +43,9 @@ abstract class AbstractCreateConnectionFsmBuilder implements CreateConnectionFsm
         this.builder.externalTransition().from(CreateConnectionState.EXECUTING).to(CreateConnectionState.ROLLING_BACK).on(CreateConnectionEvent.FAILURE);
         this.builder.externalTransition().from(CreateConnectionState.EXECUTING).toFinal(CreateConnectionState.SUCCEEDED).on(CreateConnectionEvent.SUCCESS);
         this.configureExecutionStates(this.builder);
-        
-        this.builder.defineSequentialStatesOn(CreateConnectionState.ROLLING_BACK, getRollbackStates());
+
+        this.builder.onEntry(CreateConnectionState.ROLLING_BACK).perform(StartRollbackAction.INSTANCE);
+        this.builder.defineNoInitSequentialStatesOn(CreateConnectionState.ROLLING_BACK, getRollbackStates());
         this.builder.externalTransition().from(CreateConnectionState.ROLLING_BACK).toFinal(CreateConnectionState.FAILED).on(CreateConnectionEvent.ROLLED_BACK);
         this.configureRollbackStates(this.builder);
     }

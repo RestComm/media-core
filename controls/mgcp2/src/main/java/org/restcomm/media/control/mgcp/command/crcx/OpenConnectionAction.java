@@ -39,18 +39,22 @@ abstract class OpenConnectionAction
     }
 
     @Override
-    public void execute(CreateConnectionState from, CreateConnectionState to, CreateConnectionEvent event,
-            CreateConnectionContext context, CreateConnectionFsm stateMachine) {
+    public void execute(CreateConnectionState from, CreateConnectionState to, CreateConnectionEvent event, CreateConnectionContext context, CreateConnectionFsm stateMachine) {
         final MgcpConnection connection = getConnection(context);
         final String remoteDescription = context.getRemoteDescription();
 
         // Open connection
-        OpenConnectionCallback callback = new OpenConnectionCallback(stateMachine, context);
+        boolean primary = isPrimary(context);
+        OpenConnectionCallback callback = new OpenConnectionCallback(primary, stateMachine, context);
         connection.open(remoteDescription, callback);
 
         // Callback will handle rest of the logic
     }
     
     abstract MgcpConnection getConnection(CreateConnectionContext context);
+    
+    private boolean isPrimary(CreateConnectionContext context) {
+        return context.getPrimaryConnection() == getConnection(context);
+    }
 
 }

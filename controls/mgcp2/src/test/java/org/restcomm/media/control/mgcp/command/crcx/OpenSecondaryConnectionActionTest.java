@@ -22,7 +22,9 @@
 package org.restcomm.media.control.mgcp.command.crcx;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
@@ -44,7 +46,7 @@ import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointManager;
 public class OpenSecondaryConnectionActionTest {
 
     @Test
-    public void testOpenPrimaryConnection() {
+    public void testOpenSecondaryConnection() {
         // given
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
@@ -78,11 +80,12 @@ public class OpenSecondaryConnectionActionTest {
         verify(connection).open(eq(remoteSdp), any(OpenConnectionCallback.class));
         verify(stateMachine).fire(CreateConnectionEvent.CONNECTION_OPENED, context);
         assertEquals(localSdp, context.getLocalDescription());
+        assertTrue(context.isSecondaryConnectionOpen());
         assertNull(context.getError());
     }
     
     @Test
-    public void testOpenPrimaryConnectionFailure() {
+    public void testOpenSecondaryConnectionFailure() {
         // given
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
@@ -116,6 +119,7 @@ public class OpenSecondaryConnectionActionTest {
         verify(connection).open(eq(remoteSdp), any(OpenConnectionCallback.class));
         verify(stateMachine).fire(CreateConnectionEvent.FAILURE, context);
         assertEquals("", context.getLocalDescription());
+        assertFalse(context.isSecondaryConnectionOpen());
         assertEquals(error, context.getError());
     }
 

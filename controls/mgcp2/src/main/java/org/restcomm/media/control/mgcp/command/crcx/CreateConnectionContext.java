@@ -53,7 +53,9 @@ class CreateConnectionContext {
     private String secondaryEndpointId;
     private MgcpEndpoint secondaryEndpoint;
     private MgcpConnection primaryConnection;
+    private boolean primaryConnectionOpen;
     private MgcpConnection secondaryConnection;
+    private boolean secondaryConnectionOpen;
     private ConnectionMode connectionMode;
     private String remoteDescription;
     private String localDescription;
@@ -77,7 +79,9 @@ class CreateConnectionContext {
         this.secondaryEndpointId = "";
         this.secondaryEndpoint = null;
         this.primaryConnection = null;
+        this.primaryConnectionOpen = false;
         this.secondaryConnection = null;
+        this.secondaryConnectionOpen = false;
         this.connectionMode = ConnectionMode.INACTIVE;
         this.remoteDescription = "";
         this.localDescription = "";
@@ -140,6 +144,14 @@ class CreateConnectionContext {
     protected void setPrimaryConnection(MgcpConnection primaryConnection) {
         this.primaryConnection = primaryConnection;
     }
+    
+    public void setPrimaryConnectionOpen(boolean primaryConnectionOpen) {
+        this.primaryConnectionOpen = primaryConnectionOpen;
+    }
+    
+    public boolean isPrimaryConnectionOpen() {
+        return primaryConnectionOpen;
+    }
 
     protected MgcpConnection getSecondaryConnection() {
         return secondaryConnection;
@@ -147,6 +159,14 @@ class CreateConnectionContext {
 
     protected void setSecondaryConnection(MgcpConnection secondaryConnection) {
         this.secondaryConnection = secondaryConnection;
+    }
+    
+    public void setSecondaryConnectionOpen(boolean secondaryConnectionOpen) {
+        this.secondaryConnectionOpen = secondaryConnectionOpen;
+    }
+    
+    public boolean isSecondaryConnectionOpen() {
+        return secondaryConnectionOpen;
     }
 
     protected ConnectionMode getConnectionMode() {

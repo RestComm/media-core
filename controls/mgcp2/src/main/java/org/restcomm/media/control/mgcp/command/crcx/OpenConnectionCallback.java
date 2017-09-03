@@ -31,16 +31,27 @@ public class OpenConnectionCallback implements FutureCallback<String> {
 
     private final CreateConnectionFsm fsm;
     private final CreateConnectionContext context;
+    
+    private final boolean primary;
 
-    public OpenConnectionCallback(CreateConnectionFsm fsm, CreateConnectionContext context) {
+    public OpenConnectionCallback(boolean primary, CreateConnectionFsm fsm, CreateConnectionContext context) {
         this.fsm = fsm;
         this.context = context;
+        
+        this.primary = primary;
     }
 
     @Override
     public void onSuccess(String result) {
         // Save data into context
         this.context.setLocalDescription(result);
+        
+        // Mark connection as open
+        if(this.primary) {
+            this.context.setPrimaryConnectionOpen(true);
+        } else {
+            this.context.setSecondaryConnectionOpen(true);
+        }
         
         // Move to next state
         this.fsm.fire(CreateConnectionEvent.CONNECTION_OPENED, this.context);

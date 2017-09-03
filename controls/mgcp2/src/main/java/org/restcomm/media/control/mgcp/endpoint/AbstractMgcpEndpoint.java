@@ -145,6 +145,11 @@ public class AbstractMgcpEndpoint implements MgcpEndpoint {
         }
         return null;
     }
+    
+    @Override
+    public boolean isRegistered(int callId, int connectionId) {
+        return getConnection(callId, connectionId) != null;
+    }
 
     @Override
     public void registerConnection(MgcpConnection connection, FutureCallback<Void> callback) {

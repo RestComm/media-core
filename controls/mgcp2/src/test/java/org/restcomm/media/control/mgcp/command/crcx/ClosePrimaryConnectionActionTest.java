@@ -38,10 +38,10 @@ import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointManager;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class CloseSecondaryConnectionActionTest {
+public class ClosePrimaryConnectionActionTest {
 
     @Test
-    public void testCloseSecondaryConnection() {
+    public void testClosePrimaryConnection() {
         // given
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
@@ -62,22 +62,22 @@ public class CloseSecondaryConnectionActionTest {
 
         }).when(connection).close(any(CloseConnectionCallback.class));
 
-        context.setSecondaryConnection(connection);
-        context.setSecondaryConnectionOpen(true);
+        context.setPrimaryConnection(connection);
+        context.setPrimaryConnectionOpen(true);
 
         // when
-        CloseSecondaryConnectionAction action = new CloseSecondaryConnectionAction();
+        ClosePrimaryConnectionAction action = new ClosePrimaryConnectionAction();
         action.execute(CreateConnectionState.EXECUTING, CreateConnectionState.ROLLING_BACK, CreateConnectionEvent.FAILURE, context, stateMachine);
 
         // then
         verify(connection, timeout(50)).close(any(CloseConnectionCallback.class));
         verify(stateMachine).fire(CreateConnectionEvent.CONNECTION_CLOSED, context);
-        assertFalse(context.isSecondaryConnectionOpen());
+        assertFalse(context.isPrimaryConnectionOpen());
         assertNull(context.getError());
     }
 
     @Test
-    public void testCloseSecondaryConnectionFailure() {
+    public void testClosePrimaryConnectionFailure() {
         // given
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
@@ -99,10 +99,10 @@ public class CloseSecondaryConnectionActionTest {
 
         }).when(connection).close(any(CloseConnectionCallback.class));
 
-        context.setSecondaryConnection(connection);
+        context.setPrimaryConnection(connection);
 
         // when
-        CloseSecondaryConnectionAction action = new CloseSecondaryConnectionAction();
+        ClosePrimaryConnectionAction action = new ClosePrimaryConnectionAction();
         action.execute(CreateConnectionState.EXECUTING, CreateConnectionState.ROLLING_BACK, CreateConnectionEvent.FAILURE, context, stateMachine);
 
         // then

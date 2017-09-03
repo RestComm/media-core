@@ -31,14 +31,24 @@ class CloseConnectionCallback implements FutureCallback<Void> {
 
     private final CreateConnectionFsm fsm;
     private final CreateConnectionContext context;
+    
+    private boolean primary;
 
-    CloseConnectionCallback(CreateConnectionFsm fsm, CreateConnectionContext context) {
+    CloseConnectionCallback(boolean primary, CreateConnectionFsm fsm, CreateConnectionContext context) {
         this.fsm = fsm;
         this.context = context;
+        this.primary = primary;
     }
 
     @Override
     public void onSuccess(Void result) {
+        // Mark connection as closed
+        if(this.primary) {
+            this.context.setPrimaryConnectionOpen(false);
+        } else {
+            this.context.setSecondaryConnectionOpen(false);
+        }
+        
         // Move to next state
         this.fsm.fire(CreateConnectionEvent.CONNECTION_CLOSED, this.context);
     }

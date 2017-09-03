@@ -18,37 +18,33 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
+        
 package org.restcomm.media.control.mgcp.command.crcx;
 
 import org.restcomm.media.control.mgcp.connection.MgcpConnection;
-import org.squirrelframework.foundation.fsm.AnonymousAction;
+import org.restcomm.media.control.mgcp.endpoint.MgcpEndpoint;
+import org.squirrelframework.foundation.fsm.AnonymousCondition;
 
 /**
- * Action that closes the primary connection.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class ClosePrimaryConnectionAction
-        extends AnonymousAction<CreateConnectionFsm, CreateConnectionState, CreateConnectionEvent, CreateConnectionContext>
-        implements CreateConnectionAction {
+class PrimaryConnectionRegisteredCondition extends AnonymousCondition<CreateConnectionContext> implements CreateConnectionCondition {
+
+    static final PrimaryConnectionRegisteredCondition INSTANCE = new PrimaryConnectionRegisteredCondition();
     
-    static final ClosePrimaryConnectionAction INSTANCE = new ClosePrimaryConnectionAction();
-    
-    ClosePrimaryConnectionAction() {
+    PrimaryConnectionRegisteredCondition() {
         super();
     }
-
+    
     @Override
-    public void execute(CreateConnectionState from, CreateConnectionState to, CreateConnectionEvent event, CreateConnectionContext context, CreateConnectionFsm stateMachine) {
+    public boolean isSatisfied(CreateConnectionContext context) {
+        final MgcpEndpoint endpoint = context.getPrimaryEndpoint();
         final MgcpConnection connection = context.getPrimaryConnection();
-
-        // Close connection
-        CloseConnectionCallback callback = new CloseConnectionCallback(true, stateMachine, context);
-        connection.close(callback);
+        final int callId = connection.getCallIdentifier();
+        final int connectionId = connection.getIdentifier();
         
-        // Callback will handle rest of the logic
+        return endpoint.isRegistered(callId, connectionId);
     }
 
 }

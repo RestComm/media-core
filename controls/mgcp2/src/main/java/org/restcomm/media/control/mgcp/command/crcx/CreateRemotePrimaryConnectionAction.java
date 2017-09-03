@@ -22,33 +22,25 @@
 package org.restcomm.media.control.mgcp.command.crcx;
 
 import org.restcomm.media.control.mgcp.connection.MgcpConnection;
-import org.squirrelframework.foundation.fsm.AnonymousAction;
+import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
 
 /**
- * Action that closes the primary connection.
+ * Action that creates a Remote Primary Connection.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class ClosePrimaryConnectionAction
-        extends AnonymousAction<CreateConnectionFsm, CreateConnectionState, CreateConnectionEvent, CreateConnectionContext>
-        implements CreateConnectionAction {
-    
-    static final ClosePrimaryConnectionAction INSTANCE = new ClosePrimaryConnectionAction();
-    
-    ClosePrimaryConnectionAction() {
+class CreateRemotePrimaryConnectionAction extends CreatePrimaryConnectionAction {
+
+    static final CreateRemotePrimaryConnectionAction INSTANCE = new CreateRemotePrimaryConnectionAction();
+
+    CreateRemotePrimaryConnectionAction() {
         super();
     }
 
     @Override
-    public void execute(CreateConnectionState from, CreateConnectionState to, CreateConnectionEvent event, CreateConnectionContext context, CreateConnectionFsm stateMachine) {
-        final MgcpConnection connection = context.getPrimaryConnection();
-
-        // Close connection
-        CloseConnectionCallback callback = new CloseConnectionCallback(true, stateMachine, context);
-        connection.close(callback);
-        
-        // Callback will handle rest of the logic
+    protected MgcpConnection createConnection(int callId, MgcpConnectionProvider provider) {
+        return provider.provideRemote(callId);
     }
 
 }

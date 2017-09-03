@@ -21,26 +21,27 @@
 
 package org.restcomm.media.control.mgcp.command.crcx;
 
-import org.restcomm.media.control.mgcp.connection.MgcpConnection;
-import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
+import org.squirrelframework.foundation.fsm.AnonymousAction;
 
 /**
- * Action that creates a Remote Primary Connection.
+ * Action that joins the Primary and Secondary Connections.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-class CreateRemotePrimaryConnection extends CreatePrimaryConnectionAction {
+public class StartRollbackAction
+        extends AnonymousAction<CreateConnectionFsm, CreateConnectionState, CreateConnectionEvent, CreateConnectionContext>
+        implements CreateConnectionAction {
 
-    static final CreateRemotePrimaryConnection INSTANCE = new CreateRemotePrimaryConnection();
+    static final StartRollbackAction INSTANCE = new StartRollbackAction();
 
-    CreateRemotePrimaryConnection() {
+    StartRollbackAction() {
         super();
     }
 
     @Override
-    protected MgcpConnection createConnection(int callId, MgcpConnectionProvider provider) {
-        return provider.provideRemote(callId);
+    public void execute(CreateConnectionState from, CreateConnectionState to, CreateConnectionEvent event, CreateConnectionContext context, CreateConnectionFsm stateMachine) {
+        stateMachine.fireImmediate(CreateConnectionEvent.ROLLBACK, context);
     }
 
 }

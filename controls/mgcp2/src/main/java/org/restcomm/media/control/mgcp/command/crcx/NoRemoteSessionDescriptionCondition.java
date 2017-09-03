@@ -18,37 +18,27 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
+        
 package org.restcomm.media.control.mgcp.command.crcx;
 
-import org.restcomm.media.control.mgcp.connection.MgcpConnection;
-import org.squirrelframework.foundation.fsm.AnonymousAction;
+import org.squirrelframework.foundation.fsm.AnonymousCondition;
 
 /**
- * Action that closes the primary connection.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class ClosePrimaryConnectionAction
-        extends AnonymousAction<CreateConnectionFsm, CreateConnectionState, CreateConnectionEvent, CreateConnectionContext>
-        implements CreateConnectionAction {
+class NoRemoteSessionDescriptionCondition extends AnonymousCondition<CreateConnectionContext> implements CreateConnectionCondition {
+
+    static final NoRemoteSessionDescriptionCondition INSTANCE = new NoRemoteSessionDescriptionCondition();
     
-    static final ClosePrimaryConnectionAction INSTANCE = new ClosePrimaryConnectionAction();
-    
-    ClosePrimaryConnectionAction() {
+    NoRemoteSessionDescriptionCondition() {
         super();
     }
-
+    
     @Override
-    public void execute(CreateConnectionState from, CreateConnectionState to, CreateConnectionEvent event, CreateConnectionContext context, CreateConnectionFsm stateMachine) {
-        final MgcpConnection connection = context.getPrimaryConnection();
-
-        // Close connection
-        CloseConnectionCallback callback = new CloseConnectionCallback(true, stateMachine, context);
-        connection.close(callback);
-        
-        // Callback will handle rest of the logic
+    public boolean isSatisfied(CreateConnectionContext context) {
+        final String sdp = context.getRemoteDescription();
+        return (sdp == null || sdp.isEmpty());
     }
 
 }

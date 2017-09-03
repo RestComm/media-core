@@ -75,6 +75,7 @@ public class OpenPrimaryConnectionActionTest {
         verify(connection).open(eq(remoteSdp), any(OpenConnectionCallback.class));
         verify(stateMachine).fire(CreateConnectionEvent.CONNECTION_OPENED, context);
         assertEquals(localSdp, context.getLocalDescription());
+        assertTrue(context.isPrimaryConnectionOpen());
         assertNull(context.getError());
     }
     
@@ -113,6 +114,7 @@ public class OpenPrimaryConnectionActionTest {
         verify(connection).open(eq(remoteSdp), any(OpenConnectionCallback.class));
         verify(stateMachine).fire(CreateConnectionEvent.FAILURE, context);
         assertEquals("", context.getLocalDescription());
+        assertFalse(context.isPrimaryConnectionOpen());
         assertEquals(error, context.getError());
     }
 

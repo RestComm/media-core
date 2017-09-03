@@ -44,13 +44,17 @@ abstract class UnregisterConnectionAction
         final MgcpEndpoint endpoint = getEndpoint(context);
         final MgcpConnection connection = getConnection(context);
         final boolean primary = isPrimary(connection, context);
+        final int connectionId = connection.getIdentifier();
         final int callId = context.getCallId();
 
-        // Register connection into the endpoint
-        UnregisterConnectionCallback callback = new UnregisterConnectionCallback(primary, stateMachine, context);
-        endpoint.unregisterConnection(callId, connection.getIdentifier(), callback);
-
-        // Callback will handle logic from here
+        if(endpoint.isRegistered(callId, connectionId)) {
+            // Unregister connection from endpoint
+            UnregisterConnectionCallback callback = new UnregisterConnectionCallback(primary, stateMachine, context);
+            endpoint.unregisterConnection(callId, connectionId, callback);
+            // Callback will handle logic from here
+        } else {
+            stateMachine.fire(CreateConnectionEvent.CONNECTION_UNREGISTERED, context);
+        }
     }
 
     protected abstract MgcpConnection getConnection(CreateConnectionContext context);

@@ -47,7 +47,7 @@ class HalfOpenPrimaryConnectionAction
         final LocalConnectionOptions lcOptions = context.getLocalConnectionOptions();
 
         // Half-open connection
-        OpenConnectionCallback callback = new OpenConnectionCallback(stateMachine, context);
+        OpenConnectionCallback callback = new OpenConnectionCallback(true, stateMachine, context);
         connection.halfOpen(lcOptions, callback);
 
         // Callback will handle rest of the logic
