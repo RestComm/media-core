@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
+ * Copyright 2011-2017, Telestax Inc and individual contributors
  * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
@@ -18,23 +18,18 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
-package org.restcomm.media.control.mgcp.command;
-
-import com.google.common.util.concurrent.FutureCallback;
+        
+package org.restcomm.media.control.mgcp.command.crcx;
 
 /**
- * Represents an MGCP action that can be executed.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpCommand {
+public enum CreateConnectionState {
     
-    String WILDCARD_ALL = "*";
-    String WILDCARD_ANY = "$";
-    String ENDPOINT_ID_SEPARATOR = "@";
-    
-    void execute(FutureCallback<MgcpCommandResult> callback);
+    VALIDATING_PARAMETERS, EXECUTING, ROLLING_BACK, SUCCEEDED, FAILED,
+    CREATING_PRIMARY_CONNECTION, HALF_OPENING_PRIMARY_CONNECTION, OPENING_PRIMARY_CONNECTION, CREATING_SECONDARY_CONNECTION, OPENING_SECONDARY_CONNECTION, JOINING_CONNECTIONS, UPDATING_PRIMARY_CONNECTION_MODE, UPDATING_SECONDARY_CONNECTION_MODE, REGISTERING_PRIMARY_CONNECTION, REGISTERING_SECONDARY_CONNECTION, EXECUTED_COMMAND,
+    UNREGISTERING_PRIMARY_CONNECTION, CLOSING_PRIMARY_CONNECTION, UNREGISTERING_SECONDARY_CONNECTION, CLOSING_SECONDARY_CONNECTION, ROLLED_BACK
+    ;
 
 }

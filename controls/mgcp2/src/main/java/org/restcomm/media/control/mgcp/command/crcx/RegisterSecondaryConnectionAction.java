@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
+ * Copyright 2011-2017, Telestax Inc and individual contributors
  * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
@@ -19,22 +19,32 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.control.mgcp.command;
+package org.restcomm.media.control.mgcp.command.crcx;
 
-import com.google.common.util.concurrent.FutureCallback;
+import org.restcomm.media.control.mgcp.connection.MgcpConnection;
+import org.restcomm.media.control.mgcp.endpoint.MgcpEndpoint;
 
 /**
- * Represents an MGCP action that can be executed.
+ * Action that registers the Secondary Connection the the MGCP Endpoint.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpCommand {
-    
-    String WILDCARD_ALL = "*";
-    String WILDCARD_ANY = "$";
-    String ENDPOINT_ID_SEPARATOR = "@";
-    
-    void execute(FutureCallback<MgcpCommandResult> callback);
+class RegisterSecondaryConnectionAction extends RegisterConnectionAction {
+
+    static final RegisterSecondaryConnectionAction INSTANCE = new RegisterSecondaryConnectionAction();
+
+    RegisterSecondaryConnectionAction() {
+        super();
+    }
+
+    @Override
+    protected MgcpEndpoint getEndpoint(CreateConnectionContext context) {
+        return context.getSecondaryEndpoint();
+    }
+
+    protected MgcpConnection getConnection(CreateConnectionContext context) {
+        return context.getSecondaryConnection();
+    }
 
 }

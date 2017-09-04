@@ -21,8 +21,8 @@
 
 package org.restcomm.media.bootstrap.ioc.provider.mgcp;
 
-import org.restcomm.media.control.mgcp.call.MgcpCallManager;
 import org.restcomm.media.control.mgcp.command.MgcpCommandProvider;
+import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.restcomm.media.control.mgcp.pkg.MgcpPackageManager;
 import org.restcomm.media.control.mgcp.pkg.MgcpSignalProvider;
@@ -34,24 +34,24 @@ import com.google.inject.Provider;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpCommandProviderProvider implements Provider<MgcpCommandProvider> {
+public class MgcpCommandProviderGuiceProvider implements Provider<MgcpCommandProvider> {
 
     private final MgcpEndpointManager endpointManager;
     private final MgcpSignalProvider signalProvider;
     private final MgcpPackageManager packageManager;
-    private final MgcpCallManager callManager;
+    private final MgcpConnectionProvider connectionProvider;
 
     @Inject
-    public MgcpCommandProviderProvider(MgcpEndpointManager endpointManager, MgcpPackageManager packageManager, MgcpSignalProvider signalProvider, MgcpCallManager callManager) {
+    public MgcpCommandProviderGuiceProvider(MgcpEndpointManager endpointManager, MgcpPackageManager packageManager, MgcpSignalProvider signalProvider, MgcpConnectionProvider connectionProvider) {
         this.endpointManager = endpointManager;
         this.packageManager = packageManager;
         this.signalProvider = signalProvider;
-        this.callManager = callManager;
+        this.connectionProvider = connectionProvider;
     }
 
     @Override
     public MgcpCommandProvider get() {
-        return new MgcpCommandProvider(this.endpointManager, this.packageManager, this.signalProvider, this.callManager);
+        return new MgcpCommandProvider(this.endpointManager, this.packageManager, this.signalProvider, this.connectionProvider);
     }
 
 }

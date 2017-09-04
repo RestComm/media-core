@@ -1,0 +1,40 @@
+@startuml
+state EXECUTING {
+    [*] --> CREATING_PRIMARY_CONNECTION
+    CREATING_PRIMARY_CONNECTION --> OPENING_PRIMARY_CONNECTION : created_connection
+    OPENING_PRIMARY_CONNECTION --> CREATING_SECONDARY_CONNECTION : connection_opened
+    CREATING_SECONDARY_CONNECTION --> OPENING_SECONDARY_CONNECTION : connection_opened
+    OPENING_SECONDARY_CONNECTION --> JOINING_CONNECTIONS : connection_opened
+    JOINING_CONNECTIONS --> UPDATING_PRIMARY_CONNECTION_MODE : connections_joined
+    UPDATING_PRIMARY_CONNECTION_MODE --> UPDATING_SECONDARY_CONNECTION_MODE : connection_mode_updated
+    UPDATING_SECONDARY_CONNECTION_MODE --> REGISTERING_PRIMARY_CONNECTION : connection_mode_updated
+    REGISTERING_PRIMARY_CONNECTION --> REGISTERING_SECONDARY_CONNECTION : connection_registered
+    REGISTERING_SECONDARY_CONNECTION --> EXECUTED : connection_registered
+    EXECUTED --> [*]
+}
+
+state ROLLING_BACK {
+    [*] --> UNREGISTERING_PRIMARY_CONNECTION : [primary_is_registered]
+    [*] --> CLOSING_PRIMARY_CONNECTION : [primary_not_registered_and_open]
+    [*] --> ROLLED_BACK : [primary_closed]
+    UNREGISTERING_PRIMARY_CONNECTION --> CLOSING_PRIMARY_CONNECTION : unregistered_connection
+    CLOSING_PRIMARY_CONNECTION --> UNREGISTERING_SECONDARY_CONNECTION : closed_connection [secondary_registered]
+    CLOSING_PRIMARY_CONNECTION --> CLOSING_SECONDARY_CONNECTION : closed_connection [secondary_not_registered_and_open]
+    CLOSING_PRIMARY_CONNECTION --> ROLLED_BACK : closed_connection [secondary_closed]
+    UNREGISTERING_SECONDARY_CONNECTION --> CLOSING_SECONDARY_CONNECTION : unregistered_connection
+    CLOSING_SECONDARY_CONNECTION --> ROLLED_BACK : closed_connection
+    ROLLED_BACK --> [*]
+}
+
+[*] --> VALIDATING_PARAMETERS : execute
+VALIDATING_PARAMETERS --> EXECUTING : validated_parameters
+VALIDATING_PARAMETERS --> FAILED : failure, abort
+
+EXECUTING --> SUCCEEDED : success
+EXECUTING -right> ROLLING_BACK : failure
+
+ROLLING_BACK --> FAILED : rolled_back
+
+SUCCEEDED --> [*]
+FAILED --> [*]
+@enduml

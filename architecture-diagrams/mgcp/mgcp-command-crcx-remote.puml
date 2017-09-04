@@ -1,0 +1,33 @@
+@startuml
+state EXECUTING {
+    [*] --> CREATING_PRIMARY_CONNECTION
+    CREATING_PRIMARY_CONNECTION --> HALF_OPENING_PRIMARY_CONNECTION : [no_remote_description]
+    CREATING_PRIMARY_CONNECTION --> OPENING_PRIMARY_CONNECTION : [has_remote_description]
+    HALF_OPENING_PRIMARY_CONNECTION --> UPDATING_PRIMARY_CONNECTION_MODE : connection_opened
+    OPENING_PRIMARY_CONNECTION --> UPDATING_PRIMARY_CONNECTION_MODE : connection_opened
+    UPDATING_PRIMARY_CONNECTION_MODE --> REGISTERING_PRIMARY_CONNECTION : connection_mode_updated
+    REGISTERING_PRIMARY_CONNECTION --> EXECUTED : connection_registered
+    EXECUTED --> [*]
+}
+
+state ROLLING_BACK {
+    [*] --> UNREGISTERING_PRIMARY_CONNECTION : [primary_connection_registered]
+    [*] --> CLOSING_PRIMARY_CONNECTION : [primary_connection_not_registered_and_open]
+    [*] --> ROLLED_BACK : [primary_connection_closed]
+    UNREGISTERING_PRIMARY_CONNECTION --> CLOSING_PRIMARY_CONNECTION : connection_unregistered
+    CLOSING_PRIMARY_CONNECTION --> ROLLED_BACK : connection_closed
+    ROLLED_BACK --> [*]
+}
+
+[*] --> VALIDATING_PARAMETERS : execute
+VALIDATING_PARAMETERS --> EXECUTING
+VALIDATING_PARAMETERS --> FAILED : failure
+
+EXECUTING --> SUCCEEDED : success
+EXECUTING -right> ROLLING_BACK : failure
+
+ROLLING_BACK --> FAILED : rolled_back
+
+SUCCEEDED --> [*]
+FAILED --> [*]
+@enduml

@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
+ * Copyright 2011-2017, Telestax Inc and individual contributors
  * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
@@ -18,23 +18,26 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
+        
+package org.restcomm.media.control.mgcp.command.crcx;
 
-package org.restcomm.media.control.mgcp.command;
-
-import com.google.common.util.concurrent.FutureCallback;
+import org.squirrelframework.foundation.fsm.AnonymousCondition;
 
 /**
- * Represents an MGCP action that can be executed.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpCommand {
+class PrimaryConnectionClosedCondition extends AnonymousCondition<CreateConnectionContext> implements CreateConnectionCondition {
+
+    static final PrimaryConnectionClosedCondition INSTANCE = new PrimaryConnectionClosedCondition();
     
-    String WILDCARD_ALL = "*";
-    String WILDCARD_ANY = "$";
-    String ENDPOINT_ID_SEPARATOR = "@";
+    PrimaryConnectionClosedCondition() {
+        super();
+    }
     
-    void execute(FutureCallback<MgcpCommandResult> callback);
+    @Override
+    public boolean isSatisfied(CreateConnectionContext context) {
+        return !context.isPrimaryConnectionOpen();
+    }
 
 }

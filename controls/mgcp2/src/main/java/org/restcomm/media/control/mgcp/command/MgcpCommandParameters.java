@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
+ * Copyright 2011-2017, Telestax Inc and individual contributors
  * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
@@ -18,30 +18,16 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
+        
 package org.restcomm.media.control.mgcp.command;
 
-import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.restcomm.media.control.mgcp.message.MgcpParameterType;
-import org.restcomm.media.control.mgcp.message.MgcpRequest;
 import org.restcomm.media.control.mgcp.util.collections.Parameters;
 
 /**
- * Abstract implementation of MGCP command that forces a rollback operation when {@link MgcpCommand#execute(MgcpRequest)} fails.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public abstract class AbstractMgcpCommand implements MgcpCommand {
-
-    protected final int transactionId;
-    protected final MgcpEndpointManager endpointManager;
-    protected final Parameters<MgcpParameterType> requestParameters;
-
-    public AbstractMgcpCommand(int transactionId, Parameters<MgcpParameterType> parameters, MgcpEndpointManager endpointManager) {
-        this.transactionId = transactionId;
-        this.requestParameters = parameters;
-        this.endpointManager = endpointManager;
-    }
+public class MgcpCommandParameters extends Parameters<MgcpParameterType> {
 
 }

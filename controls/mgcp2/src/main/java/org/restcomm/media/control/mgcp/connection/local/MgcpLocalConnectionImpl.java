@@ -118,7 +118,7 @@ public class MgcpLocalConnectionImpl extends AbstractMgcpConnection implements M
     }
 
     @Override
-    public void join(MgcpLocalConnectionImpl connection, FutureCallback<Void> callback) {
+    public void join(MgcpLocalConnection connection, FutureCallback<Void> callback) {
         MgcpLocalConnectionEvent event = MgcpLocalConnectionEvent.JOIN;
         if (this.fsm.canAccept(event)) {
             // Build transition context

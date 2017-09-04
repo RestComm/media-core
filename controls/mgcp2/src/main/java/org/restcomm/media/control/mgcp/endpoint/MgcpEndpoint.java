@@ -62,6 +62,15 @@ public interface MgcpEndpoint extends MgcpEndpointSubject, MgcpMessageSubject, M
     MgcpConnection getConnection(int callId, int connectionId);
 
     /**
+     * Gets whether a connection is registered.
+     * 
+     * @param callId The call identifier.
+     * @param connectionId The connection identifier.
+     * @return <code>true</code> if connection is registered; <code>false</code> otherwise.
+     */
+    boolean isRegistered(int callId, int connectionId);
+
+    /**
      * Registers a connection.
      * 
      * @param connection The connection to be registered

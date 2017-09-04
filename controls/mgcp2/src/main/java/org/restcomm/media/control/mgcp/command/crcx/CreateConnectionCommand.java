@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
+ * Copyright 2011-2017, Telestax Inc and individual contributors
  * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
@@ -19,22 +19,33 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.control.mgcp.command;
+package org.restcomm.media.control.mgcp.command.crcx;
+
+import org.restcomm.media.control.mgcp.command.MgcpCommand;
+import org.restcomm.media.control.mgcp.command.MgcpCommandResult;
 
 import com.google.common.util.concurrent.FutureCallback;
 
 /**
- * Represents an MGCP action that can be executed.
+ * MGCP command used to create a connection between two endpoints.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpCommand {
-    
-    String WILDCARD_ALL = "*";
-    String WILDCARD_ANY = "$";
-    String ENDPOINT_ID_SEPARATOR = "@";
-    
-    void execute(FutureCallback<MgcpCommandResult> callback);
+public class CreateConnectionCommand implements MgcpCommand {
+
+    private final CreateConnectionContext context;
+    private final CreateConnectionFsm fsm;
+
+    public CreateConnectionCommand(CreateConnectionContext context, CreateConnectionFsm fsm) {
+        this.context = context;
+        this.fsm = fsm;
+    }
+
+    @Override
+    public void execute(FutureCallback<MgcpCommandResult> callback) {
+        this.context.setCallback(callback);
+        this.fsm.start(this.context);
+    }
 
 }

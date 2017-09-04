@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
+ * Copyright 2011-2017, Telestax Inc and individual contributors
  * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
@@ -19,22 +19,14 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.control.mgcp.command;
-
-import com.google.common.util.concurrent.FutureCallback;
+package org.restcomm.media.control.mgcp.command.crcx;
 
 /**
- * Represents an MGCP action that can be executed.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpCommand {
-    
-    String WILDCARD_ALL = "*";
-    String WILDCARD_ANY = "$";
-    String ENDPOINT_ID_SEPARATOR = "@";
-    
-    void execute(FutureCallback<MgcpCommandResult> callback);
+public interface CreateConnectionFsmBuilder {
+
+    CreateConnectionFsm build();
 
 }

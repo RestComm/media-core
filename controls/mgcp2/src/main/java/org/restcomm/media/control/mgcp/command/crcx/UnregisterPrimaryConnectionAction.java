@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
+ * Copyright 2011-2017, Telestax Inc and individual contributors
  * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
@@ -19,22 +19,33 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.control.mgcp.command;
+package org.restcomm.media.control.mgcp.command.crcx;
 
-import com.google.common.util.concurrent.FutureCallback;
+import org.restcomm.media.control.mgcp.connection.MgcpConnection;
+import org.restcomm.media.control.mgcp.endpoint.MgcpEndpoint;
 
 /**
- * Represents an MGCP action that can be executed.
+ * Action that registers the Primary Connection from the Primary MGCP Endpoint.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpCommand {
-    
-    String WILDCARD_ALL = "*";
-    String WILDCARD_ANY = "$";
-    String ENDPOINT_ID_SEPARATOR = "@";
-    
-    void execute(FutureCallback<MgcpCommandResult> callback);
+class UnregisterPrimaryConnectionAction extends UnregisterConnectionAction {
+
+    static final UnregisterPrimaryConnectionAction INSTANCE = new UnregisterPrimaryConnectionAction();
+
+    UnregisterPrimaryConnectionAction() {
+        super();
+    }
+
+    @Override
+    protected MgcpConnection getConnection(CreateConnectionContext context) {
+        return context.getPrimaryConnection();
+    }
+
+    @Override
+    protected MgcpEndpoint getEndpoint(CreateConnectionContext context) {
+        return context.getPrimaryEndpoint();
+    }
 
 }

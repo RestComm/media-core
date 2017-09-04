@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
+ * Copyright 2011-2017, Telestax Inc and individual contributors
  * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
@@ -19,22 +19,37 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.control.mgcp.command;
+package org.restcomm.media.control.mgcp.command.crcx;
 
 import com.google.common.util.concurrent.FutureCallback;
 
 /**
- * Represents an MGCP action that can be executed.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpCommand {
-    
-    String WILDCARD_ALL = "*";
-    String WILDCARD_ANY = "$";
-    String ENDPOINT_ID_SEPARATOR = "@";
-    
-    void execute(FutureCallback<MgcpCommandResult> callback);
+class JoinConnectionsCallback implements FutureCallback<Void> {
+
+    private final CreateConnectionFsm fsm;
+    private final CreateConnectionContext context;
+
+    JoinConnectionsCallback(CreateConnectionFsm fsm, CreateConnectionContext context) {
+        this.fsm = fsm;
+        this.context = context;
+    }
+
+    @Override
+    public void onSuccess(Void result) {
+        // Move to next state
+        this.fsm.fire(CreateConnectionEvent.CONNECTIONS_JOINED, this.context);
+    }
+
+    @Override
+    public void onFailure(Throwable t) {
+        // Save error in context
+        context.setError(t);
+        
+        // Fail command
+        this.fsm.fire(CreateConnectionEvent.FAILURE, this.context);
+    }
 
 }
