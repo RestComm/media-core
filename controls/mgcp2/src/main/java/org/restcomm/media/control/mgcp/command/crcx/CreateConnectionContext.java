@@ -37,7 +37,7 @@ import com.google.common.util.concurrent.FutureCallback;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-class CreateConnectionContext {
+public class CreateConnectionContext {
 
     // Dependencies
     private final MgcpConnectionProvider connectionProvider;
@@ -64,7 +64,7 @@ class CreateConnectionContext {
     private FutureCallback<MgcpCommandResult> callback;
     private Throwable error;
 
-    CreateConnectionContext(MgcpConnectionProvider connectionProvider, MgcpEndpointManager endpointManager, int transactionId, Parameters<MgcpParameterType> parameters) {
+    public CreateConnectionContext(MgcpConnectionProvider connectionProvider, MgcpEndpointManager endpointManager, int transactionId, Parameters<MgcpParameterType> parameters) {
         // Dependencies
         this.connectionProvider = connectionProvider;
         this.endpointManager = endpointManager;
@@ -107,11 +107,11 @@ class CreateConnectionContext {
         this.primaryEndpointId = primaryEndpointId;
     }
     
-    public MgcpEndpoint getPrimaryEndpoint() {
+    protected MgcpEndpoint getPrimaryEndpoint() {
         return primaryEndpoint;
     }
     
-    public void setPrimaryEndpoint(MgcpEndpoint primaryEndpoint) {
+    protected void setPrimaryEndpoint(MgcpEndpoint primaryEndpoint) {
         this.primaryEndpoint = primaryEndpoint;
         if(this.primaryEndpoint != null) {
             setPrimaryEndpointId(this.primaryEndpoint.getEndpointId().toString());
@@ -126,11 +126,11 @@ class CreateConnectionContext {
         this.secondaryEndpointId = secondaryEndpointId;
     }
     
-    public MgcpEndpoint getSecondaryEndpoint() {
+    protected MgcpEndpoint getSecondaryEndpoint() {
         return secondaryEndpoint;
     }
     
-    public void setSecondaryEndpoint(MgcpEndpoint secondaryEndpoint) {
+    protected void setSecondaryEndpoint(MgcpEndpoint secondaryEndpoint) {
         this.secondaryEndpoint = secondaryEndpoint;
         if(this.secondaryEndpoint != null) {
             setSecondaryEndpointId(this.secondaryEndpoint.getEndpointId().toString());
@@ -145,11 +145,11 @@ class CreateConnectionContext {
         this.primaryConnection = primaryConnection;
     }
     
-    public void setPrimaryConnectionOpen(boolean primaryConnectionOpen) {
+    protected void setPrimaryConnectionOpen(boolean primaryConnectionOpen) {
         this.primaryConnectionOpen = primaryConnectionOpen;
     }
     
-    public boolean isPrimaryConnectionOpen() {
+    protected boolean isPrimaryConnectionOpen() {
         return primaryConnectionOpen;
     }
 
@@ -161,11 +161,11 @@ class CreateConnectionContext {
         this.secondaryConnection = secondaryConnection;
     }
     
-    public void setSecondaryConnectionOpen(boolean secondaryConnectionOpen) {
+    protected void setSecondaryConnectionOpen(boolean secondaryConnectionOpen) {
         this.secondaryConnectionOpen = secondaryConnectionOpen;
     }
     
-    public boolean isSecondaryConnectionOpen() {
+    protected boolean isSecondaryConnectionOpen() {
         return secondaryConnectionOpen;
     }
 
@@ -185,11 +185,11 @@ class CreateConnectionContext {
         this.remoteDescription = remoteDescription;
     }
     
-    public String getLocalDescription() {
+    protected String getLocalDescription() {
         return localDescription;
     }
     
-    public void setLocalDescription(String localDescription) {
+    protected void setLocalDescription(String localDescription) {
         this.localDescription = localDescription;
     }
 

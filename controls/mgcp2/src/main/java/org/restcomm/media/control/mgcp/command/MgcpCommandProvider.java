@@ -21,7 +21,12 @@
 
 package org.restcomm.media.control.mgcp.command;
 
-import org.restcomm.media.control.mgcp.call.MgcpCallManager;
+import org.restcomm.media.control.mgcp.command.crcx.CreateConnectionCommand;
+import org.restcomm.media.control.mgcp.command.crcx.CreateConnectionContext;
+import org.restcomm.media.control.mgcp.command.crcx.CreateConnectionFsmBuilder;
+import org.restcomm.media.control.mgcp.command.crcx.CreateLocalConnectionsFsmBuilder;
+import org.restcomm.media.control.mgcp.command.crcx.CreateRemoteConnectionFsmBuilder;
+import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.restcomm.media.control.mgcp.message.MgcpParameterType;
 import org.restcomm.media.control.mgcp.message.MgcpRequestType;
@@ -40,20 +45,23 @@ public class MgcpCommandProvider {
     private final MgcpEndpointManager endpointManager;
     private final MgcpSignalProvider signalProvider;
     private final MgcpPackageManager packageManager;
-    private final MgcpCallManager callManager;
+    private final MgcpConnectionProvider connectionProvider;
 
-    public MgcpCommandProvider(MgcpEndpointManager endpointManager, MgcpPackageManager packageManager, MgcpSignalProvider signalProvider, MgcpCallManager callManager) {
+    public MgcpCommandProvider(MgcpEndpointManager endpointManager, MgcpPackageManager packageManager, MgcpSignalProvider signalProvider, MgcpConnectionProvider connectionProvider) {
         super();
         this.endpointManager = endpointManager;
         this.packageManager = packageManager;
         this.signalProvider = signalProvider;
-        this.callManager = callManager;
+        this.connectionProvider = connectionProvider;
     }
 
     public MgcpCommand provide(MgcpRequestType type, int transactionId, Parameters<MgcpParameterType> parameters) {
         switch (type) {
             case CRCX:
-                return new CreateConnectionCommand(transactionId, parameters, this.endpointManager);
+                final CreateConnectionContext context = new CreateConnectionContext(this.connectionProvider, this.endpointManager, transactionId, parameters);
+                final String secondaryEndpoint = parameters.getString(MgcpParameterType.SECOND_ENDPOINT).or("");
+                final CreateConnectionFsmBuilder fsmBuilder = secondaryEndpoint.isEmpty() ? CreateRemoteConnectionFsmBuilder.INSTANCE : CreateLocalConnectionsFsmBuilder.INSTANCE;
+                return new CreateConnectionCommand(context, fsmBuilder.build());
 
             case MDCX:
                 return new ModifyConnectionCommand(transactionId, parameters, this.endpointManager);

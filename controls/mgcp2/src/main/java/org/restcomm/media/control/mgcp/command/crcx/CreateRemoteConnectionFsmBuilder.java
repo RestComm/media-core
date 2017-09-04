@@ -32,9 +32,9 @@ import static org.restcomm.media.control.mgcp.command.crcx.CreateConnectionEvent
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-class CreateRemoteConnectionFsmBuilder extends AbstractCreateConnectionFsmBuilder {
+public class CreateRemoteConnectionFsmBuilder extends AbstractCreateConnectionFsmBuilder {
 
-    static final CreateRemoteConnectionFsmBuilder INSTANCE = new CreateRemoteConnectionFsmBuilder();
+    public static final CreateRemoteConnectionFsmBuilder INSTANCE = new CreateRemoteConnectionFsmBuilder();
 
     CreateRemoteConnectionFsmBuilder() {
         super();

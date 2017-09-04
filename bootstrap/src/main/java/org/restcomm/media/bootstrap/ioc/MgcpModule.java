@@ -33,7 +33,7 @@ import org.restcomm.media.bootstrap.ioc.provider.mgcp.MediaGroupProviderProvider
 import org.restcomm.media.bootstrap.ioc.provider.mgcp.Mgcp2ControllerProvider;
 import org.restcomm.media.bootstrap.ioc.provider.mgcp.MgcpChannelInboundHandlerProvider;
 import org.restcomm.media.bootstrap.ioc.provider.mgcp.MgcpChannelInitializerProvider;
-import org.restcomm.media.bootstrap.ioc.provider.mgcp.MgcpCommandProviderProvider;
+import org.restcomm.media.bootstrap.ioc.provider.mgcp.MgcpCommandProviderGuiceProvider;
 import org.restcomm.media.bootstrap.ioc.provider.mgcp.MgcpConnectionGuiceProvider;
 import org.restcomm.media.bootstrap.ioc.provider.mgcp.MgcpEndpointInstallerProvider;
 import org.restcomm.media.bootstrap.ioc.provider.mgcp.MgcpEndpointInstallerProvider.MgcpEndpointInstallerListType;
@@ -80,7 +80,7 @@ public class MgcpModule extends AbstractModule {
         bind(MgcpConnectionProvider.class).toProvider(MgcpConnectionGuiceProvider.class).in(Singleton.class);
         bind(MgcpEndpointInstallerListType.INSTANCE).toProvider(MgcpEndpointInstallerProvider.class).in(Singleton.class);
         bind(MgcpEndpointManager.class).toProvider(MgcpEndpointManagerProvider.class).in(Singleton.class);
-        bind(MgcpCommandProvider.class).toProvider(MgcpCommandProviderProvider.class).in(Singleton.class);
+        bind(MgcpCommandProvider.class).toProvider(MgcpCommandProviderGuiceProvider.class).in(Singleton.class);
         bind(MgcpTransactionNumberspace.class).toProvider(MgcpTransactionNumberspaceProvider.class).in(Singleton.class);
         bind(MgcpTransactionManagerProvider.class).toProvider(SubMgcpTransactionManagerGuiceProvider.class).in(Singleton.class);
         bind(MgcpTransactionManager.class).toProvider(GlobalMgcpTransactionManagerProvider.class).in(Singleton.class);

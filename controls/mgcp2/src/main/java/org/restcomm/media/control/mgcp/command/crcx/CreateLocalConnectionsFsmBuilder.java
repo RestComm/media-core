@@ -32,9 +32,9 @@ import static org.restcomm.media.control.mgcp.command.crcx.CreateConnectionEvent
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-class CreateLocalConnectionsFsmBuilder extends AbstractCreateConnectionFsmBuilder {
+public class CreateLocalConnectionsFsmBuilder extends AbstractCreateConnectionFsmBuilder {
 
-    static final CreateLocalConnectionsFsmBuilder INSTANCE = new CreateLocalConnectionsFsmBuilder();
+    public static final CreateLocalConnectionsFsmBuilder INSTANCE = new CreateLocalConnectionsFsmBuilder();
 
     CreateLocalConnectionsFsmBuilder() {
         super();
