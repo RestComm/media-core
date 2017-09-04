@@ -33,7 +33,7 @@ abstract class AbstractCreateConnectionFsmBuilder implements CreateConnectionFsm
     private final StateMachineBuilder<CreateConnectionFsm, CreateConnectionState, CreateConnectionEvent, CreateConnectionContext> builder;
     
     public AbstractCreateConnectionFsmBuilder() {
-        this.builder = StateMachineBuilderFactory.<CreateConnectionFsm, CreateConnectionState, CreateConnectionEvent, CreateConnectionContext>create(CreateConnectionFsm.class, CreateConnectionState.class, CreateConnectionEvent.class, CreateConnectionContext.class);
+        this.builder = StateMachineBuilderFactory.<CreateConnectionFsm, CreateConnectionState, CreateConnectionEvent, CreateConnectionContext>create(CreateConnectionFsmImpl.class, CreateConnectionState.class, CreateConnectionEvent.class, CreateConnectionContext.class);
         
         this.builder.onEntry(CreateConnectionState.VALIDATING_PARAMETERS).perform(ValidateParametersAction.INSTANCE);
         this.builder.externalTransition().from(CreateConnectionState.VALIDATING_PARAMETERS).to(CreateConnectionState.EXECUTING).on(CreateConnectionEvent.VALIDATED_PARAMETERS);
@@ -41,15 +41,18 @@ abstract class AbstractCreateConnectionFsmBuilder implements CreateConnectionFsm
         
         this.builder.defineSequentialStatesOn(CreateConnectionState.EXECUTING, getExecutionStates());
         this.builder.externalTransition().from(CreateConnectionState.EXECUTING).to(CreateConnectionState.ROLLING_BACK).on(CreateConnectionEvent.FAILURE);
-        this.builder.externalTransition().from(CreateConnectionState.EXECUTING).toFinal(CreateConnectionState.SUCCEEDED).on(CreateConnectionEvent.SUCCESS);
+        this.builder.externalTransition().from(CreateConnectionState.EXECUTING).toFinal(CreateConnectionState.SUCCEEDED).on(CreateConnectionEvent.EXECUTED);
         this.configureExecutionStates(this.builder);
 
         this.builder.onEntry(CreateConnectionState.ROLLING_BACK).perform(StartRollbackAction.INSTANCE);
         this.builder.defineNoInitSequentialStatesOn(CreateConnectionState.ROLLING_BACK, getRollbackStates());
         this.builder.externalTransition().from(CreateConnectionState.ROLLING_BACK).toFinal(CreateConnectionState.FAILED).on(CreateConnectionEvent.ROLLED_BACK);
         this.configureRollbackStates(this.builder);
+        
+        this.builder.onEntry(CreateConnectionState.SUCCEEDED).perform(RespondSuccessAction.INSTANCE);
+        this.builder.onEntry(CreateConnectionState.FAILED).perform(RespondFailureAction.INSTANCE);
     }
-
+    
     protected abstract CreateConnectionState[] getExecutionStates();
     
     protected abstract void configureExecutionStates(StateMachineBuilder<CreateConnectionFsm, CreateConnectionState, CreateConnectionEvent, CreateConnectionContext> builder);

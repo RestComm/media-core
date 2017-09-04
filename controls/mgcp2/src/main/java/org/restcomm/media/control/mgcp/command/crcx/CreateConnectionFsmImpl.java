@@ -21,31 +21,14 @@
 
 package org.restcomm.media.control.mgcp.command.crcx;
 
-import org.restcomm.media.control.mgcp.command.MgcpCommand;
-import org.restcomm.media.control.mgcp.command.MgcpCommandResult;
-
-import com.google.common.util.concurrent.FutureCallback;
+import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
 
 /**
- * MGCP command used to create a connection between two endpoints.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class CreateConnectionCommand implements MgcpCommand {
-
-    private final CreateConnectionContext context;
-    private final CreateConnectionFsm fsm;
-
-    public CreateConnectionCommand(CreateConnectionContext context, CreateConnectionFsm fsm) {
-        this.context = context;
-        this.fsm = fsm;
-    }
-
-    @Override
-    public void execute(FutureCallback<MgcpCommandResult> callback) {
-        this.context.setCallback(callback);
-        this.fsm.start(this.context);
-    }
+public class CreateConnectionFsmImpl
+        extends AbstractStateMachine<CreateConnectionFsm, CreateConnectionState, CreateConnectionEvent, CreateConnectionContext>
+        implements CreateConnectionFsm {
 
 }
