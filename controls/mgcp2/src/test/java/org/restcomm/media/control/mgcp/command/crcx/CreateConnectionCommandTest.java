@@ -34,10 +34,13 @@ import org.restcomm.media.control.mgcp.command.MgcpCommandResult;
 import org.restcomm.media.control.mgcp.connection.MgcpConnection;
 import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.restcomm.media.control.mgcp.connection.MgcpLocalConnection;
+import org.restcomm.media.control.mgcp.connection.MgcpRemoteConnection;
 import org.restcomm.media.control.mgcp.connection.local.MgcpLocalConnectionImpl;
+import org.restcomm.media.control.mgcp.connection.remote.MgcpRemoteConnectionImpl;
 import org.restcomm.media.control.mgcp.endpoint.EndpointIdentifier;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointManager;
+import org.restcomm.media.control.mgcp.message.LocalConnectionOptions;
 import org.restcomm.media.control.mgcp.message.MgcpMessageParser;
 import org.restcomm.media.control.mgcp.message.MgcpParameterType;
 import org.restcomm.media.control.mgcp.message.MgcpRequest;
@@ -193,6 +196,92 @@ public class CreateConnectionCommandTest {
         assertEquals(primaryConnection.getHexIdentifier(), result.getParameters().getString(MgcpParameterType.CONNECTION_ID).get());
         assertEquals(secondaryEndpointId.toString(), result.getParameters().getString(MgcpParameterType.SECOND_ENDPOINT).get());
         assertEquals(secondaryConnection.getHexIdentifier(), result.getParameters().getString(MgcpParameterType.CONNECTION_ID2).get());
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testCreateOutboundRemoteConnection() throws Exception {
+        // given
+        final StringBuilder builder = new StringBuilder();
+        builder.append("CRCX 147483655 mobicents/bridge/$@127.0.0.1:2427 MGCP 1.0").append(System.lineSeparator());
+        builder.append("C:1").append(System.lineSeparator());
+        builder.append("M:sendonly").append(System.lineSeparator());
+        builder.append("N:restcomm@127.0.0.1:2727").append(System.lineSeparator());
+        builder.append("L:webrtc:false").append(System.lineSeparator());
+        
+        final int callId = 1;
+        final int transactionId = 147483655;
+        final String localSdp = "local-sdp-mock";
+        final MgcpRequest request = new MgcpMessageParser().parseRequest(builder.toString());
+        final Parameters<MgcpParameterType> parameters = request.getParameters();
+        final CreateConnectionFsmBuilder fsmBuilder = CreateRemoteConnectionFsmBuilder.INSTANCE;
+        final CreateConnectionFsm fsm = fsmBuilder.build();
+        final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final MgcpEndpoint primaryEndpoint = mock(MgcpEndpoint.class);
+        final EndpointIdentifier primaryEndpointId = new EndpointIdentifier("mobicents/bridge/1", "127.0.0.1:2427");
+        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
+        final MgcpRemoteConnectionImpl primaryConnection = mock(MgcpRemoteConnectionImpl.class);
+        final CreateConnectionContext context = new CreateConnectionContext(connectionProvider, endpointManager, transactionId, parameters);
+        final CreateConnectionCommand command = new CreateConnectionCommand(context, fsm);
+        
+        when(connectionProvider.provideRemote(callId)).thenReturn(primaryConnection);
+        when(primaryConnection.getIdentifier()).thenReturn(1);
+        when(primaryConnection.getHexIdentifier()).thenCallRealMethod();
+        when(primaryConnection.getCallIdentifier()).thenReturn(callId);
+        when(endpointManager.registerEndpoint("mobicents/bridge/")).thenReturn(primaryEndpoint);
+        when(primaryEndpoint.getEndpointId()).thenReturn(primaryEndpointId);
+        
+        doAnswer(new Answer<Void>() {
+            
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                FutureCallback<?> callback = invocation.getArgumentAt(1, FutureCallback.class);
+                callback.onSuccess(null);
+                return null;
+            }
+            
+        }).when(primaryEndpoint).registerConnection(any(MgcpConnection.class), any(FutureCallback.class));
+        
+        doAnswer(new Answer<Void>() {
+            
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                FutureCallback<String> callback = invocation.getArgumentAt(1, FutureCallback.class);
+                callback.onSuccess(localSdp);
+                return null;
+            }
+            
+        }).when(primaryConnection).halfOpen(any(LocalConnectionOptions.class), any(FutureCallback.class));
+        
+        doAnswer(new Answer<Void>() {
+            
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                FutureCallback<?> callback = invocation.getArgumentAt(1, FutureCallback.class);
+                callback.onSuccess(null);
+                return null;
+            }
+            
+        }).when(primaryConnection).updateMode(any(ConnectionMode.class), any(FutureCallback.class));
+        
+        // when
+        FutureCallback<MgcpCommandResult> callback = mock(FutureCallback.class);
+        command.execute(callback);
+        
+        // then
+        final ArgumentCaptor<MgcpCommandResult> captor = ArgumentCaptor.forClass(MgcpCommandResult.class);
+        verify(callback, timeout(50)).onSuccess(captor.capture());
+        
+        verify(primaryConnection).halfOpen(any(LocalConnectionOptions.class), any(FutureCallback.class));
+        verify(primaryConnection).updateMode(eq(ConnectionMode.SEND_ONLY), any(FutureCallback.class));
+        verify(primaryEndpoint).registerConnection(eq(primaryConnection), any(FutureCallback.class));
+        
+        final MgcpCommandResult result = captor.getValue();
+        assertEquals(transactionId, result.getTransactionId());
+        assertEquals(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code(), result.getCode());
+        assertEquals(primaryEndpointId.toString(), result.getParameters().getString(MgcpParameterType.ENDPOINT_ID).get());
+        assertEquals(primaryConnection.getHexIdentifier(), result.getParameters().getString(MgcpParameterType.CONNECTION_ID).get());
+        assertEquals(localSdp, result.getParameters().getString(MgcpParameterType.SDP).get());
     }
 
 }
