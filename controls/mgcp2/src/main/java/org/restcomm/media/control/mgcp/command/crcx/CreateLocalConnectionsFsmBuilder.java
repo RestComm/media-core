@@ -103,7 +103,7 @@ class CreateLocalConnectionsFsmBuilder extends AbstractCreateConnectionFsmBuilde
         builder.localTransition().from(UNREGISTERING_SECONDARY_CONNECTION).to(CLOSING_SECONDARY_CONNECTION).on(CONNECTION_UNREGISTERED);
         
         builder.onEntry(CLOSING_SECONDARY_CONNECTION).perform(CloseSecondaryConnectionAction.INSTANCE);
-        builder.localTransition().from(CLOSING_SECONDARY_CONNECTION).to(CreateConnectionState.ROLLED_BACK).on(CreateConnectionEvent.ROLLED_BACK);
+        builder.localTransition().from(CLOSING_SECONDARY_CONNECTION).to(CreateConnectionState.ROLLED_BACK).on(CreateConnectionEvent.CONNECTION_CLOSED);
         
         builder.onEntry(CreateConnectionState.ROLLED_BACK).perform(RolledBackAction.INSTANCE);
     }
