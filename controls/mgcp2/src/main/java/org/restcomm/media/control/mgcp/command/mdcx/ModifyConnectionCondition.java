@@ -18,15 +18,15 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
+        
 package org.restcomm.media.control.mgcp.command.mdcx;
 
-import org.squirrelframework.foundation.fsm.Action;
+import org.squirrelframework.foundation.fsm.Condition;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface ModifyConnectionAction extends Action<ModifyConnectionFsm, ModifyConnectionState, ModifyConnectionEvent, ModifyConnectionContext> {
+public interface ModifyConnectionCondition extends Condition<ModifyConnectionContext> {
 
 }

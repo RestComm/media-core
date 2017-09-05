@@ -21,12 +21,31 @@
 
 package org.restcomm.media.control.mgcp.command.mdcx;
 
-import org.squirrelframework.foundation.fsm.Action;
+import com.google.common.util.concurrent.FutureCallback;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface ModifyConnectionAction extends Action<ModifyConnectionFsm, ModifyConnectionState, ModifyConnectionEvent, ModifyConnectionContext> {
+public class UpdateConnectionModeCallback implements FutureCallback<Void> {
+
+    private final ModifyConnectionFsm fsm;
+    private final ModifyConnectionContext context;
+
+    public UpdateConnectionModeCallback(ModifyConnectionFsm fsm, ModifyConnectionContext context) {
+        this.fsm = fsm;
+        this.context = context;
+    }
+
+    @Override
+    public void onSuccess(Void result) {
+        this.fsm.fire(ModifyConnectionEvent.UPDATED_CONNECTION_MODE, this.context);
+    }
+
+    @Override
+    public void onFailure(Throwable t) {
+        this.context.setError(t);
+        this.fsm.fireImmediate(ModifyConnectionEvent.FAILURE, this.context);
+    }
 
 }

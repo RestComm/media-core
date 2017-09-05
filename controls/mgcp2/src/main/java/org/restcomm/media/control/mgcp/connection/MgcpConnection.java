@@ -129,7 +129,7 @@ public interface MgcpConnection extends MgcpEventSubject {
      * @param sdp The new remote session description.
      * @param callback Invoked when operation completes or fails. Holds the local session description.
      */
-    void renegotiate(String sdp, FutureCallback<String> callback);
+    void negotiate(String sdp, FutureCallback<String> callback);
 
     /**
      * Closes the connection.

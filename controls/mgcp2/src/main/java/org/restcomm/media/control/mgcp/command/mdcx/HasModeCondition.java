@@ -21,12 +21,17 @@
 
 package org.restcomm.media.control.mgcp.command.mdcx;
 
-import org.squirrelframework.foundation.fsm.Action;
+import org.squirrelframework.foundation.fsm.AnonymousCondition;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface ModifyConnectionAction extends Action<ModifyConnectionFsm, ModifyConnectionState, ModifyConnectionEvent, ModifyConnectionContext> {
+public class HasModeCondition extends AnonymousCondition<ModifyConnectionContext> implements ModifyConnectionCondition {
+
+    @Override
+    public boolean isSatisfied(ModifyConnectionContext context) {
+        return (context.getMode() != null);
+    }
 
 }

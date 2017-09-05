@@ -23,6 +23,8 @@ package org.restcomm.media.control.mgcp.command.mdcx;
 
 import org.restcomm.media.control.mgcp.command.MgcpCommandParameters;
 import org.restcomm.media.control.mgcp.command.MgcpCommandResult;
+import org.restcomm.media.control.mgcp.connection.MgcpConnection;
+import org.restcomm.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.restcomm.media.spi.ConnectionMode;
 
@@ -43,7 +45,9 @@ public class ModifyConnectionContext {
 
     private int callId;
     private String endpointId;
+    private MgcpEndpoint endpoint;
     private int connectionId;
+    private MgcpConnection connection;
     private ConnectionMode mode;
     private String remoteDescription;
     private String localDescription;
@@ -61,7 +65,9 @@ public class ModifyConnectionContext {
 
         this.callId = -1;
         this.endpointId = "";
+        this.endpoint = null;
         this.connectionId = -1;
+        this.connection = null;
         this.remoteDescription = "";
         this.localDescription = "";
         this.mode = null;
@@ -95,12 +101,28 @@ public class ModifyConnectionContext {
         this.endpointId = endpointId;
     }
 
+    public MgcpEndpoint getEndpoint() {
+        return endpoint;
+    }
+
+    public void setEndpoint(MgcpEndpoint endpoint) {
+        this.endpoint = endpoint;
+    }
+
     protected int getConnectionId() {
         return connectionId;
     }
 
     protected void setConnectionId(int connectionId) {
         this.connectionId = connectionId;
+    }
+
+    public MgcpConnection getConnection() {
+        return connection;
+    }
+
+    public void setConnection(MgcpConnection connection) {
+        this.connection = connection;
     }
 
     protected ConnectionMode getMode() {

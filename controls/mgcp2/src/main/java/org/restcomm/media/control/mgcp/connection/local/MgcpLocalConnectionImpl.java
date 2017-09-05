@@ -97,7 +97,7 @@ public class MgcpLocalConnectionImpl extends AbstractMgcpConnection implements M
     }
 
     @Override
-    public void renegotiate(String sdp, FutureCallback<String> callback) {
+    public void negotiate(String sdp, FutureCallback<String> callback) {
         denyOperation(MgcpLocalConnectionEvent.RENEGOTIATE, callback);
     }
     

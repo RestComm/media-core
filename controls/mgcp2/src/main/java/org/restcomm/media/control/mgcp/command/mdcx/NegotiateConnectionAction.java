@@ -21,12 +21,33 @@
 
 package org.restcomm.media.control.mgcp.command.mdcx;
 
-import org.squirrelframework.foundation.fsm.Action;
+import org.restcomm.media.control.mgcp.connection.MgcpConnection;
+import org.squirrelframework.foundation.fsm.AnonymousAction;
 
 /**
+ * Action that updates the mode of a connection.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface ModifyConnectionAction extends Action<ModifyConnectionFsm, ModifyConnectionState, ModifyConnectionEvent, ModifyConnectionContext> {
+class NegotiateConnectionAction
+        extends AnonymousAction<ModifyConnectionFsm, ModifyConnectionState, ModifyConnectionEvent, ModifyConnectionContext>
+        implements ModifyConnectionAction {
+
+    protected NegotiateConnectionAction() {
+        super();
+    }
+
+    @Override
+    public void execute(ModifyConnectionState from, ModifyConnectionState to, ModifyConnectionEvent event, ModifyConnectionContext context, ModifyConnectionFsm stateMachine) {
+        final MgcpConnection connection = context.getConnection();
+        final String remoteDescription = context.getRemoteDescription();
+
+        // Modify connection
+        NegotiateConnectionCallback callback = new NegotiateConnectionCallback(stateMachine, context);
+        connection.negotiate(remoteDescription, callback);
+
+        // callback will handle rest of logic
+    }
 
 }

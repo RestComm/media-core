@@ -24,6 +24,8 @@ package org.restcomm.media.control.mgcp.command.mdcx;
 import org.restcomm.media.control.mgcp.command.MgcpCommand;
 import org.restcomm.media.control.mgcp.command.MgcpCommandException;
 import org.restcomm.media.control.mgcp.command.MgcpCommandParameters;
+import org.restcomm.media.control.mgcp.connection.MgcpConnection;
+import org.restcomm.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.restcomm.media.control.mgcp.message.MgcpParameterType;
 import org.restcomm.media.control.mgcp.message.MgcpResponseCode;
@@ -61,15 +63,15 @@ class ValidateParametersAction
             // TODO Local Connection Options
             
             // Validate endpoint exists
-            boolean endpointExists = doesEndpointExist(endpointId, context.getEndpointManager());
-            if(!endpointExists) {
-                throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_UNKNOWN);
-            }
+            MgcpEndpoint endpoint = loadEndpoint(endpointId, context.getEndpointManager());
+            MgcpConnection connection = loadConnection(callId, connectionId, endpoint);
             
             // Update context
             context.setCallId(callId);
             context.setConnectionId(connectionId);
+            context.setConnection(connection);
             context.setEndpointId(endpointId);
+            context.setEndpoint(endpoint);
             context.setMode(mode);
             context.setRemoteDescription(remoteDescription);
             
@@ -133,8 +135,20 @@ class ValidateParametersAction
         return parameters.getString(MgcpParameterType.SDP).or("");
     }
     
-    private boolean doesEndpointExist(String endpointId, MgcpEndpointManager endpoints) {
-        return (endpoints.getEndpoint(endpointId) != null);
+    private MgcpEndpoint loadEndpoint(String endpointId, MgcpEndpointManager endpoints) throws MgcpCommandException {
+        final MgcpEndpoint endpoint = endpoints.getEndpoint(endpointId);
+        if(endpoint == null) {
+            throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_UNKNOWN);
+        }
+        return endpoint;
+    }
+
+    private MgcpConnection loadConnection(int callId, int connectionId, MgcpEndpoint endpoint) throws MgcpCommandException {
+        final MgcpConnection connection = endpoint.getConnection(callId, connectionId);
+        if(connection == null) {
+            throw new MgcpCommandException(MgcpResponseCode.INCORRECT_CONNECTION_ID);
+        }
+        return connection;
     }
 
 }
