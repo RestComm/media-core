@@ -1,0 +1,27 @@
+@startuml
+state EXECUTING {
+
+[*] --> MODIFYING_CONNECTION : [has_remote_sdp]
+[*] --> UPDATING_CONNECTION_MODE : [has_mode & no_remoted_sdp]
+[*] --> EXECUTED : [no_remote_sdp & no_mode]
+
+MODIFYING_CONNECTION --> UPDATING_CONNECTION_MODE : modified_connection [has_mode]
+MODIFYING_CONNECTION --> EXECUTED : modified_connection [no_mode]
+
+UPDATING_CONNECTION_MODE --> EXECUTED : updated_connection_mode
+
+EXECUTED --> [*]
+
+}
+
+
+[*] --> VALIDATING_PARAMETERS
+VALIDATING_PARAMETERS --> EXECUTING : validated_parameters
+VALIDATING_PARAMETERS --> FAILED : failure
+
+EXECUTING --> FAILED : failure
+EXECUTING --> SUCCEEDED : executed
+
+SUCCEEDED --> [*]
+FAILED --> [*]
+@enduml
