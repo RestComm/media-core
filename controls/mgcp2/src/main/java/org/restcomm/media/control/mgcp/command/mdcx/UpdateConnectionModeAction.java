@@ -23,7 +23,6 @@ package org.restcomm.media.control.mgcp.command.mdcx;
 
 import org.restcomm.media.control.mgcp.connection.MgcpConnection;
 import org.restcomm.media.spi.ConnectionMode;
-import org.squirrelframework.foundation.fsm.AnonymousAction;
 
 /**
  * Action that updates the mode of a connection.
@@ -31,11 +30,11 @@ import org.squirrelframework.foundation.fsm.AnonymousAction;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-class UpdateConnectionModeAction
-        extends AnonymousAction<ModifyConnectionFsm, ModifyConnectionState, ModifyConnectionEvent, ModifyConnectionContext>
-        implements ModifyConnectionAction {
+class UpdateConnectionModeAction extends ModifyConnectionAction {
+    
+    static final UpdateConnectionModeAction INSTANCE = new UpdateConnectionModeAction();
 
-    protected UpdateConnectionModeAction() {
+    UpdateConnectionModeAction() {
         super();
     }
 

@@ -22,7 +22,6 @@
 package org.restcomm.media.control.mgcp.command.mdcx;
 
 import org.restcomm.media.control.mgcp.connection.MgcpConnection;
-import org.squirrelframework.foundation.fsm.AnonymousAction;
 
 /**
  * Action that updates the mode of a connection.
@@ -30,11 +29,11 @@ import org.squirrelframework.foundation.fsm.AnonymousAction;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-class NegotiateConnectionAction
-        extends AnonymousAction<ModifyConnectionFsm, ModifyConnectionState, ModifyConnectionEvent, ModifyConnectionContext>
-        implements ModifyConnectionAction {
+class NegotiateConnectionAction extends ModifyConnectionAction {
 
-    protected NegotiateConnectionAction() {
+    static final NegotiateConnectionAction INSTANCE = new NegotiateConnectionAction();
+
+    NegotiateConnectionAction() {
         super();
     }
 

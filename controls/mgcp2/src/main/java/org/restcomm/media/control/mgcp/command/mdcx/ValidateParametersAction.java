@@ -30,7 +30,6 @@ import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.restcomm.media.control.mgcp.message.MgcpParameterType;
 import org.restcomm.media.control.mgcp.message.MgcpResponseCode;
 import org.restcomm.media.spi.ConnectionMode;
-import org.squirrelframework.foundation.fsm.AnonymousAction;
 
 import com.google.common.base.Optional;
 
@@ -38,9 +37,7 @@ import com.google.common.base.Optional;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-class ValidateParametersAction
-        extends AnonymousAction<ModifyConnectionFsm, ModifyConnectionState, ModifyConnectionEvent, ModifyConnectionContext>
-        implements ModifyConnectionAction {
+class ValidateParametersAction extends ModifyConnectionAction {
 
     static final ValidateParametersAction INSTANCE = new ValidateParametersAction();
 

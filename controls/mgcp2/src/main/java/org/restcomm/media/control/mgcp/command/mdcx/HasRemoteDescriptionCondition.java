@@ -27,17 +27,18 @@ import org.squirrelframework.foundation.fsm.AnonymousCondition;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class HasModeCondition extends AnonymousCondition<ModifyConnectionContext> implements ModifyConnectionCondition {
+public class HasRemoteDescriptionCondition extends AnonymousCondition<ModifyConnectionContext> implements ModifyConnectionCondition {
 
-    static final HasModeCondition INSTANCE = new HasModeCondition();
-    
-    HasModeCondition() {
+    static final HasRemoteDescriptionCondition INSTANCE = new HasRemoteDescriptionCondition();
+
+    HasRemoteDescriptionCondition() {
         super();
     }
-    
+
     @Override
     public boolean isSatisfied(ModifyConnectionContext context) {
-        return (context.getMode() != null);
+        final String sdp = context.getRemoteDescription();
+        return (sdp != null && !sdp.isEmpty());
     }
 
 }

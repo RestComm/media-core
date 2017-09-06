@@ -21,23 +21,30 @@
 
 package org.restcomm.media.control.mgcp.command.mdcx;
 
+import org.restcomm.media.spi.ConnectionMode;
 import org.squirrelframework.foundation.fsm.AnonymousCondition;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class HasModeCondition extends AnonymousCondition<ModifyConnectionContext> implements ModifyConnectionCondition {
+public class NoModeAndNoRemoteDescriptionCondition extends AnonymousCondition<ModifyConnectionContext> implements ModifyConnectionCondition {
 
-    static final HasModeCondition INSTANCE = new HasModeCondition();
-    
-    HasModeCondition() {
+    static final NoModeAndNoRemoteDescriptionCondition INSTANCE = new NoModeAndNoRemoteDescriptionCondition();
+
+    NoModeAndNoRemoteDescriptionCondition() {
         super();
     }
-    
+
     @Override
     public boolean isSatisfied(ModifyConnectionContext context) {
-        return (context.getMode() != null);
+        final String sdp = context.getRemoteDescription();
+        final ConnectionMode mode = context.getMode();
+
+        boolean hasSdp = (sdp != null && !sdp.isEmpty());
+        boolean hasMode = (mode != null);
+
+        return hasMode && !hasSdp;
     }
 
 }
