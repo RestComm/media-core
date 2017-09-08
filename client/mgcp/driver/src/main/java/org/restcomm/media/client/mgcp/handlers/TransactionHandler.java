@@ -403,7 +403,16 @@ public abstract class TransactionHandler {
 			host += notifiedEntity.getDomainName();
 
 			break;
-
+			
+        case Constants.CMD_DELETE_CONNECTION:
+		case Constants.CMD_RESTART_IN_PROGRESS:
+			if(remoteAddress!=null)
+			{
+				host = remoteAddress.getHostAddress();
+				port = remotePort;
+				break;
+			}
+			
 		default:
 			// determite destination address and port to send request to
 			// from endpoint identifier parameter.

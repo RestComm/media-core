@@ -201,6 +201,7 @@ public class CreateConnectionHandler extends TransactionHandler {
 			array[totalLength++]=StringFunctions.TWO_BYTE;
 			array[totalLength++]=StringFunctions.COLON_BYTE;			
 			totalLength+=EndpointIdentifierHandler.encode(array,totalLength,evt.getSecondEndpointIdentifier());			
+			array[totalLength++]=StringFunctions.NEWLINE_BYTE;
 		}
 
 		if (evt.getNotificationRequestParms() != null) 
@@ -252,6 +253,7 @@ public class CreateConnectionHandler extends TransactionHandler {
 			array[totalLength++]=StringFunctions.HIGH_Z_BYTE;
 			array[totalLength++]=StringFunctions.COLON_BYTE;			
 			totalLength+=EndpointIdentifierHandler.encode(array,totalLength,response.getSpecificEndpointIdentifier());
+			array[totalLength++]=StringFunctions.NEWLINE_BYTE;
 		}
 		
 		if (response.getSecondConnectionIdentifier() != null) 
@@ -271,6 +273,7 @@ public class CreateConnectionHandler extends TransactionHandler {
 			array[totalLength++]=StringFunctions.TWO_BYTE;
 			array[totalLength++]=StringFunctions.COLON_BYTE;			
 			totalLength+=EndpointIdentifierHandler.encode(array,totalLength,response.getSecondEndpointIdentifier());
+			array[totalLength++]=StringFunctions.NEWLINE_BYTE;
 		}
 		
 		if (response.getLocalConnectionDescriptor() != null) 
