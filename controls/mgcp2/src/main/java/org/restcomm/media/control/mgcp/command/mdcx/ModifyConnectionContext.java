@@ -21,11 +21,12 @@
 
 package org.restcomm.media.control.mgcp.command.mdcx;
 
-import org.restcomm.media.control.mgcp.command.MgcpCommandParameters;
 import org.restcomm.media.control.mgcp.command.MgcpCommandResult;
 import org.restcomm.media.control.mgcp.connection.MgcpConnection;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointManager;
+import org.restcomm.media.control.mgcp.message.MgcpParameterType;
+import org.restcomm.media.control.mgcp.util.collections.Parameters;
 import org.restcomm.media.spi.ConnectionMode;
 
 import com.google.common.util.concurrent.FutureCallback;
@@ -41,7 +42,7 @@ public class ModifyConnectionContext {
 
     // Command Status
     private final int transactionId;
-    private final MgcpCommandParameters parameters;
+    private final Parameters<MgcpParameterType> parameters;
 
     private int callId;
     private String endpointId;
@@ -55,7 +56,7 @@ public class ModifyConnectionContext {
     private FutureCallback<MgcpCommandResult> callback;
     private Throwable error;
 
-    public ModifyConnectionContext(int transactionId, MgcpCommandParameters parameters, MgcpEndpointManager endpointManager) {
+    public ModifyConnectionContext(int transactionId, Parameters<MgcpParameterType> parameters, MgcpEndpointManager endpointManager) {
         // Dependencies
         this.endpointManager = endpointManager;
 
@@ -81,7 +82,7 @@ public class ModifyConnectionContext {
         return transactionId;
     }
 
-    protected MgcpCommandParameters getParameters() {
+    protected Parameters<MgcpParameterType> getParameters() {
         return parameters;
     }
 

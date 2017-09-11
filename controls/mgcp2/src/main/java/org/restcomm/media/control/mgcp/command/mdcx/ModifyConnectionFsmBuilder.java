@@ -38,14 +38,14 @@ public class ModifyConnectionFsmBuilder {
     private final StateMachineBuilder<ModifyConnectionFsm, ModifyConnectionState, ModifyConnectionEvent, ModifyConnectionContext> builder;
 
     public ModifyConnectionFsmBuilder() {
-        this.builder = StateMachineBuilderFactory.create(ModifyConnectionFsm.class, ModifyConnectionState.class, ModifyConnectionEvent.class, ModifyConnectionContext.class);
+        this.builder = StateMachineBuilderFactory.<ModifyConnectionFsm, ModifyConnectionState, ModifyConnectionEvent, ModifyConnectionContext> create(ModifyConnectionFsmImpl.class, ModifyConnectionState.class, ModifyConnectionEvent.class, ModifyConnectionContext.class);
 
         this.builder.onEntry(VALIDATING_PARAMETERS).perform(ValidateParametersAction.INSTANCE);
         this.builder.externalTransition().from(VALIDATING_PARAMETERS).to(EXECUTING).on(VALIDATED_PARAMETERS);
         this.builder.externalTransition().from(VALIDATING_PARAMETERS).to(FAILED).on(FAILURE);
 
         this.builder.onEntry(EXECUTING).perform(StartExecutingAction.INSTANCE);
-        this.builder.defineNoInitSequentialStatesOn(MODIFYING_CONNECTION, UPDATING_CONNECTION_MODE, ModifyConnectionState.EXECUTED);
+        this.builder.defineNoInitSequentialStatesOn(EXECUTING, MODIFYING_CONNECTION, UPDATING_CONNECTION_MODE, ModifyConnectionState.EXECUTED);
         this.builder.localTransition().from(EXECUTING).to(MODIFYING_CONNECTION).on(EXECUTE).when(HasRemoteDescriptionCondition.INSTANCE);
         this.builder.localTransition().from(EXECUTING).to(UPDATING_CONNECTION_MODE).on(EXECUTE).when(HasModeAndNoRemoteDescriptionCondition.INSTANCE);
         this.builder.localTransition().from(EXECUTING).to(ModifyConnectionState.EXECUTED).on(EXECUTE).when(NoModeAndNoRemoteDescriptionCondition.INSTANCE);

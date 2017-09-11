@@ -23,12 +23,12 @@ package org.restcomm.media.control.mgcp.command.mdcx;
 
 import org.restcomm.media.control.mgcp.command.MgcpCommand;
 import org.restcomm.media.control.mgcp.command.MgcpCommandException;
-import org.restcomm.media.control.mgcp.command.MgcpCommandParameters;
 import org.restcomm.media.control.mgcp.connection.MgcpConnection;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.restcomm.media.control.mgcp.message.MgcpParameterType;
 import org.restcomm.media.control.mgcp.message.MgcpResponseCode;
+import org.restcomm.media.control.mgcp.util.collections.Parameters;
 import org.restcomm.media.spi.ConnectionMode;
 
 import com.google.common.base.Optional;
@@ -48,7 +48,7 @@ class ValidateParametersAction extends ModifyConnectionAction {
     @Override
     public void execute(ModifyConnectionState from, ModifyConnectionState to, ModifyConnectionEvent event,
             ModifyConnectionContext context, ModifyConnectionFsm stateMachine) {
-        final MgcpCommandParameters parameters = context.getParameters();
+        final Parameters<MgcpParameterType> parameters = context.getParameters();
 
         try {
             // Load parameters and validate them
@@ -81,7 +81,7 @@ class ValidateParametersAction extends ModifyConnectionAction {
         }
     }
 
-    private int loadCallId(MgcpCommandParameters parameters) throws MgcpCommandException {
+    private int loadCallId(Parameters<MgcpParameterType> parameters) throws MgcpCommandException {
         Optional<Integer> callId = parameters.getIntegerBase16(MgcpParameterType.CALL_ID);
         if (callId.isPresent()) {
             return callId.get().intValue();
@@ -90,7 +90,7 @@ class ValidateParametersAction extends ModifyConnectionAction {
         }
     }
 
-    private String loadEndpointId(MgcpCommandParameters parameters) throws MgcpCommandException {
+    private String loadEndpointId(Parameters<MgcpParameterType> parameters) throws MgcpCommandException {
         Optional<String> endpointId = parameters.getString(MgcpParameterType.ENDPOINT_ID);
         if (endpointId.isPresent() && !endpointId.get().isEmpty()) {
             if (endpointId.get().contains(MgcpCommand.WILDCARD_ALL) || endpointId.get().contains(MgcpCommand.WILDCARD_ANY)) {
@@ -103,7 +103,7 @@ class ValidateParametersAction extends ModifyConnectionAction {
         }
     }
 
-    private int loadConnectionId(MgcpCommandParameters parameters) throws MgcpCommandException {
+    private int loadConnectionId(Parameters<MgcpParameterType> parameters) throws MgcpCommandException {
         Optional<Integer> connectionId = parameters.getIntegerBase16(MgcpParameterType.CONNECTION_ID);
         
         if(connectionId.isPresent()) {
@@ -113,7 +113,7 @@ class ValidateParametersAction extends ModifyConnectionAction {
         }
     }
     
-    private ConnectionMode loadMode(MgcpCommandParameters parameters) throws MgcpCommandException {
+    private ConnectionMode loadMode(Parameters<MgcpParameterType> parameters) throws MgcpCommandException {
         String mode = parameters.getString(MgcpParameterType.MODE).or("");
         
         if(!mode.isEmpty()) {
@@ -128,7 +128,7 @@ class ValidateParametersAction extends ModifyConnectionAction {
         }
     }
     
-    private String loadRemoteDescription(MgcpCommandParameters parameters) {
+    private String loadRemoteDescription(Parameters<MgcpParameterType> parameters) {
         return parameters.getString(MgcpParameterType.SDP).or("");
     }
     

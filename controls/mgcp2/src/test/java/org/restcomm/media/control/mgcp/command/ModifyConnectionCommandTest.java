@@ -67,7 +67,7 @@ public class ModifyConnectionCommandTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
+        final MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);    
         final MgcpRemoteConnection connection = mock(MgcpRemoteConnection.class);
         final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(request.getTransactionId(), request.getParameters(), endpointManager);
 
