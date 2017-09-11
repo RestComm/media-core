@@ -79,7 +79,7 @@ public class MgcpRemoteConnectionImpl extends AbstractMgcpConnection implements 
     }
 
     @Override
-    public void renegotiate(String sdp, FutureCallback<String> callback) {
+    public void negotiate(String sdp, FutureCallback<String> callback) {
         getContext().getRtpConnection().modify(sdp, callback);
     }
 

@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
+ * Copyright 2011-2017, Telestax Inc and individual contributors
  * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
@@ -18,13 +18,33 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
-package org.restcomm.media.control.mgcp.command;
+
+package org.restcomm.media.control.mgcp.command.mdcx;
+
+import org.restcomm.media.spi.ConnectionMode;
+import org.squirrelframework.foundation.fsm.AnonymousCondition;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum MgcpCommandParameterType {
+public class NoModeAndNoRemoteDescriptionCondition extends AnonymousCondition<ModifyConnectionContext> implements ModifyConnectionCondition {
+
+    static final NoModeAndNoRemoteDescriptionCondition INSTANCE = new NoModeAndNoRemoteDescriptionCondition();
+
+    NoModeAndNoRemoteDescriptionCondition() {
+        super();
+    }
+
+    @Override
+    public boolean isSatisfied(ModifyConnectionContext context) {
+        final String sdp = context.getRemoteDescription();
+        final ConnectionMode mode = context.getMode();
+
+        boolean hasSdp = (sdp != null && !sdp.isEmpty());
+        boolean hasMode = (mode != null);
+
+        return hasMode && !hasSdp;
+    }
 
 }

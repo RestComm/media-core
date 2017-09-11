@@ -26,6 +26,9 @@ import org.restcomm.media.control.mgcp.command.crcx.CreateConnectionContext;
 import org.restcomm.media.control.mgcp.command.crcx.CreateConnectionFsmBuilder;
 import org.restcomm.media.control.mgcp.command.crcx.CreateLocalConnectionsFsmBuilder;
 import org.restcomm.media.control.mgcp.command.crcx.CreateRemoteConnectionFsmBuilder;
+import org.restcomm.media.control.mgcp.command.mdcx.ModifyConnectionCommand;
+import org.restcomm.media.control.mgcp.command.mdcx.ModifyConnectionContext;
+import org.restcomm.media.control.mgcp.command.mdcx.ModifyConnectionFsmBuilder;
 import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.restcomm.media.control.mgcp.message.MgcpParameterType;
@@ -57,14 +60,18 @@ public class MgcpCommandProvider {
 
     public MgcpCommand provide(MgcpRequestType type, int transactionId, Parameters<MgcpParameterType> parameters) {
         switch (type) {
-            case CRCX:
+            case CRCX: {
                 final CreateConnectionContext context = new CreateConnectionContext(this.connectionProvider, this.endpointManager, transactionId, parameters);
                 final String secondaryEndpoint = parameters.getString(MgcpParameterType.SECOND_ENDPOINT).or("");
                 final CreateConnectionFsmBuilder fsmBuilder = secondaryEndpoint.isEmpty() ? CreateRemoteConnectionFsmBuilder.INSTANCE : CreateLocalConnectionsFsmBuilder.INSTANCE;
                 return new CreateConnectionCommand(context, fsmBuilder.build());
+            }
 
-            case MDCX:
-                return new ModifyConnectionCommand(transactionId, parameters, this.endpointManager);
+            case MDCX: {
+                final ModifyConnectionFsmBuilder fsmBuilder = ModifyConnectionFsmBuilder.INSTANCE;
+                final ModifyConnectionContext context = new ModifyConnectionContext(transactionId, parameters, this.endpointManager);
+                return new ModifyConnectionCommand(context, fsmBuilder.build());
+            }
 
             case DLCX:
                 return new DeleteConnectionCommand(transactionId, parameters, this.endpointManager);
