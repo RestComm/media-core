@@ -68,6 +68,7 @@
         <module>core</module>
         <module>client</module>
         <module>controls</module>
+        <module>asr</module>
         <module>docs</module>
         <module>bootstrap</module>
     </modules>

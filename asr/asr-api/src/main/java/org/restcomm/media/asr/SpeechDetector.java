@@ -1,8 +1,7 @@
 /*
- * JBoss, Home of Professional Open Source
- * Copyright 2011, Red Hat, Inc. and individual contributors
- * by the @authors tag. See the copyright.txt in the distribution for a
- * full listing of individual contributors.
+ * TeleStax, Open Source Cloud Communications
+ * Copyright 2011-2017, Telestax Inc and individual contributors
+ * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -20,25 +19,28 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media;
+package org.restcomm.media.asr;
+
+import org.restcomm.media.MediaSink;
 
 /**
- * Defines all component types available in mms
+ * Components that detects user speech from a stream of incoming audio.
  * 
- * Examples of components are the audio player, recoder, DTMF detector, etc.
- * 
- * @author yulian oifa
+ * @author anikiforov
+ *
  */
-public enum ComponentType {
-    DTMF_DETECTOR(0), DTMF_GENERATOR(1), PLAYER(2), RECORDER(3), SIGNAL_DETECTOR(4), SIGNAL_GENERATOR(5), SINE(6), SPECTRA_ANALYZER(7), SOUND_CARD(8), ASR_ENGINE(9);
+public interface SpeechDetector extends MediaSink {
 
-    private int type;
+    /**
+     * Starts speech detection process.
+     * 
+     * @param speechDetectorListener The listener who will be notified about speech detection events.
+     */
+    void startSpeechDetection(SpeechDetectorListener speechDetectorListener);
 
-    private ComponentType(int type) {
-        this.type = type;
-    }
+    /**
+     * Stops the speech detection process.
+     */
+    void stopSpeechDetection();
 
-    public int getType() {
-        return type;
-    }
 }
