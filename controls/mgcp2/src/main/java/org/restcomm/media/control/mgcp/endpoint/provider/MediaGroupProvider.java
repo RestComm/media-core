@@ -21,6 +21,7 @@
 
 package org.restcomm.media.control.mgcp.endpoint.provider;
 
+import org.restcomm.media.asr.AsrEngineProvider;
 import org.restcomm.media.component.audio.AudioComponent;
 import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.control.mgcp.endpoint.MediaGroup;
@@ -38,15 +39,17 @@ public class MediaGroupProvider {
     private final PlayerProvider players;
     private final DtmfDetectorProvider detectors;
     private final RecorderProvider recorders;
+    private final AsrEngineProvider asrEngines;
 
-    public MediaGroupProvider(PlayerProvider players, DtmfDetectorProvider detectors, RecorderProvider recorders) {
+    public MediaGroupProvider(PlayerProvider players, DtmfDetectorProvider detectors, RecorderProvider recorders, AsrEngineProvider asrEngines) {
         this.players = players;
         this.detectors = detectors;
         this.recorders = recorders;
+        this.asrEngines = asrEngines;
     }
 
     public MediaGroup provide() {
-        return new MediaGroupImpl(new AudioComponent(0), new OOBComponent(0), players, recorders, detectors);
+        return new MediaGroupImpl(new AudioComponent(0), new OOBComponent(0), players, recorders, detectors, asrEngines);
     }
 
 }

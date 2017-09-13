@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
+ * Copyright 2011-2017, Telestax Inc and individual contributors
  * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
@@ -19,37 +19,31 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.control.mgcp.pkg.au;
+package org.restcomm.media.asr.driver;
+
+import org.restcomm.media.asr.AsrException;
 
 /**
- * Types of MGCP signals defined by Advanced Audio Package.
+ * Listens to events raised by {@link AsrDriver}.
  * 
- * @author Henrique Rosa (henrique.rosa@telestax.com)
+ * @author gdubina
  *
  */
-public enum AudioSignalType {
+public interface AsrDriverEventListener {
 
-    PLAY_ANNOUNCEMENT("pa"), PLAY_COLLECT("pc"), PLAY_RECORD("pr"), END_SIGNAL("es"), ASR_COLLECT("asr");
+    /**
+     * Event raised when a speech transcription is received.
+     * 
+     * @param text The speech transcription.
+     * @param isFinal Whether the transcription is final or interim.
+     */
+    void onSpeechRecognized(String text, boolean isFinal);
 
-    private final String symbol;
-
-    private AudioSignalType(String symbol) {
-        this.symbol = symbol;
-    }
-
-    public String symbol() {
-        return symbol;
-    }
-
-    public static AudioSignalType fromSymbol(String symbol) {
-        if (symbol != null && !symbol.isEmpty()) {
-            for (AudioSignalType signal : values()) {
-                if (signal.symbol.equalsIgnoreCase(symbol)) {
-                    return signal;
-                }
-            }
-        }
-        return null;
-    }
+    /**
+     * Event raised when an unexpected error occurs during speech detection process.
+     * 
+     * @param error The error that occurred during speech detection process.
+     */
+    void onError(final AsrException error);
 
 }

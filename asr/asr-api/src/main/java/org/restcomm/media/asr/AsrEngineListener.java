@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
+ * Copyright 2011-2017, Telestax Inc and individual contributors
  * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
@@ -19,37 +19,29 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.control.mgcp.pkg.au;
+package org.restcomm.media.asr;
 
 /**
- * Types of MGCP signals defined by Advanced Audio Package.
+ * Listens to events raised by {@link AsrEngine}.
  * 
- * @author Henrique Rosa (henrique.rosa@telestax.com)
+ * @author gdubina
  *
  */
-public enum AudioSignalType {
+public interface AsrEngineListener {
 
-    PLAY_ANNOUNCEMENT("pa"), PLAY_COLLECT("pc"), PLAY_RECORD("pr"), END_SIGNAL("es"), ASR_COLLECT("asr");
+    /**
+     * Event raised when a speech transcription is provided.
+     * 
+     * @param text The speech transcription.
+     * @param isFinal Whether the result is final or interim.
+     */
+    void onSpeechRecognized(String text, boolean isFinal);
 
-    private final String symbol;
-
-    private AudioSignalType(String symbol) {
-        this.symbol = symbol;
-    }
-
-    public String symbol() {
-        return symbol;
-    }
-
-    public static AudioSignalType fromSymbol(String symbol) {
-        if (symbol != null && !symbol.isEmpty()) {
-            for (AudioSignalType signal : values()) {
-                if (signal.symbol.equalsIgnoreCase(symbol)) {
-                    return signal;
-                }
-            }
-        }
-        return null;
-    }
+    /**
+     * Event raised when the underlying ASR driver fails unexpectedly.
+     * 
+     * @param e The error thrown by the driver.
+     */
+    void onDriverError(AsrException e);
 
 }

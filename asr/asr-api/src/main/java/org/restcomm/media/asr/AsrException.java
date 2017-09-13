@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
+ * Copyright 2011-2017, Telestax Inc and individual contributors
  * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
@@ -19,37 +19,27 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.control.mgcp.pkg.au;
+package org.restcomm.media.asr;
 
 /**
- * Types of MGCP signals defined by Advanced Audio Package.
+ * Exception that is thrown whenever a problem occurs during a speech detection process.
  * 
- * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
+ * @author anikiforov
  */
-public enum AudioSignalType {
+public class AsrException extends Exception {
 
-    PLAY_ANNOUNCEMENT("pa"), PLAY_COLLECT("pc"), PLAY_RECORD("pr"), END_SIGNAL("es"), ASR_COLLECT("asr");
+    private static final long serialVersionUID = 3170306388026514101L;
 
-    private final String symbol;
-
-    private AudioSignalType(String symbol) {
-        this.symbol = symbol;
+    public AsrException(String message, Throwable cause) {
+        super(message, cause);
     }
 
-    public String symbol() {
-        return symbol;
+    public AsrException(String message) {
+        super(message);
     }
 
-    public static AudioSignalType fromSymbol(String symbol) {
-        if (symbol != null && !symbol.isEmpty()) {
-            for (AudioSignalType signal : values()) {
-                if (signal.symbol.equalsIgnoreCase(symbol)) {
-                    return signal;
-                }
-            }
-        }
-        return null;
+    public AsrException(Throwable cause) {
+        super(cause);
     }
 
 }

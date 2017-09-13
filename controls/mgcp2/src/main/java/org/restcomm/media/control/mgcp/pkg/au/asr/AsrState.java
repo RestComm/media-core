@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
+ * Copyright 2011-2017, Telestax Inc and individual contributors
  * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
@@ -19,30 +19,13 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.control.mgcp.endpoint;
-
-import org.restcomm.media.asr.AsrEngine;
-import org.restcomm.media.spi.dtmf.DtmfDetector;
-import org.restcomm.media.spi.dtmf.DtmfGenerator;
-import org.restcomm.media.spi.player.Player;
-import org.restcomm.media.spi.recorder.Recorder;
+package org.restcomm.media.control.mgcp.pkg.au.asr;
 
 /**
- * Holds media components.
- * 
- * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
+ * @author anikiforov
  */
-public interface MediaGroup {
+public enum AsrState {
 
-    Player getPlayer();
-
-    Recorder getRecorder();
-
-    DtmfDetector getDetector();
-
-    DtmfGenerator getGenerator();
-
-    AsrEngine getAsrEngine();
+    PLAY_COLLECT, PLAY, LOADING_PLAYLIST, PROMPTING, PROMPTED, COLLECT, COLLECTING, COLLECTED, WAITING_FOR_RESPONSE, CANCELED, EVALUATING, SUCCEEDING, PLAYING_SUCCESS, SUCCEEDED, FAILING, PLAYING_FAILURE, FAILED;
 
 }
