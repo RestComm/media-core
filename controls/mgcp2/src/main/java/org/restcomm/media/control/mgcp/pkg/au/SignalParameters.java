@@ -67,14 +67,7 @@ public enum SignalParameters {
     INCLUDE_END_INPUT_KEY("iek"),
     NUMBER_OF_ATTEMPTS("na"), 
     RECORD_ID("ri"),
-    SIGNAL("sg"),
-    WAITING_TIME_FOR_INPUT("wit"),
-    MAXIMUM_RECOGNITION_TIME("mrt"),
-    DRIVER("dr"),
-    HOT_WORDS("hw"),
-    LANG("ln"),
-    INPUT("in"),
-    PARTIAL_RESULT("pr");
+    SIGNAL("sg");
 
     private final String symbol;
 

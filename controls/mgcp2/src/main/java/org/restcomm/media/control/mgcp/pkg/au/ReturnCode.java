@@ -35,7 +35,6 @@ package org.restcomm.media.control.mgcp.pkg.au;
 public enum ReturnCode {
     
     SUCCESS(100),
-    PARTIAL_SUCCESS(101),
     UNSPECIFIED_FAILURE(300),
     BAD_AUDIO_ID(301),
     BAD_SELECTOR_TYPE(302),
