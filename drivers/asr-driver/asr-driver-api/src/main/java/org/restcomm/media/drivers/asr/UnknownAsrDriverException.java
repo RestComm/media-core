@@ -19,31 +19,26 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.asr;
-
-import org.restcomm.media.drivers.asr.AsrDriverException;
+package org.restcomm.media.drivers.asr;
 
 /**
- * Listens to events raised by {@link AsrEngine}.
- * 
  * @author gdubina
  *
  */
-public interface AsrEngineListener {
+public class UnknownAsrDriverException extends AsrDriverException {
 
-    /**
-     * Event raised when a speech transcription is provided.
-     * 
-     * @param text The speech transcription.
-     * @param isFinal Whether the result is final or interim.
-     */
-    void onSpeechRecognized(String text, boolean isFinal);
+    private static final long serialVersionUID = 4319627008767482791L;
 
-    /**
-     * Event raised when the underlying ASR driver fails unexpectedly.
-     * 
-     * @param e The error thrown by the driver.
-     */
-    void onDriverError(AsrDriverException e);
+    public UnknownAsrDriverException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public UnknownAsrDriverException(String message) {
+        super(message);
+    }
+
+    public UnknownAsrDriverException(Throwable cause) {
+        super(cause);
+    }
 
 }

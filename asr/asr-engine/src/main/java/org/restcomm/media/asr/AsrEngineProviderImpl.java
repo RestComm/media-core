@@ -23,7 +23,7 @@ package org.restcomm.media.asr;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.restcomm.media.asr.driver.AsrDriverManager;
+import org.restcomm.media.drivers.asr.AsrDriverManager;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 
 /**

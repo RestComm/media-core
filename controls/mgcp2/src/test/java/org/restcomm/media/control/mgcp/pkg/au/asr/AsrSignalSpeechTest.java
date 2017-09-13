@@ -51,14 +51,14 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.restcomm.media.asr.AsrEngine;
 import org.restcomm.media.asr.AsrEngineListener;
-import org.restcomm.media.asr.AsrException;
 import org.restcomm.media.asr.SpeechDetectorListener;
-import org.restcomm.media.asr.driver.UnknownAsrDriverException;
 import org.restcomm.media.control.mgcp.pkg.MgcpEvent;
 import org.restcomm.media.control.mgcp.pkg.MgcpEventObserver;
 import org.restcomm.media.control.mgcp.pkg.au.ReturnCode;
 import org.restcomm.media.control.mgcp.pkg.au.ReturnParameters;
 import org.restcomm.media.control.mgcp.pkg.au.SignalParameters;
+import org.restcomm.media.drivers.asr.AsrDriverException;
+import org.restcomm.media.drivers.asr.UnknownAsrDriverException;
 import org.restcomm.media.resource.dtmf.DtmfEventImpl;
 import org.restcomm.media.spi.dtmf.DtmfDetector;
 import org.restcomm.media.spi.dtmf.DtmfDetectorListener;
@@ -259,7 +259,7 @@ public class AsrSignalSpeechTest {
         verify(observer, never()).onEvent(eq(asr), eventCaptor.capture());
 
         speakRecognizedText("text");
-        asrEngineListener.onDriverError(new AsrException("test purposes"));
+        asrEngineListener.onDriverError(new AsrDriverException("test purposes"));
 
         // then
         verify(detector, times(1)).activate();

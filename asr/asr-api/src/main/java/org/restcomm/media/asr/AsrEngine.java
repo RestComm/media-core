@@ -23,8 +23,8 @@ package org.restcomm.media.asr;
 
 import java.util.List;
 
-import org.restcomm.media.asr.driver.AsrDriverConfigurationException;
-import org.restcomm.media.asr.driver.UnknownAsrDriverException;
+import org.restcomm.media.drivers.asr.AsrDriverConfigurationException;
+import org.restcomm.media.drivers.asr.UnknownAsrDriverException;
 
 /**
  * @author gdubina
@@ -41,8 +41,7 @@ public interface AsrEngine extends SpeechDetector {
      * @throws UnknownAsrDriverException When the provided driver is not supported.
      * @throws AsrDriverConfigurationException When the driver is badly configured.
      */
-    void configure(String driver, String language, List<String> hints)
-            throws UnknownAsrDriverException, AsrDriverConfigurationException;
+    void configure(String driver, String language, List<String> hints) throws UnknownAsrDriverException, AsrDriverConfigurationException;
 
     /**
      * Attaches a listener to the engine to be notified about ASR events.

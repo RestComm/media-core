@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2017, Telestax Inc and individual contributors
+ * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
@@ -19,26 +19,22 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.asr.driver;
+package org.restcomm.media.bootstrap.ioc;
+
+import org.restcomm.media.asr.AsrEngineProvider;
+import org.restcomm.media.bootstrap.ioc.provider.asr.AsrEngineProviderGuiceProvider;
+
+import com.google.inject.AbstractModule;
 
 /**
- * @author gdubina
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class UnknownAsrDriverException extends AsrDriverException {
+public class AsrModule extends AbstractModule {
 
-    private static final long serialVersionUID = 4319627008767482791L;
-
-    public UnknownAsrDriverException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public UnknownAsrDriverException(String message) {
-        super(message);
-    }
-
-    public UnknownAsrDriverException(Throwable cause) {
-        super(cause);
+    @Override
+    protected void configure() {
+        bind(AsrEngineProvider.class).toProvider(AsrEngineProviderGuiceProvider.class).asEagerSingleton();
     }
 
 }

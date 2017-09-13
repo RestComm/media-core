@@ -26,12 +26,13 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.restcomm.media.ComponentType;
-import org.restcomm.media.asr.driver.AsrDriver;
-import org.restcomm.media.asr.driver.AsrDriverConfigurationException;
-import org.restcomm.media.asr.driver.AsrDriverEventListener;
-import org.restcomm.media.asr.driver.AsrDriverManager;
-import org.restcomm.media.asr.driver.UnknownAsrDriverException;
 import org.restcomm.media.component.audio.AudioOutput;
+import org.restcomm.media.drivers.asr.AsrDriver;
+import org.restcomm.media.drivers.asr.AsrDriverConfigurationException;
+import org.restcomm.media.drivers.asr.AsrDriverEventListener;
+import org.restcomm.media.drivers.asr.AsrDriverException;
+import org.restcomm.media.drivers.asr.AsrDriverManager;
+import org.restcomm.media.drivers.asr.UnknownAsrDriverException;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.Task;
 import org.restcomm.media.spi.memory.Frame;
@@ -176,7 +177,7 @@ public class AsrEngineImpl extends SpeechDetectorImpl implements AsrEngine {
         scheduler.submit(task, task.getQueueNumber());
     }
 
-    private void fireDriverErrorEvent(AsrException error) {
+    private void fireDriverErrorEvent(AsrDriverException error) {
         FireDriverErrorTask task = new FireDriverErrorTask(error);
         scheduler.submit(task, task.getQueueNumber());
     }
@@ -191,7 +192,7 @@ public class AsrEngineImpl extends SpeechDetectorImpl implements AsrEngine {
         }
 
         @Override
-        public void onError(final AsrException error) {
+        public void onError(final AsrDriverException error) {
             logger.warn("ASR driver error: " + error.getMessage());
             fireDriverErrorEvent(error);
         }
@@ -224,9 +225,9 @@ public class AsrEngineImpl extends SpeechDetectorImpl implements AsrEngine {
 
     private class FireDriverErrorTask extends Task {
 
-        private final AsrException error;
+        private final AsrDriverException error;
 
-        public FireDriverErrorTask(AsrException error) {
+        public FireDriverErrorTask(AsrDriverException error) {
             super();
             this.error = error;
         }

@@ -57,6 +57,7 @@
         <module>asr</module>
         <module>docs</module>
         <module>bootstrap</module>
+        <module>drivers</module>
     </modules>
 
     <dependencies>

@@ -32,6 +32,7 @@ public class MediaServerConfiguration {
     private final MediaConfiguration mediaConfiguration;
     private final ResourcesConfiguration resourcesConfiguration;
     private final DtlsConfiguration dtlsConfiguration;
+    private final SubsystemsConfiguration subsystemsConfiguration;
 
     public MediaServerConfiguration() {
         this.networkConfiguration = new NetworkConfiguration();
@@ -39,6 +40,7 @@ public class MediaServerConfiguration {
         this.mediaConfiguration = new MediaConfiguration();
         this.resourcesConfiguration = new ResourcesConfiguration();
         this.dtlsConfiguration = new DtlsConfiguration();
+        this.subsystemsConfiguration = new SubsystemsConfiguration();
     }
 
     public NetworkConfiguration getNetworkConfiguration() {
@@ -59,6 +61,10 @@ public class MediaServerConfiguration {
 
     public DtlsConfiguration getDtlsConfiguration() {
         return dtlsConfiguration;
+    }
+
+    public SubsystemsConfiguration getSubsystemsConfiguration() {
+        return subsystemsConfiguration;
     }
 
 }

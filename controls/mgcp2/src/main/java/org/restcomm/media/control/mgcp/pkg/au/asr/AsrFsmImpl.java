@@ -30,18 +30,18 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.restcomm.media.asr.AsrEngine;
 import org.restcomm.media.asr.AsrEngineListener;
-import org.restcomm.media.asr.AsrException;
 import org.restcomm.media.asr.InputTimeoutDetector;
 import org.restcomm.media.asr.InputTimeoutListener;
 import org.restcomm.media.asr.SpeechDetectorListener;
-import org.restcomm.media.asr.driver.AsrDriverConfigurationException;
-import org.restcomm.media.asr.driver.UnknownAsrDriverException;
 import org.restcomm.media.control.mgcp.pkg.MgcpEventSubject;
 import org.restcomm.media.control.mgcp.pkg.au.OperationComplete;
 import org.restcomm.media.control.mgcp.pkg.au.OperationFailed;
 import org.restcomm.media.control.mgcp.pkg.au.Playlist;
 import org.restcomm.media.control.mgcp.pkg.au.ReturnCode;
 import org.restcomm.media.control.mgcp.pkg.au.ReturnParameters;
+import org.restcomm.media.drivers.asr.AsrDriverConfigurationException;
+import org.restcomm.media.drivers.asr.AsrDriverException;
+import org.restcomm.media.drivers.asr.UnknownAsrDriverException;
 import org.restcomm.media.spi.ResourceUnavailableException;
 import org.restcomm.media.spi.dtmf.DtmfDetector;
 import org.restcomm.media.spi.dtmf.DtmfDetectorListener;
@@ -672,7 +672,7 @@ public class AsrFsmImpl extends AbstractStateMachine<AsrFsm, AsrState, AsrEvent,
         }
 
         @Override
-        public void onDriverError(AsrException error) {
+        public void onDriverError(AsrDriverException error) {
             if (log.isTraceEnabled()) {
                 log.trace("onDriverError", error);
             }
