@@ -29,7 +29,7 @@ package org.restcomm.media.control.mgcp.pkg.au;
  */
 public enum AudioSignalType {
 
-    PLAY_ANNOUNCEMENT("pa"), PLAY_COLLECT("pc"), PLAY_RECORD("pr"), END_SIGNAL("es");
+    PLAY_ANNOUNCEMENT("pa"), PLAY_COLLECT("pc"), PLAY_RECORD("pr"), END_SIGNAL("es"), ASR_COLLECT("asr");
 
     private final String symbol;
 
