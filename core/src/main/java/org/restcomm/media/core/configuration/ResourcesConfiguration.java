@@ -33,6 +33,7 @@ public class ResourcesConfiguration {
     public static final int DTMF_DETECTOR_TONE_INTERVAL = 400;
     public static final int DTMF_GENERATOR_TONE_VOLUME = -20;
     public static final int DTMF_GENERATOR_TONE_DURATION = 80;
+    public static final int SPEECH_DETECTOR_SILENCE_LEVEL = 10;
     public static final int PLAYER_CACHE_SIZE = 0;
     public static final boolean PLAYER_CACHE_ENABLED = false;
 
@@ -41,6 +42,7 @@ public class ResourcesConfiguration {
     private int dtmfGeneratorToneVolume;
     private int dtmfGeneratorToneDuration;
     private int dtmfDetectorToneInterval;
+    private int speechDetectorSilenceLevel;
     private int playerCacheSize;
 
     public ResourcesConfiguration() {
@@ -49,6 +51,7 @@ public class ResourcesConfiguration {
         this.dtmfGeneratorToneVolume = DTMF_GENERATOR_TONE_VOLUME;
         this.dtmfGeneratorToneDuration = DTMF_GENERATOR_TONE_DURATION;
         this.dtmfDetectorToneInterval = DTMF_DETECTOR_TONE_INTERVAL;
+        this.speechDetectorSilenceLevel = SPEECH_DETECTOR_SILENCE_LEVEL;
         this.playerCacheSize = PLAYER_CACHE_SIZE;
     }
 
@@ -105,6 +108,17 @@ public class ResourcesConfiguration {
             throw new IllegalArgumentException("DTMF Generator Tone Duration cannot be negative");
         }
         this.dtmfGeneratorToneDuration = dtmfGeneratorToneDuration;
+    }
+    
+    public int getSpeechDetectorSilenceLevel() {
+        return speechDetectorSilenceLevel;
+    }
+    
+    public void setSpeechDetectorSilenceLevel(int speechDetectorSilenceLevel) {
+        if (speechDetectorSilenceLevel < 0) {
+            throw new IllegalArgumentException("Speech detector silence level cannot be negative");
+        }
+        this.speechDetectorSilenceLevel = speechDetectorSilenceLevel;
     }
 
     public void setPlayerCache(boolean playerCacheEnabled, int playerCacheSize) {

@@ -1,0 +1,44 @@
+@startuml
+state AsrSignal {
+[*] --> LoadingPlaylist
+LoadingPlaylist --> Prompting : prompt
+LoadingPlaylist --> Prompted : no_prompt
+Prompting --> Prompted : end_prompt
+Prompting --> Prompting : next_track
+Prompted --> [*]
+||
+[*] --> Collecting
+Collecting --> Collecting : recognized_text
+Collecting --> WaitingAsrTimeout: end_input (eik, mrt, pst)
+Collecting --> DigitsCollecting: digit
+DigitsCollecting --> Collected : digits_collected, end_input (eik, mrt, pst)
+DigitsCollecting --> DigitsCollecting: digit
+WaitingAsrTimeout --> Collected: asr_timeout
+WaitingAsrTimeout --> WaitingAsrTimeout : recognized_text
+Collected --> [*]
+}
+
+[*] -down-> AsrSignal
+AsrSignal -down-> Evaluating : evaluate/timeout
+AsrSignal --> Canceled : cancel
+
+Evaluating -down-> Failing : no_recognized_text
+Evaluating -down-> Canceled : cancel
+Evaluating -down-> Succeeding : succeed
+
+Failing -down-> PlayingFailure : prompt
+Failing -down-> Failed : no_prompt/cancel
+PlayingFailure --> PlayingFailure : next_track
+PlayingFailure -down-> Failed : end_prompt/cancel
+
+Succeeding -down-> PlayingSuccess : prompt
+Succeeding -down-> Succeeded : no_prompt/cancel
+PlayingSuccess --> PlayingSuccess : next_track
+PlayingSuccess -down-> Succeeded : end_prompt/cancel
+
+Canceled -down-> Succeeded : succeed
+Canceled -down-> Failed : fail (NO_SPEECH)
+
+Succeeded --> [*]
+Failed --> [*]
+@enduml

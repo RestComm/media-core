@@ -19,31 +19,35 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.asr.driver;
+package org.restcomm.media.drivers.asr;
 
-import org.restcomm.media.asr.AsrException;
+import java.util.Map;
 
 /**
- * Listens to events raised by {@link AsrDriver}.
+ * Manages a set of ASR drivers from multiple providers.
  * 
  * @author gdubina
  *
  */
-public interface AsrDriverEventListener {
+public interface AsrDriverManager {
 
     /**
-     * Event raised when a speech transcription is received.
+     * Registers a new ASR driver.
      * 
-     * @param text The speech transcription.
-     * @param isFinal Whether the transcription is final or interim.
+     * @param name The name of the driver.
+     * @param clazz The type of the driver.
+     * @param config The configuration parameters of the driver.
      */
-    void onSpeechRecognized(String text, boolean isFinal);
+    void registerDriver(String name, String clazz, Map<String, String> config);
 
     /**
-     * Event raised when an unexpected error occurs during speech detection process.
+     * Loads a driver by name.
      * 
-     * @param error The error that occurred during speech detection process.
+     * @param name The name of the driver.
+     * @return A new driver instance.
+     * @throws UnknownAsrDriverException The driver name is unrecognized.
+     * @throws AsrDriverConfigurationException The driver was badly configured.
      */
-    void onError(final AsrException error);
+    AsrDriver getDriver(String name) throws UnknownAsrDriverException, AsrDriverConfigurationException;
 
 }

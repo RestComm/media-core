@@ -19,27 +19,25 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.asr.driver;
-
-import org.restcomm.media.asr.AsrException;
+package org.restcomm.media.drivers.asr;
 
 /**
  * @author gdubina
- *
+ * 
  */
-public class AsrDriverException extends AsrException {
+public class AsrDriverConfigurationException extends AsrDriverException {
 
-    private static final long serialVersionUID = 6969204024380190226L;
+    private static final long serialVersionUID = 7844402357698799522L;
 
-    public AsrDriverException(String message, Throwable cause) {
+    public AsrDriverConfigurationException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public AsrDriverException(String message) {
+    public AsrDriverConfigurationException(String message) {
         super(message);
     }
 
-    public AsrDriverException(Throwable cause) {
+    public AsrDriverConfigurationException(Throwable cause) {
         super(cause);
     }
 

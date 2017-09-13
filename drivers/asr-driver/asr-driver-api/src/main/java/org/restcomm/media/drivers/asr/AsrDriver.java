@@ -19,7 +19,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.asr.driver;
+package org.restcomm.media.drivers.asr;
 
 import java.util.List;
 import java.util.Map;

@@ -25,6 +25,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.restcomm.media.drivers.asr.AsrDriver;
+import org.restcomm.media.drivers.asr.AsrDriverConfigurationException;
+import org.restcomm.media.drivers.asr.AsrDriverManager;
+import org.restcomm.media.drivers.asr.UnknownAsrDriverException;
 
 /**
  * @author gdubina
