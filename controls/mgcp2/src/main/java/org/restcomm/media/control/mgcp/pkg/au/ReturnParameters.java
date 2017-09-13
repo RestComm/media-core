@@ -35,8 +35,7 @@ public enum ReturnParameters {
     NUMBER_OF_ATTEMPTS("na"),
     DIGITS_COLLECTED("dc"),
     RECORDING_ID("ri"),
-    RETURN_CODE("rc"),
-    ASR_RESULT("asrr");
+    RETURN_CODE("rc");
 
     private final String symbol;
 
