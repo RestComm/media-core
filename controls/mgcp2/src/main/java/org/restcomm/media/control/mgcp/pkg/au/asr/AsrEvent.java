@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
+ * Copyright 2011-2017, Telestax Inc and individual contributors
  * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
@@ -18,34 +18,14 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
-package org.restcomm.media.control.mgcp.pkg.au;
+
+package org.restcomm.media.control.mgcp.pkg.au.asr;
 
 /**
- * Each event has an associated set of possible return parameters which are listed in the following tables.
- * 
- * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
+ * @author anikiforov
  */
-public enum ReturnParameters {
+public enum AsrEvent {
 
-    VOICE_INTERRUPT("vi"),
-    INTERRUPTING_KEY_SEQUENCE("ik"),
-    AMOUNT_PLAYED("ap"),
-    NUMBER_OF_ATTEMPTS("na"),
-    DIGITS_COLLECTED("dc"),
-    RECORDING_ID("ri"),
-    RETURN_CODE("rc"),
-    ASR_RESULT("asrr");
-
-    private final String symbol;
-
-    private ReturnParameters(String symbol) {
-        this.symbol = symbol;
-    }
-
-    public String symbol() {
-        return symbol;
-    }
+    PROMPT, NO_PROMPT, NEXT_TRACK, END_PROMPT, END_INPUT, DTMF_TONE, WAITING_FOR_RESPONSE_TIMEOUT, EVALUATE, TIMEOUT, CANCEL, PLAY_SUCCESS, PLAY_FAILURE, SUCCEED, FAIL, NO_RECOGNIZED_TEXT, PATTERN_MISMATCH, RECOGNIZED_TEXT, DRIVER_ERROR, END_INPUT_WITHOUT_WAITING_FOR_RESPONSE;
 
 }
