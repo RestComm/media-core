@@ -62,9 +62,9 @@ public class MediaGroupImpl implements MediaGroup {
 
         this.player = initializePlayer(players);
         this.recorder = initializeRecorder(recorders);
+        this.asrEngine = initializeAsr(asrEngines);
         this.detector = initializeDetector(detectors);
         this.generator = null;
-        this.asrEngine = initializeAsr(asrEngines);
     }
 
     private Player initializePlayer(PlayerProvider players) {
