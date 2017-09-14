@@ -52,6 +52,7 @@
 		</player>
 		<dtmfDetector dbi="-25" toneDuration="100" toneInterval="400" />
 		<dtmfGenerator toneVolume="-25" toneDuration="100" />
+		<speechDetector silenceLevel="100" />
 	</resources>
 	
 	<dtls>
@@ -61,4 +62,15 @@
 			TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA, TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA</cipherSuites>
 		<certificate path="../conf/dtls/x509-server-ecdsa.pem" key="../conf/dtls/x509-server-key-ecdsa.pem" algorithm="ecdsa"/>
 	</dtls>
+
+	<subsystems>
+		<subsystem name="asr">
+			<driver name="stub" class="org.mobicents.media.resource.asr.StubAsrDriver">
+				<parameter name="stubName">Stub Driver</parameter>
+			</driver>
+			<driver name="stub2" class="org.mobicents.media.resource.asr.StubAsrDriver2">
+				<parameter name="stubName2">Stub Driver 2</parameter>
+			</driver>
+		</subsystem>
+	</subsystems>
 </mediaserver>

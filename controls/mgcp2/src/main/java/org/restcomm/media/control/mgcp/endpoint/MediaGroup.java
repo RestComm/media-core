@@ -21,6 +21,7 @@
 
 package org.restcomm.media.control.mgcp.endpoint;
 
+import org.restcomm.media.asr.AsrEngine;
 import org.restcomm.media.spi.dtmf.DtmfDetector;
 import org.restcomm.media.spi.dtmf.DtmfGenerator;
 import org.restcomm.media.spi.player.Player;
@@ -41,5 +42,7 @@ public interface MediaGroup {
     DtmfDetector getDetector();
 
     DtmfGenerator getGenerator();
+
+    AsrEngine getAsrEngine();
 
 }

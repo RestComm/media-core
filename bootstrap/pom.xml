@@ -57,6 +57,11 @@
 			<artifactId>recorder</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.restcomm.media.asr</groupId>
+			<artifactId>asr-engine</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
 		<!-- codecs -->
 		<dependency>
