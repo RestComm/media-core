@@ -585,7 +585,7 @@ public class DtmfRfc2833Test {
         channel.connect(remoteAddress, connectCallback);
         verify(connectCallback, timeout(100)).onSuccess(null);
 
-        this.dtmfDetector = new DetectorImpl("dtmf-detector", 0, 100, 300, this.mediaScheduler);
+        this.dtmfDetector = new DetectorImpl("dtmf-detector", 0, 100, 200, this.mediaScheduler);
         this.inbandDetectorComponent = new AudioComponent(8);
         this.inbandDetectorComponent.addOutput(this.dtmfDetector.getAudioOutput());
         this.inbandDetectorComponent.updateMode(true, true);
