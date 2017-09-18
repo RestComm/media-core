@@ -22,12 +22,7 @@
 package org.restcomm.media.control.mgcp.pkg.au.asr;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -147,7 +142,7 @@ public abstract class AsrSignalBaseTest {
     }
 
     protected void waitForFinalResponse() throws InterruptedException {
-        verify(asrEngine, times(1)).stopSpeechDetection();
+        verify(asrEngine, timeout(100)).stopSpeechDetection();
         Thread.sleep(RESPONSE_TIMEOUT_IN_MILLISECONDS / 2);
         verify(asrEngine, never()).deactivate();
         Thread.sleep(RESPONSE_TIMEOUT_IN_MILLISECONDS / 2 + EPSILON_IN_MILLISECONDS);
