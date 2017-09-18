@@ -18,17 +18,17 @@
 		<dependency>
 			<groupId>org.restcomm.media.asr</groupId>
 			<artifactId>asr-api</artifactId>
-			<version>${project.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.restcomm.media</groupId>
 			<artifactId>components</artifactId>
-			<version>${project.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.restcomm.media</groupId>
 			<artifactId>scheduler</artifactId>
-			<version>${project.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 	</dependencies>
 
@@ -43,6 +43,6 @@
 				</configuration>
 			</plugin>
 		</plugins>
-		<finalName>restcomm-mediaserver-asr-engine-${project.version}</finalName>
+		<finalName>restcomm-mediaserver-asr-engine-${project.parent.version}</finalName>
 	</build>
 </project>

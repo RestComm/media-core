@@ -29,65 +29,65 @@
 		<dependency>
 			<groupId>org.restcomm.media</groupId>
 			<artifactId>spi</artifactId>
-			<version>${project.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.restcomm.media</groupId>
 			<artifactId>core</artifactId>
-			<version>${project.version}</version>
+			<version>${project.parent.version}</version>
 			<type>jar</type>
 		</dependency>
 		<dependency>
 			<groupId>org.restcomm.media</groupId>
 			<artifactId>rtp</artifactId>
-			<version>${project.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.restcomm.media.resources</groupId>
 			<artifactId>dtmf</artifactId>
-			<version>${project.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.restcomm.media.resources</groupId>
 			<artifactId>player</artifactId>
-			<version>${project.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.restcomm.media.resources</groupId>
 			<artifactId>recorder</artifactId>
-			<version>${project.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.restcomm.media.asr</groupId>
 			<artifactId>asr-engine</artifactId>
-			<version>${project.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 
 		<!-- codecs -->
 		<dependency>
 			<groupId>org.restcomm.media.codecs</groupId>
 			<artifactId>l16</artifactId>
-			<version>${project.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.restcomm.media.codecs</groupId>
 			<artifactId>g711</artifactId>
-			<version>${project.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.restcomm.media.codecs</groupId>
 			<artifactId>gsm</artifactId>
-			<version>${project.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.restcomm.media.codecs</groupId>
 			<artifactId>g729</artifactId>
-			<version>${project.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.restcomm.media.codecs</groupId>
 			<artifactId>ilbc</artifactId>
-			<version>${project.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 
 		<!-- External Dependencies -->
