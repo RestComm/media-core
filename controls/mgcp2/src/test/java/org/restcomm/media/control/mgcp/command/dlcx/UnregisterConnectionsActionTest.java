@@ -73,7 +73,7 @@ public class UnregisterConnectionsActionTest {
         callback.onSuccess(unregistered);
 
         // then
-        verify(context).setConnections(unregistered);
+        verify(context).setUnregisteredConnections(unregistered);
         verify(fsm).fire(DeleteConnectionEvent.UNREGISTERED_CONNECTIONS, context);
     }
 
@@ -108,7 +108,7 @@ public class UnregisterConnectionsActionTest {
         callback.onFailure(e);
 
         // then
-        verify(context, never()).setConnections(any(MgcpConnection[].class));
+        verify(context, never()).setUnregisteredConnections(any(MgcpConnection[].class));
         verify(context).setError(e);
         verify(fsm).fire(DeleteConnectionEvent.FAILURE, context);
     }
@@ -145,7 +145,7 @@ public class UnregisterConnectionsActionTest {
         callback.onSuccess(unregistered);
 
         // then
-        verify(context).setConnections(unregistered);
+        verify(context).setUnregisteredConnections(unregistered);
         verify(fsm).fire(DeleteConnectionEvent.UNREGISTERED_CONNECTIONS, context);
     }
 
@@ -181,7 +181,7 @@ public class UnregisterConnectionsActionTest {
         callback.onFailure(e);
 
         // then
-        verify(context, never()).setConnections(any(MgcpConnection[].class));
+        verify(context, never()).setUnregisteredConnections(any(MgcpConnection[].class));
         verify(context).setError(e);
         verify(fsm).fire(DeleteConnectionEvent.FAILURE, context);
     }
@@ -220,7 +220,7 @@ public class UnregisterConnectionsActionTest {
 
         // then
         ArgumentCaptor<MgcpConnection[]> connectionCaptor = ArgumentCaptor.forClass(MgcpConnection[].class);
-        verify(context).setConnections(connectionCaptor.capture());
+        verify(context).setUnregisteredConnections(connectionCaptor.capture());
         verify(fsm).fire(DeleteConnectionEvent.UNREGISTERED_CONNECTIONS, context);
 
         MgcpConnection[] connections = connectionCaptor.getValue();
@@ -261,7 +261,7 @@ public class UnregisterConnectionsActionTest {
         callback.onFailure(e);
 
         // then
-        verify(context, never()).setConnections(any(MgcpConnection[].class));
+        verify(context, never()).setUnregisteredConnections(any(MgcpConnection[].class));
         verify(context).setError(e);
         verify(fsm).fire(DeleteConnectionEvent.FAILURE, context);
     }

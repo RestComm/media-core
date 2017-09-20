@@ -21,6 +21,7 @@
 
 package org.restcomm.media.control.mgcp.command.dlcx;
 
+import org.apache.log4j.Logger;
 import org.restcomm.media.control.mgcp.connection.MgcpConnection;
 
 import com.google.common.util.concurrent.FutureCallback;
@@ -29,26 +30,32 @@ import com.google.common.util.concurrent.FutureCallback;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class UnregisterConnectionCallback implements FutureCallback<MgcpConnection> {
+public class CloseConnectionCallback implements FutureCallback<Void> {
 
+    private static final Logger log = Logger.getLogger(CloseConnectionCallback.class);
+
+    private final MgcpConnection connection;
     private final DeleteConnectionContext context;
     private final DeleteConnectionFsm fsm;
 
-    public UnregisterConnectionCallback(DeleteConnectionContext context, DeleteConnectionFsm fsm) {
+    public CloseConnectionCallback(MgcpConnection connection, DeleteConnectionContext context, DeleteConnectionFsm fsm) {
+        this.connection = connection;
         this.context = context;
         this.fsm = fsm;
     }
 
     @Override
-    public void onSuccess(MgcpConnection result) {
-        this.context.setUnregisteredConnections(new MgcpConnection[] { result });
-        this.fsm.fire(DeleteConnectionEvent.UNREGISTERED_CONNECTIONS, this.context);
+    public void onSuccess(Void result) {
+        this.fsm.fire(DeleteConnectionEvent.CLOSED_CONNECTION, context);
     }
 
     @Override
     public void onFailure(Throwable t) {
-        this.context.setError(t);
-        this.fsm.fire(DeleteConnectionEvent.FAILURE, this.context);
+        final int transactionId = this.context.getTransactionId();
+        final String connectionId = this.connection.getHexIdentifier();
+        log.error("Could not close connection " + connectionId + " during MGCP transaction " + transactionId, t);
+
+        this.fsm.fire(DeleteConnectionEvent.CLOSED_CONNECTION, this.context);
     }
 
 }

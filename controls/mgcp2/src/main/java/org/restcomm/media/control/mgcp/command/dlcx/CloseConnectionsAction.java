@@ -22,33 +22,22 @@
 package org.restcomm.media.control.mgcp.command.dlcx;
 
 import org.restcomm.media.control.mgcp.connection.MgcpConnection;
-
-import com.google.common.util.concurrent.FutureCallback;
+import org.squirrelframework.foundation.fsm.AnonymousAction;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class UnregisterConnectionCallback implements FutureCallback<MgcpConnection> {
-
-    private final DeleteConnectionContext context;
-    private final DeleteConnectionFsm fsm;
-
-    public UnregisterConnectionCallback(DeleteConnectionContext context, DeleteConnectionFsm fsm) {
-        this.context = context;
-        this.fsm = fsm;
-    }
+public class CloseConnectionsAction extends AnonymousAction<DeleteConnectionFsm, DeleteConnectionState, DeleteConnectionEvent, DeleteConnectionContext> {
 
     @Override
-    public void onSuccess(MgcpConnection result) {
-        this.context.setUnregisteredConnections(new MgcpConnection[] { result });
-        this.fsm.fire(DeleteConnectionEvent.UNREGISTERED_CONNECTIONS, this.context);
-    }
+    public void execute(DeleteConnectionState from, DeleteConnectionState to, DeleteConnectionEvent event, DeleteConnectionContext context, DeleteConnectionFsm stateMachine) {
+        final MgcpConnection[] connections = context.getUnregisteredConnections();
 
-    @Override
-    public void onFailure(Throwable t) {
-        this.context.setError(t);
-        this.fsm.fire(DeleteConnectionEvent.FAILURE, this.context);
+        for (MgcpConnection connection : connections) {
+            CloseConnectionCallback callback = new CloseConnectionCallback(connection, context, stateMachine);
+            connection.close(callback);
+        }
     }
 
 }

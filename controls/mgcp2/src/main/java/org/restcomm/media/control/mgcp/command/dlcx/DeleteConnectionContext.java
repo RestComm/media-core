@@ -55,7 +55,8 @@ public class DeleteConnectionContext {
 
     // Resources
     private MgcpEndpoint endpoint;
-    private MgcpConnection[] connections;
+    private MgcpConnection[] unregisteredConnections;
+    private int connectionsClosed;
 
     // Result
     private MgcpResponseCode response;
@@ -65,8 +66,7 @@ public class DeleteConnectionContext {
     private FutureCallback<MgcpCommandResult> callback;
     private Throwable error;
 
-    public DeleteConnectionContext(int transactionId, Parameters<MgcpParameterType> parameters,
-            MgcpEndpointManager endpointManager) {
+    public DeleteConnectionContext(int transactionId, Parameters<MgcpParameterType> parameters, MgcpEndpointManager endpointManager) {
         // Dependencies
         this.endpointManager = endpointManager;
 
@@ -81,7 +81,8 @@ public class DeleteConnectionContext {
 
         // Resources
         this.endpoint = null;
-        this.connections = EMPTY_CONNECTIONS;
+        this.unregisteredConnections = EMPTY_CONNECTIONS;
+        this.connectionsClosed = 0;
 
         // Result
         this.response = MgcpResponseCode.ABORTED;
@@ -120,12 +121,20 @@ public class DeleteConnectionContext {
         this.endpoint = endpoint;
     }
 
-    protected MgcpConnection[] getConnections() {
-        return connections;
+    protected MgcpConnection[] getUnregisteredConnections() {
+        return unregisteredConnections;
     }
 
-    protected void setConnections(MgcpConnection[] connections) {
-        this.connections = connections;
+    protected void setUnregisteredConnections(MgcpConnection[] connections) {
+        this.unregisteredConnections = connections;
+    }
+    
+    protected int getConnectionsClosed() {
+        return connectionsClosed;
+    }
+    
+    protected void incrementConnectionsClosed() {
+        this.connectionsClosed++;
     }
 
     protected MgcpResponseCode getResponse() {

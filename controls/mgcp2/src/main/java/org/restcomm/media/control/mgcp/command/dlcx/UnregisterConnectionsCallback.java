@@ -41,7 +41,7 @@ public class UnregisterConnectionsCallback implements FutureCallback<MgcpConnect
 
     @Override
     public void onSuccess(MgcpConnection[] result) {
-        this.context.setConnections(result);
+        this.context.setUnregisteredConnections(result);
         this.fsm.fire(DeleteConnectionEvent.UNREGISTERED_CONNECTIONS, this.context);
     }
 
