@@ -1,0 +1,24 @@
+@startuml
+state EXECUTING {
+
+[*] --> UNREGISTERING_CONNECTIONS
+UNREGISTERING_CONNECTIONS --> CLOSING_CONNECTIONS : unregistered_connections [has_connections]
+UNREGISTERING_CONNECTIONS --> EXECUTED : unregistered_connections [no_connections]
+CLOSING_CONNECTIONS -> CLOSING_CONNECTIONS : closed_connection
+CLOSING_CONNECTIONS --> EXECUTED : deleted_connections
+EXECUTED --> [*]
+
+}
+
+
+[*] --> VALIDATING_PARAMETERS
+
+VALIDATING_PARAMETERS --> FAILED : failure
+VALIDATING_PARAMETERS --> EXECUTING : validated_parameters
+
+EXECUTING --> FAILED : failure
+EXECUTING --> SUCCEEDED : executed
+
+SUCCEEDED --> [*]
+FAILED --> [*]
+@enduml
