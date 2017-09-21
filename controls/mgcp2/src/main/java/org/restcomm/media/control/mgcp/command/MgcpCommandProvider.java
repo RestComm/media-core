@@ -26,6 +26,9 @@ import org.restcomm.media.control.mgcp.command.crcx.CreateConnectionContext;
 import org.restcomm.media.control.mgcp.command.crcx.CreateConnectionFsmBuilder;
 import org.restcomm.media.control.mgcp.command.crcx.CreateLocalConnectionsFsmBuilder;
 import org.restcomm.media.control.mgcp.command.crcx.CreateRemoteConnectionFsmBuilder;
+import org.restcomm.media.control.mgcp.command.dlcx.DeleteConnectionCommand;
+import org.restcomm.media.control.mgcp.command.dlcx.DeleteConnectionContext;
+import org.restcomm.media.control.mgcp.command.dlcx.DeleteConnectionFsmBuilder;
 import org.restcomm.media.control.mgcp.command.mdcx.ModifyConnectionCommand;
 import org.restcomm.media.control.mgcp.command.mdcx.ModifyConnectionContext;
 import org.restcomm.media.control.mgcp.command.mdcx.ModifyConnectionFsmBuilder;
@@ -73,9 +76,11 @@ public class MgcpCommandProvider {
                 return new ModifyConnectionCommand(context, fsmBuilder.build());
             }
 
-            case DLCX:
-                return new DeleteConnectionCommand(transactionId, parameters, this.endpointManager);
-
+            case DLCX: {
+                final DeleteConnectionFsmBuilder fsmBuilder = DeleteConnectionFsmBuilder.INSTANCE;
+                DeleteConnectionContext context = new DeleteConnectionContext(transactionId, parameters, this.endpointManager);
+                return new DeleteConnectionCommand(context, fsmBuilder.build());
+            }
             case RQNT:
                 return new RequestNotificationCommand(transactionId, parameters, this.endpointManager, this.packageManager, this.signalProvider);
 
