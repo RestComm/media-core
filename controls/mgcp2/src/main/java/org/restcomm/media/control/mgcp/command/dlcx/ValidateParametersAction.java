@@ -36,9 +36,14 @@ import com.google.common.base.Optional;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class ValidateParametersAction
-        extends AnonymousAction<DeleteConnectionFsm, DeleteConnectionState, DeleteConnectionEvent, DeleteConnectionContext> {
+class ValidateParametersAction extends AnonymousAction<DeleteConnectionFsm, DeleteConnectionState, DeleteConnectionEvent, DeleteConnectionContext> {
 
+    static final ValidateParametersAction INSTANCE = new ValidateParametersAction();
+    
+    ValidateParametersAction() {
+        super();
+    }
+    
     @Override
     public void execute(DeleteConnectionState from, DeleteConnectionState to, DeleteConnectionEvent event,
             DeleteConnectionContext context, DeleteConnectionFsm stateMachine) {

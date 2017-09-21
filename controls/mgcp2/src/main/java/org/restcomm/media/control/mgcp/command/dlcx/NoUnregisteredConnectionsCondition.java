@@ -21,12 +21,25 @@
 
 package org.restcomm.media.control.mgcp.command.dlcx;
 
+import org.restcomm.media.control.mgcp.connection.MgcpConnection;
+import org.squirrelframework.foundation.fsm.AnonymousCondition;
+
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum DeleteConnectionEvent {
+public class NoUnregisteredConnectionsCondition extends AnonymousCondition<DeleteConnectionContext> {
 
-    VALIDATED_PARAMETERS, UNREGISTERED_CONNECTIONS, CLOSED_CONNECTION, CLOSED_CONNECTIONS, SUCCESS, FAILURE;
+    static final NoUnregisteredConnectionsCondition INSTANCE = new NoUnregisteredConnectionsCondition();
+
+    NoUnregisteredConnectionsCondition() {
+        super();
+    }
+
+    @Override
+    public boolean isSatisfied(DeleteConnectionContext context) {
+        final MgcpConnection[] connections = context.getUnregisteredConnections();
+        return (connections.length == 0);
+    }
 
 }

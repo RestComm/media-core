@@ -221,6 +221,7 @@ public class UnregisterConnectionsActionTest {
         // then
         ArgumentCaptor<MgcpConnection[]> connectionCaptor = ArgumentCaptor.forClass(MgcpConnection[].class);
         verify(context).setUnregisteredConnections(connectionCaptor.capture());
+        verify(context).setConnectionParams(any(String.class));
         verify(fsm).fire(DeleteConnectionEvent.UNREGISTERED_CONNECTIONS, context);
 
         MgcpConnection[] connections = connectionCaptor.getValue();

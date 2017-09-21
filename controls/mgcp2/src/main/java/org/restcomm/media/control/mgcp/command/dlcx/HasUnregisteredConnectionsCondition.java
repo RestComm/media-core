@@ -18,15 +18,28 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
+        
 package org.restcomm.media.control.mgcp.command.dlcx;
+
+import org.restcomm.media.control.mgcp.connection.MgcpConnection;
+import org.squirrelframework.foundation.fsm.AnonymousCondition;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum DeleteConnectionEvent {
+class HasUnregisteredConnectionsCondition extends AnonymousCondition<DeleteConnectionContext> {
 
-    VALIDATED_PARAMETERS, UNREGISTERED_CONNECTIONS, CLOSED_CONNECTION, CLOSED_CONNECTIONS, SUCCESS, FAILURE;
+    static final HasUnregisteredConnectionsCondition INSTANCE = new HasUnregisteredConnectionsCondition();
+    
+    HasUnregisteredConnectionsCondition() {
+        super();
+    }
+    
+    @Override
+    public boolean isSatisfied(DeleteConnectionContext context) {
+        final MgcpConnection[] connections = context.getUnregisteredConnections();
+        return (connections.length > 0);
+    }
 
 }

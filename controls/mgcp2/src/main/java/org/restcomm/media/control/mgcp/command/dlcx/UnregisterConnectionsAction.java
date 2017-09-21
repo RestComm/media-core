@@ -31,8 +31,14 @@ import com.google.common.util.concurrent.FutureCallback;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class UnregisterConnectionsAction extends AnonymousAction<DeleteConnectionFsm, DeleteConnectionState, DeleteConnectionEvent, DeleteConnectionContext> {
+class UnregisterConnectionsAction extends AnonymousAction<DeleteConnectionFsm, DeleteConnectionState, DeleteConnectionEvent, DeleteConnectionContext> {
 
+    static final UnregisterConnectionsAction INSTANCE = new UnregisterConnectionsAction();
+    
+    UnregisterConnectionsAction() {
+        super();
+    }
+    
     @Override
     public void execute(DeleteConnectionState from, DeleteConnectionState to, DeleteConnectionEvent event, DeleteConnectionContext context, DeleteConnectionFsm stateMachine) {
         final int callId = context.getCallId();

@@ -26,7 +26,6 @@ import org.restcomm.media.control.mgcp.connection.MgcpConnection;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.restcomm.media.control.mgcp.message.MgcpParameterType;
-import org.restcomm.media.control.mgcp.message.MgcpResponseCode;
 import org.restcomm.media.control.mgcp.util.collections.Parameters;
 
 import com.google.common.util.concurrent.FutureCallback;
@@ -59,7 +58,6 @@ public class DeleteConnectionContext {
     private int connectionsClosed;
 
     // Result
-    private MgcpResponseCode response;
     private String connectionParams;
 
     // Callback
@@ -85,7 +83,6 @@ public class DeleteConnectionContext {
         this.connectionsClosed = 0;
 
         // Result
-        this.response = MgcpResponseCode.ABORTED;
         this.connectionParams = "";
     }
 
@@ -133,16 +130,9 @@ public class DeleteConnectionContext {
         return connectionsClosed;
     }
     
-    protected void incrementConnectionsClosed() {
+    protected int incrementAndGetConnectionsClosed() {
         this.connectionsClosed++;
-    }
-
-    protected MgcpResponseCode getResponse() {
-        return response;
-    }
-
-    protected void setResponse(MgcpResponseCode response) {
-        this.response = response;
+        return this.connectionsClosed;
     }
 
     protected String getConnectionParams() {

@@ -18,32 +18,40 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
+        
 package org.restcomm.media.control.mgcp.command.dlcx;
 
-import org.restcomm.media.control.mgcp.connection.MgcpConnection;
+import org.restcomm.media.control.mgcp.command.MgcpCommandResult;
+import org.restcomm.media.control.mgcp.message.MgcpParameterType;
+import org.restcomm.media.control.mgcp.message.MgcpResponseCode;
+import org.restcomm.media.control.mgcp.util.collections.Parameters;
 import org.squirrelframework.foundation.fsm.AnonymousAction;
+
+import com.google.common.util.concurrent.FutureCallback;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-class CloseConnectionsAction extends AnonymousAction<DeleteConnectionFsm, DeleteConnectionState, DeleteConnectionEvent, DeleteConnectionContext> {
+class NotifySuccessAction extends AnonymousAction<DeleteConnectionFsm, DeleteConnectionState, DeleteConnectionEvent, DeleteConnectionContext> {
 
-    static final CloseConnectionsAction INSTANCE = new CloseConnectionsAction();
+    static final NotifySuccessAction INSTANCE = new NotifySuccessAction();
     
-    CloseConnectionsAction() {
+    NotifySuccessAction() {
         super();
     }
     
     @Override
     public void execute(DeleteConnectionState from, DeleteConnectionState to, DeleteConnectionEvent event, DeleteConnectionContext context, DeleteConnectionFsm stateMachine) {
-        final MgcpConnection[] connections = context.getUnregisteredConnections();
+        final int transactionId = context.getTransactionId();
+        final MgcpResponseCode response = MgcpResponseCode.TRANSACTION_WAS_EXECUTED;
+        final FutureCallback<MgcpCommandResult> callback = context.getCallback();
 
-        for (MgcpConnection connection : connections) {
-            CloseConnectionCallback callback = new CloseConnectionCallback(connection, context, stateMachine);
-            connection.close(callback);
-        }
+        final Parameters<MgcpParameterType> parameters = new Parameters<>();
+        parameters.put(MgcpParameterType.CONNECTION_PARAMETERS, context.getConnectionParams());
+
+        final MgcpCommandResult result = new MgcpCommandResult(transactionId, response.code(), response.message(), parameters);
+        callback.onSuccess(result);
     }
 
 }

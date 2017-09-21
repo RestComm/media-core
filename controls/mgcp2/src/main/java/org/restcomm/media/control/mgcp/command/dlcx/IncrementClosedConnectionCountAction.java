@@ -18,15 +18,32 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
+        
 package org.restcomm.media.control.mgcp.command.dlcx;
+
+import org.restcomm.media.control.mgcp.connection.MgcpConnection;
+import org.squirrelframework.foundation.fsm.AnonymousAction;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum DeleteConnectionEvent {
+class IncrementClosedConnectionCountAction extends AnonymousAction<DeleteConnectionFsm, DeleteConnectionState, DeleteConnectionEvent, DeleteConnectionContext> {
+    
+    static final IncrementClosedConnectionCountAction INSTANCE = new IncrementClosedConnectionCountAction();
+    
+    IncrementClosedConnectionCountAction() {
+        super();
+    }
 
-    VALIDATED_PARAMETERS, UNREGISTERED_CONNECTIONS, CLOSED_CONNECTION, CLOSED_CONNECTIONS, SUCCESS, FAILURE;
+    @Override
+    public void execute(DeleteConnectionState from, DeleteConnectionState to, DeleteConnectionEvent event, DeleteConnectionContext context, DeleteConnectionFsm stateMachine) {
+        final MgcpConnection[] unregisteredConnections = context.getUnregisteredConnections();
+        final int count = context.incrementAndGetConnectionsClosed();
+
+        if (count == unregisteredConnections.length) {
+            stateMachine.fire(DeleteConnectionEvent.CLOSED_CONNECTIONS, context);
+        }
+    }
 
 }
