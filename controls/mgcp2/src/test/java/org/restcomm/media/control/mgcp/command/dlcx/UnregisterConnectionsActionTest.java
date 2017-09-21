@@ -35,6 +35,7 @@ import org.restcomm.media.control.mgcp.command.MgcpCommandParameters;
 import org.restcomm.media.control.mgcp.connection.MgcpConnection;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointManager;
+import org.restcomm.media.control.mgcp.exception.MgcpCallNotFoundException;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -184,6 +185,42 @@ public class UnregisterConnectionsActionTest {
         verify(context, never()).setUnregisteredConnections(any(MgcpConnection[].class));
         verify(context).setError(e);
         verify(fsm).fire(DeleteConnectionEvent.FAILURE, context);
+    }
+
+    @Test
+    public void testUnregisterCallConnectionsWithUnknownCallId() {
+        // given
+        final int transactionId = 12345;
+        final MgcpCommandParameters parameters = new MgcpCommandParameters();
+        final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final DeleteConnectionContext context = spy(new DeleteConnectionContext(transactionId, parameters, endpointManager));
+        final DeleteConnectionFsm fsm = mock(DeleteConnectionFsm.class);
+        
+        final int callId = 7;
+        final String endpointId = "restcomm/mock/1@127.0.0.1:2427";
+        final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
+        
+        context.setCallId(callId);
+        context.setConnectionId(DeleteConnectionContext.NO_CONNECTION_ID);
+        context.setEndpointId(endpointId);
+        context.setEndpoint(endpoint);
+        
+        // when
+        final UnregisterConnectionsAction action = new UnregisterConnectionsAction();
+        action.execute(DeleteConnectionState.EXECUTING, DeleteConnectionState.UNREGISTERING_CONNECTIONS, DeleteConnectionEvent.VALIDATED_PARAMETERS, context, fsm);
+        
+        // then
+        final ArgumentCaptor<UnregisterConnectionsCallback> callbackCaptor = ArgumentCaptor.forClass(UnregisterConnectionsCallback.class);
+        verify(endpoint).unregisterConnections(eq(callId), callbackCaptor.capture());
+        
+        // when
+        final UnregisterConnectionsCallback callback = callbackCaptor.getValue();
+        final MgcpCallNotFoundException e = new MgcpCallNotFoundException("test purposes");
+        callback.onFailure(e);
+        
+        // then
+        verify(context, never()).setError(e);
+        verify(fsm).fire(DeleteConnectionEvent.UNREGISTERED_CONNECTIONS, context);
     }
 
     @Test

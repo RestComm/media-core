@@ -21,45 +21,31 @@
 
 package org.restcomm.media.control.mgcp.command.dlcx;
 
-import org.restcomm.media.control.mgcp.connection.MgcpConnection;
-import org.restcomm.media.control.mgcp.exception.MgcpCallNotFoundException;
+import org.restcomm.media.control.mgcp.command.MgcpCommand;
+import org.restcomm.media.control.mgcp.command.MgcpCommandResult;
 
 import com.google.common.util.concurrent.FutureCallback;
 
 /**
+ * MGCP Command used to terminate a single connection or multiple connections at the same time.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class UnregisterConnectionsCallback implements FutureCallback<MgcpConnection[]> {
+public class DeleteConnectionCommand implements MgcpCommand {
 
     private final DeleteConnectionContext context;
     private final DeleteConnectionFsm fsm;
 
-    public UnregisterConnectionsCallback(DeleteConnectionContext context, DeleteConnectionFsm fsm) {
+    public DeleteConnectionCommand(DeleteConnectionContext context, DeleteConnectionFsm fsm) {
         this.context = context;
         this.fsm = fsm;
     }
 
     @Override
-    public void onSuccess(MgcpConnection[] result) {
-        this.context.setUnregisteredConnections(result);
-        this.fsm.fire(DeleteConnectionEvent.UNREGISTERED_CONNECTIONS, this.context);
-    }
-
-    @Override
-    public void onFailure(Throwable t) {
-        if(t instanceof MgcpCallNotFoundException) {
-            /*
-             * https://tools.ietf.org/html/rfc3435#section-2.3.9
-             * 
-             * Note that the command will still succeed if there were no connections with the CallId specified, as long as
-             * the EndpointId was valid.
-             */
-            this.fsm.fire(DeleteConnectionEvent.UNREGISTERED_CONNECTIONS, this.context);
-        } else {
-            this.context.setError(t);
-            this.fsm.fire(DeleteConnectionEvent.FAILURE, this.context);
-        }
+    public void execute(FutureCallback<MgcpCommandResult> callback) {
+        this.context.setCallback(callback);
+        this.fsm.start(context);
     }
 
 }

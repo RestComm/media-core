@@ -32,10 +32,12 @@ import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
  *
  */
 public class DeleteConnectionFsmBuilder {
+    
+    public static final DeleteConnectionFsmBuilder INSTANCE = new DeleteConnectionFsmBuilder();
 
     private final StateMachineBuilder<DeleteConnectionFsm, DeleteConnectionState, DeleteConnectionEvent, DeleteConnectionContext> builder;
 
-    public DeleteConnectionFsmBuilder() {
+    DeleteConnectionFsmBuilder() {
         builder = StateMachineBuilderFactory.<DeleteConnectionFsm, DeleteConnectionState, DeleteConnectionEvent, DeleteConnectionContext> create(DeleteConnectionFsmImpl.class, DeleteConnectionState.class, DeleteConnectionEvent.class, DeleteConnectionContext.class);
 
         builder.onEntry(VALIDATING_PARAMETERS).perform(ValidateParametersAction.INSTANCE);
