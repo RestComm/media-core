@@ -28,12 +28,14 @@ import java.util.HashMap;
 import java.util.Map;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.restcomm.media.drivers.asr.AsrDriverEventListener;
 
 /**
  * @author Ricardo Limonta
  */
+@Ignore
 public class WatsonAsrDriverTest {
     
     private WatsonAsrDriver watsonAsrDriver;
@@ -45,12 +47,12 @@ public class WatsonAsrDriverTest {
         watsonAsrDriver = new WatsonAsrDriver();
         
         //create a driver listener instance
-        eventListener = new WatsonAsrDriverEventListener();
+        eventListener = new WatsonAsrDriverEventListenerMock();
         
         //setup parameters
         Map<String, String> params = new HashMap<>();
-        params.put("WATSON_API_USERNAME", "321965b7-b4fc-4a94-bdbe-cbf77a2bf029");
-        params.put("WATSON_API_PASSWORD", "VcedeadGFMzq");
+        params.put("WATSON_API_USERNAME", "[YOU API USERNAME]");
+        params.put("WATSON_API_PASSWORD", "[YOU API PASSWORD]");
         
         //call configure method
         watsonAsrDriver.configure(params);

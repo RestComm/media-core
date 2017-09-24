@@ -27,7 +27,7 @@ import org.restcomm.media.drivers.asr.AsrDriverException;
 /**
  * @author Ricardo Limonta
  */
-public class WatsonAsrDriverEventListener implements AsrDriverEventListener {
+public class WatsonAsrDriverEventListenerMock implements AsrDriverEventListener {
 
     @Override
     public void onSpeechRecognized(String text, boolean isFinal) {
