@@ -15,6 +15,7 @@
 
     <modules>
         <module>asr-driver-api</module>
+        <module>asr-driver-watson</module>
     </modules>
 
     <build>
