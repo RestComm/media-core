@@ -18,15 +18,27 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
+
 package org.restcomm.media.control.mgcp.endpoint.notification;
+
+import org.restcomm.media.control.mgcp.signal.MgcpSignal;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum NotificationCenterEvent {
-    
-    NOTIFICATION_REQUEST, SIGNAL_CANCELLED, SIGNAL_EXECUTED, SIGNAL_FAILED, ALL_SIGNALS_COMPLETED, FAIURE, STOP, STOPPED;
+class HasRequestedSignalsCondition extends NotificationCenterCondition {
+
+    static final HasRequestedSignalsCondition INSTANCE = new HasRequestedSignalsCondition();
+
+    HasRequestedSignalsCondition() {
+        super();
+    }
+
+    @Override
+    public boolean isSatisfied(NotificationCenterTransitionContext context) {
+        MgcpSignal<?>[] signals = context.get(NotificationCenterTransitionParameter.REQUESTED_SIGNALS, MgcpSignal[].class);
+        return (signals != null && signals.length > 0);
+    }
 
 }

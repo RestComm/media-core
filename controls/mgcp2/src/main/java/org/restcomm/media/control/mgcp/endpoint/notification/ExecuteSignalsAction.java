@@ -31,7 +31,13 @@ import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class ExecuteSignalsAction extends NotificationCenterAction {
+class ExecuteSignalsAction extends NotificationCenterAction {
+    
+    static final ExecuteSignalsAction INSTANCE = new ExecuteSignalsAction();
+    
+    ExecuteSignalsAction() {
+        super();
+    }
 
     @Override
     public void execute(NotificationCenterState from, NotificationCenterState to, NotificationCenterEvent event, NotificationCenterTransitionContext context, NotificationCenterFsm stateMachine) {

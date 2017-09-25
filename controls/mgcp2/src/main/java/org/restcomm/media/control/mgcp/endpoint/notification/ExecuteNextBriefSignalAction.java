@@ -21,7 +21,11 @@
 
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
+import java.util.Queue;
+import java.util.Set;
+
 import org.restcomm.media.control.mgcp.signal.BriefSignal;
+import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
 
 /**
  * Action that executes the next pending Brief signal.
@@ -29,15 +33,31 @@ import org.restcomm.media.control.mgcp.signal.BriefSignal;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class ExecuteNextBriefSignalAction extends NotificationCenterAction {
+class ExecuteNextBriefSignalAction extends NotificationCenterAction {
+    
+    static final ExecuteNextBriefSignalAction INSTANCE = new ExecuteNextBriefSignalAction();
+    
+    ExecuteNextBriefSignalAction() {
+        super();
+    }
 
     @Override
     public void execute(NotificationCenterState from, NotificationCenterState to, NotificationCenterEvent event, NotificationCenterTransitionContext context, NotificationCenterFsm stateMachine) {
         final NotificationCenterContext globalContext = stateMachine.getContext();
-        final BriefSignal signal = globalContext.getBriefSignals().poll();
+        final Set<TimeoutSignal> timeoutSignals = globalContext.getTimeoutSignals();
+        final Queue<BriefSignal> briefSignals = globalContext.getBriefSignals();
 
-        final BriefSignalExecutionCallback callback = new BriefSignalExecutionCallback(signal, stateMachine);
-        signal.execute(callback);
+        // Check if there is any pending BR signal
+        final BriefSignal signal = briefSignals.poll();
+
+        if(signal != null) {
+            // Execute next pending BR signal
+            final BriefSignalExecutionCallback callback = new BriefSignalExecutionCallback(signal, stateMachine);
+            signal.execute(callback);
+        } else if (timeoutSignals.isEmpty()){
+            // There are no more signals (BR nor TO) to be executed. Move to IDLE state.
+            stateMachine.fire(NotificationCenterEvent.ALL_SIGNALS_COMPLETED, context);
+        }
     }
 
 }

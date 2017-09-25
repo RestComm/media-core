@@ -21,12 +21,12 @@
         
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
+import org.squirrelframework.foundation.fsm.AnonymousCondition;
+
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum NotificationCenterEvent {
-    
-    NOTIFICATION_REQUEST, SIGNAL_CANCELLED, SIGNAL_EXECUTED, SIGNAL_FAILED, ALL_SIGNALS_COMPLETED, FAIURE, STOP, STOPPED;
+public abstract class NotificationCenterCondition extends AnonymousCondition<NotificationCenterTransitionContext> {
 
 }

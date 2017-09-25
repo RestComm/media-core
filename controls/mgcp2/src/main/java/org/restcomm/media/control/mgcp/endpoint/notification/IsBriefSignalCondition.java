@@ -21,39 +21,25 @@
 
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
-import java.util.Queue;
-import java.util.Set;
-
 import org.restcomm.media.control.mgcp.signal.BriefSignal;
-import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
+import org.restcomm.media.control.mgcp.signal.MgcpSignal;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-class CancelSignalsAction extends NotificationCenterAction {
+class IsBriefSignalCondition extends NotificationCenterCondition {
 
-    static final CancelSignalsAction INSTANCE = new CancelSignalsAction();
+    static final IsBriefSignalCondition INSTANCE = new IsBriefSignalCondition();
 
-    public CancelSignalsAction() {
+    IsBriefSignalCondition() {
         super();
     }
 
     @Override
-    public void execute(NotificationCenterState from, NotificationCenterState to, NotificationCenterEvent event, NotificationCenterTransitionContext context, NotificationCenterFsm stateMachine) {
-        final NotificationCenterContext globalContext = stateMachine.getContext();
-        
-        // Cancel pending brief signals
-        final Queue<BriefSignal> briefSignals = globalContext.getBriefSignals();
-        briefSignals.clear();
-
-        // Cancel active timeout signals
-        final Set<TimeoutSignal> timeoutSignals = globalContext.getTimeoutSignals();
-        for (TimeoutSignal signal : timeoutSignals) {
-            final TimeoutSignalCancellationCallback callback = new TimeoutSignalCancellationCallback(signal, stateMachine);
-            signal.cancel(callback);
-        }
-
+    public boolean isSatisfied(NotificationCenterTransitionContext context) {
+        MgcpSignal<?> signal = context.get(NotificationCenterTransitionParameter.SIGNAL, MgcpSignal.class);
+        return (signal instanceof BriefSignal);
     }
 
 }

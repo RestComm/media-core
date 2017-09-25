@@ -41,11 +41,16 @@ import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RequestNotificationAction extends NotificationCenterAction {
+class RequestNotificationAction extends NotificationCenterAction {
+    
+    static final RequestNotificationAction INSTANCE = new RequestNotificationAction();
+    
+    RequestNotificationAction() {
+        super();
+    }
 
     @Override
-    public void execute(NotificationCenterState from, NotificationCenterState to, NotificationCenterEvent event,
-            NotificationCenterTransitionContext context, NotificationCenterFsm stateMachine) {
+    public void execute(NotificationCenterState from, NotificationCenterState to, NotificationCenterEvent event, NotificationCenterTransitionContext context, NotificationCenterFsm stateMachine) {
         final NotificationCenterContext globalContext = stateMachine.getContext();
         final NotifiedEntity notifiedEntity = context.get(NOTIFIED_ENTITY, NotifiedEntity.class);
         final MgcpRequestedEvent[] events = context.get(REQUESTED_EVENTS, MgcpRequestedEvent[].class);

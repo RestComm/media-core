@@ -71,6 +71,15 @@ public class NotificationCenterContext {
     protected void setNotifiedEntity(NotifiedEntity notifiedEntity) {
         this.notifiedEntity = notifiedEntity;
     }
+    
+    protected boolean isEventRequested(String eventName) {
+        for (MgcpRequestedEvent requestedEvent : this.requestedEvents) {
+            if (requestedEvent.getQualifiedName().equalsIgnoreCase(eventName)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     protected Set<MgcpRequestedEvent> getRequestedEvents() {
         return requestedEvents;
@@ -95,5 +104,5 @@ public class NotificationCenterContext {
     protected void setBriefSignals(Queue<BriefSignal> briefSignals) {
         this.briefSignals = briefSignals;
     }
-
+    
 }

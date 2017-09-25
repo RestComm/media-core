@@ -27,5 +27,5 @@ package org.restcomm.media.control.mgcp.endpoint.notification;
  */
 public enum NotificationCenterState {
     
-    IDLE, ACTIVE, STOPPING, STOPPED;
+    IDLE, ACTIVE, DEACTIVATING, DEACTIVATED;
 }
