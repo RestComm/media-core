@@ -21,8 +21,8 @@
 
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
+import java.util.List;
 import java.util.Queue;
-import java.util.Set;
 
 import org.restcomm.media.control.mgcp.signal.BriefSignal;
 import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
@@ -44,7 +44,7 @@ class ExecuteNextBriefSignalAction extends NotificationCenterAction {
     @Override
     public void execute(NotificationCenterState from, NotificationCenterState to, NotificationCenterEvent event, NotificationCenterTransitionContext context, NotificationCenterFsm stateMachine) {
         final NotificationCenterContext globalContext = stateMachine.getContext();
-        final Set<TimeoutSignal> timeoutSignals = globalContext.getTimeoutSignals();
+        final List<TimeoutSignal> timeoutSignals = globalContext.getTimeoutSignals();
         final Queue<BriefSignal> briefSignals = globalContext.getBriefSignals();
 
         // Check if there is any pending BR signal

@@ -21,8 +21,8 @@
 
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
+import java.util.List;
 import java.util.Queue;
-import java.util.Set;
 
 import org.restcomm.media.control.mgcp.signal.BriefSignal;
 import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
@@ -48,7 +48,7 @@ class CancelSignalsAction extends NotificationCenterAction {
         briefSignals.clear();
 
         // Cancel active timeout signals
-        final Set<TimeoutSignal> timeoutSignals = globalContext.getTimeoutSignals();
+        final List<TimeoutSignal> timeoutSignals = globalContext.getTimeoutSignals();
         for (TimeoutSignal signal : timeoutSignals) {
             final TimeoutSignalCancellationCallback callback = new TimeoutSignalCancellationCallback(signal, stateMachine);
             signal.cancel(callback);

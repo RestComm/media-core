@@ -22,7 +22,6 @@
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
 import org.restcomm.media.control.mgcp.command.NotificationRequest;
-import org.restcomm.media.control.mgcp.pkg.MgcpEventSubject;
 
 import com.google.common.util.concurrent.FutureCallback;
 
@@ -32,7 +31,7 @@ import com.google.common.util.concurrent.FutureCallback;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface NotificationCenter extends MgcpEventSubject {
+public interface NotificationCenter {
     
     void requestNotification(NotificationRequest request, FutureCallback<Void> callback);
     

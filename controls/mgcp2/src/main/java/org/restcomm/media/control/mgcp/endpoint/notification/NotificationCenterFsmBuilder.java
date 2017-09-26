@@ -35,10 +35,12 @@ import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
  *
  */
 public class NotificationCenterFsmBuilder {
+    
+    public static final NotificationCenterFsmBuilder INSTANCE = new NotificationCenterFsmBuilder();
 
     private final StateMachineBuilder<NotificationCenterFsm, NotificationCenterState, NotificationCenterEvent, NotificationCenterTransitionContext> builder;
 
-    public NotificationCenterFsmBuilder() {
+    NotificationCenterFsmBuilder() {
         this.builder = StateMachineBuilderFactory.<NotificationCenterFsm, NotificationCenterState, NotificationCenterEvent, NotificationCenterTransitionContext> create(NotificationCenterFsmImpl.class, NotificationCenterState.class, NotificationCenterEvent.class, NotificationCenterTransitionContext.class, NotificationCenterContext.class);
 
         final List<NotificationCenterAction> rqntActions = Arrays.asList(RequestNotificationAction.INSTANCE, ExecuteSignalsAction.INSTANCE, NotifyCallbackAction.INSTANCE);
@@ -50,6 +52,7 @@ public class NotificationCenterFsmBuilder {
         
         this.builder.onEntry(ACTIVE);
         this.builder.transition().from(ACTIVE).to(IDLE).on(NOTIFICATION_REQUEST).when(NoRequestedSignalsCondition.INSTANCE).perform(rqntActions);
+        this.builder.transition().from(ACTIVE).to(IDLE).on(ALL_SIGNALS_COMPLETED);
         this.builder.internalTransition().within(ACTIVE).on(NOTIFICATION_REQUEST).when(HasRequestedSignalsCondition.INSTANCE).perform(rqntActions);
         this.builder.internalTransition().within(ACTIVE).on(SIGNAL_EXECUTED).when(IsBriefSignalCondition.INSTANCE).perform(ExecuteNextBriefSignalAction.INSTANCE);
         this.builder.internalTransition().within(ACTIVE).on(SIGNAL_EXECUTED).when(IsTimeoutSignalCondition.INSTANCE).perform(EvaluateSignalResultAction.INSTANCE);
@@ -60,6 +63,10 @@ public class NotificationCenterFsmBuilder {
         this.builder.transition().from(DEACTIVATING).toFinal(DEACTIVATED).on(ALL_SIGNALS_COMPLETED);
 
         this.builder.onEntry(DEACTIVATED);
+    }
+    
+    public NotificationCenterFsm build(NotificationCenterContext context) {
+        return this.builder.newStateMachine(IDLE, context);
     }
 
 }

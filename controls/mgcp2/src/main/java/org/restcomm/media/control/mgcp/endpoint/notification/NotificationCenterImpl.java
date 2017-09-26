@@ -21,15 +21,8 @@
 
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
-import java.util.Iterator;
-import java.util.Set;
-
-import org.apache.log4j.Logger;
 import org.restcomm.media.control.mgcp.command.NotificationRequest;
-import org.restcomm.media.control.mgcp.pkg.MgcpEvent;
-import org.restcomm.media.control.mgcp.pkg.MgcpEventObserver;
 
-import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.FutureCallback;
 
 /**
@@ -37,47 +30,12 @@ import com.google.common.util.concurrent.FutureCallback;
  *
  */
 public class NotificationCenterImpl implements NotificationCenter {
-    
-    private static final Logger log = Logger.getLogger(NotificationCenterImpl.class);
 
     private final NotificationCenterFsm fsm;
-    private final Set<MgcpEventObserver> eventObservers;
 
     public NotificationCenterImpl(NotificationCenterFsm fsm) {
-        this.eventObservers = Sets.newConcurrentHashSet();
         this.fsm = fsm;
         this.fsm.start();
-    }
-
-    @Override
-    public void observe(MgcpEventObserver observer) {
-        final boolean added = this.eventObservers.add(observer);
-        
-        if(added && log.isTraceEnabled()) {
-            final int observerId = observer.hashCode();
-            final int count = this.eventObservers.size();
-            log.trace("Registered MgcpEventObserver@" + observerId + ". Count: " + count);
-        }
-    }
-
-    @Override
-    public void forget(MgcpEventObserver observer) {
-        boolean removed = this.eventObservers.remove(observer);
-
-        if(removed && log.isTraceEnabled()) {
-            final int observerId = observer.hashCode();
-            final int count = this.eventObservers.size();
-            log.trace("Unregistered MgcpEventObserver@" + observerId + ". Count: " + count);
-        }
-    }
-
-    @Override
-    public void notify(Object originator, MgcpEvent event) {
-        final Iterator<MgcpEventObserver> observers = this.eventObservers.iterator();
-        while (observers.hasNext()) {
-            MgcpEventObserver observer = observers.next();
-            observer.onEvent(originator, event);
-        }
     }
 
     @Override
@@ -89,14 +47,16 @@ public class NotificationCenterImpl implements NotificationCenter {
         txContext.set(NotificationCenterTransitionParameter.REQUESTED_SIGNALS, request.getRequestedSignals());
         txContext.set(NotificationCenterTransitionParameter.NOTIFIED_ENTITY, request.getNotifiedEntity());
         txContext.set(NotificationCenterTransitionParameter.CALLBACK, callback);
+
         this.fsm.fire(NotificationCenterEvent.NOTIFICATION_REQUEST, txContext);
     }
-    
+
     @Override
     public void shutdown(FutureCallback<Void> callback) {
         final NotificationCenterTransitionContext txContext = new NotificationCenterTransitionContext();
         txContext.set(NotificationCenterTransitionParameter.CALLBACK, callback);
+
         this.fsm.fire(NotificationCenterEvent.STOP, txContext);
     }
-    
+
 }

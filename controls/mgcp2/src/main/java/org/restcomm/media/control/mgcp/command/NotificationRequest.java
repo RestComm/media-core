@@ -21,12 +21,9 @@
 
 package org.restcomm.media.control.mgcp.command;
 
-import java.util.ArrayDeque;
-import java.util.Queue;
-
 import org.restcomm.media.control.mgcp.command.param.NotifiedEntity;
 import org.restcomm.media.control.mgcp.pkg.MgcpRequestedEvent;
-import org.restcomm.media.control.mgcp.pkg.MgcpSignal;
+import org.restcomm.media.control.mgcp.signal.MgcpSignal;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -38,19 +35,15 @@ public class NotificationRequest {
     private final String requestIdentifier;
     private final NotifiedEntity notifiedEntity;
     private final MgcpRequestedEvent[] requestedEvents;
-    private final Queue<MgcpSignal> requestedSignals;
+    private final MgcpSignal<?>[] requestedSignals;
 
-    public NotificationRequest(int transactionId, String requestIdentifier, NotifiedEntity notifiedEntity,
-            MgcpRequestedEvent[] requestedEvents, MgcpSignal... requestedSignals) {
+    public NotificationRequest(int transactionId, String requestIdentifier, NotifiedEntity notifiedEntity, MgcpRequestedEvent[] requestedEvents, MgcpSignal<?>... requestedSignals) {
         super();
         this.transactionId = transactionId;
         this.requestIdentifier = requestIdentifier;
         this.notifiedEntity = notifiedEntity;
         this.requestedEvents = requestedEvents;
-        this.requestedSignals = new ArrayDeque<>(requestedSignals.length);
-        for (MgcpSignal signal : requestedSignals) {
-            this.requestedSignals.add(signal);
-        }
+        this.requestedSignals = requestedSignals;
     }
 
     public int getTransactionId() {
@@ -69,17 +62,8 @@ public class NotificationRequest {
         return requestedEvents;
     }
 
-    public MgcpSignal pollSignal() {
-        return this.requestedSignals.poll();
-    }
-
-    public int countSignals() {
-        return this.requestedSignals.size();
-    }
-    
-    public MgcpSignal[] getRequestedSignals() {
-        final MgcpSignal[] signalArray = new MgcpSignal[this.requestedSignals.size()];
-        return this.requestedSignals.toArray(signalArray);
+    public MgcpSignal<?>[] getRequestedSignals() {
+        return this.requestedSignals;
     }
     
     public boolean isListening(String event) {

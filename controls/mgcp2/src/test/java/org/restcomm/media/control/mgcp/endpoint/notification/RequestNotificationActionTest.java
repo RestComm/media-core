@@ -50,7 +50,7 @@ public class RequestNotificationActionTest {
     @Test
     public void testRequestNotification() {
         // given
-        final String requestId = "12345";
+        final int requestId = 12345;
         final NotifiedEntity notifiedEntity = new NotifiedEntity("restcomm", "127.0.0.1", 2727);
         final MgcpRequestedEvent requestedEvent1 = mock(MgcpRequestedEvent.class);
         final MgcpRequestedEvent requestedEvent2 = mock(MgcpRequestedEvent.class);

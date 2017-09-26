@@ -21,6 +21,7 @@
 
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
+import org.apache.log4j.Logger;
 import org.restcomm.media.control.mgcp.signal.MgcpSignal;
 
 import com.google.common.util.concurrent.FutureCallback;
@@ -30,6 +31,8 @@ import com.google.common.util.concurrent.FutureCallback;
  *
  */
 public class SignalCancellationCallback<T> implements FutureCallback<T> {
+
+    private static final Logger log = Logger.getLogger(SignalCancellationCallback.class);
 
     private final MgcpSignal<T> signal;
     private final NotificationCenterFsm fsm;
@@ -45,6 +48,12 @@ public class SignalCancellationCallback<T> implements FutureCallback<T> {
         txContext.set(NotificationCenterTransitionParameter.SIGNAL_RESULT, result);
         txContext.set(NotificationCenterTransitionParameter.SIGNAL, this.signal);
         this.fsm.fire(NotificationCenterEvent.SIGNAL_CANCELLED, txContext);
+
+        if (log.isDebugEnabled()) {
+            final NotificationCenterContext context = this.fsm.getContext();
+            final String endpointId = context.getEndpoint().getEndpointId().toString();
+            log.debug("Signal " + this.signal + " was canceled on endpoint " + endpointId);
+        }
     }
 
     @Override
@@ -53,6 +62,12 @@ public class SignalCancellationCallback<T> implements FutureCallback<T> {
         txContext.set(NotificationCenterTransitionParameter.FAILED_SIGNAL, this.signal);
         txContext.set(NotificationCenterTransitionParameter.ERROR, this.signal);
         this.fsm.fire(NotificationCenterEvent.SIGNAL_FAILED, txContext);
+
+        if (log.isDebugEnabled()) {
+            final NotificationCenterContext context = this.fsm.getContext();
+            final String endpointId = context.getEndpoint().getEndpointId().toString();
+            log.debug("Signal " + this.signal + " was canceled (with error) on endpoint " + endpointId, t);
+        }
     }
 
 }
