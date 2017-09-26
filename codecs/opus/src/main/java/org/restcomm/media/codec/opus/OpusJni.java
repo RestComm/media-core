@@ -26,9 +26,16 @@ package org.restcomm.media.codec.opus;
  * Implements access to JNI layer for native Opus library.
  */
 public class OpusJni {
+    
+   public static interface Observer {
+      public void onHello();
+   }
+	   
    static {
       System.loadLibrary("opus_jni");
    }
-   
-   private native void sayHello();
+
+   public native void sayHelloNative();
+   public native void setOpusObserverNative(Observer observer);
+   public native void unsetOpusObserverNative();
 }

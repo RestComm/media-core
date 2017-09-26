@@ -24,7 +24,57 @@
 
 #include "opus.h"
 
-void JNICALL Java_org_restcomm_media_codec_opus_OpusJdk_sayHello(JNIEnv *, jobject)
-{
-	printf("Hello World!\n");
+JavaVM* gJvm;
+jobject gOpusObserver;
+
+extern "C" {
+  JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_sayHelloNative(JNIEnv *, jobject);
+
+  JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_setOpusObserverNative(JNIEnv *, jobject, jobject);
+
+  JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_unsetOpusObserverNative(JNIEnv *, jobject);
+}
+
+void OnHello() {
+  void* env = nullptr;
+  jint status = gJvm->GetEnv(&env, JNI_VERSION_1_4);
+  if (status != JNI_OK)
+    return;
+  JNIEnv* jni = reinterpret_cast<JNIEnv*>(env);
+  jmethodID jOnHelloMid = jni->GetMethodID(
+    jni->GetObjectClass(gOpusObserver), "onHello", "()V");
+  jni->CallVoidMethod(gOpusObserver, jOnHelloMid);
+}
+
+JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_sayHelloNative(JNIEnv *, jobject) {
+	printf("Hello World - native!\n");
+  OnHello();
+}
+
+JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_setOpusObserverNative(
+  JNIEnv *jni, jobject, jobject j_observer) {
+  gOpusObserver = jni->NewGlobalRef(j_observer);
+}
+
+JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_unsetOpusObserverNative(
+  JNIEnv *jni, jobject) {
+  jni->DeleteGlobalRef(gOpusObserver);
+}
+
+jint JNI_OnLoad(JavaVM* vm, void* reserved) {
+
+  if (!vm) {
+    printf("No Java Virtual Machine pointer");
+    return -1;
+  }
+
+  JNIEnv* env;
+  if (vm->GetEnv(reinterpret_cast<void**> (&env), JNI_VERSION_1_4) != JNI_OK) {
+    printf("Cannot obtain JNI environment");
+    return -1;
+  }
+
+  gJvm = vm;
+
+  return JNI_VERSION_1_4;
 }

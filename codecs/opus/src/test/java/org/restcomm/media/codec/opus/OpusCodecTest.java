@@ -31,10 +31,11 @@ import static org.junit.Assert.*;
 
 import org.restcomm.media.codec.opus.Decoder;
 import org.restcomm.media.codec.opus.Encoder;
+import org.restcomm.media.codec.opus.OpusJni;
 import org.restcomm.media.spi.memory.Frame;
 import org.restcomm.media.spi.memory.Memory;
 
-public class OpusCodecTest {
+public class OpusCodecTest implements OpusJni.Observer {
     private Frame buffer = Memory.allocate(512);
     
     @BeforeClass
@@ -64,6 +65,10 @@ public class OpusCodecTest {
      */
     @Test
     public void testCodec() {
+    	OpusJni opus = new OpusJni();
+    	opus.setOpusObserverNative(this);
+    	opus.sayHelloNative();
+    	
         org.restcomm.media.spi.dsp.Codec compressor = new Encoder();
         long s = System.nanoTime();
         compressor.process(buffer);
@@ -75,5 +80,10 @@ public class OpusCodecTest {
         decompressor.process(buffer);
         f = System.nanoTime();
         System.out.println("Duration=" + (f-s));
-    }    
+    }
+    
+    @Override
+    public void onHello() {
+    	System.out.println("Hello World - Java!");
+    }
 }
