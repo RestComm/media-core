@@ -26,6 +26,8 @@ import org.restcomm.media.control.mgcp.command.mdcx.ModifyConnectionEvent;
 import org.squirrelframework.foundation.fsm.StateMachineStatus;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
 
+import com.google.common.util.concurrent.FutureCallback;
+
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
@@ -56,6 +58,13 @@ public class NotificationCenterFsmImpl extends
         this.setStatus(StateMachineStatus.IDLE);
         // this.fire(NotificationCenterEvent.FAILURE, context);
         // TODO rollback NotificationCenterFsm
+    }
+    
+    @Override
+    protected void afterTransitionDeclined(NotificationCenterState fromState, NotificationCenterEvent event, NotificationCenterTransitionContext context) {
+        final IllegalStateException error = new IllegalStateException("Operation " + event.name() + " not allowed on state " + fromState);
+        FutureCallback<?> callback = context.get(NotificationCenterTransitionParameter.CALLBACK, FutureCallback.class);
+        callback.onFailure(error);
     }
 
 }

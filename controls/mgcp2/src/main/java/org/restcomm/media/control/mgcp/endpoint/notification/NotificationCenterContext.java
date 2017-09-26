@@ -22,14 +22,18 @@
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Queue;
 import java.util.Set;
 
 import org.restcomm.media.control.mgcp.command.param.NotifiedEntity;
+import org.restcomm.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.restcomm.media.control.mgcp.pkg.MgcpRequestedEvent;
 import org.restcomm.media.control.mgcp.signal.BriefSignal;
 import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
+
+import com.google.common.collect.Sets;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -41,26 +45,34 @@ public class NotificationCenterContext {
     private static final Set<MgcpRequestedEvent> EMPTY_EVENTS = new HashSet<>(0);
     private static final Set<TimeoutSignal> EMPTY_TO_SIGNALS = new HashSet<>(0);
     private static final Queue<BriefSignal> EMPTY_BR_SIGNAL = new ArrayDeque<>(0);
+    
+    private final MgcpEndpoint endpoint;
 
-    private int requestId;
+    private String requestId;
     private NotifiedEntity notifiedEntity;
     private Set<MgcpRequestedEvent> requestedEvents;
     private Set<TimeoutSignal> timeoutSignals;
     private Queue<BriefSignal> briefSignals;
 
-    public NotificationCenterContext() {
-        this.requestId = -1;
+    public NotificationCenterContext(MgcpEndpoint endpoint) {
+        this.endpoint = endpoint;
+        
+        this.requestId = "";
         this.notifiedEntity = DEFAULT_NOTIFIED_ENTITY;
         this.requestedEvents = EMPTY_EVENTS;
         this.timeoutSignals = EMPTY_TO_SIGNALS;
         this.briefSignals = EMPTY_BR_SIGNAL;
     }
     
-    protected int getRequestId() {
+    public MgcpEndpoint getEndpoint() {
+        return endpoint;
+    }
+    
+    protected String getRequestId() {
         return requestId;
     }
     
-    protected void setRequestId(int requestId) {
+    protected void setRequestId(String requestId) {
         this.requestId = requestId;
     }
 
@@ -105,4 +117,15 @@ public class NotificationCenterContext {
         this.briefSignals = briefSignals;
     }
     
+    @Override
+    public String toString() {
+        final StringBuilder builder = new StringBuilder();
+        builder.append("Request Identifier: ").append(this.requestId).append(System.lineSeparator());
+        builder.append("Notified Entity: ").append(this.notifiedEntity).append(System.lineSeparator());
+        builder.append("Requested Events: ").append(Arrays.toString(this.requestedEvents.toArray())).append(System.lineSeparator());
+        builder.append("Requested BR Signals: ").append(Arrays.toString(this.briefSignals.toArray())).append(System.lineSeparator());
+        builder.append("Requested TO Signals: ").append(Arrays.toString(this.timeoutSignals.toArray())).append(System.lineSeparator());
+        return builder.toString();
+    }
+
 }

@@ -21,37 +21,45 @@
 
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
-import org.restcomm.media.control.mgcp.command.param.NotifiedEntity;
-import org.restcomm.media.control.mgcp.pkg.MgcpEvent;
-import org.restcomm.media.control.mgcp.pkg.MgcpRequestedEvent;
-import org.restcomm.media.control.mgcp.signal.MgcpSignal;
-
 import com.google.common.util.concurrent.FutureCallback;
 
 /**
+ * Notifies the callback about failed or successful completion of a task.
+ * 
+ * Input parameters:
+ * <ul>
+ * <li>ERROR (optional)</li>
+ * <li>CALLBACK</li>
+ * </ul>
+ * </p>
+ * <p>
+ * Output parameters:
+ * <ul>
+ * <li>n/a</li>
+ * </ul>
+ * </p>
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum NotificationCenterTransitionParameter {
+class NotifyCallbackAction extends NotificationCenterAction {
 
-    REQUEST_IDENTIFIER(String.class),
-    NOTIFIED_ENTITY(NotifiedEntity.class),
-    REQUESTED_EVENTS(MgcpRequestedEvent[].class),
-    REQUESTED_SIGNALS(MgcpSignal[].class),
-    SIGNAL_RESULT(MgcpEvent.class),
-    SIGNAL(MgcpSignal.class),
-    FAILED_SIGNAL(MgcpSignal.class),
-    ERROR(Throwable.class),
-    CALLBACK(FutureCallback.class);
+    static final NotifyCallbackAction INSTANCE = new NotifyCallbackAction();
 
-    private final Class<?> type;
-
-    private NotificationCenterTransitionParameter(Class<?> type) {
-        this.type = type;
+    NotifyCallbackAction() {
+        super();
     }
 
-    public Class<?> type() {
-        return type;
+    @Override
+    public void execute(NotificationCenterState from, NotificationCenterState to, NotificationCenterEvent event, NotificationCenterTransitionContext context, NotificationCenterFsm stateMachine) {
+        final Throwable error = context.get(NotificationCenterTransitionParameter.ERROR, Throwable.class);
+        final FutureCallback<?> callback = context.get(NotificationCenterTransitionParameter.CALLBACK, FutureCallback.class);
+
+        if (error == null) {
+            callback.onFailure(error);
+        } else {
+            callback.onSuccess(null);
+        }
     }
 
 }

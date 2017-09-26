@@ -76,7 +76,12 @@ public class NotificationRequest {
     public int countSignals() {
         return this.requestedSignals.size();
     }
-
+    
+    public MgcpSignal[] getRequestedSignals() {
+        final MgcpSignal[] signalArray = new MgcpSignal[this.requestedSignals.size()];
+        return this.requestedSignals.toArray(signalArray);
+    }
+    
     public boolean isListening(String event) {
         for (MgcpRequestedEvent evt : this.requestedEvents) {
             if (evt.getQualifiedName().equalsIgnoreCase(event)) {

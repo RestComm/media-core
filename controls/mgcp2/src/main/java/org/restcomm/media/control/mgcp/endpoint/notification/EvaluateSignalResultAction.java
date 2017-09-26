@@ -31,6 +31,18 @@ import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
 import com.google.common.util.concurrent.FutureCallback;
 
 /**
+ * Input parameters:
+ * <ul>
+ * <li>n/a</li>
+ * </ul>
+ * </p>
+ * <p>
+ * Output parameters:
+ * <ul>
+ * <li>n/a</li>
+ * </ul>
+ * </p>
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
@@ -68,8 +80,7 @@ class EvaluateSignalResultAction extends NotificationCenterAction {
                     signalsIterator.remove();
 
                     // Cancel signal execution
-                    final FutureCallback<MgcpEvent> callback = new TimeoutSignalCancellationCallback(timeoutSignal,
-                            stateMachine);
+                    final FutureCallback<MgcpEvent> callback = new TimeoutSignalCancellationCallback(timeoutSignal, stateMachine);
                     timeoutSignal.cancel(callback);
                 }
             } else {

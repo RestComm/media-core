@@ -18,40 +18,24 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
+        
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
-import org.restcomm.media.control.mgcp.command.param.NotifiedEntity;
-import org.restcomm.media.control.mgcp.pkg.MgcpEvent;
-import org.restcomm.media.control.mgcp.pkg.MgcpRequestedEvent;
-import org.restcomm.media.control.mgcp.signal.MgcpSignal;
+import org.restcomm.media.control.mgcp.command.NotificationRequest;
+import org.restcomm.media.control.mgcp.pkg.MgcpEventSubject;
 
 import com.google.common.util.concurrent.FutureCallback;
 
 /**
+ * Notification Center where MGCP Events and Signals can be submitted.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum NotificationCenterTransitionParameter {
-
-    REQUEST_IDENTIFIER(String.class),
-    NOTIFIED_ENTITY(NotifiedEntity.class),
-    REQUESTED_EVENTS(MgcpRequestedEvent[].class),
-    REQUESTED_SIGNALS(MgcpSignal[].class),
-    SIGNAL_RESULT(MgcpEvent.class),
-    SIGNAL(MgcpSignal.class),
-    FAILED_SIGNAL(MgcpSignal.class),
-    ERROR(Throwable.class),
-    CALLBACK(FutureCallback.class);
-
-    private final Class<?> type;
-
-    private NotificationCenterTransitionParameter(Class<?> type) {
-        this.type = type;
-    }
-
-    public Class<?> type() {
-        return type;
-    }
-
+public interface NotificationCenter extends MgcpEventSubject {
+    
+    void requestNotification(NotificationRequest request, FutureCallback<Void> callback);
+    
+    void shutdown(FutureCallback<Void> callback);
+    
 }
