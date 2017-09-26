@@ -22,18 +22,17 @@
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.List;
 import java.util.Queue;
-import java.util.Set;
 
 import org.restcomm.media.control.mgcp.command.param.NotifiedEntity;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.restcomm.media.control.mgcp.pkg.MgcpRequestedEvent;
 import org.restcomm.media.control.mgcp.signal.BriefSignal;
 import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
-
-import com.google.common.collect.Sets;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -42,26 +41,23 @@ import com.google.common.collect.Sets;
 public class NotificationCenterContext {
 
     private static final NotifiedEntity DEFAULT_NOTIFIED_ENTITY = new NotifiedEntity();
-    private static final Set<MgcpRequestedEvent> EMPTY_EVENTS = new HashSet<>(0);
-    private static final Set<TimeoutSignal> EMPTY_TO_SIGNALS = new HashSet<>(0);
-    private static final Queue<BriefSignal> EMPTY_BR_SIGNAL = new ArrayDeque<>(0);
     
     private final MgcpEndpoint endpoint;
 
     private String requestId;
     private NotifiedEntity notifiedEntity;
-    private Set<MgcpRequestedEvent> requestedEvents;
-    private Set<TimeoutSignal> timeoutSignals;
-    private Queue<BriefSignal> briefSignals;
+    private final List<MgcpRequestedEvent> requestedEvents;
+    private final List<TimeoutSignal> timeoutSignals;
+    private final Queue<BriefSignal> briefSignals;
 
     public NotificationCenterContext(MgcpEndpoint endpoint) {
         this.endpoint = endpoint;
         
         this.requestId = "";
         this.notifiedEntity = DEFAULT_NOTIFIED_ENTITY;
-        this.requestedEvents = EMPTY_EVENTS;
-        this.timeoutSignals = EMPTY_TO_SIGNALS;
-        this.briefSignals = EMPTY_BR_SIGNAL;
+        this.requestedEvents = new ArrayList<>(5);
+        this.timeoutSignals = new ArrayList<>(5);
+        this.briefSignals = new ArrayDeque<>(5);
     }
     
     public MgcpEndpoint getEndpoint() {
@@ -93,28 +89,31 @@ public class NotificationCenterContext {
         return false;
     }
 
-    protected Set<MgcpRequestedEvent> getRequestedEvents() {
+    protected List<MgcpRequestedEvent> getRequestedEvents() {
         return requestedEvents;
     }
 
-    protected void setRequestedEvents(Set<MgcpRequestedEvent> requestedEvents) {
-        this.requestedEvents = requestedEvents;
+    protected void setRequestedEvents(MgcpRequestedEvent[] events) {
+        this.requestedEvents.clear();
+        Collections.addAll(this.requestedEvents, events);
     }
 
-    protected Set<TimeoutSignal> getTimeoutSignals() {
+    protected List<TimeoutSignal> getTimeoutSignals() {
         return timeoutSignals;
     }
 
-    protected void setTimeoutSignals(Set<TimeoutSignal> timeoutSignals) {
-        this.timeoutSignals = timeoutSignals;
+    protected void setTimeoutSignals(TimeoutSignal[] signals) {
+        this.timeoutSignals.clear();
+        Collections.addAll(this.timeoutSignals, signals);
     }
 
     protected Queue<BriefSignal> getBriefSignals() {
         return briefSignals;
     }
 
-    protected void setBriefSignals(Queue<BriefSignal> briefSignals) {
-        this.briefSignals = briefSignals;
+    protected void setBriefSignals(BriefSignal[] signals) {
+        this.briefSignals.clear();
+        Collections.addAll(this.briefSignals, signals);
     }
     
     @Override

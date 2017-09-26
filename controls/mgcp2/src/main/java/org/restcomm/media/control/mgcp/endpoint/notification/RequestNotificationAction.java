@@ -21,12 +21,13 @@
 
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
-import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterTransitionParameter.*;
+import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterTransitionParameter.NOTIFIED_ENTITY;
+import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterTransitionParameter.REQUESTED_EVENTS;
+import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterTransitionParameter.REQUESTED_SIGNALS;
+import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterTransitionParameter.REQUEST_IDENTIFIER;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Queue;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.restcomm.media.control.mgcp.command.param.NotifiedEntity;
@@ -84,33 +85,22 @@ class RequestNotificationAction extends NotificationCenterAction {
         }
 
         // Update Requested Events. Will be cleaned if no events are requested.
-        final Set<MgcpRequestedEvent> eventSet = globalContext.getRequestedEvents();
-        eventSet.clear();
-        if (events.length > 0) {
-            Collections.addAll(eventSet, events);
-        }
+        globalContext.setRequestedEvents(events);
 
-        // Update Requested Signals.
-        Set<TimeoutSignal> timeoutSignalSet = globalContext.getTimeoutSignals();
-        TimeoutSignal[] ongoingTimeoutSignals = new TimeoutSignal[timeoutSignalSet.size()];
-        timeoutSignalSet.toArray(ongoingTimeoutSignals);
-        timeoutSignalSet.clear();
+        // Update Requested Signals. Will be cleaned if no signals are requested.
+        List<TimeoutSignal> timeoutSignals = new ArrayList<>(signals.length);
+        List<BriefSignal> briefSignals = new ArrayList<>(signals.length);
 
-        Queue<BriefSignal> briefSignalSet = globalContext.getBriefSignals();
-        briefSignalSet.clear();
-
-        if (signals.length > 0) {
-            Set<TimeoutSignal> timeoutSignals = new HashSet<>(signals.length);
-            Set<BriefSignal> briefSignals = new HashSet<>(signals.length);
-
-            for (MgcpSignal<?> signal : signals) {
-                if (signal instanceof TimeoutSignal) {
-                    timeoutSignals.add((TimeoutSignal) signal);
-                } else if (signal instanceof BriefSignal) {
-                    briefSignals.add((BriefSignal) signal);
-                }
+        for (MgcpSignal<?> signal : signals) {
+            if (signal instanceof TimeoutSignal) {
+                timeoutSignals.add((TimeoutSignal) signal);
+            } else if (signal instanceof BriefSignal) {
+                briefSignals.add((BriefSignal) signal);
             }
         }
+
+        globalContext.setBriefSignals(briefSignals.toArray(new BriefSignal[briefSignals.size()]));
+        globalContext.setTimeoutSignals(timeoutSignals.toArray(new TimeoutSignal[timeoutSignals.size()]));
 
         // Log action
         logAction(globalContext);
@@ -122,7 +112,7 @@ class RequestNotificationAction extends NotificationCenterAction {
             final String endpointId = context.getEndpoint().getEndpointId().toString();
             final String requestId = context.getRequestId();
 
-            builder.append("Endpoint ").append(endpointId).append(" is executing request ").append(requestId);
+            builder.append("Endpoint ").append(endpointId).append(" is executing RQNT ").append(requestId);
 
             if (log.isDebugEnabled()) {
                 builder.append(System.lineSeparator()).append(context.toString());
