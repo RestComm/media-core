@@ -56,9 +56,9 @@ class NotifyCallbackAction extends NotificationCenterAction {
         final FutureCallback<?> callback = context.get(NotificationCenterTransitionParameter.CALLBACK, FutureCallback.class);
 
         if (error == null) {
-            callback.onFailure(error);
-        } else {
             callback.onSuccess(null);
+        } else {
+            callback.onFailure(error);
         }
     }
 
