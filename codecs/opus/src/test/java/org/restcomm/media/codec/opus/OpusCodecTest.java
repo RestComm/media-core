@@ -68,6 +68,7 @@ public class OpusCodecTest implements OpusJni.Observer {
     	OpusJni opus = new OpusJni();
     	opus.setOpusObserverNative(this);
     	opus.sayHelloNative();
+    	opus.initNative();
     	
         org.restcomm.media.spi.dsp.Codec compressor = new Encoder();
         long s = System.nanoTime();

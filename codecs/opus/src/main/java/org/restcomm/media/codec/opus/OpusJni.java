@@ -32,10 +32,12 @@ public class OpusJni {
    }
 	   
    static {
+      System.loadLibrary("libopus-0");
       System.loadLibrary("opus_jni");
    }
 
    public native void sayHelloNative();
+   public native void initNative();
    public native void setOpusObserverNative(Observer observer);
    public native void unsetOpusObserverNative();
 }

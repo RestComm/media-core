@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="opus_jni.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="opus.h">
       <Filter>Header Files</Filter>
     </ClInclude>
