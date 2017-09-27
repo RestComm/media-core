@@ -27,16 +27,20 @@ import org.restcomm.media.control.mgcp.signal.MgcpSignal;
 import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
 
 /**
- * Action that executes the next pending Brief signal.
+ * Unregisters a signal from the endpoint.
+ * 
+ * <p>
+ * Raises an {@link NotificationCenterEvent#ALL_SIGNALS_COMPLETED} event if no more signals are active on the endpoint.
+ * </p>
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-class DeactivateOnSignalCancellationAction extends NotificationCenterAction {
-    
-    static final DeactivateOnSignalCancellationAction INSTANCE = new DeactivateOnSignalCancellationAction();
-    
-    DeactivateOnSignalCancellationAction() {
+class RemoveActiveBriefSignalAction extends NotificationCenterAction {
+
+    static final RemoveActiveBriefSignalAction INSTANCE = new RemoveActiveBriefSignalAction();
+
+    RemoveActiveBriefSignalAction() {
         super();
     }
 
@@ -44,14 +48,16 @@ class DeactivateOnSignalCancellationAction extends NotificationCenterAction {
     public void execute(NotificationCenterState from, NotificationCenterState to, NotificationCenterEvent event, NotificationCenterTransitionContext context, NotificationCenterFsm stateMachine) {
         final NotificationCenterContext globalContext = stateMachine.getContext();
         final MgcpSignal<?> signal = context.get(NotificationCenterTransitionParameter.SIGNAL, MgcpSignal.class);
-        
-        // Remove signal from list of active signals
-        final List<TimeoutSignal> activeSignals = globalContext.getTimeoutSignals();
-        boolean removed = activeSignals.remove(signal);
 
-        // Move to next state when all signals are completed
-        if(removed && activeSignals.isEmpty()) {
-            stateMachine.fire(NotificationCenterEvent.ALL_SIGNALS_COMPLETED, context);
+        if(globalContext.getActiveBriefSignal() == signal) {
+            // Unregister brief signal
+            globalContext.setActiveBriefSignal(null);
+            
+            // Move to next state when all signals are completed
+            final List<TimeoutSignal> timeoutSignals = globalContext.getTimeoutSignals();
+            if (timeoutSignals.isEmpty()) {
+                stateMachine.fire(NotificationCenterEvent.ALL_SIGNALS_COMPLETED, context);
+            }
         }
     }
 

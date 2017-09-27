@@ -59,7 +59,9 @@ public class NotificationCenterFsmBuilder {
         this.builder.transition().from(ACTIVE).to(DEACTIVATING).on(STOP);
         
         this.builder.onEntry(DEACTIVATING).perform(CancelAllSignalsAction.INSTANCE);
-        this.builder.internalTransition().within(DEACTIVATING).on(SIGNAL_CANCELLED).perform(DeactivateOnSignalCancellationAction.INSTANCE);
+        this.builder.internalTransition().within(DEACTIVATING).on(SIGNAL_CANCELLED).when(IsTimeoutSignalCondition.INSTANCE).perform(RemoveTimeoutSignalAction.INSTANCE);
+        this.builder.internalTransition().within(DEACTIVATING).on(SIGNAL_EXECUTED).when(IsTimeoutSignalCondition.INSTANCE).perform(RemoveTimeoutSignalAction.INSTANCE);
+        this.builder.internalTransition().within(DEACTIVATING).on(SIGNAL_EXECUTED).when(IsBriefSignalCondition.INSTANCE).perform(RemoveActiveBriefSignalAction.INSTANCE);
         this.builder.transition().from(DEACTIVATING).toFinal(DEACTIVATED).on(ALL_SIGNALS_COMPLETED);
 
         this.builder.onEntry(DEACTIVATED);
