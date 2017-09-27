@@ -93,13 +93,14 @@ class EvaluateSignalResultAction extends NotificationCenterAction {
                 // Raise event on Endpoint to send NTFY to Notified Entity
                 globalContext.getEndpoint().onEvent(this, mgcpEvent);
                 
-                final BriefSignal activeBriefSignal = globalContext.getActiveBriefSignal();
-                if(activeBriefSignal == null) {
-                    // Move to IDLE state since there are no active signals
-                    stateMachine.fire(NotificationCenterEvent.ALL_SIGNALS_COMPLETED, context);
-                }
             } else {
                 // If no requested event is raised, then allow remaining signals to continue execution.
+            }
+
+            // Move to IDLE state IF there are no active signals
+            final BriefSignal activeBriefSignal = globalContext.getActiveBriefSignal();
+            if(activeBriefSignal == null && timeoutSignals.isEmpty()) {
+                stateMachine.fire(NotificationCenterEvent.ALL_SIGNALS_COMPLETED, context);
             }
         } else {
             // Ignore signals that are not listed as active
