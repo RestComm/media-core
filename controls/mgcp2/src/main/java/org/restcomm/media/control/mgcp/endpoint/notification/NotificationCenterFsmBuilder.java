@@ -44,6 +44,7 @@ public class NotificationCenterFsmBuilder {
         this.builder = StateMachineBuilderFactory.<NotificationCenterFsm, NotificationCenterState, NotificationCenterEvent, NotificationCenterTransitionContext> create(NotificationCenterFsmImpl.class, NotificationCenterState.class, NotificationCenterEvent.class, NotificationCenterTransitionContext.class, NotificationCenterContext.class);
 
         final List<NotificationCenterAction> rqntActions = Arrays.asList(RequestNotificationAction.INSTANCE, ExecuteSignalsAction.INSTANCE, NotifyCallbackAction.INSTANCE);
+        final List<NotificationCenterAction> deactivationActions = Arrays.asList(PersistDeactivationCallbackAction.INSTANCE, CancelAllSignalsAction.INSTANCE);
         
         this.builder.onEntry(IDLE);
         this.builder.internalTransition().within(IDLE).on(NOTIFICATION_REQUEST).when(NoRequestedSignalsCondition.INSTANCE).perform(rqntActions);
@@ -58,13 +59,13 @@ public class NotificationCenterFsmBuilder {
         this.builder.internalTransition().within(ACTIVE).on(SIGNAL_EXECUTED).when(IsTimeoutSignalCondition.INSTANCE).perform(EvaluateSignalResultAction.INSTANCE);
         this.builder.transition().from(ACTIVE).to(DEACTIVATING).on(STOP);
         
-        this.builder.onEntry(DEACTIVATING).perform(CancelAllSignalsAction.INSTANCE);
+        this.builder.onEntry(DEACTIVATING).perform(deactivationActions);
         this.builder.internalTransition().within(DEACTIVATING).on(SIGNAL_CANCELLED).when(IsTimeoutSignalCondition.INSTANCE).perform(RemoveTimeoutSignalAction.INSTANCE);
         this.builder.internalTransition().within(DEACTIVATING).on(SIGNAL_EXECUTED).when(IsTimeoutSignalCondition.INSTANCE).perform(RemoveTimeoutSignalAction.INSTANCE);
         this.builder.internalTransition().within(DEACTIVATING).on(SIGNAL_EXECUTED).when(IsBriefSignalCondition.INSTANCE).perform(RemoveActiveBriefSignalAction.INSTANCE);
         this.builder.transition().from(DEACTIVATING).toFinal(DEACTIVATED).on(ALL_SIGNALS_COMPLETED);
 
-        this.builder.onEntry(DEACTIVATED);
+        this.builder.onEntry(DEACTIVATED).perform(NotifyDeactivationCallbackAction.INSTANCE);
     }
     
     public NotificationCenterFsm build(NotificationCenterContext context) {

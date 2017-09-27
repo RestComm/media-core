@@ -34,6 +34,8 @@ import org.restcomm.media.control.mgcp.pkg.MgcpRequestedEvent;
 import org.restcomm.media.control.mgcp.signal.BriefSignal;
 import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
 
+import com.google.common.util.concurrent.FutureCallback;
+
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
@@ -50,6 +52,8 @@ public class NotificationCenterContext {
     private final List<TimeoutSignal> timeoutSignals;
     private final Queue<BriefSignal> pendingBriefSignals;
     private BriefSignal activeBriefSignal;
+    
+    private FutureCallback<Void> deactivationCallback;
 
     public NotificationCenterContext(MgcpEndpoint endpoint) {
         this.endpoint = endpoint;
@@ -126,6 +130,14 @@ public class NotificationCenterContext {
         this.activeBriefSignal = activeBriefSignal;
     }
     
+    public FutureCallback<Void> getDeactivationCallback() {
+        return deactivationCallback;
+    }
+
+    public void setDeactivationCallback(FutureCallback<Void> callback) {
+        this.deactivationCallback = callback;
+    }
+    
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
@@ -136,5 +148,5 @@ public class NotificationCenterContext {
         builder.append("Requested TO Signals: ").append(Arrays.toString(this.timeoutSignals.toArray())).append(System.lineSeparator());
         return builder.toString();
     }
-
+    
 }

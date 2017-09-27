@@ -21,16 +21,40 @@
 
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
-import org.restcomm.media.control.mgcp.signal.BriefSignal;
+import com.google.common.util.concurrent.FutureCallback;
 
 /**
+ * Executes requested signals.
+ * 
+ * Input parameters:
+ * <ul>
+ * <li>n/a</li>
+ * </ul>
+ * </p>
+ * <p>
+ * Output parameters:
+ * <ul>
+ * <li>n/a</li>
+ * </ul>
+ * </p>
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class BriefSignalCancellationCallback extends SignalCancellationCallback<Void> {
+class NotifyDeactivationCallbackAction extends NotificationCenterAction {
+    
+    static final NotifyDeactivationCallbackAction INSTANCE = new NotifyDeactivationCallbackAction();
 
-    public BriefSignalCancellationCallback(BriefSignal signal, NotificationCenterFsm fsm) {
-        super(signal, fsm);
+    NotifyDeactivationCallbackAction() {
+        super();
+    }
+
+    @Override
+    public void execute(NotificationCenterState from, NotificationCenterState to, NotificationCenterEvent event, NotificationCenterTransitionContext context, NotificationCenterFsm stateMachine) {
+        final NotificationCenterContext globalContext = stateMachine.getContext();
+        final FutureCallback<Void> callback = globalContext.getDeactivationCallback();
+        
+        callback.onSuccess(null);
     }
 
 }
