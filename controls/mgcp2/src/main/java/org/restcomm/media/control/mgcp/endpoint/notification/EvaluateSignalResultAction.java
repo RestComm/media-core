@@ -50,7 +50,7 @@ import com.google.common.util.concurrent.FutureCallback;
  */
 class EvaluateSignalResultAction extends NotificationCenterAction {
 
-    static final EvaluateSignalResultActionTest INSTANCE = new EvaluateSignalResultActionTest();
+    static final EvaluateSignalResultAction INSTANCE = new EvaluateSignalResultAction();
 
     EvaluateSignalResultAction() {
         super();

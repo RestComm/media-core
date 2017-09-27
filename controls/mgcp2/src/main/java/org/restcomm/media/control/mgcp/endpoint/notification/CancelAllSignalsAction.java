@@ -31,11 +31,11 @@ import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-class CancelSignalsAction extends NotificationCenterAction {
+class CancelAllSignalsAction extends NotificationCenterAction {
 
-    static final CancelSignalsAction INSTANCE = new CancelSignalsAction();
+    static final CancelAllSignalsAction INSTANCE = new CancelAllSignalsAction();
 
-    public CancelSignalsAction() {
+    public CancelAllSignalsAction() {
         super();
     }
 
