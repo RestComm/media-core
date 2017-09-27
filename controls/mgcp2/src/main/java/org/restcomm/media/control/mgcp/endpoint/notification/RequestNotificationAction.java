@@ -99,7 +99,7 @@ class RequestNotificationAction extends NotificationCenterAction {
             }
         }
 
-        globalContext.setBriefSignals(briefSignals.toArray(new BriefSignal[briefSignals.size()]));
+        globalContext.setPendingBriefSignals(briefSignals.toArray(new BriefSignal[briefSignals.size()]));
         globalContext.setTimeoutSignals(timeoutSignals.toArray(new TimeoutSignal[timeoutSignals.size()]));
 
         // Log action

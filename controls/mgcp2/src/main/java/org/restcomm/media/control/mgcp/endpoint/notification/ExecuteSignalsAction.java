@@ -59,7 +59,7 @@ class ExecuteSignalsAction extends NotificationCenterAction {
     @Override
     public void execute(NotificationCenterState from, NotificationCenterState to, NotificationCenterEvent event, NotificationCenterTransitionContext context, NotificationCenterFsm stateMachine) {
         final NotificationCenterContext globalContext = stateMachine.getContext();
-        final Queue<BriefSignal> briefSignals = globalContext.getBriefSignals();
+        final Queue<BriefSignal> briefSignals = globalContext.getPendingBriefSignals();
         final List<TimeoutSignal> timeoutSignals = globalContext.getTimeoutSignals();
 
         // Execute all timeout signals in parallel
@@ -76,6 +76,8 @@ class ExecuteSignalsAction extends NotificationCenterAction {
         if (!briefSignals.isEmpty()) {
             final BriefSignal signal = briefSignals.poll();
             final BriefSignalExecutionCallback callback = new BriefSignalExecutionCallback(signal, stateMachine);
+            
+            globalContext.setActiveBriefSignal(signal);
             signal.execute(callback);
             
             if(log.isDebugEnabled()) {

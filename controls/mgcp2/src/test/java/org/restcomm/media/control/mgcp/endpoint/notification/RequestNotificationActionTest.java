@@ -50,7 +50,7 @@ public class RequestNotificationActionTest {
     @Test
     public void testRequestNotification() {
         // given
-        final int requestId = 12345;
+        final String requestId = "12345";
         final NotifiedEntity notifiedEntity = new NotifiedEntity("restcomm", "127.0.0.1", 2727);
         final MgcpRequestedEvent requestedEvent1 = mock(MgcpRequestedEvent.class);
         final MgcpRequestedEvent requestedEvent2 = mock(MgcpRequestedEvent.class);
@@ -90,7 +90,7 @@ public class RequestNotificationActionTest {
         verify(context).setNotifiedEntity(notifiedEntity);
         verify(context).setRequestedEvents(eventCaptor.capture());
         verify(context).setTimeoutSignals(timeoutSignalCaptor.capture());
-        verify(context).setBriefSignals(briefSignalCaptor.capture());
+        verify(context).setPendingBriefSignals(briefSignalCaptor.capture());
         
         final MgcpRequestedEvent[] events = eventCaptor.getValue();
         assertEquals(2, events.length);

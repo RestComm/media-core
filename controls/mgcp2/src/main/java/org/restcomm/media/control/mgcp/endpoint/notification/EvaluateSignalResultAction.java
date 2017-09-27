@@ -50,7 +50,7 @@ import com.google.common.util.concurrent.FutureCallback;
  */
 class EvaluateSignalResultAction extends NotificationCenterAction {
 
-    static final EvaluateSignalResultAction INSTANCE = new EvaluateSignalResultAction();
+    static final EvaluateSignalResultActionTest INSTANCE = new EvaluateSignalResultActionTest();
 
     EvaluateSignalResultAction() {
         super();
@@ -60,7 +60,7 @@ class EvaluateSignalResultAction extends NotificationCenterAction {
     public void execute(NotificationCenterState from, NotificationCenterState to, NotificationCenterEvent event, NotificationCenterTransitionContext context, NotificationCenterFsm stateMachine) {
         final NotificationCenterContext globalContext = stateMachine.getContext();
         final List<TimeoutSignal> timeoutSignals = globalContext.getTimeoutSignals();
-        final Queue<BriefSignal> briefSignals = globalContext.getBriefSignals();
+        final Queue<BriefSignal> briefSignals = globalContext.getPendingBriefSignals();
         final MgcpSignal<?> signal = context.get(NotificationCenterTransitionParameter.SIGNAL, MgcpSignal.class);
         final MgcpEvent mgcpEvent = context.get(NotificationCenterTransitionParameter.SIGNAL_RESULT, MgcpEvent.class);
 
@@ -93,8 +93,11 @@ class EvaluateSignalResultAction extends NotificationCenterAction {
                 // Raise event on Endpoint to send NTFY to Notified Entity
                 globalContext.getEndpoint().onEvent(this, mgcpEvent);
                 
-                // Move to IDLE state since there are no active signals
-                stateMachine.fire(NotificationCenterEvent.ALL_SIGNALS_COMPLETED, context);
+                final BriefSignal activeBriefSignal = globalContext.getActiveBriefSignal();
+                if(activeBriefSignal == null) {
+                    // Move to IDLE state since there are no active signals
+                    stateMachine.fire(NotificationCenterEvent.ALL_SIGNALS_COMPLETED, context);
+                }
             } else {
                 // If no requested event is raised, then allow remaining signals to continue execution.
             }

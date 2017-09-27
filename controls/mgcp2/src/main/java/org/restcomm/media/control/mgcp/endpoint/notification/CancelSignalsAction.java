@@ -44,7 +44,7 @@ class CancelSignalsAction extends NotificationCenterAction {
         final NotificationCenterContext globalContext = stateMachine.getContext();
         
         // Cancel pending brief signals
-        final Queue<BriefSignal> briefSignals = globalContext.getBriefSignals();
+        final Queue<BriefSignal> briefSignals = globalContext.getPendingBriefSignals();
         briefSignals.clear();
 
         // Cancel active timeout signals

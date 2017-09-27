@@ -48,7 +48,8 @@ public class NotificationCenterContext {
     private NotifiedEntity notifiedEntity;
     private final List<MgcpRequestedEvent> requestedEvents;
     private final List<TimeoutSignal> timeoutSignals;
-    private final Queue<BriefSignal> briefSignals;
+    private final Queue<BriefSignal> pendingBriefSignals;
+    private BriefSignal activeBriefSignal;
 
     public NotificationCenterContext(MgcpEndpoint endpoint) {
         this.endpoint = endpoint;
@@ -57,7 +58,8 @@ public class NotificationCenterContext {
         this.notifiedEntity = DEFAULT_NOTIFIED_ENTITY;
         this.requestedEvents = new ArrayList<>(5);
         this.timeoutSignals = new ArrayList<>(5);
-        this.briefSignals = new ArrayDeque<>(5);
+        this.pendingBriefSignals = new ArrayDeque<>(5);
+        this.activeBriefSignal = null;
     }
     
     public MgcpEndpoint getEndpoint() {
@@ -107,13 +109,21 @@ public class NotificationCenterContext {
         Collections.addAll(this.timeoutSignals, signals);
     }
 
-    protected Queue<BriefSignal> getBriefSignals() {
-        return briefSignals;
+    protected Queue<BriefSignal> getPendingBriefSignals() {
+        return pendingBriefSignals;
     }
 
-    protected void setBriefSignals(BriefSignal[] signals) {
-        this.briefSignals.clear();
-        Collections.addAll(this.briefSignals, signals);
+    protected void setPendingBriefSignals(BriefSignal[] signals) {
+        this.pendingBriefSignals.clear();
+        Collections.addAll(this.pendingBriefSignals, signals);
+    }
+    
+    public BriefSignal getActiveBriefSignal() {
+        return activeBriefSignal;
+    }
+    
+    public void setActiveBriefSignal(BriefSignal activeBriefSignal) {
+        this.activeBriefSignal = activeBriefSignal;
     }
     
     @Override
@@ -122,7 +132,7 @@ public class NotificationCenterContext {
         builder.append("Request Identifier: ").append(this.requestId).append(System.lineSeparator());
         builder.append("Notified Entity: ").append(this.notifiedEntity).append(System.lineSeparator());
         builder.append("Requested Events: ").append(Arrays.toString(this.requestedEvents.toArray())).append(System.lineSeparator());
-        builder.append("Requested BR Signals: ").append(Arrays.toString(this.briefSignals.toArray())).append(System.lineSeparator());
+        builder.append("Requested BR Signals: ").append(Arrays.toString(this.pendingBriefSignals.toArray())).append(System.lineSeparator());
         builder.append("Requested TO Signals: ").append(Arrays.toString(this.timeoutSignals.toArray())).append(System.lineSeparator());
         return builder.toString();
     }

@@ -37,7 +37,7 @@ import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class ExecuteSignalsActionTest {
+public class EvaluateSignalResultActionTest {
 
     @Test
     public void testExecuteSignals() {
@@ -64,7 +64,7 @@ public class ExecuteSignalsActionTest {
         context.setPendingBriefSignals(briefSignals);
 
         // when
-        final ExecuteSignalsAction action = new ExecuteSignalsAction();
+        final EvaluateSignalResultAction action = new EvaluateSignalResultAction();
         final NotificationCenterTransitionContext txContext = new NotificationCenterTransitionContext();
         action.execute(IDLE, ACTIVE, NOTIFICATION_REQUEST, txContext, stateMachine);
 

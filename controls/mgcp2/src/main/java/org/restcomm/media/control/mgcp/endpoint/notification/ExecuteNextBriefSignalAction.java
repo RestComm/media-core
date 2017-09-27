@@ -45,10 +45,13 @@ class ExecuteNextBriefSignalAction extends NotificationCenterAction {
     public void execute(NotificationCenterState from, NotificationCenterState to, NotificationCenterEvent event, NotificationCenterTransitionContext context, NotificationCenterFsm stateMachine) {
         final NotificationCenterContext globalContext = stateMachine.getContext();
         final List<TimeoutSignal> timeoutSignals = globalContext.getTimeoutSignals();
-        final Queue<BriefSignal> briefSignals = globalContext.getBriefSignals();
-
+        final Queue<BriefSignal> briefSignals = globalContext.getPendingBriefSignals();
+        
         // Check if there is any pending BR signal
         final BriefSignal signal = briefSignals.poll();
+
+        // Update active brief signal
+        globalContext.setActiveBriefSignal(signal);
 
         if(signal != null) {
             // Execute next pending BR signal
