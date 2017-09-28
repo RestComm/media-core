@@ -199,6 +199,72 @@ public class NotificationCenterTest {
         // then
         assertNull(context.getActiveBriefSignal());
         verify(shutdownCallback).onSuccess(null);
+        assertEquals(NotificationCenterState.DEACTIVATED, fsm.getCurrentState());
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testDeactivationWhileSignalTerminatesExecution() {
+        // given
+        final int transactionId = 12345;
+        final String requestId = "555";
+        final NotifiedEntity notifiedEntity = new NotifiedEntity();
+        
+        final MgcpRequestedEvent requestedEvent1 = new MgcpRequestedEvent(requestId, "AU", "oc", MgcpActionType.NOTIFY);
+        final MgcpRequestedEvent requestedEvent2 = new MgcpRequestedEvent(requestId, "AU", "of", MgcpActionType.NOTIFY);
+        final MgcpRequestedEvent[] requestedEvents = new MgcpRequestedEvent[] { requestedEvent1, requestedEvent2 };
+        
+        final TimeoutSignal timeoutSignal1 = mock(TimeoutSignal.class);
+        final TimeoutSignal timeoutSignal2 = mock(TimeoutSignal.class);
+        final TimeoutSignal timeoutSignal3 = mock(TimeoutSignal.class);
+        final MgcpSignal<?>[] requestedSignals = new MgcpSignal[] { timeoutSignal1, timeoutSignal2, timeoutSignal3 };
+        
+        final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
+        final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/mock/1", "127.0.0.1:2427");
+        when(endpoint.getEndpointId()).thenReturn(endpointId);
+        
+        final NotificationCenterContext context = new NotificationCenterContext(endpoint);
+        this.fsm = NotificationCenterFsmBuilder.INSTANCE.build(context);
+        final NotificationCenterImpl notificationCenter = new NotificationCenterImpl(this.fsm);
+        
+        // when - submit rqnt, wait for callback and then shutdown
+        final FutureCallback<Void> rqntCallback = mock(FutureCallback.class);
+        final NotificationRequest rqnt = new NotificationRequest(transactionId, requestId, notifiedEntity, requestedEvents, requestedSignals);
+        
+        notificationCenter.requestNotification(rqnt, rqntCallback);
+        verify(rqntCallback, timeout(50)).onSuccess(null);
+        
+        final FutureCallback<Void> shutdownCallback = mock(FutureCallback.class);
+        notificationCenter.shutdown(shutdownCallback);
+        
+        // then
+        ArgumentCaptor<TimeoutSignalExecutionCallback> timeoutExecutionCallback = ArgumentCaptor.forClass(TimeoutSignalExecutionCallback.class);
+        ArgumentCaptor<TimeoutSignalCancellationCallback> timeoutCancelCallback1 = ArgumentCaptor.forClass(TimeoutSignalCancellationCallback.class);
+        ArgumentCaptor<TimeoutSignalCancellationCallback> timeoutCancelCallback2 = ArgumentCaptor.forClass(TimeoutSignalCancellationCallback.class);
+        ArgumentCaptor<TimeoutSignalCancellationCallback> timeoutCancelCallback3 = ArgumentCaptor.forClass(TimeoutSignalCancellationCallback.class);
+        
+        verify(timeoutSignal1).execute(timeoutExecutionCallback.capture());
+        
+        verify(timeoutSignal1).cancel(timeoutCancelCallback1.capture());
+        verify(timeoutSignal2).cancel(timeoutCancelCallback2.capture());
+        verify(timeoutSignal3).cancel(timeoutCancelCallback3.capture());
+        assertEquals(3, context.getTimeoutSignals().size());
+        
+        // when - TO signals terminated
+        final MgcpEvent event = mock(MgcpEvent.class);
+        when(event.getPackage()).thenReturn("AU");
+        when(event.getSymbol()).thenReturn("oc");
+        
+        timeoutExecutionCallback.getValue().onSuccess(event);
+        timeoutCancelCallback1.getValue().onFailure(new Exception("testing purposes"));
+        timeoutCancelCallback2.getValue().onSuccess(event);
+        timeoutCancelCallback3.getValue().onSuccess(event);
+        
+        // then
+        assertTrue(context.getTimeoutSignals().isEmpty());
+        verify(endpoint, never()).onEvent(any(), eq(event));
+        verify(shutdownCallback).onSuccess(null);
+        assertEquals(NotificationCenterState.DEACTIVATED, fsm.getCurrentState());
     }
 
 }
