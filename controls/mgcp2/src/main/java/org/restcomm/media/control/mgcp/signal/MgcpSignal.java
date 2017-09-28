@@ -44,5 +44,8 @@ import com.google.common.util.concurrent.FutureCallback;
 public interface MgcpSignal<T> {
 
     void execute(FutureCallback<T> callback);
+    
+    @Override
+    boolean equals(Object obj);
 
 }

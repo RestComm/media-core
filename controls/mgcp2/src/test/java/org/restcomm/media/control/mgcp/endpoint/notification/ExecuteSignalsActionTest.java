@@ -27,6 +27,8 @@ import static org.restcomm.media.control.mgcp.endpoint.notification.Notification
 import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterState.ACTIVE;
 import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterState.IDLE;
 
+import java.util.Collections;
+
 import org.junit.Test;
 import org.restcomm.media.control.mgcp.endpoint.EndpointIdentifier;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpoint;
@@ -60,8 +62,8 @@ public class ExecuteSignalsActionTest {
         final NotificationCenterFsm stateMachine = mock(NotificationCenterFsm.class);
         when(stateMachine.getContext()).thenReturn(context);
         
-        context.setTimeoutSignals(timeoutSignals);
-        context.setPendingBriefSignals(briefSignals);
+        Collections.addAll(context.getTimeoutSignals(), timeoutSignals);
+        Collections.addAll(context.getPendingBriefSignals(), briefSignals);
 
         // when
         final ExecuteSignalsAction action = new ExecuteSignalsAction();

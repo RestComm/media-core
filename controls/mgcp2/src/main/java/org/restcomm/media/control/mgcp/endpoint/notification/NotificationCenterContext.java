@@ -108,20 +108,10 @@ public class NotificationCenterContext {
         return timeoutSignals;
     }
 
-    protected void setTimeoutSignals(TimeoutSignal[] signals) {
-        this.timeoutSignals.clear();
-        Collections.addAll(this.timeoutSignals, signals);
-    }
-
     protected Queue<BriefSignal> getPendingBriefSignals() {
         return pendingBriefSignals;
     }
 
-    protected void setPendingBriefSignals(BriefSignal[] signals) {
-        this.pendingBriefSignals.clear();
-        Collections.addAll(this.pendingBriefSignals, signals);
-    }
-    
     public BriefSignal getActiveBriefSignal() {
         return activeBriefSignal;
     }

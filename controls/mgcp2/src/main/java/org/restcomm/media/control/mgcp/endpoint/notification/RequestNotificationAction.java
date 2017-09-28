@@ -28,6 +28,7 @@ import static org.restcomm.media.control.mgcp.endpoint.notification.Notification
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 
 import org.apache.log4j.Logger;
 import org.restcomm.media.control.mgcp.command.param.NotifiedEntity;
@@ -69,11 +70,12 @@ class RequestNotificationAction extends NotificationCenterAction {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void execute(NotificationCenterState from, NotificationCenterState to, NotificationCenterEvent event, NotificationCenterTransitionContext context, NotificationCenterFsm stateMachine) {
         final NotificationCenterContext globalContext = stateMachine.getContext();
         final NotifiedEntity notifiedEntity = context.get(NOTIFIED_ENTITY, NotifiedEntity.class);
         final MgcpRequestedEvent[] events = context.get(REQUESTED_EVENTS, MgcpRequestedEvent[].class);
-        final MgcpSignal<?>[] signals = context.get(REQUESTED_SIGNALS, MgcpSignal[].class);
+        final List<MgcpSignal<?>> signals = context.get(REQUESTED_SIGNALS, List.class);
         final String requestId = context.get(REQUEST_IDENTIFIER, String.class);
 
         // Update Request ID
@@ -88,8 +90,8 @@ class RequestNotificationAction extends NotificationCenterAction {
         globalContext.setRequestedEvents(events);
 
         // Update Requested Signals. Will be cleaned if no signals are requested.
-        List<TimeoutSignal> timeoutSignals = new ArrayList<>(signals.length);
-        List<BriefSignal> briefSignals = new ArrayList<>(signals.length);
+        List<TimeoutSignal> timeoutSignals = new ArrayList<>(signals.size());
+        List<BriefSignal> briefSignals = new ArrayList<>(signals.size());
 
         for (MgcpSignal<?> signal : signals) {
             if (signal instanceof TimeoutSignal) {
@@ -99,8 +101,13 @@ class RequestNotificationAction extends NotificationCenterAction {
             }
         }
 
-        globalContext.setPendingBriefSignals(briefSignals.toArray(new BriefSignal[briefSignals.size()]));
-        globalContext.setTimeoutSignals(timeoutSignals.toArray(new TimeoutSignal[timeoutSignals.size()]));
+        final Queue<BriefSignal> pendingBriefSignals = globalContext.getPendingBriefSignals();
+        pendingBriefSignals.clear();
+        pendingBriefSignals.addAll(briefSignals);
+
+        final List<TimeoutSignal> activeTimeoutSignals = globalContext.getTimeoutSignals();
+        activeTimeoutSignals.clear();
+        activeTimeoutSignals.addAll(timeoutSignals);
 
         // Log action
         logAction(globalContext);

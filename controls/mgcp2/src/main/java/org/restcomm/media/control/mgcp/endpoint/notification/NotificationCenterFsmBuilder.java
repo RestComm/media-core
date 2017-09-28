@@ -43,18 +43,19 @@ public class NotificationCenterFsmBuilder {
     NotificationCenterFsmBuilder() {
         this.builder = StateMachineBuilderFactory.<NotificationCenterFsm, NotificationCenterState, NotificationCenterEvent, NotificationCenterTransitionContext> create(NotificationCenterFsmImpl.class, NotificationCenterState.class, NotificationCenterEvent.class, NotificationCenterTransitionContext.class, NotificationCenterContext.class);
 
-        final List<NotificationCenterAction> rqntActions = Arrays.asList(RequestNotificationAction.INSTANCE, ExecuteSignalsAction.INSTANCE, NotifyCallbackAction.INSTANCE);
+        final List<NotificationCenterAction> rqntActionsIdle = Arrays.asList(RequestNotificationAction.INSTANCE, ExecuteSignalsAction.INSTANCE, NotifyCallbackAction.INSTANCE);
+        final List<NotificationCenterAction> rqntActionsActive = Arrays.asList(RequestNotificationAction.INSTANCE, ExecuteSignalsAction.INSTANCE, NotifyCallbackAction.INSTANCE);
         final List<NotificationCenterAction> deactivationActions = Arrays.asList(PersistDeactivationCallbackAction.INSTANCE, CancelAllSignalsAction.INSTANCE);
         
         this.builder.onEntry(IDLE);
-        this.builder.internalTransition().within(IDLE).on(NOTIFICATION_REQUEST).when(NoRequestedSignalsCondition.INSTANCE).perform(rqntActions);
-        this.builder.transition().from(IDLE).to(ACTIVE).on(NOTIFICATION_REQUEST).when(HasRequestedSignalsCondition.INSTANCE).perform(rqntActions);
+        this.builder.internalTransition().within(IDLE).on(NOTIFICATION_REQUEST).when(NoRequestedSignalsCondition.INSTANCE).perform(rqntActionsIdle);
+        this.builder.transition().from(IDLE).to(ACTIVE).on(NOTIFICATION_REQUEST).when(HasRequestedSignalsCondition.INSTANCE).perform(rqntActionsIdle);
         this.builder.transition().from(IDLE).toFinal(DEACTIVATED).on(STOP);
         
         this.builder.onEntry(ACTIVE);
-        this.builder.transition().from(ACTIVE).to(IDLE).on(NOTIFICATION_REQUEST).when(NoRequestedSignalsCondition.INSTANCE).perform(rqntActions);
+        this.builder.transition().from(ACTIVE).to(IDLE).on(NOTIFICATION_REQUEST).when(NoRequestedSignalsCondition.INSTANCE).perform(rqntActionsActive);
         this.builder.transition().from(ACTIVE).to(IDLE).on(ALL_SIGNALS_COMPLETED);
-        this.builder.internalTransition().within(ACTIVE).on(NOTIFICATION_REQUEST).when(HasRequestedSignalsCondition.INSTANCE).perform(rqntActions);
+        this.builder.internalTransition().within(ACTIVE).on(NOTIFICATION_REQUEST).when(HasRequestedSignalsCondition.INSTANCE).perform(rqntActionsActive);
         this.builder.internalTransition().within(ACTIVE).on(SIGNAL_EXECUTED).when(IsBriefSignalCondition.INSTANCE).perform(ExecuteNextBriefSignalAction.INSTANCE);
         this.builder.internalTransition().within(ACTIVE).on(SIGNAL_EXECUTED).when(IsTimeoutSignalCondition.INSTANCE).perform(EvaluateSignalResultAction.INSTANCE);
         this.builder.transition().from(ACTIVE).to(DEACTIVATING).on(STOP);

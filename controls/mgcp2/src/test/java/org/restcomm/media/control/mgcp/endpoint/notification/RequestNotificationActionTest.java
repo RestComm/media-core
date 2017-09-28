@@ -21,17 +21,24 @@
 
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterEvent.NOTIFICATION_REQUEST;
+import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterState.ACTIVE;
+import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterState.IDLE;
+import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterTransitionParameter.NOTIFIED_ENTITY;
+import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterTransitionParameter.REQUESTED_EVENTS;
+import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterTransitionParameter.REQUESTED_SIGNALS;
+import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterTransitionParameter.REQUEST_IDENTIFIER;
 
-import static org.junit.Assert.*;
-
-import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterTransitionParameter.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Queue;
 
 import org.junit.Test;
-
-import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterEvent.*;
-import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterState.*;
-
 import org.mockito.ArgumentCaptor;
 import org.restcomm.media.control.mgcp.command.param.NotifiedEntity;
 import org.restcomm.media.control.mgcp.endpoint.EndpointIdentifier;
@@ -61,7 +68,7 @@ public class RequestNotificationActionTest {
         final BriefSignal briefSignal1 = mock(BriefSignal.class);
         final BriefSignal briefSignal2 = mock(BriefSignal.class);
         final BriefSignal briefSignal3 = mock(BriefSignal.class);
-        final MgcpSignal<?>[] requestedSignals = new MgcpSignal[] { timeoutSignal1, briefSignal1, briefSignal2, timeoutSignal2, briefSignal3, timeoutSignal3 };
+        final List<MgcpSignal<?>> requestedSignals = Arrays.asList(timeoutSignal1, briefSignal1, briefSignal2, timeoutSignal2, briefSignal3, timeoutSignal3);
 
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/mock/1", "127.0.0.1:2427");
@@ -83,31 +90,27 @@ public class RequestNotificationActionTest {
 
         // then
         ArgumentCaptor<MgcpRequestedEvent[]> eventCaptor = ArgumentCaptor.forClass(MgcpRequestedEvent[].class);
-        ArgumentCaptor<TimeoutSignal[]> timeoutSignalCaptor = ArgumentCaptor.forClass(TimeoutSignal[].class);
-        ArgumentCaptor<BriefSignal[]> briefSignalCaptor = ArgumentCaptor.forClass(BriefSignal[].class);
 
         verify(context).setRequestId(requestId);
         verify(context).setNotifiedEntity(notifiedEntity);
         verify(context).setRequestedEvents(eventCaptor.capture());
-        verify(context).setTimeoutSignals(timeoutSignalCaptor.capture());
-        verify(context).setPendingBriefSignals(briefSignalCaptor.capture());
         
         final MgcpRequestedEvent[] events = eventCaptor.getValue();
         assertEquals(2, events.length);
         assertEquals(requestedEvent1, events[0]);
         assertEquals(requestedEvent2, events[1]);
 
-        final TimeoutSignal[] timeoutSignals = timeoutSignalCaptor.getValue();
-        assertEquals(3, timeoutSignals.length);
-        assertEquals(timeoutSignal1, timeoutSignals[0]);
-        assertEquals(timeoutSignal2, timeoutSignals[1]);
-        assertEquals(timeoutSignal3, timeoutSignals[2]);
+        final List<TimeoutSignal> timeoutSignals = context.getTimeoutSignals();
+        assertEquals(3, timeoutSignals.size());
+        assertEquals(timeoutSignal1, timeoutSignals.get(0));
+        assertEquals(timeoutSignal2, timeoutSignals.get(1));
+        assertEquals(timeoutSignal3, timeoutSignals.get(2));
 
-        final BriefSignal[] briefSignals = briefSignalCaptor.getValue();
-        assertEquals(3, briefSignals.length);
-        assertEquals(briefSignal1, briefSignals[0]);
-        assertEquals(briefSignal2, briefSignals[1]);
-        assertEquals(briefSignal3, briefSignals[2]);
+        final Queue<BriefSignal> briefSignals = context.getPendingBriefSignals();
+        assertEquals(3, briefSignals.size());
+        assertEquals(briefSignal1, briefSignals.poll());
+        assertEquals(briefSignal2, briefSignals.poll());
+        assertEquals(briefSignal3, briefSignals.poll());
     }
 
 }

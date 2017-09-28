@@ -21,7 +21,7 @@
 
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
-import org.restcomm.media.control.mgcp.signal.MgcpSignal;
+import java.util.List;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -37,8 +37,8 @@ class NoRequestedSignalsCondition extends NotificationCenterCondition {
 
     @Override
     public boolean isSatisfied(NotificationCenterTransitionContext context) {
-        MgcpSignal<?>[] signals = context.get(NotificationCenterTransitionParameter.REQUESTED_SIGNALS, MgcpSignal[].class);
-        return (signals == null || signals.length == 0);
+        List<?> signals = context.get(NotificationCenterTransitionParameter.REQUESTED_SIGNALS, List.class);
+        return (signals == null || signals.isEmpty());
     }
 
 }

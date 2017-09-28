@@ -27,6 +27,8 @@ import static org.restcomm.media.control.mgcp.endpoint.notification.Notification
 import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterState.ACTIVE;
 import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterState.IDLE;
 
+import java.util.Collections;
+
 import static org.junit.Assert.*;
 
 import org.junit.Test;
@@ -76,9 +78,9 @@ public class EvaluateSignalResultActionTest {
         when(stateMachine.getContext()).thenReturn(context);
 
         context.setRequestedEvents(requestedEvents);
-        context.setTimeoutSignals(timeoutSignals);
+        Collections.addAll(context.getTimeoutSignals(), timeoutSignals);
+        Collections.addAll(context.getPendingBriefSignals(), briefSignals);
         context.setActiveBriefSignal(activeBriefSignal);
-        context.setPendingBriefSignals(briefSignals);
 
         // when
         final NotificationCenterTransitionContext txContext = new NotificationCenterTransitionContext();
@@ -132,9 +134,9 @@ public class EvaluateSignalResultActionTest {
         when(stateMachine.getContext()).thenReturn(context);
         
         context.setRequestedEvents(requestedEvents);
-        context.setTimeoutSignals(timeoutSignals);
+        Collections.addAll(context.getTimeoutSignals(), timeoutSignals);
+        Collections.addAll(context.getPendingBriefSignals(), briefSignals);
         context.setActiveBriefSignal(null);
-        context.setPendingBriefSignals(briefSignals);
         
         // when
         final NotificationCenterTransitionContext txContext = new NotificationCenterTransitionContext();
@@ -185,9 +187,9 @@ public class EvaluateSignalResultActionTest {
         when(stateMachine.getContext()).thenReturn(context);
 
         context.setRequestedEvents(requestedEvents);
-        context.setTimeoutSignals(timeoutSignals);
+        Collections.addAll(context.getTimeoutSignals(), timeoutSignals);
+        Collections.addAll(context.getPendingBriefSignals(), briefSignals);
         context.setActiveBriefSignal(activeBriefSignal);
-        context.setPendingBriefSignals(briefSignals);
 
         // when
         final NotificationCenterTransitionContext txContext = new NotificationCenterTransitionContext();
@@ -237,9 +239,9 @@ public class EvaluateSignalResultActionTest {
         when(stateMachine.getContext()).thenReturn(context);
         
         context.setRequestedEvents(requestedEvents);
-        context.setTimeoutSignals(timeoutSignals);
+        Collections.addAll(context.getTimeoutSignals(), timeoutSignals);
+        Collections.addAll(context.getPendingBriefSignals(), briefSignals);
         context.setActiveBriefSignal(null);
-        context.setPendingBriefSignals(briefSignals);
         
         // when
         final NotificationCenterTransitionContext txContext = new NotificationCenterTransitionContext();
@@ -286,9 +288,9 @@ public class EvaluateSignalResultActionTest {
         when(stateMachine.getContext()).thenReturn(context);
         
         context.setRequestedEvents(requestedEvents);
-        context.setTimeoutSignals(timeoutSignals);
+        Collections.addAll(context.getTimeoutSignals(), timeoutSignals);
+        Collections.addAll(context.getPendingBriefSignals(), briefSignals);
         context.setActiveBriefSignal(briefSignal1);
-        context.setPendingBriefSignals(briefSignals);
         
         // when
         final NotificationCenterTransitionContext txContext = new NotificationCenterTransitionContext();

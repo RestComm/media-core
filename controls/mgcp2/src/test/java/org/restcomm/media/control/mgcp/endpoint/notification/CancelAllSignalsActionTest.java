@@ -21,12 +21,18 @@
 
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
-import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterEvent.*;
-import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterState.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterEvent.STOP;
+import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterState.ACTIVE;
+import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterState.IDLE;
 
-import static org.junit.Assert.*;
+import java.util.Collections;
 
 import org.junit.Test;
 import org.restcomm.media.control.mgcp.endpoint.EndpointIdentifier;
@@ -61,8 +67,8 @@ public class CancelAllSignalsActionTest {
         final NotificationCenterFsm stateMachine = mock(NotificationCenterFsm.class);
         when(stateMachine.getContext()).thenReturn(context);
         
-        context.setTimeoutSignals(timeoutSignals);
-        context.setPendingBriefSignals(briefSignals);
+        Collections.addAll(context.getTimeoutSignals(), timeoutSignals);
+        Collections.addAll(context.getPendingBriefSignals(), briefSignals);
         context.setActiveBriefSignal(briefSignal1);
 
         // when

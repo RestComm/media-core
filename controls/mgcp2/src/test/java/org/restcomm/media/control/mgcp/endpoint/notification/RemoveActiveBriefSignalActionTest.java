@@ -26,6 +26,8 @@ import static org.mockito.Mockito.*;
 import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterEvent.*;
 import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterState.*;
 
+import java.util.Collections;
+
 import static org.junit.Assert.*;
 
 import org.junit.Test;
@@ -66,9 +68,9 @@ public class RemoveActiveBriefSignalActionTest {
         when(stateMachine.getContext()).thenReturn(context);
         
         context.setRequestedEvents(requestedEvents);
-        context.setTimeoutSignals(timeoutSignals);
+        Collections.addAll(context.getTimeoutSignals(), timeoutSignals);
+        Collections.addAll(context.getPendingBriefSignals(), briefSignals);
         context.setActiveBriefSignal(briefSignal);
-        context.setPendingBriefSignals(briefSignals);
         
         // when
         final NotificationCenterTransitionContext txContext = new NotificationCenterTransitionContext();
@@ -106,9 +108,9 @@ public class RemoveActiveBriefSignalActionTest {
         when(stateMachine.getContext()).thenReturn(context);
         
         context.setRequestedEvents(requestedEvents);
-        context.setTimeoutSignals(timeoutSignals);
+        Collections.addAll(context.getTimeoutSignals(), timeoutSignals);
+        Collections.addAll(context.getPendingBriefSignals(), briefSignals);
         context.setActiveBriefSignal(briefSignal);
-        context.setPendingBriefSignals(briefSignals);
         
         // when
         final NotificationCenterTransitionContext txContext = new NotificationCenterTransitionContext();
