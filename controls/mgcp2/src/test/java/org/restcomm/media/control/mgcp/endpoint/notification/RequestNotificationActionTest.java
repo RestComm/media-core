@@ -21,7 +21,7 @@
 
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -37,6 +37,7 @@ import static org.restcomm.media.control.mgcp.endpoint.notification.Notification
 import java.util.Arrays;
 import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -100,11 +101,11 @@ public class RequestNotificationActionTest {
         assertEquals(requestedEvent1, events[0]);
         assertEquals(requestedEvent2, events[1]);
 
-        final List<TimeoutSignal> timeoutSignals = context.getTimeoutSignals();
+        final Set<TimeoutSignal> timeoutSignals = context.getTimeoutSignals();
         assertEquals(3, timeoutSignals.size());
-        assertEquals(timeoutSignal1, timeoutSignals.get(0));
-        assertEquals(timeoutSignal2, timeoutSignals.get(1));
-        assertEquals(timeoutSignal3, timeoutSignals.get(2));
+        assertTrue(timeoutSignals.contains(timeoutSignal1));
+        assertTrue(timeoutSignals.contains(timeoutSignal2));
+        assertTrue(timeoutSignals.contains(timeoutSignal3));
 
         final Queue<BriefSignal> briefSignals = context.getPendingBriefSignals();
         assertEquals(3, briefSignals.size());

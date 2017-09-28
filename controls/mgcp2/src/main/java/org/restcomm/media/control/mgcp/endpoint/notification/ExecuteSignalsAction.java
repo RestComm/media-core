@@ -21,8 +21,8 @@
 
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
-import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.restcomm.media.control.mgcp.signal.BriefSignal;
@@ -60,7 +60,7 @@ class ExecuteSignalsAction extends NotificationCenterAction {
     public void execute(NotificationCenterState from, NotificationCenterState to, NotificationCenterEvent event, NotificationCenterTransitionContext context, NotificationCenterFsm stateMachine) {
         final NotificationCenterContext globalContext = stateMachine.getContext();
         final Queue<BriefSignal> briefSignals = globalContext.getPendingBriefSignals();
-        final List<TimeoutSignal> timeoutSignals = globalContext.getTimeoutSignals();
+        final Set<TimeoutSignal> timeoutSignals = globalContext.getTimeoutSignals();
 
         // Execute all timeout signals in parallel
         for (TimeoutSignal signal : timeoutSignals) {

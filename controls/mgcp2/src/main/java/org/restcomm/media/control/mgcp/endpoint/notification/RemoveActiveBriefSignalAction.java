@@ -21,7 +21,7 @@
 
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
-import java.util.List;
+import java.util.Set;
 
 import org.restcomm.media.control.mgcp.signal.MgcpSignal;
 import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
@@ -54,7 +54,7 @@ class RemoveActiveBriefSignalAction extends NotificationCenterAction {
             globalContext.setActiveBriefSignal(null);
             
             // Move to next state when all signals are completed
-            final List<TimeoutSignal> timeoutSignals = globalContext.getTimeoutSignals();
+            final Set<TimeoutSignal> timeoutSignals = globalContext.getTimeoutSignals();
             if (timeoutSignals.isEmpty()) {
                 stateMachine.fire(NotificationCenterEvent.ALL_SIGNALS_COMPLETED, context);
             }

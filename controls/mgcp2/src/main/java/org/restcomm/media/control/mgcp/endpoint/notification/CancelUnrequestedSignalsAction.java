@@ -52,7 +52,7 @@ class CancelUnrequestedSignalsAction extends NotificationCenterAction {
     @Override
     public void execute(NotificationCenterState from, NotificationCenterState to, NotificationCenterEvent event, NotificationCenterTransitionContext context, NotificationCenterFsm stateMachine) {
         final NotificationCenterContext globalContext = stateMachine.getContext();
-        final TimeoutSignal[] unrequestedSignals = context.get(NotificationCenterTransitionParameter.UNREQUESTED_SIGNALS, TimeoutSignal[].class);
+        final TimeoutSignal[] unrequestedSignals = context.get(NotificationCenterTransitionParameter.UNREQUESTED_TIMEOUT_SIGNALS, TimeoutSignal[].class);
 
         // Cancel all pending BR signals
         globalContext.getPendingBriefSignals().clear();

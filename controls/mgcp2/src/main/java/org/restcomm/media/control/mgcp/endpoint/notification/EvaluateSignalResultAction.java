@@ -22,8 +22,8 @@
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
 import java.util.Iterator;
-import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 
 import org.restcomm.media.control.mgcp.pkg.MgcpEvent;
 import org.restcomm.media.control.mgcp.signal.BriefSignal;
@@ -59,7 +59,7 @@ class EvaluateSignalResultAction extends NotificationCenterAction {
     @Override
     public void execute(NotificationCenterState from, NotificationCenterState to, NotificationCenterEvent event, NotificationCenterTransitionContext context, NotificationCenterFsm stateMachine) {
         final NotificationCenterContext globalContext = stateMachine.getContext();
-        final List<TimeoutSignal> timeoutSignals = globalContext.getTimeoutSignals();
+        final Set<TimeoutSignal> timeoutSignals = globalContext.getTimeoutSignals();
         final Queue<BriefSignal> briefSignals = globalContext.getPendingBriefSignals();
         final MgcpSignal<?> signal = context.get(NotificationCenterTransitionParameter.SIGNAL, MgcpSignal.class);
         final MgcpEvent mgcpEvent = context.get(NotificationCenterTransitionParameter.SIGNAL_RESULT, MgcpEvent.class);

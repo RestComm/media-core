@@ -24,6 +24,7 @@ package org.restcomm.media.control.mgcp.endpoint.notification;
 import org.restcomm.media.control.mgcp.command.param.NotifiedEntity;
 import org.restcomm.media.control.mgcp.pkg.MgcpEvent;
 import org.restcomm.media.control.mgcp.pkg.MgcpRequestedEvent;
+import org.restcomm.media.control.mgcp.signal.BriefSignal;
 import org.restcomm.media.control.mgcp.signal.MgcpSignal;
 import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
 
@@ -39,7 +40,9 @@ public enum NotificationCenterTransitionParameter {
     NOTIFIED_ENTITY(NotifiedEntity.class),
     REQUESTED_EVENTS(MgcpRequestedEvent[].class),
     REQUESTED_SIGNALS(MgcpSignal[].class),
-    UNREQUESTED_SIGNALS(TimeoutSignal[].class),
+    REQUESTED_BRIEF_SIGNALS(BriefSignal[].class),
+    REQUESTED_TIMEOUT_SIGNALS(TimeoutSignal[].class),
+    UNREQUESTED_TIMEOUT_SIGNALS(TimeoutSignal[].class),
     PENDING_TIMEOUT_SIGNALS(TimeoutSignal[].class),
     SIGNAL_RESULT(MgcpEvent.class),
     SIGNAL(MgcpSignal.class),

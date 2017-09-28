@@ -29,6 +29,7 @@ import static org.restcomm.media.control.mgcp.endpoint.notification.Notification
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.restcomm.media.control.mgcp.command.param.NotifiedEntity;
@@ -105,7 +106,7 @@ class RequestNotificationAction extends NotificationCenterAction {
         pendingBriefSignals.clear();
         pendingBriefSignals.addAll(briefSignals);
 
-        final List<TimeoutSignal> activeTimeoutSignals = globalContext.getTimeoutSignals();
+        final Set<TimeoutSignal> activeTimeoutSignals = globalContext.getTimeoutSignals();
         activeTimeoutSignals.clear();
         activeTimeoutSignals.addAll(timeoutSignals);
 

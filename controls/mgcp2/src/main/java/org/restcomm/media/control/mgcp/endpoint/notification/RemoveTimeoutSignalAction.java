@@ -21,7 +21,7 @@
 
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
-import java.util.List;
+import java.util.Set;
 
 import org.restcomm.media.control.mgcp.signal.MgcpSignal;
 import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
@@ -50,7 +50,7 @@ class RemoveTimeoutSignalAction extends NotificationCenterAction {
         final MgcpSignal<?> signal = context.get(NotificationCenterTransitionParameter.SIGNAL, MgcpSignal.class);
 
         // Remove signal from list of active signals
-        final List<TimeoutSignal> activeSignals = globalContext.getTimeoutSignals();
+        final Set<TimeoutSignal> activeSignals = globalContext.getTimeoutSignals();
         final boolean removed = activeSignals.remove(signal);
 
         // Move to next state when all signals are completed
