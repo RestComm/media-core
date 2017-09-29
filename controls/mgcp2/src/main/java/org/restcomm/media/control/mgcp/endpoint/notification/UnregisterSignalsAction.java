@@ -21,22 +21,18 @@
 
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
-import java.util.Set;
-
-import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
-
 /**
- * Cancels all active signals that were not requested in a new RQNT.
+ * Unregisters all pending or active signals on the endpoint.
  * 
  * Input parameters:
  * <ul>
- * <li>UNREQUESTED_SIGNALS</li>
+ * <li>n/a</li>
  * </ul>
  * </p>
  * <p>
  * Output parameters:
  * <ul>
- * <li>UNREQUESTED_SIGNALS
+ * <li>n/a
  * <li>
  * </ul>
  * </p>
@@ -44,27 +40,23 @@ import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-class UnregisterUnrequestedSignalsAction extends NotificationCenterAction {
+class UnregisterSignalsAction extends NotificationCenterAction {
 
-    static final UnregisterUnrequestedSignalsAction INSTANCE = new UnregisterUnrequestedSignalsAction();
+    static final UnregisterSignalsAction INSTANCE = new UnregisterSignalsAction();
 
-    UnregisterUnrequestedSignalsAction() {
+    UnregisterSignalsAction() {
         super();
     }
 
     @Override
     public void execute(NotificationCenterState from, NotificationCenterState to, NotificationCenterEvent event, NotificationCenterTransitionContext context, NotificationCenterFsm stateMachine) {
         final NotificationCenterContext globalContext = stateMachine.getContext();
-        final Set<TimeoutSignal> timeoutSignals = globalContext.getTimeoutSignals();
-        final TimeoutSignal[] unrequestedSignals = context.get(NotificationCenterTransitionParameter.UNREQUESTED_TIMEOUT_SIGNALS, TimeoutSignal[].class);
 
-        // Cancel all pending BR signals
+        // Unregister all pending BR signals
         globalContext.getPendingBriefSignals().clear();
 
-        // Cancel all ongoing TO signals that are not listed in new request
-        for (TimeoutSignal unrequestedSignal : unrequestedSignals) {
-            timeoutSignals.remove(unrequestedSignal);
-        }
+        // Unregister all ongoing TO signals that are not listed in new request
+        globalContext.getTimeoutSignals().clear();;
     }
 
 }
