@@ -21,6 +21,8 @@
 
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
+import java.util.Set;
+
 import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
 
 /**
@@ -28,34 +30,31 @@ import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
  * 
  * Input parameters:
  * <ul>
- * <li>UNREQUESTED_SIGNALS</li>
+ * <li>UNREQUESTED_TIMEOUT_SIGNALS</li>
  * </ul>
  * </p>
  * <p>
  * Output parameters:
  * <ul>
- * <li>UNREQUESTED_SIGNALS<li>
+ * <li>n/a<li>
  * </ul>
  * </p>
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-class CancelUnrequestedSignalsAction extends NotificationCenterAction {
+class CancelUnrequestedTimeoutSignalsAction extends NotificationCenterAction {
 
-    static final CancelUnrequestedSignalsAction INSTANCE = new CancelUnrequestedSignalsAction();
+    static final CancelUnrequestedTimeoutSignalsAction INSTANCE = new CancelUnrequestedTimeoutSignalsAction();
 
-    CancelUnrequestedSignalsAction() {
+    CancelUnrequestedTimeoutSignalsAction() {
         super();
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void execute(NotificationCenterState from, NotificationCenterState to, NotificationCenterEvent event, NotificationCenterTransitionContext context, NotificationCenterFsm stateMachine) {
-        final NotificationCenterContext globalContext = stateMachine.getContext();
-        final TimeoutSignal[] unrequestedSignals = context.get(NotificationCenterTransitionParameter.UNREQUESTED_TIMEOUT_SIGNALS, TimeoutSignal[].class);
-
-        // Cancel all pending BR signals
-        globalContext.getPendingBriefSignals().clear();
+        final Set<TimeoutSignal> unrequestedSignals = context.get(NotificationCenterTransitionParameter.UNREQUESTED_TIMEOUT_SIGNALS, Set.class);
 
         // Cancel all ongoing TO signals that are not listed in new request
         cancelAll(unrequestedSignals, stateMachine);
@@ -66,7 +65,7 @@ class CancelUnrequestedSignalsAction extends NotificationCenterAction {
         signal.cancel(callback);
     }
 
-    private void cancelAll(TimeoutSignal[] signals, NotificationCenterFsm stateMachine) {
+    private void cancelAll(Set<TimeoutSignal> signals, NotificationCenterFsm stateMachine) {
         for (TimeoutSignal signal : signals) {
             cancel(signal, stateMachine);
         }
