@@ -41,29 +41,17 @@ public class Decoder implements Codec {
     private int j=0,i=0;
     private int sourceLen=0,destinationLen=0;
 
-    /**
-     * (Non Java-doc)
-     * 
-     * @see org.mobicents.media.server.impl.jmf.dsp.Codec#getSupportedFormat().
-     */
+    @Override
     public Format getSupportedInputFormat() {
         return opus;
     }
 
-    /**
-     * (Non Java-doc)
-     * 
-     * @see org.mobicents.media.server.impl.jmf.dsp.Codec#getSupportedFormat().
-     */
+    @Override
     public Format getSupportedOutputFormat() {
         return linear;
     }
 
-    /**
-     * (Non Java-doc)
-     * 
-     * @see org.mobicents.media.server.dsp.Codec#process(Frame).
-     */
+    @Override
     public Frame process(Frame frame) {
     	sourceLen=frame.getLength();
     	destinationLen=sourceLen * 2;

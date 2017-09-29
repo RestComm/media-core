@@ -39,29 +39,18 @@ public class Encoder implements Codec {
     private final static Format linear = FormatFactory.createAudioFormat("linear", 8000, 16, 1);
 
     private int i,j,count;
-    /**
-     * (Non Java-doc)
-     * 
-     * @see org.mobicents.media.server.impl.jmf.dsp.Codec#getSupportedFormat().
-     */
+
+    @Override
     public Format getSupportedInputFormat() {
         return linear;
     }
 
-    /**
-     * (Non Java-doc)
-     * 
-     * @see org.mobicents.media.server.impl.jmf.dsp.Codec#getSupportedFormats().
-     */
+    @Override
     public Format getSupportedOutputFormat() {
         return opus;
     }
 
-    /**
-     * (Non Java-doc)
-     * 
-     * @see org.mobicents.media.server.impl.jmf.dsp.Codec#process(Buffer).
-     */
+    @Override
     public Frame process(Frame frame) {
     	count = frame.getLength() / 2;
         Frame res = Memory.allocate(count);
