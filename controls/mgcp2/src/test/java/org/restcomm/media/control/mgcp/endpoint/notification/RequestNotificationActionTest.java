@@ -21,7 +21,8 @@
 
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -29,10 +30,7 @@ import static org.mockito.Mockito.when;
 import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterEvent.NOTIFICATION_REQUEST;
 import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterState.ACTIVE;
 import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterState.IDLE;
-import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterTransitionParameter.NOTIFIED_ENTITY;
-import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterTransitionParameter.REQUESTED_EVENTS;
-import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterTransitionParameter.REQUESTED_SIGNALS;
-import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterTransitionParameter.REQUEST_IDENTIFIER;
+import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterTransitionParameter.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -41,6 +39,7 @@ import java.util.Set;
 
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.internal.util.collections.Sets;
 import org.restcomm.media.control.mgcp.command.param.NotifiedEntity;
 import org.restcomm.media.control.mgcp.endpoint.EndpointIdentifier;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpoint;
@@ -69,7 +68,10 @@ public class RequestNotificationActionTest {
         final BriefSignal briefSignal1 = mock(BriefSignal.class);
         final BriefSignal briefSignal2 = mock(BriefSignal.class);
         final BriefSignal briefSignal3 = mock(BriefSignal.class);
+        
         final List<MgcpSignal<?>> requestedSignals = Arrays.asList(timeoutSignal1, briefSignal1, briefSignal2, timeoutSignal2, briefSignal3, timeoutSignal3);
+        final Set<TimeoutSignal> requestedTimeoutSignals = Sets.newSet(timeoutSignal1, timeoutSignal2, timeoutSignal3);
+        final List<BriefSignal> requestedBriefSignals = Arrays.asList(briefSignal1, briefSignal2, briefSignal3);
 
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/mock/1", "127.0.0.1:2427");
@@ -84,6 +86,8 @@ public class RequestNotificationActionTest {
         txContext.set(NOTIFIED_ENTITY, notifiedEntity);
         txContext.set(REQUESTED_EVENTS, requestedEvents);
         txContext.set(REQUESTED_SIGNALS, requestedSignals);
+        txContext.set(REQUESTED_TIMEOUT_SIGNALS, requestedTimeoutSignals);
+        txContext.set(REQUESTED_BRIEF_SIGNALS, requestedBriefSignals);
 
         // when
         final RequestNotificationAction action = new RequestNotificationAction();

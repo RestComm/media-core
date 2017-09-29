@@ -43,10 +43,12 @@ public class NotificationCenterFsmBuilder {
     NotificationCenterFsmBuilder() {
         this.builder = StateMachineBuilderFactory.<NotificationCenterFsm, NotificationCenterState, NotificationCenterEvent, NotificationCenterTransitionContext> create(NotificationCenterFsmImpl.class, NotificationCenterState.class, NotificationCenterEvent.class, NotificationCenterTransitionContext.class, NotificationCenterContext.class);
 
-        final List<NotificationCenterAction> rqntActionsIdle = Arrays.asList(RequestNotificationAction.INSTANCE, ExecuteSignalsAction.INSTANCE, NotifyCallbackAction.INSTANCE);
-        final List<NotificationCenterAction> rqntActionsActive = Arrays.asList(RequestNotificationAction.INSTANCE, ExecuteSignalsAction.INSTANCE, NotifyCallbackAction.INSTANCE);
+        final List<NotificationCenterAction> rqntActionsIdle = Arrays.asList(FilterRequestedSignalsAction.INSTANCE, RequestNotificationAction.INSTANCE, ExecutePendingSignalsAction.INSTANCE, NotifyCallbackAction.INSTANCE);
+        final List<NotificationCenterAction> rqntActionsActive = Arrays.asList(FilterRequestedSignalsAction.INSTANCE, RequestNotificationAction.INSTANCE, ExecutePendingSignalsAction.INSTANCE, NotifyCallbackAction.INSTANCE);
         final List<NotificationCenterAction> deactivationActions = Arrays.asList(PersistDeactivationCallbackAction.INSTANCE, CancelAllSignalsAction.INSTANCE);
+        
         // -> FilterRequestedSignals -> Remove unrequested signals -> Cancel unrequested signals -> Apply requested signals -> Execute pending signals
+        
         this.builder.onEntry(IDLE);
         this.builder.internalTransition().within(IDLE).on(NOTIFICATION_REQUEST).when(NoRequestedSignalsCondition.INSTANCE).perform(rqntActionsIdle);
         this.builder.transition().from(IDLE).to(ACTIVE).on(NOTIFICATION_REQUEST).when(HasRequestedSignalsCondition.INSTANCE).perform(rqntActionsIdle);

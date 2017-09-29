@@ -112,8 +112,8 @@ class FilterRequestedSignalsAction extends NotificationCenterAction {
         // Output parameters to transition context
         context.set(NotificationCenterTransitionParameter.REQUESTED_BRIEF_SIGNALS, requestedBriefSignals);
         context.set(NotificationCenterTransitionParameter.REQUESTED_TIMEOUT_SIGNALS, requestedTimeoutSignals);
-        context.set(NotificationCenterTransitionParameter.UNREQUESTED_TIMEOUT_SIGNALS, unrequestedTimeoutSignals);
-        context.set(NotificationCenterTransitionParameter.PENDING_TIMEOUT_SIGNALS, pendingTimeoutSignals);
+        context.set(NotificationCenterTransitionParameter.UNREQUESTED_TIMEOUT_SIGNALS, unrequestedTimeoutSignals.immutableCopy());
+        context.set(NotificationCenterTransitionParameter.PENDING_TIMEOUT_SIGNALS, pendingTimeoutSignals.immutableCopy());
     }
 
 }

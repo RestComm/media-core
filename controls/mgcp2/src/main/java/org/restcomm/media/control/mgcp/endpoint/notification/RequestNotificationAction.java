@@ -23,19 +23,15 @@ package org.restcomm.media.control.mgcp.endpoint.notification;
 
 import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterTransitionParameter.NOTIFIED_ENTITY;
 import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterTransitionParameter.REQUESTED_EVENTS;
-import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterTransitionParameter.REQUESTED_SIGNALS;
 import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterTransitionParameter.REQUEST_IDENTIFIER;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Queue;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.restcomm.media.control.mgcp.command.param.NotifiedEntity;
 import org.restcomm.media.control.mgcp.pkg.MgcpRequestedEvent;
 import org.restcomm.media.control.mgcp.signal.BriefSignal;
-import org.restcomm.media.control.mgcp.signal.MgcpSignal;
 import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
 
 /**
@@ -75,8 +71,8 @@ class RequestNotificationAction extends NotificationCenterAction {
     public void execute(NotificationCenterState from, NotificationCenterState to, NotificationCenterEvent event, NotificationCenterTransitionContext context, NotificationCenterFsm stateMachine) {
         final NotificationCenterContext globalContext = stateMachine.getContext();
         final NotifiedEntity notifiedEntity = context.get(NOTIFIED_ENTITY, NotifiedEntity.class);
+        
         final MgcpRequestedEvent[] events = context.get(REQUESTED_EVENTS, MgcpRequestedEvent[].class);
-        final List<MgcpSignal<?>> signals = context.get(REQUESTED_SIGNALS, List.class);
         final String requestId = context.get(REQUEST_IDENTIFIER, String.class);
 
         // Update Request ID
@@ -91,24 +87,11 @@ class RequestNotificationAction extends NotificationCenterAction {
         globalContext.setRequestedEvents(events);
 
         // Update Requested Signals. Will be cleaned if no signals are requested.
-        List<TimeoutSignal> timeoutSignals = new ArrayList<>(signals.size());
-        List<BriefSignal> briefSignals = new ArrayList<>(signals.size());
+        final List<BriefSignal> requestedBriefSignals = context.get(NotificationCenterTransitionParameter.REQUESTED_BRIEF_SIGNALS, List.class);
+        globalContext.setPendingBriefSignals(requestedBriefSignals);
 
-        for (MgcpSignal<?> signal : signals) {
-            if (signal instanceof TimeoutSignal) {
-                timeoutSignals.add((TimeoutSignal) signal);
-            } else if (signal instanceof BriefSignal) {
-                briefSignals.add((BriefSignal) signal);
-            }
-        }
-
-        final Queue<BriefSignal> pendingBriefSignals = globalContext.getPendingBriefSignals();
-        pendingBriefSignals.clear();
-        pendingBriefSignals.addAll(briefSignals);
-
-        final Set<TimeoutSignal> activeTimeoutSignals = globalContext.getTimeoutSignals();
-        activeTimeoutSignals.clear();
-        activeTimeoutSignals.addAll(timeoutSignals);
+        final Set<TimeoutSignal> requestedTimeoutSignals = context.get(NotificationCenterTransitionParameter.REQUESTED_TIMEOUT_SIGNALS, Set.class);
+        globalContext.setTimeoutSignals(requestedTimeoutSignals);
 
         // Log action
         logAction(globalContext);
