@@ -19,5 +19,6 @@
         <module>g729</module>
 	<module>l16</module>
 	<module>ilbc</module>
+	<module>opus</module>
     </modules>
 </project>
