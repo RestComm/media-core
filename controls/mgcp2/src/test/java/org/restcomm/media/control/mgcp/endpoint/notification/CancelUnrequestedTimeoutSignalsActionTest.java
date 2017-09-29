@@ -22,62 +22,56 @@
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterEvent.NOTIFICATION_REQUEST;
 import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterState.ACTIVE;
-import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterState.IDLE;
+
+import java.util.Set;
 
 import org.junit.Test;
+import org.mockito.internal.util.collections.Sets;
 import org.restcomm.media.control.mgcp.endpoint.EndpointIdentifier;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpoint;
-import org.restcomm.media.control.mgcp.signal.BriefSignal;
 import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class ExecuteSignalsActionTest {
+public class CancelUnrequestedTimeoutSignalsActionTest {
 
     @Test
-    public void testExecuteSignals() {
+    public void testCancelUnrequestedSignals() {
         // given
         final TimeoutSignal timeoutSignal1 = mock(TimeoutSignal.class);
         final TimeoutSignal timeoutSignal2 = mock(TimeoutSignal.class);
         final TimeoutSignal timeoutSignal3 = mock(TimeoutSignal.class);
-        final TimeoutSignal[] timeoutSignals = new TimeoutSignal[] { timeoutSignal1, timeoutSignal2, timeoutSignal3 };
-        
-        final BriefSignal briefSignal1 = mock(BriefSignal.class);
-        final BriefSignal briefSignal2 = mock(BriefSignal.class);
-        final BriefSignal briefSignal3 = mock(BriefSignal.class);
-        final BriefSignal[] briefSignals = new BriefSignal[] { briefSignal1, briefSignal2, briefSignal3 };
+
+        final Set<TimeoutSignal> timeoutSignals = Sets.newSet(timeoutSignal1, timeoutSignal2, timeoutSignal3);
 
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/mock/1", "127.0.0.1:2427");
         when(endpoint.getEndpointId()).thenReturn(endpointId);
-        
+
         final NotificationCenterContext context = spy(new NotificationCenterContext(endpoint));
         final NotificationCenterFsm stateMachine = mock(NotificationCenterFsm.class);
         when(stateMachine.getContext()).thenReturn(context);
-        
-        context.setTimeoutSignals(timeoutSignals);
-        context.setPendingBriefSignals(briefSignals);
 
         // when
-        final ExecuteSignalsAction action = new ExecuteSignalsAction();
         final NotificationCenterTransitionContext txContext = new NotificationCenterTransitionContext();
-        action.execute(IDLE, ACTIVE, NOTIFICATION_REQUEST, txContext, stateMachine);
+        txContext.set(NotificationCenterTransitionParameter.UNREQUESTED_TIMEOUT_SIGNALS, timeoutSignals);
+        
+        final CancelUnrequestedTimeoutSignalsAction action = new CancelUnrequestedTimeoutSignalsAction();
+
+        action.execute(ACTIVE, ACTIVE, NOTIFICATION_REQUEST, txContext, stateMachine);
 
         // then
-        verify(timeoutSignal1).execute(any(TimeoutSignalExecutionCallback.class));
-        verify(timeoutSignal2).execute(any(TimeoutSignalExecutionCallback.class));
-        verify(timeoutSignal3).execute(any(TimeoutSignalExecutionCallback.class));
-        
-        verify(briefSignal1).execute(any(BriefSignalExecutionCallback.class));
-        verify(briefSignal2, never()).execute(any(BriefSignalExecutionCallback.class));
-        verify(briefSignal3, never()).execute(any(BriefSignalExecutionCallback.class));
-        
-        verify(context).setActiveBriefSignal(briefSignal1);
+        verify(timeoutSignal1).cancel(any(TimeoutSignalCancellationCallback.class));
+        verify(timeoutSignal2).cancel(any(TimeoutSignalCancellationCallback.class));
+        verify(timeoutSignal3).cancel(any(TimeoutSignalCancellationCallback.class));
     }
 
 }

@@ -21,8 +21,9 @@
 
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
-import java.util.List;
+import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.restcomm.media.control.mgcp.signal.MgcpSignal;
 import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
 
@@ -37,6 +38,8 @@ import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
  *
  */
 class RemoveTimeoutSignalAction extends NotificationCenterAction {
+    
+    private static final Logger log = Logger.getLogger(RemoveTimeoutSignalAction.class);
 
     static final RemoveTimeoutSignalAction INSTANCE = new RemoveTimeoutSignalAction();
 
@@ -50,12 +53,17 @@ class RemoveTimeoutSignalAction extends NotificationCenterAction {
         final MgcpSignal<?> signal = context.get(NotificationCenterTransitionParameter.SIGNAL, MgcpSignal.class);
 
         // Remove signal from list of active signals
-        final List<TimeoutSignal> activeSignals = globalContext.getTimeoutSignals();
+        final Set<TimeoutSignal> activeSignals = globalContext.getTimeoutSignals();
         final boolean removed = activeSignals.remove(signal);
 
         // Move to next state when all signals are completed
         final boolean hasActiveBriefSignal = (globalContext.getActiveBriefSignal() != null);
         if (removed && activeSignals.isEmpty() && !hasActiveBriefSignal) {
+            if(log.isDebugEnabled()) {
+                final String endpointId = globalContext.getEndpoint().getEndpointId().toString();
+                log.debug("Endpoint " + endpointId + " has no more signals");
+            }
+            
             stateMachine.fire(NotificationCenterEvent.ALL_SIGNALS_COMPLETED, context);
         }
     }

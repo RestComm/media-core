@@ -21,6 +21,10 @@
 
 package org.restcomm.media.control.mgcp.command;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.restcomm.media.control.mgcp.command.param.NotifiedEntity;
 import org.restcomm.media.control.mgcp.pkg.MgcpRequestedEvent;
 import org.restcomm.media.control.mgcp.signal.MgcpSignal;
@@ -35,7 +39,7 @@ public class NotificationRequest {
     private final String requestIdentifier;
     private final NotifiedEntity notifiedEntity;
     private final MgcpRequestedEvent[] requestedEvents;
-    private final MgcpSignal<?>[] requestedSignals;
+    private final List<MgcpSignal<?>> requestedSignals;
 
     public NotificationRequest(int transactionId, String requestIdentifier, NotifiedEntity notifiedEntity, MgcpRequestedEvent[] requestedEvents, MgcpSignal<?>... requestedSignals) {
         super();
@@ -43,7 +47,8 @@ public class NotificationRequest {
         this.requestIdentifier = requestIdentifier;
         this.notifiedEntity = notifiedEntity;
         this.requestedEvents = requestedEvents;
-        this.requestedSignals = requestedSignals;
+        this.requestedSignals = new ArrayList<>(requestedSignals.length);
+        Collections.addAll(this.requestedSignals, requestedSignals);
     }
 
     public int getTransactionId() {
@@ -62,10 +67,10 @@ public class NotificationRequest {
         return requestedEvents;
     }
 
-    public MgcpSignal<?>[] getRequestedSignals() {
+    public List<MgcpSignal<?>> getRequestedSignals() {
         return this.requestedSignals;
     }
-    
+
     public boolean isListening(String event) {
         for (MgcpRequestedEvent evt : this.requestedEvents) {
             if (evt.getQualifiedName().equalsIgnoreCase(event)) {

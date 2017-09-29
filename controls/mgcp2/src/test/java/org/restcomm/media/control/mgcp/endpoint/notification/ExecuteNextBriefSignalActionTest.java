@@ -25,6 +25,8 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterState.ACTIVE;
 
+import java.util.Collections;
+
 import static org.junit.Assert.*;
 
 import org.junit.Test;
@@ -54,7 +56,7 @@ public class ExecuteNextBriefSignalActionTest {
         when(stateMachine.getContext()).thenReturn(context);
         
         context.setActiveBriefSignal(activeBriefSignal);
-        context.setPendingBriefSignals(pendingBriefSignals);
+        Collections.addAll(context.getPendingBriefSignals(), pendingBriefSignals);
 
         // when
         final ExecuteNextBriefSignalAction action = new ExecuteNextBriefSignalAction();
@@ -88,7 +90,7 @@ public class ExecuteNextBriefSignalActionTest {
         when(stateMachine.getContext()).thenReturn(context);
         
         context.setActiveBriefSignal(activeBriefSignal);
-        context.setPendingBriefSignals(pendingBriefSignals);
+        Collections.addAll(context.getPendingBriefSignals(), pendingBriefSignals);
         
         // when
         final ExecuteNextBriefSignalAction action = new ExecuteNextBriefSignalAction();

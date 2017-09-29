@@ -23,16 +23,14 @@ package org.restcomm.media.control.mgcp.endpoint.notification;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterEvent.STOP;
+import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterEvent.NOTIFICATION_REQUEST;
 import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterState.ACTIVE;
-import static org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterState.IDLE;
 
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Test;
 import org.restcomm.media.control.mgcp.endpoint.EndpointIdentifier;
@@ -44,43 +42,43 @@ import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class CancelAllSignalsActionTest {
+public class UnregisterSignalsActionTest {
 
     @Test
-    public void testCancelAllSignals() {
+    public void testUnregisterSignals() {
         // given
         final TimeoutSignal timeoutSignal1 = mock(TimeoutSignal.class);
         final TimeoutSignal timeoutSignal2 = mock(TimeoutSignal.class);
         final TimeoutSignal timeoutSignal3 = mock(TimeoutSignal.class);
-        final TimeoutSignal[] timeoutSignals = new TimeoutSignal[] { timeoutSignal1, timeoutSignal2, timeoutSignal3 };
-        
+
+        final List<TimeoutSignal> activeTimeoutSignals = Arrays.asList(timeoutSignal1, timeoutSignal2, timeoutSignal3);
+
         final BriefSignal briefSignal1 = mock(BriefSignal.class);
         final BriefSignal briefSignal2 = mock(BriefSignal.class);
         final BriefSignal briefSignal3 = mock(BriefSignal.class);
-        final BriefSignal[] briefSignals = new BriefSignal[] { briefSignal2, briefSignal3 };
+
+        final List<BriefSignal> pendingBriefSignals = Arrays.asList(briefSignal2, briefSignal3);
 
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/mock/1", "127.0.0.1:2427");
         when(endpoint.getEndpointId()).thenReturn(endpointId);
-        
+
         final NotificationCenterContext context = spy(new NotificationCenterContext(endpoint));
         final NotificationCenterFsm stateMachine = mock(NotificationCenterFsm.class);
         when(stateMachine.getContext()).thenReturn(context);
-        
-        Collections.addAll(context.getTimeoutSignals(), timeoutSignals);
-        Collections.addAll(context.getPendingBriefSignals(), briefSignals);
+
         context.setActiveBriefSignal(briefSignal1);
+        context.setPendingBriefSignals(pendingBriefSignals);
+        context.setTimeoutSignals(activeTimeoutSignals);
 
         // when
-        final CancelAllSignalsAction action = new CancelAllSignalsAction();
         final NotificationCenterTransitionContext txContext = new NotificationCenterTransitionContext();
-        action.execute(ACTIVE, IDLE, STOP, txContext, stateMachine);
+        final UnregisterSignalsAction action = new UnregisterSignalsAction();
+
+        action.execute(ACTIVE, ACTIVE, NOTIFICATION_REQUEST, txContext, stateMachine);
 
         // then
-        verify(timeoutSignal1).cancel(any(TimeoutSignalCancellationCallback.class));
-        verify(timeoutSignal2).cancel(any(TimeoutSignalCancellationCallback.class));
-        verify(timeoutSignal3).cancel(any(TimeoutSignalCancellationCallback.class));
-        
+        assertTrue(context.getTimeoutSignals().isEmpty());
         assertTrue(context.getPendingBriefSignals().isEmpty());
         assertNotNull(context.getActiveBriefSignal());
     }

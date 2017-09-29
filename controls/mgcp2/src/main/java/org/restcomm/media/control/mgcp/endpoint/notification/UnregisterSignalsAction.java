@@ -21,24 +21,42 @@
 
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
-import java.util.List;
-
 /**
+ * Unregisters all pending or active signals on the endpoint.
+ * 
+ * Input parameters:
+ * <ul>
+ * <li>n/a</li>
+ * </ul>
+ * </p>
+ * <p>
+ * Output parameters:
+ * <ul>
+ * <li>n/a
+ * <li>
+ * </ul>
+ * </p>
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-class HasRequestedSignalsCondition extends NotificationCenterCondition {
+class UnregisterSignalsAction extends NotificationCenterAction {
+    
+    static final UnregisterSignalsAction INSTANCE = new UnregisterSignalsAction();
 
-    static final HasRequestedSignalsCondition INSTANCE = new HasRequestedSignalsCondition();
-
-    HasRequestedSignalsCondition() {
+    UnregisterSignalsAction() {
         super();
     }
 
     @Override
-    public boolean isSatisfied(NotificationCenterTransitionContext context) {
-        final List<?> signals = context.get(NotificationCenterTransitionParameter.REQUESTED_SIGNALS, List.class);
-        return (signals != null && !signals.isEmpty());
+    public void execute(NotificationCenterState from, NotificationCenterState to, NotificationCenterEvent event, NotificationCenterTransitionContext context, NotificationCenterFsm stateMachine) {
+        final NotificationCenterContext globalContext = stateMachine.getContext();
+
+        // Unregister all pending BR signals
+        globalContext.getPendingBriefSignals().clear();
+
+        // Unregister all ongoing TO signals that are not listed in new request
+        globalContext.getTimeoutSignals().clear();
     }
 
 }

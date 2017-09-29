@@ -22,11 +22,12 @@
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Queue;
+import java.util.Set;
 
 import org.restcomm.media.control.mgcp.command.param.NotifiedEntity;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpoint;
@@ -48,8 +49,8 @@ public class NotificationCenterContext {
 
     private String requestId;
     private NotifiedEntity notifiedEntity;
-    private final List<MgcpRequestedEvent> requestedEvents;
-    private final List<TimeoutSignal> timeoutSignals;
+    private final Set<MgcpRequestedEvent> requestedEvents;
+    private final Set<TimeoutSignal> timeoutSignals;
     private final Queue<BriefSignal> pendingBriefSignals;
     private BriefSignal activeBriefSignal;
     
@@ -60,8 +61,8 @@ public class NotificationCenterContext {
         
         this.requestId = "";
         this.notifiedEntity = DEFAULT_NOTIFIED_ENTITY;
-        this.requestedEvents = new ArrayList<>(5);
-        this.timeoutSignals = new ArrayList<>(5);
+        this.requestedEvents = new HashSet<>(5);
+        this.timeoutSignals = new HashSet<>(5);
         this.pendingBriefSignals = new ArrayDeque<>(5);
         this.activeBriefSignal = null;
     }
@@ -95,7 +96,7 @@ public class NotificationCenterContext {
         return false;
     }
 
-    protected List<MgcpRequestedEvent> getRequestedEvents() {
+    protected Set<MgcpRequestedEvent> getRequestedEvents() {
         return requestedEvents;
     }
 
@@ -104,24 +105,24 @@ public class NotificationCenterContext {
         Collections.addAll(this.requestedEvents, events);
     }
 
-    protected List<TimeoutSignal> getTimeoutSignals() {
+    protected Set<TimeoutSignal> getTimeoutSignals() {
         return timeoutSignals;
     }
-
-    protected void setTimeoutSignals(TimeoutSignal[] signals) {
+    
+    protected void setTimeoutSignals(Collection<TimeoutSignal> signals) {
         this.timeoutSignals.clear();
-        Collections.addAll(this.timeoutSignals, signals);
+        this.timeoutSignals.addAll(signals);
     }
 
     protected Queue<BriefSignal> getPendingBriefSignals() {
         return pendingBriefSignals;
     }
-
-    protected void setPendingBriefSignals(BriefSignal[] signals) {
-        this.pendingBriefSignals.clear();
-        Collections.addAll(this.pendingBriefSignals, signals);
-    }
     
+    protected void setPendingBriefSignals(Collection<BriefSignal> signals) {
+        this.pendingBriefSignals.clear();
+        this.pendingBriefSignals.addAll(signals);
+    }
+
     public BriefSignal getActiveBriefSignal() {
         return activeBriefSignal;
     }

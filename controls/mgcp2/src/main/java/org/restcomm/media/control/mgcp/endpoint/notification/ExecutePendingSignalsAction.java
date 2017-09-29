@@ -21,8 +21,8 @@
 
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
-import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.restcomm.media.control.mgcp.signal.BriefSignal;
@@ -33,7 +33,7 @@ import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
  * 
  * Input parameters:
  * <ul>
- * <li>n/a</li>
+ * <li>PENDING_TIMEOUT_SIGNALS</li>
  * </ul>
  * </p>
  * <p>
@@ -46,42 +46,48 @@ import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-class ExecuteSignalsAction extends NotificationCenterAction {
-    
-    private static final Logger log = Logger.getLogger(ExecuteSignalsAction.class);
+class ExecutePendingSignalsAction extends NotificationCenterAction {
 
-    static final ExecuteSignalsAction INSTANCE = new ExecuteSignalsAction();
+    private static final Logger log = Logger.getLogger(ExecutePendingSignalsAction.class);
 
-    ExecuteSignalsAction() {
+    static final ExecutePendingSignalsAction INSTANCE = new ExecutePendingSignalsAction();
+
+    ExecutePendingSignalsAction() {
         super();
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void execute(NotificationCenterState from, NotificationCenterState to, NotificationCenterEvent event, NotificationCenterTransitionContext context, NotificationCenterFsm stateMachine) {
         final NotificationCenterContext globalContext = stateMachine.getContext();
-        final Queue<BriefSignal> briefSignals = globalContext.getPendingBriefSignals();
-        final List<TimeoutSignal> timeoutSignals = globalContext.getTimeoutSignals();
 
-        // Execute all timeout signals in parallel
-        for (TimeoutSignal signal : timeoutSignals) {
+        // Execute all pending timeout signals in parallel
+        final Set<TimeoutSignal> pendingTimeoutSignals = context.get(NotificationCenterTransitionParameter.PENDING_TIMEOUT_SIGNALS, Set.class);
+
+        for (TimeoutSignal signal : pendingTimeoutSignals) {
             final TimeoutSignalExecutionCallback callback = new TimeoutSignalExecutionCallback(signal, stateMachine);
             signal.execute(callback);
-            
-            if(log.isDebugEnabled()) {
-                log.debug("Endpoint " + globalContext.getEndpoint().getEndpointId() + " started executing signal " +  signal.toString());
+
+            if (log.isDebugEnabled()) {
+                log.debug("Endpoint " + globalContext.getEndpoint().getEndpointId() + " started executing signal " + signal.toString());
             }
         }
 
         // Execute brief signals orderly
-        if (!briefSignals.isEmpty()) {
-            final BriefSignal signal = briefSignals.poll();
-            final BriefSignalExecutionCallback callback = new BriefSignalExecutionCallback(signal, stateMachine);
-            
-            globalContext.setActiveBriefSignal(signal);
-            signal.execute(callback);
-            
-            if(log.isDebugEnabled()) {
-                log.debug("Endpoint " + globalContext.getEndpoint().getEndpointId() + " started executing signal " +  signal.toString());
+        final BriefSignal activeBriefSignal = globalContext.getActiveBriefSignal();
+
+        if (activeBriefSignal == null) {
+            final Queue<BriefSignal> pendingBriefSignals = globalContext.getPendingBriefSignals();
+            if (!pendingBriefSignals.isEmpty()) {
+                final BriefSignal signal = pendingBriefSignals.poll();
+                final BriefSignalExecutionCallback callback = new BriefSignalExecutionCallback(signal, stateMachine);
+
+                globalContext.setActiveBriefSignal(signal);
+                signal.execute(callback);
+
+                if (log.isDebugEnabled()) {
+                    log.debug("Endpoint " + globalContext.getEndpoint().getEndpointId() + " started executing signal " + signal.toString());
+                }
             }
         }
     }
