@@ -23,6 +23,7 @@ package org.restcomm.media.control.mgcp.endpoint.notification;
 
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
 
 /**
@@ -36,7 +37,8 @@ import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
  * <p>
  * Output parameters:
  * <ul>
- * <li>n/a<li>
+ * <li>n/a
+ * <li>
  * </ul>
  * </p>
  * 
@@ -44,6 +46,8 @@ import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
  *
  */
 class CancelUnrequestedTimeoutSignalsAction extends NotificationCenterAction {
+
+    private static final Logger log = Logger.getLogger(CancelUnrequestedTimeoutSignalsAction.class);
 
     static final CancelUnrequestedTimeoutSignalsAction INSTANCE = new CancelUnrequestedTimeoutSignalsAction();
 
@@ -55,6 +59,11 @@ class CancelUnrequestedTimeoutSignalsAction extends NotificationCenterAction {
     @SuppressWarnings("unchecked")
     public void execute(NotificationCenterState from, NotificationCenterState to, NotificationCenterEvent event, NotificationCenterTransitionContext context, NotificationCenterFsm stateMachine) {
         final Set<TimeoutSignal> unrequestedSignals = context.get(NotificationCenterTransitionParameter.UNREQUESTED_TIMEOUT_SIGNALS, Set.class);
+
+        if (log.isDebugEnabled() && !unrequestedSignals.isEmpty()) {
+            final String endpointId = stateMachine.getContext().getEndpoint().getEndpointId().toString();
+            log.debug("Endpoint " + endpointId + " canceled active timeout signals " + unrequestedSignals.toString());
+        }
 
         // Cancel all ongoing TO signals that are not listed in new request
         cancelAll(unrequestedSignals, stateMachine);

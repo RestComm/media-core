@@ -41,7 +41,7 @@ package org.restcomm.media.control.mgcp.endpoint.notification;
  *
  */
 class UnregisterSignalsAction extends NotificationCenterAction {
-
+    
     static final UnregisterSignalsAction INSTANCE = new UnregisterSignalsAction();
 
     UnregisterSignalsAction() {
@@ -56,7 +56,7 @@ class UnregisterSignalsAction extends NotificationCenterAction {
         globalContext.getPendingBriefSignals().clear();
 
         // Unregister all ongoing TO signals that are not listed in new request
-        globalContext.getTimeoutSignals().clear();;
+        globalContext.getTimeoutSignals().clear();
     }
 
 }

@@ -24,6 +24,7 @@ package org.restcomm.media.control.mgcp.endpoint.notification;
 import java.util.Queue;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.restcomm.media.control.mgcp.signal.BriefSignal;
 import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
 
@@ -34,6 +35,8 @@ import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
  *
  */
 class ExecuteNextBriefSignalAction extends NotificationCenterAction {
+    
+    private static final Logger log = Logger.getLogger(ExecuteNextBriefSignalAction.class);
     
     static final ExecuteNextBriefSignalAction INSTANCE = new ExecuteNextBriefSignalAction();
     
@@ -55,10 +58,20 @@ class ExecuteNextBriefSignalAction extends NotificationCenterAction {
 
         if(signal != null) {
             // Execute next pending BR signal
+            if(log.isDebugEnabled()) {
+                final String endpointId = globalContext.getEndpoint().getEndpointId().toString();
+                log.debug("Endpoint " + endpointId + " started executing brief signal " + signal);
+            }
+            
             final BriefSignalExecutionCallback callback = new BriefSignalExecutionCallback(signal, stateMachine);
             signal.execute(callback);
         } else if (timeoutSignals.isEmpty()){
             // There are no more signals (BR nor TO) to be executed. Move to IDLE state.
+            if(log.isDebugEnabled()) {
+                final String endpointId = globalContext.getEndpoint().getEndpointId().toString();
+                log.debug("Endpoint " + endpointId + " has no more signals");
+            }
+            
             stateMachine.fire(NotificationCenterEvent.ALL_SIGNALS_COMPLETED, context);
         }
     }
