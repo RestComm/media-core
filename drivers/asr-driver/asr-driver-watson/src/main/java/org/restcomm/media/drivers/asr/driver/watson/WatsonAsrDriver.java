@@ -45,19 +45,26 @@ public class WatsonAsrDriver implements AsrDriver {
     private WebSocket ws;
     private RecognizeOptions options;
     private int responseTimeout;
+    private boolean interimResults;
     private AsrDriverEventListener listener;
     private Map<String, String> languages;
     
     @Override
     public void configure(Map<String, String> parameters) {
         //create service instance
-        this.service = new SpeechToText(parameters.get("WATSON_API_USERNAME"), 
-                                   parameters.get("WATSON_API_PASSWORD"));
+        this.service = new SpeechToText(parameters.get("apiUsername"), 
+                                        parameters.get("apiPassword"));
         
         //configure response timeout
-        if (parameters.containsKey("RESPONSE_TIMEOUT")) {
-            this.responseTimeout = Integer.parseInt(parameters.get("RESPONSE_TIMEOUT"));
+        if (parameters.containsKey("responseTimeout")) {
+            this.responseTimeout = Integer.parseInt(parameters.get("responseTimeout"));
         }
+        
+        //configure interim results
+        if (parameters.containsKey("interimResults")) {
+            this.interimResults = Boolean.parseBoolean(parameters.get("interimResults"));
+        }
+
         
         //create a list of supported languages (supports only NarrowbandModel 8000KHz)
         languages = new HashMap<>();
@@ -81,7 +88,7 @@ public class WatsonAsrDriver implements AsrDriver {
         //create the recognize options
         options = new RecognizeOptions.Builder().contentType(HttpMediaType.AUDIO_WAV)
                                                 .model(languages.get(lang))
-                                                .interimResults(true)
+                                                .interimResults(interimResults)
                                                 .build();
     }
 
