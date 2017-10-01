@@ -27,7 +27,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <argLine>-Djava.library.path=c:\Users\morosev\eclipse-workspace\mediaserver\codecs\opus\src\main\jni;c:\Users\morosev\eclipse-workspace\mediaserver\codecs\opus\src\main\jni\Debug</argLine>
+                    <argLine>-Djava.library.path=src\main\jni;src\main\jni\Debug</argLine>
                 </configuration>
             </plugin>
             <plugin>
