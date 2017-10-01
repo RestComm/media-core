@@ -29,23 +29,34 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define FRAME_SIZE 960
+#define FRAME_SIZE 480
 #define SAMPLE_RATE 48000
-#define CHANNELS 2
-#define APPLICATION OPUS_APPLICATION_AUDIO
-#define BITRATE 64000
+#define CHANNELS 1
+#define APPLICATION OPUS_APPLICATION_VOIP
+#define BITRATE 48000
 
-#define MAX_FRAME_SIZE 6*960
+#define MAX_FRAME_SIZE 6*480
 #define MAX_PACKET_SIZE (3*1276)
 
 JavaVM* gJvm;
 jobject gOpusObserver;
+
+OpusEncoder *gEncoder;
+OpusDecoder *gDecoder;
 
 extern "C" {
 
   JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_sayHelloNative(JNIEnv *, jobject);
 
   JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_initNative(JNIEnv *, jobject);
+
+  JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_closeNative(JNIEnv *, jobject);
+
+  JNIEXPORT jbyteArray JNICALL Java_org_restcomm_media_codec_opus_OpusJni_encodeNative(
+    JNIEnv *jni, jobject, jshortArray);
+
+  JNIEXPORT jshortArray JNICALL Java_org_restcomm_media_codec_opus_OpusJni_decodeNative(
+    JNIEnv *jni, jobject, jbyteArray);
 
   JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_setOpusObserverNative(JNIEnv *, jobject, jobject);
 
@@ -70,97 +81,86 @@ JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_sayHelloNative
 
 JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_initNative(JNIEnv *, jobject) {
 
-  char *inFile;
-  FILE *fin;
-  char *outFile;
-  FILE *fout;
-  opus_int16 in[FRAME_SIZE*CHANNELS];
-  opus_int16 out[MAX_FRAME_SIZE*CHANNELS];
-  unsigned char cbits[MAX_PACKET_SIZE];
-  int nbBytes;
-  OpusEncoder *encoder;
-  OpusDecoder *decoder;
   int err;
 
-  encoder = opus_encoder_create(SAMPLE_RATE, CHANNELS, APPLICATION, &err);
+  gEncoder = opus_encoder_create(SAMPLE_RATE, CHANNELS, APPLICATION, &err);
   if (err < 0) {
     fprintf(stderr, "Failed to create an encoder: %s\n", opus_strerror(err));
     return;
   }
 
-  err = opus_encoder_ctl(encoder, OPUS_SET_BITRATE(BITRATE));
+  err = opus_encoder_ctl(gEncoder, OPUS_SET_BITRATE(BITRATE));
   if (err < 0) {
     fprintf(stderr, "Failed to set bitrate: %s\n", opus_strerror(err));
     return;
   }
 
-  inFile = "test_input.pcm";
-  fin = fopen(inFile, "r");
-  if (fin == NULL) {
-    fprintf(stderr, "Failed to open input file: %s\n", strerror(errno));
-    return;
-  }
-
-  decoder = opus_decoder_create(SAMPLE_RATE, CHANNELS, &err);
+  gDecoder = opus_decoder_create(SAMPLE_RATE, CHANNELS, &err);
   if (err < 0) {
     fprintf(stderr, "Failed to create decoder: %s\n", opus_strerror(err));
     return;
   }
+}
 
-  outFile = "test_output.pcm";
-  fout = fopen(outFile, "w");
-  if (fout == NULL) {
-    fprintf(stderr, "Failed to open output file: %s\n", strerror(errno));
-    return;
+JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_closeNative(JNIEnv *, jobject) {
+  opus_encoder_destroy(gEncoder);
+  opus_decoder_destroy(gDecoder);
+}
+
+JNIEXPORT jbyteArray JNICALL Java_org_restcomm_media_codec_opus_OpusJni_encodeNative(
+  JNIEnv *env, jobject, jshortArray jPcmData) {
+
+  jshort *pcmData = env->GetShortArrayElements(jPcmData, NULL);
+  jsize pcmLen = env->GetArrayLength(jPcmData);
+
+  unsigned char encoded[MAX_PACKET_SIZE];
+
+  int packetSize;
+  packetSize = opus_encode(gEncoder, pcmData, pcmLen, encoded, MAX_PACKET_SIZE);
+  if (packetSize < 0) {
+    fprintf(stderr, "Encode failed: %s\n", opus_strerror(packetSize));
+    return nullptr;
   }
 
-  while (1) {
-    int i;
-    unsigned char pcm_bytes[MAX_FRAME_SIZE * CHANNELS * 2];
-    int frame_size;
+  env->ReleaseShortArrayElements(jPcmData, pcmData, 0);
 
-    fread(pcm_bytes, sizeof(short)*CHANNELS, FRAME_SIZE, fin);
-    if (feof(fin))
-      break;
-    /* Convert from little-endian ordering. */
-    for (i = 0; i < CHANNELS * FRAME_SIZE; i++)
-      in[i] = pcm_bytes[2 * i + 1] << 8 | pcm_bytes[2 * i];
+  jbyteArray jOpusData = env->NewByteArray(packetSize);
+  env->SetByteArrayRegion(jOpusData, 0, packetSize, (jbyte *)encoded);
 
-    nbBytes = opus_encode(encoder, in, FRAME_SIZE, cbits, MAX_PACKET_SIZE);
-    if (nbBytes < 0) {
-      fprintf(stderr, "Encode failed: %s\n", opus_strerror(nbBytes));
-      return;
-    }
+  return jOpusData;
+}
 
-    frame_size = opus_decode(decoder, cbits, nbBytes, out, MAX_FRAME_SIZE, 0);
-    if (frame_size < 0) {
-      fprintf(stderr, "Decoder failed: %s\n", opus_strerror(frame_size));
-      return ;
-    }
+JNIEXPORT jshortArray JNICALL Java_org_restcomm_media_codec_opus_OpusJni_decodeNative(
+  JNIEnv *env, jobject, jbyteArray jOpusData) {
 
-    /* Convert to little-endian ordering. */
-    for (i = 0; i< CHANNELS * frame_size; i++) {
-      pcm_bytes[2 * i] = out[i] & 0xFF;
-      pcm_bytes[2 * i + 1] = (out[i] >> 8) & 0xFF;
-    }
+  jbyte *opusData = env->GetByteArrayElements(jOpusData, NULL);
+  jsize opusLen = env->GetArrayLength(jOpusData);
 
-    fwrite(pcm_bytes, sizeof(short), frame_size * CHANNELS, fout);
+  short decoded[MAX_FRAME_SIZE];
+
+  int frameSize;
+  frameSize = opus_decode(gDecoder, (unsigned char *)opusData, opusLen, decoded, MAX_FRAME_SIZE, 0);
+  if (frameSize < 0) {
+    fprintf(stderr, "Decoder failed: %s\n", opus_strerror(frameSize));
+    return nullptr;
   }
 
-  opus_encoder_destroy(encoder);
-  opus_decoder_destroy(decoder);
-  fclose(fin);
-  fclose(fout);
+  env->ReleaseByteArrayElements(jOpusData, opusData, 0);
+
+  jshortArray jPcmData = env->NewShortArray(frameSize);
+  env->SetShortArrayRegion(jPcmData, 0, frameSize, decoded);
+
+  return jPcmData;
 }
 
 JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_setOpusObserverNative(
-  JNIEnv *jni, jobject, jobject j_observer) {
-  gOpusObserver = jni->NewGlobalRef(j_observer);
+  JNIEnv *env, jobject, jobject jObserver) {
+  gOpusObserver = env->NewGlobalRef(jObserver);
 }
 
 JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_unsetOpusObserverNative(
-  JNIEnv *jni, jobject) {
-  jni->DeleteGlobalRef(gOpusObserver);
+  JNIEnv *env, jobject) {
+  env->DeleteGlobalRef(gOpusObserver);
 }
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {

@@ -17,8 +17,8 @@
         <module>g711</module>
         <module>gsm</module>
         <module>g729</module>
-	<module>l16</module>
-	<module>ilbc</module>
-	<module>opus</module>
+        <module>l16</module>
+        <module>ilbc</module>
+        <module>opus</module>
     </modules>
 </project>

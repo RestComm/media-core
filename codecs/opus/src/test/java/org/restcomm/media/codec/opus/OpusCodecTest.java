@@ -29,6 +29,15 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.ShortBuffer;
+
 import org.restcomm.media.codec.opus.Decoder;
 import org.restcomm.media.codec.opus.Encoder;
 import org.restcomm.media.codec.opus.OpusJni;
@@ -36,6 +45,7 @@ import org.restcomm.media.spi.memory.Frame;
 import org.restcomm.media.spi.memory.Memory;
 
 public class OpusCodecTest implements OpusJni.Observer {
+	
     private Frame buffer = Memory.allocate(512);
     
     @BeforeClass
@@ -45,8 +55,6 @@ public class OpusCodecTest implements OpusJni.Observer {
     @AfterClass
     public static void tearDownClass() throws Exception {
     }
-    
-    private byte[] src = new byte[512];
     
     public OpusCodecTest() {        
     }            
@@ -65,10 +73,36 @@ public class OpusCodecTest implements OpusJni.Observer {
      */
     @Test
     public void testCodec() {
-    	OpusJni opus = new OpusJni();
-    	opus.setOpusObserverNative(this);
-    	opus.sayHelloNative();
-    	opus.initNative();
+    	
+    	try {
+	        FileInputStream inputStream = new FileInputStream("src\\main\\jni\\test_sound_mono_48.pcm");
+	        FileOutputStream outputStream = new FileOutputStream("src\\main\\jni\\test_sound_mono_48_decoded.pcm", false);
+	    	
+	    	OpusJni opus = new OpusJni();
+	    	opus.setOpusObserverNative(this);
+	    	opus.sayHelloNative();
+	    	opus.initNative();
+
+	        try {
+	        	byte[] input = new byte[960];
+	        	short[] inputData = new short[480];
+        		byte[] output = new byte[960];
+	        	while (inputStream.read(input) == 960) {
+	        		ByteBuffer.wrap(input).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(inputData);
+	        		byte[] encodedData = opus.encodeNative(inputData);
+	        		short[] decodedData = opus.decodeNative(encodedData);
+	        		ByteBuffer.wrap(output).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().put(decodedData);
+	        		outputStream.write(output);
+	        	}
+	        } finally {
+	        	inputStream.close();
+	        	outputStream.close();
+	        	opus.closeNative();
+	        }
+    	} catch (IOException exc) {
+    		System.out.println("IOException: " + exc.getMessage());
+        	return;
+    	}
     	
         org.restcomm.media.spi.dsp.Codec compressor = new Encoder();
         long s = System.nanoTime();
