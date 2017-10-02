@@ -26,20 +26,21 @@ import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
  */
-class IsTimeoutSignalCondition extends NotificationCenterCondition {
+class IsActiveTimeoutSignalCondition extends NotificationCenterCondition {
 
-    static final IsTimeoutSignalCondition INSTANCE = new IsTimeoutSignalCondition();
+    static final IsActiveTimeoutSignalCondition INSTANCE = new IsActiveTimeoutSignalCondition();
 
-    IsTimeoutSignalCondition() {
+    private IsActiveTimeoutSignalCondition() {
         super();
     }
 
     @Override
     public boolean isSatisfied(NotificationCenterTransitionContext context) {
-        MgcpSignal<?> signal = context.get(NotificationCenterTransitionParameter.SIGNAL, MgcpSignal.class);
-        return (signal instanceof TimeoutSignal);
+        final MgcpSignal<?> signal = context.get(NotificationCenterTransitionParameter.SIGNAL, MgcpSignal.class);
+        final String currentRequestId = context.get(NotificationCenterTransitionParameter.REQUEST_IDENTIFIER, String.class);
+
+        return (signal instanceof TimeoutSignal) && (currentRequestId.equals(signal.getRequestId()));
     }
 
 }

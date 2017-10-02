@@ -30,14 +30,14 @@ import com.google.common.util.concurrent.FutureCallback;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class SignalCancellationCallback<T> implements FutureCallback<T> {
+class SignalCancellationCallback<T> implements FutureCallback<T> {
 
     private static final Logger log = Logger.getLogger(SignalCancellationCallback.class);
 
     private final MgcpSignal<T> signal;
     private final NotificationCenterFsm fsm;
 
-    public SignalCancellationCallback(MgcpSignal<T> signal, NotificationCenterFsm fsm) {
+    SignalCancellationCallback(MgcpSignal<T> signal, NotificationCenterFsm fsm) {
         this.signal = signal;
         this.fsm = fsm;
     }
@@ -45,6 +45,7 @@ public class SignalCancellationCallback<T> implements FutureCallback<T> {
     @Override
     public void onSuccess(T result) {
         final NotificationCenterTransitionContext txContext = new NotificationCenterTransitionContext();
+        txContext.set(NotificationCenterTransitionParameter.REQUEST_IDENTIFIER, fsm.getContext().getRequestId());
         txContext.set(NotificationCenterTransitionParameter.SIGNAL_RESULT, result);
         txContext.set(NotificationCenterTransitionParameter.SIGNAL, this.signal);
         this.fsm.fire(NotificationCenterEvent.SIGNAL_CANCELLED, txContext);
@@ -59,6 +60,7 @@ public class SignalCancellationCallback<T> implements FutureCallback<T> {
     @Override
     public void onFailure(Throwable t) {
         final NotificationCenterTransitionContext txContext = new NotificationCenterTransitionContext();
+        txContext.set(NotificationCenterTransitionParameter.REQUEST_IDENTIFIER, fsm.getContext().getRequestId());
         txContext.set(NotificationCenterTransitionParameter.FAILED_SIGNAL, this.signal);
         txContext.set(NotificationCenterTransitionParameter.ERROR, this.signal);
         this.fsm.fire(NotificationCenterEvent.SIGNAL_FAILED, txContext);

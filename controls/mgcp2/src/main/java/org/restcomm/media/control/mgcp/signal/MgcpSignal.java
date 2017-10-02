@@ -43,6 +43,8 @@ import com.google.common.util.concurrent.FutureCallback;
  */
 public interface MgcpSignal<T> {
 
+    String getRequestId();
+
     void execute(FutureCallback<T> callback);
     
     @Override

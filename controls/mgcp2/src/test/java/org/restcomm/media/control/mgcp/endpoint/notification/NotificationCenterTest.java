@@ -18,7 +18,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
+
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
 import static org.mockito.Mockito.*;
@@ -43,20 +43,19 @@ import com.google.common.util.concurrent.FutureCallback;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
  */
 public class NotificationCenterTest {
-    
+
     private NotificationCenterFsm fsm;
-    
+
     @After
     public void after() {
-        if(fsm != null && fsm.isStarted()) {
+        if (fsm != null && fsm.isStarted()) {
             fsm.terminate();
             fsm = null;
         }
     }
-    
+
     @Test
     @SuppressWarnings("unchecked")
     public void testRqntWithTimeoutAndBriefSignals() {
@@ -67,24 +66,36 @@ public class NotificationCenterTest {
 
         final MgcpRequestedEvent requestedEvent1 = new MgcpRequestedEvent(requestId, "AU", "oc", MgcpActionType.NOTIFY);
         final MgcpRequestedEvent requestedEvent2 = new MgcpRequestedEvent(requestId, "AU", "of", MgcpActionType.NOTIFY);
-        final MgcpRequestedEvent[] requestedEvents = new MgcpRequestedEvent[] { requestedEvent1, requestedEvent2 };
+        final MgcpRequestedEvent[] requestedEvents = new MgcpRequestedEvent[]{requestedEvent1, requestedEvent2};
 
         final TimeoutSignal timeoutSignal1 = mock(TimeoutSignal.class);
+        when(timeoutSignal1.getRequestId()).thenReturn(requestId);
+
         final TimeoutSignal timeoutSignal2 = mock(TimeoutSignal.class);
+        when(timeoutSignal2.getRequestId()).thenReturn(requestId);
+
         final TimeoutSignal timeoutSignal3 = mock(TimeoutSignal.class);
+        when(timeoutSignal3.getRequestId()).thenReturn(requestId);
+
         final BriefSignal briefSignal1 = mock(BriefSignal.class);
+        when(briefSignal1.getRequestId()).thenReturn(requestId);
+
         final BriefSignal briefSignal2 = mock(BriefSignal.class);
+        when(briefSignal2.getRequestId()).thenReturn(requestId);
+
         final BriefSignal briefSignal3 = mock(BriefSignal.class);
-        final MgcpSignal<?>[] requestedSignals = new MgcpSignal[] { timeoutSignal1, timeoutSignal2, briefSignal1, briefSignal2, timeoutSignal3, briefSignal3 };
+        when(briefSignal3.getRequestId()).thenReturn(requestId);
+
+        final MgcpSignal<?>[] requestedSignals = new MgcpSignal[]{timeoutSignal1, timeoutSignal2, briefSignal1, briefSignal2, timeoutSignal3, briefSignal3};
 
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/mock/1", "127.0.0.1:2427");
         when(endpoint.getEndpointId()).thenReturn(endpointId);
-        
+
         final NotificationCenterContext context = new NotificationCenterContext(endpoint);
         this.fsm = NotificationCenterFsmBuilder.INSTANCE.build(context);
         final NotificationCenterImpl notificationCenter = new NotificationCenterImpl(this.fsm);
-        
+
         // when - submit rqnt
         final FutureCallback<Void> callback = mock(FutureCallback.class);
         final NotificationRequest rqnt = new NotificationRequest(transactionId, requestId, notifiedEntity, requestedEvents, requestedSignals);
@@ -94,7 +105,7 @@ public class NotificationCenterTest {
         // then
         final ArgumentCaptor<TimeoutSignalExecutionCallback> timeoutCallbackCaptor = ArgumentCaptor.forClass(TimeoutSignalExecutionCallback.class);
         final ArgumentCaptor<BriefSignalExecutionCallback> briefCallbackCaptor = ArgumentCaptor.forClass(BriefSignalExecutionCallback.class);
-        
+
         verify(timeoutSignal1).execute(timeoutCallbackCaptor.capture());
         verify(timeoutSignal2).execute(any(TimeoutSignalExecutionCallback.class));
         verify(timeoutSignal3).execute(any(TimeoutSignalExecutionCallback.class));
@@ -102,31 +113,31 @@ public class NotificationCenterTest {
         verify(briefSignal2, never()).execute(any(BriefSignalExecutionCallback.class));
         verify(briefSignal3, never()).execute(any(BriefSignalExecutionCallback.class));
         verify(callback).onSuccess(null);
-        
+
         // when - BR signal completes
         briefCallbackCaptor.getValue().onSuccess(null);
-        
+
         // then
         verify(briefSignal2).execute(any(BriefSignalExecutionCallback.class));
         verify(briefSignal3, never()).execute(any(BriefSignalExecutionCallback.class));
         assertEquals(1, context.getPendingBriefSignals().size());
-        
+
         // when - TO signal times out
         final MgcpEvent event = mock(MgcpEvent.class);
         when(event.getPackage()).thenReturn("AU");
         when(event.getSymbol()).thenReturn("oc");
-        
+
         timeoutCallbackCaptor.getValue().onSuccess(event);
-        
+
         // then
         verify(timeoutSignal2).cancel(any(TimeoutSignalCancellationCallback.class));
         verify(timeoutSignal3).cancel(any(TimeoutSignalCancellationCallback.class));
         verify(endpoint).onEvent(any(), eq(event));
-        
+
         assertTrue(context.getPendingBriefSignals().isEmpty());
         assertTrue(context.getTimeoutSignals().isEmpty());
     }
-    
+
     @Test
     @SuppressWarnings("unchecked")
     public void testCancelAllOngoingSignals() {
@@ -134,48 +145,60 @@ public class NotificationCenterTest {
         final int transactionId = 12345;
         final String requestId = "555";
         final NotifiedEntity notifiedEntity = new NotifiedEntity();
-        
+
         final MgcpRequestedEvent requestedEvent1 = new MgcpRequestedEvent(requestId, "AU", "oc", MgcpActionType.NOTIFY);
         final MgcpRequestedEvent requestedEvent2 = new MgcpRequestedEvent(requestId, "AU", "of", MgcpActionType.NOTIFY);
-        final MgcpRequestedEvent[] requestedEvents = new MgcpRequestedEvent[] { requestedEvent1, requestedEvent2 };
-        
+        final MgcpRequestedEvent[] requestedEvents = new MgcpRequestedEvent[]{requestedEvent1, requestedEvent2};
+
         final TimeoutSignal timeoutSignal1 = mock(TimeoutSignal.class);
+        when(timeoutSignal1.getRequestId()).thenReturn(requestId);
+
         final TimeoutSignal timeoutSignal2 = mock(TimeoutSignal.class);
+        when(timeoutSignal2.getRequestId()).thenReturn(requestId);
+
         final TimeoutSignal timeoutSignal3 = mock(TimeoutSignal.class);
+        when(timeoutSignal3.getRequestId()).thenReturn(requestId);
+
         final BriefSignal briefSignal1 = mock(BriefSignal.class);
+        when(briefSignal1.getRequestId()).thenReturn(requestId);
+
         final BriefSignal briefSignal2 = mock(BriefSignal.class);
+        when(briefSignal2.getRequestId()).thenReturn(requestId);
+
         final BriefSignal briefSignal3 = mock(BriefSignal.class);
-        final MgcpSignal<?>[] requestedSignals = new MgcpSignal[] { timeoutSignal1, timeoutSignal2, briefSignal1, briefSignal2, timeoutSignal3, briefSignal3 };
-        
+        when(briefSignal3.getRequestId()).thenReturn(requestId);
+
+        final MgcpSignal<?>[] requestedSignals = new MgcpSignal[]{timeoutSignal1, timeoutSignal2, briefSignal1, briefSignal2, timeoutSignal3, briefSignal3};
+
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/mock/1", "127.0.0.1:2427");
         when(endpoint.getEndpointId()).thenReturn(endpointId);
-        
+
         final NotificationCenterContext context = new NotificationCenterContext(endpoint);
         this.fsm = NotificationCenterFsmBuilder.INSTANCE.build(context);
         final NotificationCenterImpl notificationCenter = new NotificationCenterImpl(this.fsm);
-        
+
         // when - submit rqnt
         final FutureCallback<Void> callback1 = mock(FutureCallback.class);
         final NotificationRequest rqnt1 = new NotificationRequest(transactionId, requestId, notifiedEntity, requestedEvents, requestedSignals);
-        
+
         notificationCenter.requestNotification(rqnt1, callback1);
-        
+
         // then
         verify(callback1, timeout(50)).onSuccess(null);
 
         // when - override signals
         final FutureCallback<Void> callback2 = mock(FutureCallback.class);
         final NotificationRequest rqnt2 = new NotificationRequest(transactionId, requestId, notifiedEntity, requestedEvents, new MgcpSignal<?>[0]);
-        
+
         notificationCenter.requestNotification(rqnt2, callback2);
-        
+
         // then
         verify(callback2, timeout(50)).onSuccess(null);
         verify(timeoutSignal1).cancel(any(TimeoutSignalCancellationCallback.class));
         verify(timeoutSignal2).cancel(any(TimeoutSignalCancellationCallback.class));
         verify(timeoutSignal3).cancel(any(TimeoutSignalCancellationCallback.class));
-        
+
         assertTrue(context.getPendingBriefSignals().isEmpty());
         assertTrue(context.getTimeoutSignals().isEmpty());
         assertNotNull(context.getActiveBriefSignal());
@@ -188,53 +211,60 @@ public class NotificationCenterTest {
         final int transactionId = 12345;
         final String requestId = "555";
         final NotifiedEntity notifiedEntity = new NotifiedEntity();
-        
+
         final MgcpRequestedEvent requestedEvent1 = new MgcpRequestedEvent(requestId, "AU", "oc", MgcpActionType.NOTIFY);
         final MgcpRequestedEvent requestedEvent2 = new MgcpRequestedEvent(requestId, "AU", "of", MgcpActionType.NOTIFY);
-        final MgcpRequestedEvent[] requestedEvents = new MgcpRequestedEvent[] { requestedEvent1, requestedEvent2 };
-        
+        final MgcpRequestedEvent[] requestedEvents = new MgcpRequestedEvent[]{requestedEvent1, requestedEvent2};
+
         final TimeoutSignal timeoutSignal1 = mock(TimeoutSignal.class);
+        when(timeoutSignal1.getRequestId()).thenReturn(requestId);
+
         final TimeoutSignal timeoutSignal2 = mock(TimeoutSignal.class);
+        when(timeoutSignal2.getRequestId()).thenReturn(requestId);
+
         final TimeoutSignal timeoutSignal3 = mock(TimeoutSignal.class);
-        final MgcpSignal<?>[] requestedSignals = new MgcpSignal[] { timeoutSignal1, timeoutSignal2, timeoutSignal3 };
-        
+        when(timeoutSignal3.getRequestId()).thenReturn(requestId);
+
+        final MgcpSignal<?>[] requestedSignals = new MgcpSignal[]{timeoutSignal1, timeoutSignal2, timeoutSignal3};
+
+
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/mock/1", "127.0.0.1:2427");
         when(endpoint.getEndpointId()).thenReturn(endpointId);
-        
+
         final NotificationCenterContext context = new NotificationCenterContext(endpoint);
         this.fsm = NotificationCenterFsmBuilder.INSTANCE.build(context);
         final NotificationCenterImpl notificationCenter = new NotificationCenterImpl(this.fsm);
-        
+
         // when - submit rqnt
         final FutureCallback<Void> callback1 = mock(FutureCallback.class);
         final NotificationRequest rqnt1 = new NotificationRequest(transactionId, requestId, notifiedEntity, requestedEvents, requestedSignals);
-        
+
         notificationCenter.requestNotification(rqnt1, callback1);
-        
+
         // then
         verify(callback1, timeout(50)).onSuccess(null);
-        
+
         // when - override signals
         final BriefSignal briefSignal1 = mock(BriefSignal.class);
         final BriefSignal briefSignal2 = mock(BriefSignal.class);
-        final NotificationRequest rqnt2 = new NotificationRequest(transactionId, requestId, notifiedEntity, requestedEvents, new MgcpSignal<?>[] { briefSignal1, briefSignal2 });
+        final NotificationRequest rqnt2 = new NotificationRequest(transactionId, requestId, notifiedEntity, requestedEvents, new MgcpSignal<?>[]{briefSignal1, briefSignal2});
         final FutureCallback<Void> callback2 = mock(FutureCallback.class);
 
         notificationCenter.requestNotification(rqnt2, callback2);
-        
+
         // then
         verify(callback2, timeout(50)).onSuccess(null);
         verify(timeoutSignal1).cancel(any(TimeoutSignalCancellationCallback.class));
         verify(timeoutSignal2).cancel(any(TimeoutSignalCancellationCallback.class));
         verify(timeoutSignal3).cancel(any(TimeoutSignalCancellationCallback.class));
-        
+
         assertTrue(context.getTimeoutSignals().isEmpty());
         assertEquals(1, context.getPendingBriefSignals().size());
         assertTrue(context.getPendingBriefSignals().contains(briefSignal2));
         assertEquals(briefSignal1, context.getActiveBriefSignal());
     }
-    
+
     @Test
     @SuppressWarnings("unchecked")
     public void testCancelSignalsButMaintainOneTimeout() {
@@ -242,49 +272,56 @@ public class NotificationCenterTest {
         final int transactionId = 12345;
         final String requestId = "555";
         final NotifiedEntity notifiedEntity = new NotifiedEntity();
-        
+
         final MgcpRequestedEvent requestedEvent1 = new MgcpRequestedEvent(requestId, "AU", "oc", MgcpActionType.NOTIFY);
         final MgcpRequestedEvent requestedEvent2 = new MgcpRequestedEvent(requestId, "AU", "of", MgcpActionType.NOTIFY);
-        final MgcpRequestedEvent[] requestedEvents = new MgcpRequestedEvent[] { requestedEvent1, requestedEvent2 };
-        
+        final MgcpRequestedEvent[] requestedEvents = new MgcpRequestedEvent[]{requestedEvent1, requestedEvent2};
+
         final TimeoutSignal timeoutSignal1 = mock(TimeoutSignal.class);
+        when(timeoutSignal1.getRequestId()).thenReturn(requestId);
+
         final TimeoutSignal timeoutSignal2 = mock(TimeoutSignal.class);
+        when(timeoutSignal2.getRequestId()).thenReturn(requestId);
+
         final TimeoutSignal timeoutSignal3 = mock(TimeoutSignal.class);
-        final MgcpSignal<?>[] requestedSignals = new MgcpSignal[] { timeoutSignal1, timeoutSignal2, timeoutSignal3 };
-        
+        when(timeoutSignal3.getRequestId()).thenReturn(requestId);
+
+        final MgcpSignal<?>[] requestedSignals = new MgcpSignal[]{timeoutSignal1, timeoutSignal2, timeoutSignal3};
+
+
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/mock/1", "127.0.0.1:2427");
         when(endpoint.getEndpointId()).thenReturn(endpointId);
-        
+
         final NotificationCenterContext context = new NotificationCenterContext(endpoint);
         this.fsm = NotificationCenterFsmBuilder.INSTANCE.build(context);
         final NotificationCenterImpl notificationCenter = new NotificationCenterImpl(this.fsm);
-        
+
         // when - submit rqnt
         final FutureCallback<Void> callback1 = mock(FutureCallback.class);
         final NotificationRequest rqnt1 = new NotificationRequest(transactionId, requestId, notifiedEntity, requestedEvents, requestedSignals);
-        
+
         notificationCenter.requestNotification(rqnt1, callback1);
-        
+
         // then
         verify(callback1, timeout(50)).onSuccess(null);
-        
+
         // when - override signals
         final FutureCallback<Void> callback2 = mock(FutureCallback.class);
-        final NotificationRequest rqnt2 = new NotificationRequest(transactionId, requestId, notifiedEntity, requestedEvents, new MgcpSignal<?>[] { timeoutSignal1 });
-        
+        final NotificationRequest rqnt2 = new NotificationRequest(transactionId, requestId, notifiedEntity, requestedEvents, new MgcpSignal<?>[]{timeoutSignal1});
+
         notificationCenter.requestNotification(rqnt2, callback2);
-        
+
         // then
         verify(callback2, timeout(50)).onSuccess(null);
         verify(timeoutSignal1, never()).cancel(any(TimeoutSignalCancellationCallback.class));
         verify(timeoutSignal2).cancel(any(TimeoutSignalCancellationCallback.class));
         verify(timeoutSignal3).cancel(any(TimeoutSignalCancellationCallback.class));
-        
+
         assertTrue(context.getTimeoutSignals().contains(timeoutSignal1));
         assertEquals(1, context.getTimeoutSignals().size());
     }
-    
+
     @Test
     @SuppressWarnings("unchecked")
     public void testDeactivationWithOngoingSignals() {
@@ -292,68 +329,80 @@ public class NotificationCenterTest {
         final int transactionId = 12345;
         final String requestId = "555";
         final NotifiedEntity notifiedEntity = new NotifiedEntity();
-        
+
         final MgcpRequestedEvent requestedEvent1 = new MgcpRequestedEvent(requestId, "AU", "oc", MgcpActionType.NOTIFY);
         final MgcpRequestedEvent requestedEvent2 = new MgcpRequestedEvent(requestId, "AU", "of", MgcpActionType.NOTIFY);
-        final MgcpRequestedEvent[] requestedEvents = new MgcpRequestedEvent[] { requestedEvent1, requestedEvent2 };
-        
+        final MgcpRequestedEvent[] requestedEvents = new MgcpRequestedEvent[]{requestedEvent1, requestedEvent2};
+
         final TimeoutSignal timeoutSignal1 = mock(TimeoutSignal.class);
+        when(timeoutSignal1.getRequestId()).thenReturn(requestId);
+
         final TimeoutSignal timeoutSignal2 = mock(TimeoutSignal.class);
+        when(timeoutSignal2.getRequestId()).thenReturn(requestId);
+
         final TimeoutSignal timeoutSignal3 = mock(TimeoutSignal.class);
+        when(timeoutSignal3.getRequestId()).thenReturn(requestId);
+
         final BriefSignal briefSignal1 = mock(BriefSignal.class);
+        when(briefSignal1.getRequestId()).thenReturn(requestId);
+
         final BriefSignal briefSignal2 = mock(BriefSignal.class);
+        when(briefSignal2.getRequestId()).thenReturn(requestId);
+
         final BriefSignal briefSignal3 = mock(BriefSignal.class);
-        final MgcpSignal<?>[] requestedSignals = new MgcpSignal[] { timeoutSignal1, timeoutSignal2, briefSignal1, briefSignal2, timeoutSignal3, briefSignal3 };
-        
+        when(briefSignal3.getRequestId()).thenReturn(requestId);
+
+        final MgcpSignal<?>[] requestedSignals = new MgcpSignal[]{timeoutSignal1, timeoutSignal2, briefSignal1, briefSignal2, timeoutSignal3, briefSignal3};
+
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/mock/1", "127.0.0.1:2427");
         when(endpoint.getEndpointId()).thenReturn(endpointId);
-        
+
         final NotificationCenterContext context = new NotificationCenterContext(endpoint);
         this.fsm = NotificationCenterFsmBuilder.INSTANCE.build(context);
         final NotificationCenterImpl notificationCenter = new NotificationCenterImpl(this.fsm);
-        
+
         // when - submit rqnt, wait for callback and then shutdown
         final FutureCallback<Void> rqntCallback = mock(FutureCallback.class);
         final NotificationRequest rqnt = new NotificationRequest(transactionId, requestId, notifiedEntity, requestedEvents, requestedSignals);
-        
+
         notificationCenter.requestNotification(rqnt, rqntCallback);
         verify(rqntCallback, timeout(50)).onSuccess(null);
-        
+
         final FutureCallback<Void> shutdownCallback = mock(FutureCallback.class);
         notificationCenter.shutdown(shutdownCallback);
-        
+
         // then
         ArgumentCaptor<TimeoutSignalCancellationCallback> timeoutCancelCallback1 = ArgumentCaptor.forClass(TimeoutSignalCancellationCallback.class);
         ArgumentCaptor<TimeoutSignalCancellationCallback> timeoutCancelCallback2 = ArgumentCaptor.forClass(TimeoutSignalCancellationCallback.class);
         ArgumentCaptor<TimeoutSignalCancellationCallback> timeoutCancelCallback3 = ArgumentCaptor.forClass(TimeoutSignalCancellationCallback.class);
-        
+
         verify(timeoutSignal1).cancel(timeoutCancelCallback1.capture());
         verify(timeoutSignal2).cancel(timeoutCancelCallback2.capture());
         verify(timeoutSignal3).cancel(timeoutCancelCallback3.capture());
         assertEquals(3, context.getTimeoutSignals().size());
         assertTrue(context.getPendingBriefSignals().isEmpty());
         assertNotNull(context.getActiveBriefSignal());
-        
+
         // when - TO signals canceled
         final MgcpEvent event = mock(MgcpEvent.class);
         when(event.getPackage()).thenReturn("AU");
         when(event.getSymbol()).thenReturn("oc");
-        
+
         timeoutCancelCallback1.getValue().onSuccess(event);
         timeoutCancelCallback2.getValue().onSuccess(event);
         timeoutCancelCallback3.getValue().onSuccess(event);
-        
+
         // then
         assertTrue(context.getTimeoutSignals().isEmpty());
         verify(endpoint, never()).onEvent(any(), eq(event));
-        
+
         // when - BR signal completes execution
         ArgumentCaptor<BriefSignalExecutionCallback> briefExecuteCallback1 = ArgumentCaptor.forClass(BriefSignalExecutionCallback.class);
         verify(briefSignal1).execute(briefExecuteCallback1.capture());
-        
+
         briefExecuteCallback1.getValue().onSuccess(null);
-        
+
         // then
         assertNull(context.getActiveBriefSignal());
         verify(shutdownCallback).onSuccess(null);
@@ -367,57 +416,63 @@ public class NotificationCenterTest {
         final int transactionId = 12345;
         final String requestId = "555";
         final NotifiedEntity notifiedEntity = new NotifiedEntity();
-        
+
         final MgcpRequestedEvent requestedEvent1 = new MgcpRequestedEvent(requestId, "AU", "oc", MgcpActionType.NOTIFY);
         final MgcpRequestedEvent requestedEvent2 = new MgcpRequestedEvent(requestId, "AU", "of", MgcpActionType.NOTIFY);
-        final MgcpRequestedEvent[] requestedEvents = new MgcpRequestedEvent[] { requestedEvent1, requestedEvent2 };
-        
+        final MgcpRequestedEvent[] requestedEvents = new MgcpRequestedEvent[]{requestedEvent1, requestedEvent2};
+
         final TimeoutSignal timeoutSignal1 = mock(TimeoutSignal.class);
+        when(timeoutSignal1.getRequestId()).thenReturn(requestId);
+
         final TimeoutSignal timeoutSignal2 = mock(TimeoutSignal.class);
+        when(timeoutSignal2.getRequestId()).thenReturn(requestId);
+
         final TimeoutSignal timeoutSignal3 = mock(TimeoutSignal.class);
-        final MgcpSignal<?>[] requestedSignals = new MgcpSignal[] { timeoutSignal1, timeoutSignal2, timeoutSignal3 };
-        
+        when(timeoutSignal3.getRequestId()).thenReturn(requestId);
+
+        final MgcpSignal<?>[] requestedSignals = new MgcpSignal[]{timeoutSignal1, timeoutSignal2, timeoutSignal3};
+
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/mock/1", "127.0.0.1:2427");
         when(endpoint.getEndpointId()).thenReturn(endpointId);
-        
+
         final NotificationCenterContext context = new NotificationCenterContext(endpoint);
         this.fsm = NotificationCenterFsmBuilder.INSTANCE.build(context);
         final NotificationCenterImpl notificationCenter = new NotificationCenterImpl(this.fsm);
-        
+
         // when - submit rqnt, wait for callback and then shutdown
         final FutureCallback<Void> rqntCallback = mock(FutureCallback.class);
         final NotificationRequest rqnt = new NotificationRequest(transactionId, requestId, notifiedEntity, requestedEvents, requestedSignals);
-        
+
         notificationCenter.requestNotification(rqnt, rqntCallback);
         verify(rqntCallback, timeout(50)).onSuccess(null);
-        
+
         final FutureCallback<Void> shutdownCallback = mock(FutureCallback.class);
         notificationCenter.shutdown(shutdownCallback);
-        
+
         // then
         ArgumentCaptor<TimeoutSignalExecutionCallback> timeoutExecutionCallback = ArgumentCaptor.forClass(TimeoutSignalExecutionCallback.class);
         ArgumentCaptor<TimeoutSignalCancellationCallback> timeoutCancelCallback1 = ArgumentCaptor.forClass(TimeoutSignalCancellationCallback.class);
         ArgumentCaptor<TimeoutSignalCancellationCallback> timeoutCancelCallback2 = ArgumentCaptor.forClass(TimeoutSignalCancellationCallback.class);
         ArgumentCaptor<TimeoutSignalCancellationCallback> timeoutCancelCallback3 = ArgumentCaptor.forClass(TimeoutSignalCancellationCallback.class);
-        
+
         verify(timeoutSignal1).execute(timeoutExecutionCallback.capture());
-        
+
         verify(timeoutSignal1).cancel(timeoutCancelCallback1.capture());
         verify(timeoutSignal2).cancel(timeoutCancelCallback2.capture());
         verify(timeoutSignal3).cancel(timeoutCancelCallback3.capture());
         assertEquals(3, context.getTimeoutSignals().size());
-        
+
         // when - TO signals terminated
         final MgcpEvent event = mock(MgcpEvent.class);
         when(event.getPackage()).thenReturn("AU");
         when(event.getSymbol()).thenReturn("oc");
-        
+
         timeoutExecutionCallback.getValue().onSuccess(event);
         timeoutCancelCallback1.getValue().onFailure(new Exception("testing purposes"));
         timeoutCancelCallback2.getValue().onSuccess(event);
         timeoutCancelCallback3.getValue().onSuccess(event);
-        
+
         // then
         assertTrue(context.getTimeoutSignals().isEmpty());
         verify(endpoint, never()).onEvent(any(), eq(event));
@@ -432,40 +487,47 @@ public class NotificationCenterTest {
         final int transactionId = 12345;
         final String requestId = "555";
         final NotifiedEntity notifiedEntity = new NotifiedEntity();
-        
+
         final MgcpRequestedEvent requestedEvent1 = new MgcpRequestedEvent(requestId, "AU", "oc", MgcpActionType.NOTIFY);
         final MgcpRequestedEvent requestedEvent2 = new MgcpRequestedEvent(requestId, "AU", "of", MgcpActionType.NOTIFY);
-        final MgcpRequestedEvent[] requestedEvents = new MgcpRequestedEvent[] { requestedEvent1, requestedEvent2 };
-        
+        final MgcpRequestedEvent[] requestedEvents = new MgcpRequestedEvent[]{requestedEvent1, requestedEvent2};
+
         final TimeoutSignal timeoutSignal1 = mock(TimeoutSignal.class);
+        when(timeoutSignal1.getRequestId()).thenReturn(requestId);
+
         final TimeoutSignal timeoutSignal2 = mock(TimeoutSignal.class);
+        when(timeoutSignal2.getRequestId()).thenReturn(requestId);
+
         final TimeoutSignal timeoutSignal3 = mock(TimeoutSignal.class);
-        final MgcpSignal<?>[] requestedSignals = new MgcpSignal[] { timeoutSignal1, timeoutSignal2, timeoutSignal3 };
-        
+        when(timeoutSignal3.getRequestId()).thenReturn(requestId);
+
+        final MgcpSignal<?>[] requestedSignals = new MgcpSignal[]{timeoutSignal1, timeoutSignal2, timeoutSignal3};
+
+
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/mock/1", "127.0.0.1:2427");
         when(endpoint.getEndpointId()).thenReturn(endpointId);
-        
+
         final NotificationCenterContext context = new NotificationCenterContext(endpoint);
         this.fsm = NotificationCenterFsmBuilder.INSTANCE.build(context);
         final NotificationCenterImpl notificationCenter = new NotificationCenterImpl(this.fsm);
-        
+
         // when - submit rqnt with signals
         final FutureCallback<Void> rqntCallback = mock(FutureCallback.class);
         final NotificationRequest rqnt = new NotificationRequest(transactionId, requestId, notifiedEntity, requestedEvents, requestedSignals);
-        
+
         notificationCenter.requestNotification(rqnt, rqntCallback);
-        
+
         // when - shutdown notification center
         final FutureCallback<Void> shutdownCallback = mock(FutureCallback.class);
         notificationCenter.shutdown(shutdownCallback);
-        
+
         // when - request notification while shutting down
         final FutureCallback<Void> rqntCallback2 = mock(FutureCallback.class);
         final NotificationRequest rqnt2 = new NotificationRequest(transactionId, requestId, notifiedEntity, requestedEvents, requestedSignals);
-        
+
         notificationCenter.requestNotification(rqnt2, rqntCallback2);
-        
+
         // then - second RQNT is denied
         verify(rqntCallback2, timeout(50)).onFailure(any(IllegalStateException.class));
     }
