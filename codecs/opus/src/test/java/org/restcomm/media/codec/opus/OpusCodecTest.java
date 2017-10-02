@@ -79,11 +79,13 @@ public class OpusCodecTest implements OpusJni.Observer {
      * Test of process method, for Encoder and Decoder.
      */
     @Test
-    public void testCodec() {
+    public void testCodec() throws Exception {
     	
     	try {
-	        FileInputStream inputStream = new FileInputStream("src\\main\\jni\\test_sound_mono_48.pcm");
-	        FileOutputStream outputStream = new FileOutputStream("src\\main\\jni\\test_sound_mono_48_decoded.pcm", false);
+    		final int packetSize = 480;
+    		File outputFile = File.createTempFile("opustest", ".tmp");
+	        FileInputStream inputStream = new FileInputStream("src\\test\\resources\\test_sound_mono_48.pcm");
+	        FileOutputStream outputStream = new FileOutputStream(outputFile, false);
 	    	
 	    	OpusJni opus = new OpusJni();
 	    	opus.setOpusObserverNative(this);
@@ -91,10 +93,10 @@ public class OpusCodecTest implements OpusJni.Observer {
 	    	opus.initNative();
 
 	        try {
-	        	byte[] input = new byte[960];
-	        	short[] inputData = new short[480];
-        		byte[] output = new byte[960];
-	        	while (inputStream.read(input) == 960) {
+	        	byte[] input = new byte[packetSize];
+	        	short[] inputData = new short[packetSize];
+        		byte[] output = new byte[2 * packetSize];
+	        	while (inputStream.read(input) == 2 * packetSize) {
 	        		ByteBuffer.wrap(input).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(inputData);
 	        		byte[] encodedData = opus.encodeNative(inputData);
 	        		short[] decodedData = opus.decodeNative(encodedData);
@@ -105,6 +107,7 @@ public class OpusCodecTest implements OpusJni.Observer {
 	        	inputStream.close();
 	        	outputStream.close();
 	        	opus.closeNative();
+	        	outputFile.delete();
 	        }
     	} catch (IOException exc) {
         	return;
