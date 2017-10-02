@@ -21,6 +21,7 @@
 
 package org.restcomm.media.codec.opus;
 
+import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -28,14 +29,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.ShortBuffer;
 
 import org.restcomm.media.codec.opus.Decoder;
 import org.restcomm.media.codec.opus.Encoder;
@@ -51,7 +50,9 @@ import org.restcomm.media.spi.memory.Memory;
  * 
  */
 public class OpusCodecTest implements OpusJni.Observer {
-	
+
+    private static final Logger log = Logger.getLogger(OpusCodecTest.class);
+
     private Frame buffer = Memory.allocate(512);
     
     @BeforeClass
@@ -106,25 +107,25 @@ public class OpusCodecTest implements OpusJni.Observer {
 	        	opus.closeNative();
 	        }
     	} catch (IOException exc) {
-    		System.out.println("IOException: " + exc.getMessage());
         	return;
+    		log.error("IOException: " + exc.getMessage());
     	}
     	
         org.restcomm.media.spi.dsp.Codec compressor = new Encoder();
         long s = System.nanoTime();
         compressor.process(buffer);
         long f = System.nanoTime();
-        System.out.println("Duration=" + (f-s));
+        log.info("Duration=" + (f-s));
         
         org.restcomm.media.spi.dsp.Codec decompressor = new Decoder();
         s = System.nanoTime();
         decompressor.process(buffer);
         f = System.nanoTime();
-        System.out.println("Duration=" + (f-s));
+        log.info("Duration=" + (f-s));
     }
     
     @Override
     public void onHello() {
-    	System.out.println("Hello World - Java!");
+    	log.info("Hello World - Java!");
     }
 }
