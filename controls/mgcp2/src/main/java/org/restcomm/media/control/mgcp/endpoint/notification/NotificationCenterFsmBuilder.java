@@ -44,7 +44,7 @@ public class NotificationCenterFsmBuilder {
         this.builder = StateMachineBuilderFactory.<NotificationCenterFsm, NotificationCenterState, NotificationCenterEvent, NotificationCenterTransitionContext> create(NotificationCenterFsmImpl.class, NotificationCenterState.class, NotificationCenterEvent.class, NotificationCenterTransitionContext.class, NotificationCenterContext.class);
 
         final List<NotificationCenterAction> rqntActionsIdle = Arrays.asList(FilterRequestedSignalsAction.INSTANCE, RequestNotificationAction.INSTANCE, ExecutePendingSignalsAction.INSTANCE, NotifyCallbackAction.INSTANCE);
-        final List<NotificationCenterAction> rqntActionsActive = Arrays.asList(FilterRequestedSignalsAction.INSTANCE, UnregisterSignalsAction.INSTANCE, CancelUnrequestedTimeoutSignalsAction.INSTANCE, RequestNotificationAction.INSTANCE, ExecutePendingSignalsAction.INSTANCE, NotifyCallbackAction.INSTANCE);
+        final List<NotificationCenterAction> rqntActionsActive = Arrays.asList(FilterRequestedSignalsAction.INSTANCE, QuarantineSignalsAction.INSTANCE, UnregisterSignalsAction.INSTANCE, CancelUnrequestedTimeoutSignalsAction.INSTANCE, RequestNotificationAction.INSTANCE, ExecutePendingSignalsAction.INSTANCE, NotifyCallbackAction.INSTANCE);
         final List<NotificationCenterAction> deactivationActions = Arrays.asList(PersistDeactivationCallbackAction.INSTANCE, CancelAllSignalsAction.INSTANCE);
         
         this.builder.onEntry(IDLE);

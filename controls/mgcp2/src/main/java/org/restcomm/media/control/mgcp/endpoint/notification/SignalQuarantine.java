@@ -36,11 +36,10 @@ import com.google.common.util.concurrent.FutureCallback;
 
 /**
  * Quarantine where signals from a canceled RQNT are kept for historic purposes.
- * 
+ * <p>
  * Mostly queried by EndSignal signal, trying to raise notification from a TO signal.
- * 
- * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 class SignalQuarantine implements Closeable {
 
@@ -116,4 +115,8 @@ class SignalQuarantine implements Closeable {
         this.quarantinedSignals.clear();
     }
 
+    @Override
+    public String toString() {
+        return new StringBuilder("Quarantined RQNT X:").append(this.requestId).append(" , Signals ").append(this.quarantinedSignals.keySet()).toString();
+    }
 }
