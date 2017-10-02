@@ -50,13 +50,15 @@ public class NotificationCenterFsmBuilder {
         this.builder.internalTransition().within(IDLE).on(NOTIFICATION_REQUEST).when(NoRequestedSignalsCondition.INSTANCE).perform(rqntActionsIdle);
         this.builder.transition().from(IDLE).to(ACTIVE).on(NOTIFICATION_REQUEST).when(HasRequestedSignalsCondition.INSTANCE).perform(rqntActionsIdle);
         this.builder.transition().from(IDLE).toFinal(DEACTIVATED).on(STOP);
-        
+
         this.builder.onEntry(ACTIVE);
         this.builder.transition().from(ACTIVE).to(IDLE).on(NOTIFICATION_REQUEST).when(NoRequestedSignalsCondition.INSTANCE).perform(rqntActionsActive);
         this.builder.transition().from(ACTIVE).to(IDLE).on(ALL_SIGNALS_COMPLETED);
         this.builder.internalTransition().within(ACTIVE).on(NOTIFICATION_REQUEST).when(HasRequestedSignalsCondition.INSTANCE).perform(rqntActionsActive);
         this.builder.internalTransition().within(ACTIVE).on(SIGNAL_EXECUTED).when(IsActiveBriefSignalCondition.INSTANCE).perform(ExecuteNextBriefSignalAction.INSTANCE);
         this.builder.internalTransition().within(ACTIVE).on(SIGNAL_EXECUTED).when(IsActiveTimeoutSignalCondition.INSTANCE).perform(EvaluateSignalResultAction.INSTANCE);
+        this.builder.internalTransition().within(ACTIVE).on(SIGNAL_EXECUTED).when(IsQuarantinedTimeoutSignalCondition.INSTANCE).perform(NotifyQuarantinedSignalCompletionAction.INSTANCE);
+        this.builder.internalTransition().within(ACTIVE).on(SIGNAL_CANCELLED).when(IsQuarantinedTimeoutSignalCondition.INSTANCE).perform(NotifyQuarantinedSignalCompletionAction.INSTANCE);
         this.builder.transition().from(ACTIVE).to(DEACTIVATING).on(STOP);
 
         this.builder.onEntry(DEACTIVATING).perform(deactivationActions);
