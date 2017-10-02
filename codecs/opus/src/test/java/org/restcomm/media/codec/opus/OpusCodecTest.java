@@ -81,6 +81,8 @@ public class OpusCodecTest implements OpusJni.Observer {
     @Test
     public void testCodec() throws Exception {
     	
+    	boolean testPassed = false;
+    	
     	try {
     		final int packetSize = 480;
     		File outputFile = File.createTempFile("opustest", ".tmp");
@@ -103,6 +105,7 @@ public class OpusCodecTest implements OpusJni.Observer {
 	        		ByteBuffer.wrap(output).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().put(decodedData);
 	        		outputStream.write(output);
 	        	}
+        		testPassed = true;
 	        } finally {
 	        	inputStream.close();
 	        	outputStream.close();
@@ -110,9 +113,11 @@ public class OpusCodecTest implements OpusJni.Observer {
 	        	outputFile.delete();
 	        }
     	} catch (IOException exc) {
-        	return;
     		log.error("IOException: " + exc.getMessage());
+        	fail("Opus test file access error");
     	}
+    	
+    	assertTrue(testPassed);
     	
         org.restcomm.media.spi.dsp.Codec compressor = new Encoder();
         long s = System.nanoTime();
