@@ -21,6 +21,7 @@
 
 package org.restcomm.media.codec.opus;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -33,6 +34,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigInteger;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -84,32 +87,36 @@ public class OpusCodecTest implements OpusJni.Observer {
     	boolean testPassed = false;
     	
     	try {
+	    	//OpusJni opus = new OpusJni();
+	    	//opus.setOpusObserverNative(this);
+	    	//opus.sayHelloNative();
+    		
     		final int packetSize = 480;
     		File outputFile = File.createTempFile("opustest", ".tmp");
-	        FileInputStream inputStream = new FileInputStream("src\\test\\resources\\test_sound_mono_48.pcm");
+    		URL inputFileUrl = this.getClass().getResource("/test_sound_mono_48.pcm");
+	        FileInputStream inputStream = new FileInputStream(inputFileUrl.getFile());
 	        FileOutputStream outputStream = new FileOutputStream(outputFile, false);
-	    	
-	    	OpusJni opus = new OpusJni();
-	    	opus.setOpusObserverNative(this);
-	    	opus.sayHelloNative();
-	    	opus.initNative();
+	        Encoder encoder = new Encoder();
+	        Decoder decoder = new Decoder();
 
 	        try {
-	        	byte[] input = new byte[packetSize];
-	        	short[] inputData = new short[packetSize];
-        		byte[] output = new byte[2 * packetSize];
+	        	byte[] input = new byte[2 * packetSize];
 	        	while (inputStream.read(input) == 2 * packetSize) {
-	        		ByteBuffer.wrap(input).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(inputData);
-	        		byte[] encodedData = opus.encodeNative(inputData);
-	        		short[] decodedData = opus.decodeNative(encodedData);
-	        		ByteBuffer.wrap(output).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().put(decodedData);
-	        		outputStream.write(output);
+	        		Frame inputFrame = Memory.allocate(2 * packetSize);
+	        		inputFrame.setOffset(0);
+	        		inputFrame.setLength(2 * packetSize);
+	        		inputFrame.setFormat(encoder.getSupportedInputFormat());
+	        		inputFrame.setTimestamp(System.currentTimeMillis());
+	        		inputFrame.setDuration(10);
+	        		System.arraycopy(input, 0, inputFrame.getData(), 0, 2 * packetSize);
+	        		Frame encodedFrame = encoder.process(inputFrame);
+	        		Frame decodedFrame = decoder.process(encodedFrame);
+	        		outputStream.write(decodedFrame.getData());
 	        	}
         		testPassed = true;
 	        } finally {
 	        	inputStream.close();
 	        	outputStream.close();
-	        	opus.closeNative();
 	        	outputFile.delete();
 	        }
     	} catch (IOException exc) {
@@ -118,18 +125,6 @@ public class OpusCodecTest implements OpusJni.Observer {
     	}
     	
     	assertTrue(testPassed);
-    	
-        org.restcomm.media.spi.dsp.Codec compressor = new Encoder();
-        long s = System.nanoTime();
-        compressor.process(buffer);
-        long f = System.nanoTime();
-        log.info("Duration=" + (f-s));
-        
-        org.restcomm.media.spi.dsp.Codec decompressor = new Decoder();
-        s = System.nanoTime();
-        decompressor.process(buffer);
-        f = System.nanoTime();
-        log.info("Duration=" + (f-s));
     }
     
     @Override

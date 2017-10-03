@@ -21,6 +21,11 @@
 
 package org.restcomm.media.codec.opus;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.log4j.Logger;
 import org.restcomm.media.spi.dsp.Codec;
 import org.restcomm.media.spi.format.Format;
 import org.restcomm.media.spi.format.FormatFactory;
@@ -35,11 +40,23 @@ import org.restcomm.media.spi.memory.Memory;
  */
 public class Decoder implements Codec {
 
-    private final static Format opus = FormatFactory.createAudioFormat("opus", 48000, 8, 1);
-    private final static Format linear = FormatFactory.createAudioFormat("linear", 8000, 16, 1);
+    private final static Logger log = Logger.getLogger(Encoder.class);
 
-    private int j=0,i=0;
-    private int sourceLen=0,destinationLen=0;
+    private final static Format opus = FormatFactory.createAudioFormat("opus", 48000, 8, 1);
+    private final static Format linear = FormatFactory.createAudioFormat("linear", 48000, 16, 1);
+
+	private OpusJni opusJni = new OpusJni();
+    String decoderId = RandomStringUtils.random(10, true, true);
+    
+    public Decoder() {
+    	opusJni.initDecoderNative(decoderId);
+    }
+    
+    @Override
+    protected void finalize() throws Throwable {
+    	super.finalize();
+    	opusJni.closeDecoderNative(decoderId);
+    }
 
     @Override
     public Format getSupportedInputFormat() {
@@ -53,19 +70,16 @@ public class Decoder implements Codec {
 
     @Override
     public Frame process(Frame frame) {
-    	sourceLen=frame.getLength();
-    	destinationLen=sourceLen * 2;
-        Frame res = Memory.allocate(destinationLen);
-        
-        byte[] data=frame.getData();
-        byte[] resData=res.getData();
-        
-        for (i = 0,j = 0; i < sourceLen; i++) 
-        {
-        }
+    	
+		short[] decodedData = opusJni.decodeNative(decoderId, frame.getData());
+		byte[] output = new byte[2 * decodedData.length];
+		ByteBuffer.wrap(output).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().put(decodedData);
+    	
+        Frame res = Memory.allocate(output.length);
+        System.arraycopy(output, 0, res.getData(), 0, output.length);
         
         res.setOffset(0);
-        res.setLength(destinationLen);
+        res.setLength(output.length);
         res.setTimestamp(frame.getTimestamp());
         res.setDuration(frame.getDuration());
         res.setSequenceNumber(frame.getSequenceNumber());
