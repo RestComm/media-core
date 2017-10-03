@@ -53,7 +53,7 @@ class NotifyQuarantinedSignalCompletionAction extends NotificationCenterAction {
             // Notify quarantine about signal completion
             quarantine.onSignalCompleted(signal, result);
             if (log.isDebugEnabled()) {
-                log.debug("Quarantined signal " + signal + " from RQNT X:" + signal.getRequestId() + " completed with result " + event);
+                log.debug("Quarantined signal " + signal + " from RQNT X:" + signal.getRequestId() + " completed with result " + result);
             }
         } else {
             if (log.isDebugEnabled()) {

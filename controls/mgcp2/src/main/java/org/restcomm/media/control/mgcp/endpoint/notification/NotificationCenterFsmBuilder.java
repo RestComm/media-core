@@ -49,6 +49,8 @@ public class NotificationCenterFsmBuilder {
         this.builder.onEntry(IDLE);
         this.builder.internalTransition().within(IDLE).on(NOTIFICATION_REQUEST).when(NoRequestedSignalsCondition.INSTANCE).perform(rqntActionsIdle);
         this.builder.transition().from(IDLE).to(ACTIVE).on(NOTIFICATION_REQUEST).when(HasRequestedSignalsCondition.INSTANCE).perform(rqntActionsIdle);
+        this.builder.internalTransition().within(IDLE).on(SIGNAL_EXECUTED).when(IsQuarantinedTimeoutSignalCondition.INSTANCE).perform(NotifyQuarantinedSignalCompletionAction.INSTANCE);
+        this.builder.internalTransition().within(IDLE).on(SIGNAL_CANCELLED).when(IsQuarantinedTimeoutSignalCondition.INSTANCE).perform(NotifyQuarantinedSignalCompletionAction.INSTANCE);
         this.builder.transition().from(IDLE).toFinal(DEACTIVATED).on(STOP);
 
         this.builder.onEntry(ACTIVE);
