@@ -21,19 +21,12 @@
 
 package org.restcomm.media.control.mgcp.command;
 
-import static org.mockito.Mockito.mock;
-
 import org.junit.Assert;
 import org.junit.Test;
-import org.restcomm.media.control.mgcp.call.MgcpCallManager;
-import org.restcomm.media.control.mgcp.command.AuditConnectionCommand;
-import org.restcomm.media.control.mgcp.command.AuditEndpointCommand;
-import org.restcomm.media.control.mgcp.command.CreateConnectionCommand;
-import org.restcomm.media.control.mgcp.command.DeleteConnectionCommand;
-import org.restcomm.media.control.mgcp.command.MgcpCommand;
-import org.restcomm.media.control.mgcp.command.MgcpCommandProvider;
-import org.restcomm.media.control.mgcp.command.ModifyConnectionCommand;
-import org.restcomm.media.control.mgcp.command.RequestNotificationCommand;
+import org.restcomm.media.control.mgcp.command.crcx.CreateConnectionCommand;
+import org.restcomm.media.control.mgcp.command.dlcx.DeleteConnectionCommand;
+import org.restcomm.media.control.mgcp.command.mdcx.ModifyConnectionCommand;
+import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.restcomm.media.control.mgcp.message.MgcpParameterType;
 import org.restcomm.media.control.mgcp.message.MgcpRequestType;
@@ -41,9 +34,10 @@ import org.restcomm.media.control.mgcp.pkg.MgcpPackageManager;
 import org.restcomm.media.control.mgcp.pkg.MgcpSignalProvider;
 import org.restcomm.media.control.mgcp.util.collections.Parameters;
 
+import static org.mockito.Mockito.mock;
+
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
  */
 public class MgcpCommandProviderTest {
 
@@ -55,8 +49,8 @@ public class MgcpCommandProviderTest {
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
         final MgcpPackageManager packageManager = mock(MgcpPackageManager.class);
-        final MgcpCallManager callManager = mock(MgcpCallManager.class);
-        final MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager, packageManager, signalProvider, callManager);
+        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
+        final MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager, packageManager, signalProvider, connectionProvider);
 
         // when
         MgcpCommand command = commandProvider.provide(MgcpRequestType.CRCX, transactionId, parameters);
@@ -71,11 +65,10 @@ public class MgcpCommandProviderTest {
         final int transactionId = 12345;
         final Parameters<MgcpParameterType> parameters = new Parameters<>();
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final MgcpPackageManager packageManager = mock(MgcpPackageManager.class);
-        final MgcpCallManager callManager = mock(MgcpCallManager.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
-        final MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager, packageManager, signalProvider, callManager);
-
+        final MgcpPackageManager packageManager = mock(MgcpPackageManager.class);
+        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
+        final MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager, packageManager, signalProvider, connectionProvider);
         // when
         MgcpCommand command = commandProvider.provide(MgcpRequestType.MDCX, transactionId, parameters);
 
@@ -86,14 +79,14 @@ public class MgcpCommandProviderTest {
     @Test
     public void testProvideDlcx() {
         // given
+        // given
         final int transactionId = 12345;
         final Parameters<MgcpParameterType> parameters = new Parameters<>();
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final MgcpPackageManager packageManager = mock(MgcpPackageManager.class);
-        final MgcpCallManager callManager = mock(MgcpCallManager.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
-        final MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager, packageManager, signalProvider, callManager);
-
+        final MgcpPackageManager packageManager = mock(MgcpPackageManager.class);
+        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
+        final MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager, packageManager, signalProvider, connectionProvider);
         // when
         MgcpCommand command = commandProvider.provide(MgcpRequestType.DLCX, transactionId, parameters);
 
@@ -104,14 +97,14 @@ public class MgcpCommandProviderTest {
     @Test
     public void testProvideAucx() {
         // given
+        // given
         final int transactionId = 12345;
         final Parameters<MgcpParameterType> parameters = new Parameters<>();
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final MgcpPackageManager packageManager = mock(MgcpPackageManager.class);
-        final MgcpCallManager callManager = mock(MgcpCallManager.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
-        final MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager, packageManager, signalProvider, callManager);
-
+        final MgcpPackageManager packageManager = mock(MgcpPackageManager.class);
+        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
+        final MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager, packageManager, signalProvider, connectionProvider);
         // when
         MgcpCommand command = commandProvider.provide(MgcpRequestType.AUCX, transactionId, parameters);
 
@@ -122,13 +115,14 @@ public class MgcpCommandProviderTest {
     @Test
     public void testProvideAuep() {
         // given
+        // given
         final int transactionId = 12345;
         final Parameters<MgcpParameterType> parameters = new Parameters<>();
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final MgcpPackageManager packageManager = mock(MgcpPackageManager.class);
-        final MgcpCallManager callManager = mock(MgcpCallManager.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
-        final MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager, packageManager, signalProvider, callManager);
+        final MgcpPackageManager packageManager = mock(MgcpPackageManager.class);
+        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
+        final MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager, packageManager, signalProvider, connectionProvider);
 
         // when
         MgcpCommand command = commandProvider.provide(MgcpRequestType.AUEP, transactionId, parameters);
@@ -140,13 +134,14 @@ public class MgcpCommandProviderTest {
     @Test
     public void testProvideRqnt() {
         // given
+        // given
         final int transactionId = 12345;
         final Parameters<MgcpParameterType> parameters = new Parameters<>();
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final MgcpPackageManager packageManager = mock(MgcpPackageManager.class);
-        final MgcpCallManager callManager = mock(MgcpCallManager.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
-        final MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager, packageManager, signalProvider, callManager);
+        final MgcpPackageManager packageManager = mock(MgcpPackageManager.class);
+        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
+        final MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager, packageManager, signalProvider, connectionProvider);
 
         // when
         MgcpCommand command = commandProvider.provide(MgcpRequestType.RQNT, transactionId, parameters);

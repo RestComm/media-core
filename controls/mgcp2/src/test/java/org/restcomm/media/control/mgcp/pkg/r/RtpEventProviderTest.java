@@ -21,8 +21,6 @@
 
 package org.restcomm.media.control.mgcp.pkg.r;
 
-import static org.junit.Assert.*;
-
 import org.junit.Test;
 import org.restcomm.media.control.mgcp.exception.MalformedMgcpEventRequestException;
 import org.restcomm.media.control.mgcp.exception.MgcpEventNotFoundException;
@@ -32,10 +30,10 @@ import org.restcomm.media.control.mgcp.pkg.MgcpActionType;
 import org.restcomm.media.control.mgcp.pkg.MgcpEvent;
 import org.restcomm.media.control.mgcp.pkg.MgcpRequestedEvent;
 import org.restcomm.media.control.mgcp.pkg.au.AudioPackage;
-import org.restcomm.media.control.mgcp.pkg.r.RtpEventProvider;
-import org.restcomm.media.control.mgcp.pkg.r.RtpPackage;
 import org.restcomm.media.control.mgcp.pkg.r.rto.RtpTimeoutEvent;
 import org.restcomm.media.control.mgcp.pkg.r.rto.RtpTimeoutStartTime;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -46,7 +44,7 @@ public class RtpEventProviderTest {
     @Test
     public void testProvideRtpTimeoutEvent() throws MgcpException {
         // given
-        final int requestId = 16;
+        final String requestId = "16";
         final String packageName = RtpPackage.PACKAGE_NAME;
         final String eventType = RtpTimeoutEvent.SYMBOL;
         final int connectionId = 1;
@@ -70,7 +68,7 @@ public class RtpEventProviderTest {
     @Test(expected = MgcpPackageNotFoundException.class)
     public void testInvalidPackageName() throws MgcpException {
         // given
-        final int requestId = 16;
+        final String requestId = "16";
         final String packageName = AudioPackage.PACKAGE_NAME;
         final String eventType = RtpTimeoutEvent.SYMBOL;
         final int connectionId = 1;
@@ -86,7 +84,7 @@ public class RtpEventProviderTest {
     @Test(expected = MgcpEventNotFoundException.class)
     public void testInvalidEventType() throws MgcpException {
         // given
-        final int requestId = 16;
+        final String requestId = "16";
         final String packageName = RtpPackage.PACKAGE_NAME;
         final String eventType = "xxx";
         final int connectionId = 1;
@@ -102,7 +100,7 @@ public class RtpEventProviderTest {
     @Test(expected = MalformedMgcpEventRequestException.class)
     public void testInvalidEventParameters() throws MgcpException {
         // given
-        final int requestId = 16;
+        final String requestId = "16";
         final String packageName = RtpPackage.PACKAGE_NAME;
         final String eventType = RtpTimeoutEvent.SYMBOL;
         final int connectionId = 1;

@@ -35,17 +35,17 @@ public class MgcpSplitterEndpointContext extends MgcpEndpointContext {
     private final AudioSplitter splitter;
     private final OOBSplitter oobSplitter;
 
-    MgcpSplitterEndpointContext(EndpointIdentifier endpointId, AudioSplitter splitter, OOBSplitter oobSplitter) {
+    public MgcpSplitterEndpointContext(EndpointIdentifier endpointId, AudioSplitter splitter, OOBSplitter oobSplitter) {
         super(endpointId, null);
         this.splitter = splitter;
         this.oobSplitter = oobSplitter;
     }
 
-    public AudioSplitter getSplitter() {
+    AudioSplitter getSplitter() {
         return splitter;
     }
 
-    public OOBSplitter getOobSplitter() {
+    OOBSplitter getOobSplitter() {
         return oobSplitter;
     }
 

@@ -21,11 +21,7 @@
 
 package org.restcomm.media.control.mgcp.endpoint;
 
-import java.net.InetSocketAddress;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
+import com.google.common.util.concurrent.FutureCallback;
 import org.apache.log4j.Logger;
 import org.restcomm.media.control.mgcp.command.NotificationRequest;
 import org.restcomm.media.control.mgcp.connection.MgcpConnection;
@@ -34,26 +30,25 @@ import org.restcomm.media.control.mgcp.message.MgcpMessage;
 import org.restcomm.media.control.mgcp.message.MgcpMessageObserver;
 import org.restcomm.media.control.mgcp.pkg.MgcpEvent;
 
-import com.google.common.util.concurrent.FutureCallback;
+import java.net.InetSocketAddress;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
  */
 public class AbstractMgcpEndpoint implements MgcpEndpoint {
 
     private static final Logger log = Logger.getLogger(AbstractMgcpEndpoint.class);
 
     private final MgcpEndpointContext context;
-    private final MgcpEndpointFsmListener fsmListener;
     private final MgcpEndpointFsm fsm;
 
     public AbstractMgcpEndpoint(MgcpEndpointContext context, MgcpEndpointFsm fsm) {
         super();
         this.context = context;
-        this.fsmListener = new MgcpEndpointFsmListener(this, this.context);
         this.fsm = fsm;
-        this.fsm.addDeclarativeListener(this.fsmListener);
+        this.fsm.addDeclarativeListener(new MgcpEndpointFsmListener(this, this.context));
         this.fsm.start();
     }
 
@@ -63,8 +58,7 @@ public class AbstractMgcpEndpoint implements MgcpEndpoint {
         boolean added = observers.add(observer);
         if (added && log.isTraceEnabled()) {
             EndpointIdentifier endpointId = context.getEndpointId();
-            log.trace("Endpoint " + endpointId.toString() + " registered MgcpEndpointObserver@" + observer.hashCode()
-                    + ". Count: " + observers.size());
+            log.trace("Endpoint " + endpointId.toString() + " registered MgcpEndpointObserver@" + observer.hashCode() + ". Count: " + observers.size());
         }
     }
 
@@ -74,51 +68,42 @@ public class AbstractMgcpEndpoint implements MgcpEndpoint {
         boolean removed = observers.remove(observer);
         if (removed && log.isTraceEnabled()) {
             EndpointIdentifier endpointId = context.getEndpointId();
-            log.trace("Endpoint " + endpointId.toString() + " unregistered MgcpEndpointObserver@" + observer.hashCode()
-                    + ". Count: " + observers.size());
+            log.trace("Endpoint " + endpointId.toString() + " unregistered MgcpEndpointObserver@" + observer.hashCode() + ". Count: " + observers.size());
         }
     }
 
     @Override
     public void notify(MgcpEndpoint endpoint, MgcpEndpointState state) {
-        Set<MgcpEndpointObserver> observers = context.getEndpointObservers();
-        Iterator<MgcpEndpointObserver> iterator = observers.iterator();
-
-        while (iterator.hasNext()) {
-            MgcpEndpointObserver observer = iterator.next();
+        final Set<MgcpEndpointObserver> observers = context.getEndpointObservers();
+        for (MgcpEndpointObserver observer : observers) {
             observer.onEndpointStateChanged(this, state);
         }
     }
 
     @Override
     public void observe(MgcpMessageObserver observer) {
-        Set<MgcpMessageObserver> observers = this.context.getMessageObservers();
+        final Set<MgcpMessageObserver> observers = this.context.getMessageObservers();
         boolean added = observers.add(observer);
         if (added && log.isTraceEnabled()) {
             EndpointIdentifier endpointId = context.getEndpointId();
-            log.trace("Endpoint " + endpointId.toString() + " registered MgcpMessageObserver@" + observer.hashCode()
-                    + ". Count: " + observers.size());
+            log.trace("Endpoint " + endpointId.toString() + " registered MgcpMessageObserver@" + observer.hashCode() + ". Count: " + observers.size());
         }
     }
 
     @Override
     public void forget(MgcpMessageObserver observer) {
-        Set<MgcpMessageObserver> observers = this.context.getMessageObservers();
+        final Set<MgcpMessageObserver> observers = this.context.getMessageObservers();
         boolean removed = observers.remove(observer);
         if (removed && log.isTraceEnabled()) {
             EndpointIdentifier endpointId = context.getEndpointId();
-            log.trace("Endpoint " + endpointId.toString() + " unregistered MgcpMessageObserver@" + observer.hashCode()
-                    + ". Count: " + observers.size());
+            log.trace("Endpoint " + endpointId.toString() + " unregistered MgcpMessageObserver@" + observer.hashCode() + ". Count: " + observers.size());
         }
     }
 
     @Override
-    public void notify(Object originator, InetSocketAddress from, InetSocketAddress to, MgcpMessage message,
-            MessageDirection direction) {
-        Set<MgcpMessageObserver> observers = this.context.getMessageObservers();
-        Iterator<MgcpMessageObserver> iterator = observers.iterator();
-        while (iterator.hasNext()) {
-            MgcpMessageObserver observer = iterator.next();
+    public void notify(Object originator, InetSocketAddress from, InetSocketAddress to, MgcpMessage message, MessageDirection direction) {
+        final Set<MgcpMessageObserver> observers = this.context.getMessageObservers();
+        for (MgcpMessageObserver observer : observers) {
             if (observer != originator) {
                 observer.onMessage(from, to, message, direction);
             }
@@ -145,7 +130,7 @@ public class AbstractMgcpEndpoint implements MgcpEndpoint {
         }
         return null;
     }
-    
+
     @Override
     public boolean isRegistered(int callId, int connectionId) {
         return getConnection(callId, connectionId) != null;
@@ -224,16 +209,15 @@ public class AbstractMgcpEndpoint implements MgcpEndpoint {
     }
 
     @Override
-    public void requestNotification(NotificationRequest request) {
-        // TODO Auto-generated method stub
-
+    public void requestNotification(NotificationRequest request, FutureCallback<Void> callback) {
+        // TODO Implement requestNotification
     }
 
     @Override
-    public void cancelSignal(String signal) {
-        // TODO Auto-generated method stub
-
+    public void raiseQuarantinedEvent(String signal, FutureCallback<MgcpEvent> callback) {
+        // TODO Implement raiseQuarantinedEvent
     }
+
 
     @Override
     public MediaGroup getMediaGroup() {

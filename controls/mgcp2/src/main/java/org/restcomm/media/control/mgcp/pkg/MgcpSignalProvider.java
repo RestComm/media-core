@@ -39,9 +39,8 @@ import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 
 /**
  * Provides MGCP signals by package.
- * 
- * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public class MgcpSignalProvider {
 
@@ -54,19 +53,18 @@ public class MgcpSignalProvider {
 
     /**
      * Provides an MGCP Signal to be executed.
-     * 
-     * @param pkg The package name.
-     * @param signal The signal name.
-     * @param requestId The request identifier.
+     *
+     * @param pkg            The package name.
+     * @param signal         The signal name.
+     * @param requestId      The request identifier.
      * @param notifiedEntity The entity that requested to be notified about events resulting from signal completion. May be null.
-     * @param parameters The parameters that configure the signal
-     * @param endpoint The endpoint where the signal is going to be executed.
+     * @param parameters     The parameters that configure the signal
+     * @param endpoint       The endpoint where the signal is going to be executed.
      * @return The MGCP signal.
      * @throws UnrecognizedMgcpPackageException When package name is unrecognized.
-     * @throws UnsupportedMgcpSignalException When package does not support the specified signal.
+     * @throws UnsupportedMgcpSignalException   When package does not support the specified signal.
      */
-    public MgcpSignal provide(String pkg, String signal, int requestId, NotifiedEntity notifiedEntity, Map<String, String> parameters, MgcpEndpoint endpoint)
-            throws UnrecognizedMgcpPackageException, UnsupportedMgcpSignalException {
+    public MgcpSignal provide(String pkg, String signal, int requestId, NotifiedEntity notifiedEntity, Map<String, String> parameters, MgcpEndpoint endpoint) throws UnrecognizedMgcpPackageException, UnsupportedMgcpSignalException {
         switch (pkg) {
             case AudioPackage.PACKAGE_NAME:
                 return provideAudioSignal(signal, requestId, notifiedEntity, parameters, endpoint, this.executor);
@@ -81,8 +79,7 @@ public class MgcpSignalProvider {
         final AudioSignalType signalType = AudioSignalType.fromSymbol(signal);
 
         if (signalType == null) {
-            throw new UnsupportedMgcpSignalException(
-                    "Package " + AudioPackage.PACKAGE_NAME + " does not support signal " + signal);
+            throw new UnsupportedMgcpSignalException("Package " + AudioPackage.PACKAGE_NAME + " does not support signal " + signal);
         }
 
         final MediaGroup mediaGroup = endpoint.getMediaGroup();
@@ -98,7 +95,7 @@ public class MgcpSignalProvider {
                 return new PlayRecord(mediaGroup.getPlayer(), mediaGroup.getDetector(), mediaGroup.getRecorder(), requestId, notifiedEntity, parameters);
 
             case END_SIGNAL:
-                return new EndSignal(endpoint, requestId, notifiedEntity, parameters);
+                return new EndSignal(endpoint, String.valueOf(requestId), parameters);
 
             default:
                 throw new IllegalArgumentException("Unsupported audio signal: " + signal);

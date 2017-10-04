@@ -36,7 +36,7 @@ public class MgcpMixerEndpointContext extends MgcpEndpointContext {
     private final AudioMixer mixer;
     private final OOBMixer oobMixer;
 
-    MgcpMixerEndpointContext(EndpointIdentifier endpointId, MediaGroup mediaGroup, AudioMixer mixer, OOBMixer oobMixer) {
+    public MgcpMixerEndpointContext(EndpointIdentifier endpointId, MediaGroup mediaGroup, AudioMixer mixer, OOBMixer oobMixer) {
         super(endpointId, mediaGroup);
         this.mixer = mixer;
         this.oobMixer = oobMixer;

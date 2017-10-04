@@ -120,7 +120,7 @@ public class MgcpRequestedEventsParser {
                 }
 
                 int indexOfParameterEnd = requestedEvent.indexOf(PARAMETER_END_SEPARATOR, indexOfParameterStart);
-                if (indexOfActionEnd == -1) {
+                if (indexOfParameterEnd == -1) {
                     throw new MgcpParseException("Missing parameters end separator on " + requestedEvent);
                 }
                 
@@ -137,7 +137,7 @@ public class MgcpRequestedEventsParser {
             // Build object
             int connectionId = connectionIdHex.isEmpty() ? 0 : Integer.parseInt(connectionIdHex, 16);
             String[] eventParametersTokens = eventParameters.isEmpty() ? new String[0] : eventParameters.split(",");
-            return new MgcpRequestedEvent(requestId, packageName, eventName, actionType, connectionId, eventParametersTokens);
+            return new MgcpRequestedEvent(String.valueOf(requestId), packageName, eventName, actionType, connectionId, eventParametersTokens);
         } catch (RuntimeException e) {
             throw new MgcpParseException("Could not parse requested event " + requestedEvent, e);
         }
