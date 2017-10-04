@@ -19,35 +19,28 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.control.mgcp.signal;
+package org.restcomm.media.control.mgcp.endpoint.notification;
 
-import com.google.common.util.concurrent.FutureCallback;
+import org.restcomm.media.control.mgcp.signal.MgcpSignal;
+import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
 
 /**
- * A Call Agent may request certain signals to be applied to an endpoint (e.g., dial-tone) or connection.
- * 
- * <p>
- * Signals are divided into different types:
- * <ul>
- * <li>TIMEOUT (TO) - Once applied, these signals last until they are either cancelled or a signal-specific period of time has
- * elapsed. In later case, it raises an event.</li>
- * <li>BRIEF (BR) - The duration of these signals is normally so short that they stop on their own. Active BR signals cannot be
- * canceled.</li>
- * <li>ON/OFF (OO) - Once applied, these signals last until they are turned off.</li>
- * </ul>
- * 
- * </p>
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
  */
-public interface MgcpSignal<T> {
+class IsQuarantinedTimeoutSignalCondition extends NotificationCenterCondition {
 
-    String getRequestId();
+    static final IsQuarantinedTimeoutSignalCondition INSTANCE = new IsQuarantinedTimeoutSignalCondition();
 
-    void execute(FutureCallback<T> callback);
-    
+    private IsQuarantinedTimeoutSignalCondition() {
+        super();
+    }
+
     @Override
-    boolean equals(Object obj);
+    public boolean isSatisfied(NotificationCenterTransitionContext context) {
+        final MgcpSignal<?> signal = context.get(NotificationCenterTransitionParameter.SIGNAL, MgcpSignal.class);
+        final String currentRequestId = context.get(NotificationCenterTransitionParameter.REQUEST_IDENTIFIER, String.class);
+
+        return (signal instanceof TimeoutSignal) && (!currentRequestId.equals(signal.getRequestId()));
+    }
 
 }

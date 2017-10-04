@@ -28,7 +28,7 @@ import org.restcomm.media.control.mgcp.endpoint.MediaGroup;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.restcomm.media.control.mgcp.pkg.au.AudioPackage;
 import org.restcomm.media.control.mgcp.pkg.au.AudioSignalType;
-import org.restcomm.media.control.mgcp.pkg.au.EndSignal;
+import org.restcomm.media.control.mgcp.pkg.au.es.EndSignal;
 import org.restcomm.media.control.mgcp.pkg.au.PlayAnnouncement;
 import org.restcomm.media.control.mgcp.pkg.au.pc.PlayCollect;
 import org.restcomm.media.control.mgcp.pkg.au.pr.PlayRecord;

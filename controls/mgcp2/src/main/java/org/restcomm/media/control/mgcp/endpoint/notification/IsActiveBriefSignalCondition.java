@@ -28,18 +28,19 @@ import org.restcomm.media.control.mgcp.signal.MgcpSignal;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-class IsBriefSignalCondition extends NotificationCenterCondition {
+class IsActiveBriefSignalCondition extends NotificationCenterCondition {
 
-    static final IsBriefSignalCondition INSTANCE = new IsBriefSignalCondition();
+    static final IsActiveBriefSignalCondition INSTANCE = new IsActiveBriefSignalCondition();
 
-    IsBriefSignalCondition() {
+    IsActiveBriefSignalCondition() {
         super();
     }
 
     @Override
     public boolean isSatisfied(NotificationCenterTransitionContext context) {
         MgcpSignal<?> signal = context.get(NotificationCenterTransitionParameter.SIGNAL, MgcpSignal.class);
-        return (signal instanceof BriefSignal);
+        String currentRequestId = context.get(NotificationCenterTransitionParameter.REQUEST_IDENTIFIER, String.class);
+        return (signal instanceof BriefSignal) && (currentRequestId.equals(signal.getRequestId()));
     }
 
 }

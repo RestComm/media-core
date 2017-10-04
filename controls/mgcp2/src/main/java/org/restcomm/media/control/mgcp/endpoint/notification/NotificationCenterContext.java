@@ -39,12 +39,11 @@ import com.google.common.util.concurrent.FutureCallback;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
  */
 public class NotificationCenterContext {
 
     private static final NotifiedEntity DEFAULT_NOTIFIED_ENTITY = new NotifiedEntity();
-    
+
     private final MgcpEndpoint endpoint;
 
     private String requestId;
@@ -53,12 +52,14 @@ public class NotificationCenterContext {
     private final Set<TimeoutSignal> timeoutSignals;
     private final Queue<BriefSignal> pendingBriefSignals;
     private BriefSignal activeBriefSignal;
-    
+
+    private SignalQuarantine quarantine;
+
     private FutureCallback<Void> deactivationCallback;
 
     public NotificationCenterContext(MgcpEndpoint endpoint) {
         this.endpoint = endpoint;
-        
+
         this.requestId = "";
         this.notifiedEntity = DEFAULT_NOTIFIED_ENTITY;
         this.requestedEvents = new HashSet<>(5);
@@ -66,15 +67,15 @@ public class NotificationCenterContext {
         this.pendingBriefSignals = new ArrayDeque<>(5);
         this.activeBriefSignal = null;
     }
-    
+
     public MgcpEndpoint getEndpoint() {
         return endpoint;
     }
-    
+
     protected String getRequestId() {
         return requestId;
     }
-    
+
     protected void setRequestId(String requestId) {
         this.requestId = requestId;
     }
@@ -86,7 +87,7 @@ public class NotificationCenterContext {
     protected void setNotifiedEntity(NotifiedEntity notifiedEntity) {
         this.notifiedEntity = notifiedEntity;
     }
-    
+
     protected boolean isEventRequested(String eventName) {
         for (MgcpRequestedEvent requestedEvent : this.requestedEvents) {
             if (requestedEvent.getQualifiedName().equalsIgnoreCase(eventName)) {
@@ -108,7 +109,7 @@ public class NotificationCenterContext {
     protected Set<TimeoutSignal> getTimeoutSignals() {
         return timeoutSignals;
     }
-    
+
     protected void setTimeoutSignals(Collection<TimeoutSignal> signals) {
         this.timeoutSignals.clear();
         this.timeoutSignals.addAll(signals);
@@ -117,7 +118,7 @@ public class NotificationCenterContext {
     protected Queue<BriefSignal> getPendingBriefSignals() {
         return pendingBriefSignals;
     }
-    
+
     protected void setPendingBriefSignals(Collection<BriefSignal> signals) {
         this.pendingBriefSignals.clear();
         this.pendingBriefSignals.addAll(signals);
@@ -126,11 +127,11 @@ public class NotificationCenterContext {
     public BriefSignal getActiveBriefSignal() {
         return activeBriefSignal;
     }
-    
+
     public void setActiveBriefSignal(BriefSignal activeBriefSignal) {
         this.activeBriefSignal = activeBriefSignal;
     }
-    
+
     public FutureCallback<Void> getDeactivationCallback() {
         return deactivationCallback;
     }
@@ -138,7 +139,15 @@ public class NotificationCenterContext {
     public void setDeactivationCallback(FutureCallback<Void> callback) {
         this.deactivationCallback = callback;
     }
-    
+
+    public SignalQuarantine getQuarantine() {
+        return quarantine;
+    }
+
+    public void setQuarantine(SignalQuarantine quarantine) {
+        this.quarantine = quarantine;
+    }
+
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
@@ -149,5 +158,5 @@ public class NotificationCenterContext {
         builder.append("Requested TO Signals: ").append(Arrays.toString(this.timeoutSignals.toArray())).append(System.lineSeparator());
         return builder.toString();
     }
-    
+
 }
