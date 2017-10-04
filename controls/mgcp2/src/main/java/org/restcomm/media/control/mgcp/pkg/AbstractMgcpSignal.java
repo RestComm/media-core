@@ -35,7 +35,9 @@ import org.restcomm.media.control.mgcp.command.param.NotifiedEntity;
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
+ * @deprecated use org.restcomm.media.control.mgcp.signal.AbstractSignal
  */
+@Deprecated
 public abstract class AbstractMgcpSignal implements MgcpSignal {
 
     private final int requestId;
