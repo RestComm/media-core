@@ -87,19 +87,17 @@ public class OpusCodecTest {
     	
     	boolean testPassed = false;
     	
-    	try {
-    		final int packetSize = 480;
-    		File outputFile = File.createTempFile("opustest", ".tmp");
-	        FileInputStream inputStream = new FileInputStream("src\\test\\resources\\test_sound_mono_48.pcm");
-	        FileOutputStream outputStream = new FileOutputStream(outputFile, false);
-	    	
+    	try {	    	
 	    	OpusJni opus = new OpusJni();
 	    	opus.initNative();
 
-	        try {
+    		final int packetSize = 480;
+    		File outputFile = File.createTempFile("opustest", ".tmp");
+    		byte[] output = new byte[2 * packetSize];
+	        try (FileInputStream inputStream = new FileInputStream("src\\test\\resources\\test_sound_mono_48.pcm");
+	        		FileOutputStream outputStream = new FileOutputStream(outputFile, false)) {
 	        	byte[] input = new byte[packetSize];
 	        	short[] inputData = new short[packetSize];
-        		byte[] output = new byte[2 * packetSize];
 	        	while (inputStream.read(input) == 2 * packetSize) {
 	        		ByteBuffer.wrap(input).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(inputData);
 	        		byte[] encodedData = opus.encodeNative(inputData);
@@ -108,12 +106,10 @@ public class OpusCodecTest {
 	        		outputStream.write(output);
 	        	}
         		testPassed = true;
-	        } finally {
-	        	inputStream.close();
-	        	outputStream.close();
-	        	opus.closeNative();
-	        	outputFile.delete();
 	        }
+	        
+        	opus.closeNative();
+        	outputFile.delete();
     	} catch (IOException exc) {
     		log.error("IOException: " + exc.getMessage());
         	fail("Opus test file access error");
