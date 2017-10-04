@@ -27,6 +27,10 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import static org.junit.Assert.*;
 
 import java.io.File;
@@ -49,7 +53,7 @@ import org.restcomm.media.spi.memory.Memory;
  * @author Vladimir Morosev (vladimir.morosev@telestax.com)
  * 
  */
-public class OpusCodecTest implements OpusJni.Observer {
+public class OpusCodecTest {
 
     private static final Logger log = Logger.getLogger(OpusCodecTest.class);
 
@@ -90,8 +94,6 @@ public class OpusCodecTest implements OpusJni.Observer {
 	        FileOutputStream outputStream = new FileOutputStream(outputFile, false);
 	    	
 	    	OpusJni opus = new OpusJni();
-	    	opus.setOpusObserverNative(this);
-	    	opus.sayHelloNative();
 	    	opus.initNative();
 
 	        try {
@@ -118,22 +120,24 @@ public class OpusCodecTest implements OpusJni.Observer {
     	}
     	
     	assertTrue(testPassed);
-    	
-        org.restcomm.media.spi.dsp.Codec compressor = new Encoder();
-        long s = System.nanoTime();
-        compressor.process(buffer);
-        long f = System.nanoTime();
-        log.info("Duration=" + (f-s));
-        
-        org.restcomm.media.spi.dsp.Codec decompressor = new Decoder();
-        s = System.nanoTime();
-        decompressor.process(buffer);
-        f = System.nanoTime();
-        log.info("Duration=" + (f-s));
     }
     
-    @Override
-    public void onHello() {
-    	log.info("Hello World - Java!");
+    /**
+     * Test for observer.
+     */
+    @Test
+    public void testObserver() throws Exception {
+    	
+        // given
+    	final OpusJni.Observer observer = mock(OpusJni.Observer.class);
+    	
+    	// when
+    	OpusJni opus = new OpusJni();
+    	opus.setOpusObserverNative(observer);
+    	opus.sayHelloNative();
+    	opus.unsetOpusObserverNative();
+    	
+    	// then
+        verify(observer, times(1)).onHello();
     }
 }
