@@ -22,21 +22,20 @@ package org.restcomm.media.drivers.asr.driver.watson;
 
 import com.ibm.watson.developer_cloud.http.HttpMediaType;
 import com.ibm.watson.developer_cloud.speech_to_text.v1.SpeechToText;
-import com.ibm.watson.developer_cloud.speech_to_text.v1.model.RecognizeOptions;
-import com.ibm.watson.developer_cloud.speech_to_text.v1.model.SpeechAlternative;
-import com.ibm.watson.developer_cloud.speech_to_text.v1.model.SpeechResults;
+import com.ibm.watson.developer_cloud.speech_to_text.v1.model.*;
 import com.ibm.watson.developer_cloud.speech_to_text.v1.websocket.BaseRecognizeCallback;
-import com.ibm.watson.developer_cloud.speech_to_text.v1.model.Transcript;
-import java.io.ByteArrayInputStream;
-import java.util.Arrays;
+
+import java.io.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import okhttp3.WebSocket;
 import org.apache.log4j.Logger;
 import org.restcomm.media.drivers.asr.AsrDriver;
 import org.restcomm.media.drivers.asr.AsrDriverEventListener;
 import org.restcomm.media.drivers.asr.AsrDriverException;
+
 
 /**
  * @author Ricardo Limonta
@@ -44,37 +43,49 @@ import org.restcomm.media.drivers.asr.AsrDriverException;
 public class WatsonAsrDriver implements AsrDriver {
 
     private static final Logger log = Logger.getLogger(WatsonAsrDriver.class);
-    
+
     private SpeechToText service;
+    private PipedInputStream inputStream;
+    private PipedOutputStream outputStream;
     private WebSocket ws;
     private RecognizeOptions options;
     private int responseTimeout;
+    private int hertz;
     private boolean interimResults;
     private AsrDriverEventListener listener;
     private Map<String, String> languages;
-    
+
     @Override
     public void configure(Map<String, String> parameters) {
-        
+
         log.info("Configuring  WatsonAsrDriver...");
-        
+
         //create service instance
-        this.service = new SpeechToText(parameters.get("apiUsername"), 
-                                        parameters.get("apiPassword"));
-        
+        this.service = new SpeechToText(parameters.get("apiUsername"), parameters.get("apiPassword"));
+
         //configure response timeout
         if (parameters.containsKey("responseTimeout")) {
             this.responseTimeout = Integer.parseInt(parameters.get("responseTimeout"));
-            log.info("responseTimeout: " + parameters.get("responseTimeout"));
+        } else {
+            this.responseTimeout = 2000;
         }
-        
+
         //configure interim results
         if (parameters.containsKey("interimResults")) {
             this.interimResults = Boolean.parseBoolean(parameters.get("interimResults"));
-            log.info("interimResults: " + parameters.get("interimResults"));
         }
 
+        //configure media hertz
+        if (parameters.containsKey("hertz")) {
+            this.hertz = Integer.parseInt(parameters.get("hertz"));
+        } else {
+            hertz = 8000;
+        }
         
+        log.info("interimResults: " + this.interimResults);
+        log.info("hertz: " + this.hertz);
+        log.info("responseTimeout: " + this.responseTimeout);
+
         //create a list of supported languages (supports only NarrowbandModel 8000KHz)
         languages = new HashMap<>();
         languages.put("en-GB", "en-GB_NarrowbandModel");
@@ -82,61 +93,76 @@ public class WatsonAsrDriver implements AsrDriver {
         languages.put("es-ES", "es-ES_NarrowbandModel");
         languages.put("ja-JP", "ja-JP_NarrowbandModel");
         languages.put("pt-BR", "pt-BR_NarrowbandModel");
+        //TODO confirm with Henrique
+        languages.put("pt-PT", "pt-BR_NarrowbandModel");
         languages.put("zh-CN", "zh-CN_NarrowbandModel");
     }
 
     @Override
-    public void startRecognizing(String lang, List<String> hints)  {
-        
+    public void startRecognizing(String lang, List<String> hints) {
+
         log.info("start recognizing...");
         
         //verify if language is supported
         if (!languages.containsKey(lang)) {
             //if not supported, set english as default
             lang = languages.get("en-US");
-            log.info("lang >> " + lang);
         }
+
+        log.info("lang: " + lang);
         
         //create the recognize options
-        options = new RecognizeOptions.Builder().contentType(HttpMediaType.AUDIO_BASIC)
+        options = new RecognizeOptions.Builder().contentType(HttpMediaType.createAudioRaw(hertz))
+                                                .maxAlternatives(1)
+                                                .continuous(true)
                                                 .model(languages.get(lang))
-                                                .interimResults(interimResults)
-                                                .build();
+                                                .interimResults(interimResults).build();
+
+        // Setup streams
+        this.inputStream = new PipedInputStream();
+        this.outputStream = new PipedOutputStream();
+        try {
+            this.inputStream.connect(outputStream);
+        } catch (IOException e) {
+            log.error(e);
+        }
+
+        // Establish session with watson
+        ws = service.recognizeUsingWebSocket(this.inputStream, options, new BaseRecognizeCallback() {
+
+            @Override
+            public void onTranscription(SpeechResults speechResults) {
+                StringBuilder result = new StringBuilder();
+                for (Transcript transcript : speechResults.getResults()) {
+                    for (SpeechAlternative alternative : transcript.getAlternatives()) {
+                        result.append(alternative.getTranscript());
+                    }
+                }
+
+                log.info("speech result: " + result.toString() + ", isFinal: " + speechResults.isFinal());
+
+                listener.onSpeechRecognized(result.toString(), speechResults.isFinal());
+            }
+            
+            @Override
+            public void onError(Exception e) {
+                log.error("Watson Driver Error", e);
+                listener.onError(new AsrDriverException(e));
+            }
+        });
     }
 
     @Override
     public void write(byte[] data) {
-        this.write(data, 0, 0);
+        this.write(data, 0, data.length);
     }
-    
+
     @Override
     public void write(byte[] data, int offset, int len) {
-        if (!Arrays.equals(data, new byte[len])) {
-            
-            log.info("speech send content ...");
-            
-            ws = service.recognizeUsingWebSocket(new ByteArrayInputStream(data), options, new BaseRecognizeCallback() 
-                {
-                    @Override
-                    public void onTranscription(SpeechResults speechResults) {
-                        StringBuilder result = new StringBuilder();
-                        for (Transcript transcript : speechResults.getResults()) {
-                            for (SpeechAlternative alternative : transcript.getAlternatives()) {
-                                result.append(alternative.getTranscript());
-                            }
-                        }
-
-                        log.info("speech result: " + result.toString() + ", isFinal: " + speechResults.isFinal());
-
-                        listener.onSpeechRecognized(result.toString(), speechResults.isFinal());
-                    }
-
-                    @Override
-                    public void onError(Exception e) {
-                        listener.onError(new AsrDriverException(e)); 
-                    }   
-                }
-            );   
+        try {
+            this.outputStream.write(data, offset, len);
+        } catch (IOException e) {
+            log.error(e);
         }
     }
 
@@ -144,8 +170,9 @@ public class WatsonAsrDriver implements AsrDriver {
     public void finishRecognizing() {
         //destroy websocket connection
         if (this.ws != null) {
-            this.ws.cancel();
-        }   
+            //Section 7.4 of RFC 6455.
+            this.ws.close(1000, "finishing speech recognition");
+        }
     }
 
     @Override
