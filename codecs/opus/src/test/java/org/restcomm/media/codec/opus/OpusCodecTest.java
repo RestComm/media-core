@@ -21,12 +21,24 @@
 
 package org.restcomm.media.codec.opus;
 
+import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import static org.junit.Assert.*;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 import org.restcomm.media.codec.opus.Decoder;
 import org.restcomm.media.codec.opus.Encoder;
@@ -41,7 +53,10 @@ import org.restcomm.media.spi.memory.Memory;
  * @author Vladimir Morosev (vladimir.morosev@telestax.com)
  * 
  */
-public class OpusCodecTest implements OpusJni.Observer {
+public class OpusCodecTest {
+
+    private static final Logger log = Logger.getLogger(OpusCodecTest.class);
+
     private Frame buffer = Memory.allocate(512);
     
     @BeforeClass
@@ -51,8 +66,6 @@ public class OpusCodecTest implements OpusJni.Observer {
     @AfterClass
     public static void tearDownClass() throws Exception {
     }
-    
-    private byte[] src = new byte[512];
     
     public OpusCodecTest() {        
     }            
@@ -70,26 +83,57 @@ public class OpusCodecTest implements OpusJni.Observer {
      * Test of process method, for Encoder and Decoder.
      */
     @Test
-    public void testCodec() {
-    	OpusJni opus = new OpusJni();
-    	opus.setOpusObserverNative(this);
-    	opus.sayHelloNative();
+    public void testCodec() throws Exception {
     	
-        org.restcomm.media.spi.dsp.Codec compressor = new Encoder();
-        long s = System.nanoTime();
-        compressor.process(buffer);
-        long f = System.nanoTime();
-        System.out.println("Duration=" + (f-s));
-        
-        org.restcomm.media.spi.dsp.Codec decompressor = new Decoder();
-        s = System.nanoTime();
-        decompressor.process(buffer);
-        f = System.nanoTime();
-        System.out.println("Duration=" + (f-s));
+    	boolean testPassed = false;
+    	
+    	try {	    	
+	    	OpusJni opus = new OpusJni();
+	    	opus.initNative();
+
+    		final int packetSize = 480;
+    		File outputFile = File.createTempFile("opustest", ".tmp");
+    		byte[] output = new byte[2 * packetSize];
+	        try (FileInputStream inputStream = new FileInputStream("src\\test\\resources\\test_sound_mono_48.pcm");
+	        		FileOutputStream outputStream = new FileOutputStream(outputFile, false)) {
+	        	byte[] input = new byte[packetSize];
+	        	short[] inputData = new short[packetSize];
+	        	while (inputStream.read(input) == 2 * packetSize) {
+	        		ByteBuffer.wrap(input).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(inputData);
+	        		byte[] encodedData = opus.encodeNative(inputData);
+	        		short[] decodedData = opus.decodeNative(encodedData);
+	        		ByteBuffer.wrap(output).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().put(decodedData);
+	        		outputStream.write(output);
+	        	}
+        		testPassed = true;
+	        }
+	        
+        	opus.closeNative();
+        	outputFile.delete();
+    	} catch (IOException exc) {
+    		log.error("IOException: " + exc.getMessage());
+        	fail("Opus test file access error");
+    	}
+    	
+    	assertTrue(testPassed);
     }
     
-    @Override
-    public void onHello() {
-    	System.out.println("Hello World - Java!");
+    /**
+     * Test for observer.
+     */
+    @Test
+    public void testObserver() throws Exception {
+    	
+        // given
+    	final OpusJni.Observer observer = mock(OpusJni.Observer.class);
+    	
+    	// when
+    	OpusJni opus = new OpusJni();
+    	opus.setOpusObserverNative(observer);
+    	opus.sayHelloNative();
+    	opus.unsetOpusObserverNative();
+    	
+    	// then
+        verify(observer, times(1)).onHello();
     }
 }

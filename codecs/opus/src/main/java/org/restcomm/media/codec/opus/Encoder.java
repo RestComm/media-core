@@ -58,8 +58,7 @@ public class Encoder implements Codec {
         byte[] data=frame.getData();
         byte[] resData=res.getData();
         
-        for (i = 0, j = 0; i < count; i++,j++)
-        {
+        for (i = 0, j = 0; i < count; i++,j++) {
         }
         
         res.setOffset(0);

@@ -22,16 +22,43 @@
 *
 */
 
-
-#include "opus_jni.h"
-
+#define OPUS_EXPORT __declspec(dllimport)
 #include "opus.h"
+
+#include "jni.h"
+
+#include <errno.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define FRAME_SIZE 480
+#define SAMPLE_RATE 48000
+#define CHANNELS 1
+#define APPLICATION OPUS_APPLICATION_VOIP
+#define BITRATE 48000
+
+#define MAX_FRAME_SIZE 6*480
+#define MAX_PACKET_SIZE (3*1276)
 
 JavaVM* gJvm;
 jobject gOpusObserver;
 
+OpusEncoder *gEncoder;
+OpusDecoder *gDecoder;
+
 extern "C" {
+
   JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_sayHelloNative(JNIEnv *, jobject);
+
+  JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_initNative(JNIEnv *, jobject);
+
+  JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_closeNative(JNIEnv *, jobject);
+
+  JNIEXPORT jbyteArray JNICALL Java_org_restcomm_media_codec_opus_OpusJni_encodeNative(
+    JNIEnv *jni, jobject, jshortArray);
+
+  JNIEXPORT jshortArray JNICALL Java_org_restcomm_media_codec_opus_OpusJni_decodeNative(
+    JNIEnv *jni, jobject, jbyteArray);
 
   JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_setOpusObserverNative(JNIEnv *, jobject, jobject);
 
@@ -54,17 +81,91 @@ JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_sayHelloNative
   OnHello();
 }
 
+JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_initNative(JNIEnv *, jobject) {
+
+  int err;
+
+  gEncoder = opus_encoder_create(SAMPLE_RATE, CHANNELS, APPLICATION, &err);
+  if (err < 0) {
+    fprintf(stderr, "Failed to create an encoder: %s\n", opus_strerror(err));
+    return;
+  }
+
+  err = opus_encoder_ctl(gEncoder, OPUS_SET_BITRATE(BITRATE));
+  if (err < 0) {
+    fprintf(stderr, "Failed to set bitrate: %s\n", opus_strerror(err));
+    return;
+  }
+
+  gDecoder = opus_decoder_create(SAMPLE_RATE, CHANNELS, &err);
+  if (err < 0) {
+    fprintf(stderr, "Failed to create decoder: %s\n", opus_strerror(err));
+    return;
+  }
+}
+
+JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_closeNative(JNIEnv *, jobject) {
+  opus_encoder_destroy(gEncoder);
+  opus_decoder_destroy(gDecoder);
+}
+
+JNIEXPORT jbyteArray JNICALL Java_org_restcomm_media_codec_opus_OpusJni_encodeNative(
+  JNIEnv *env, jobject, jshortArray jPcmData) {
+
+  jshort *pcmData = env->GetShortArrayElements(jPcmData, NULL);
+  jsize pcmLen = env->GetArrayLength(jPcmData);
+
+  unsigned char encoded[MAX_PACKET_SIZE];
+
+  int packetSize;
+  packetSize = opus_encode(gEncoder, pcmData, pcmLen, encoded, MAX_PACKET_SIZE);
+  if (packetSize < 0) {
+    fprintf(stderr, "Encode failed: %s\n", opus_strerror(packetSize));
+    return nullptr;
+  }
+
+  env->ReleaseShortArrayElements(jPcmData, pcmData, 0);
+
+  jbyteArray jOpusData = env->NewByteArray(packetSize);
+  env->SetByteArrayRegion(jOpusData, 0, packetSize, (jbyte *)encoded);
+
+  return jOpusData;
+}
+
+JNIEXPORT jshortArray JNICALL Java_org_restcomm_media_codec_opus_OpusJni_decodeNative(
+  JNIEnv *env, jobject, jbyteArray jOpusData) {
+
+  jbyte *opusData = env->GetByteArrayElements(jOpusData, NULL);
+  jsize opusLen = env->GetArrayLength(jOpusData);
+
+  short decoded[MAX_FRAME_SIZE];
+
+  int frameSize;
+  frameSize = opus_decode(gDecoder, (unsigned char *)opusData, opusLen, decoded, MAX_FRAME_SIZE, 0);
+  if (frameSize < 0) {
+    fprintf(stderr, "Decoder failed: %s\n", opus_strerror(frameSize));
+    return nullptr;
+  }
+
+  env->ReleaseByteArrayElements(jOpusData, opusData, 0);
+
+  jshortArray jPcmData = env->NewShortArray(frameSize);
+  env->SetShortArrayRegion(jPcmData, 0, frameSize, decoded);
+
+  return jPcmData;
+}
+
 JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_setOpusObserverNative(
-  JNIEnv *jni, jobject, jobject j_observer) {
-  gOpusObserver = jni->NewGlobalRef(j_observer);
+  JNIEnv *env, jobject, jobject jObserver) {
+  gOpusObserver = env->NewGlobalRef(jObserver);
 }
 
 JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_unsetOpusObserverNative(
-  JNIEnv *jni, jobject) {
-  jni->DeleteGlobalRef(gOpusObserver);
+  JNIEnv *env, jobject) {
+  env->DeleteGlobalRef(gOpusObserver);
 }
 
-jint JNI_OnLoad(JavaVM* vm, void* reserved) {
+JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
 
   if (!vm) {
     printf("No Java Virtual Machine pointer");
