@@ -58,7 +58,7 @@ public class WatsonAsrDriver implements AsrDriver {
     @Override
     public void configure(Map<String, String> parameters) {
 
-        log.info("Configuring  WatsonAsrDriver...");
+        log.debug("Configuring  WatsonAsrDriver...");
 
         //create service instance
         this.service = new SpeechToText(parameters.get("apiUsername"), parameters.get("apiPassword"));
@@ -82,9 +82,9 @@ public class WatsonAsrDriver implements AsrDriver {
             hertz = 8000;
         }
         
-        log.info("interimResults: " + this.interimResults);
-        log.info("hertz: " + this.hertz);
-        log.info("responseTimeout: " + this.responseTimeout);
+        log.debug("interimResults: " + this.interimResults);
+        log.debug("hertz: " + this.hertz);
+        log.debug("responseTimeout: " + this.responseTimeout);
 
         //create a list of supported languages (supports only NarrowbandModel 8000KHz)
         languages = new HashMap<>();
@@ -93,23 +93,22 @@ public class WatsonAsrDriver implements AsrDriver {
         languages.put("es-ES", "es-ES_NarrowbandModel");
         languages.put("ja-JP", "ja-JP_NarrowbandModel");
         languages.put("pt-BR", "pt-BR_NarrowbandModel");
-        //TODO confirm with Henrique
-        languages.put("pt-PT", "pt-BR_NarrowbandModel");
         languages.put("zh-CN", "zh-CN_NarrowbandModel");
     }
 
     @Override
     public void startRecognizing(String lang, List<String> hints) {
 
-        log.info("start recognizing...");
+        log.debug("start recognizing...");
         
         //verify if language is supported
+        //TODO confirm with Henrique the unsupported language strategy
         if (!languages.containsKey(lang)) {
             //if not supported, set english as default
             lang = languages.get("en-US");
         }
 
-        log.info("lang: " + lang);
+        log.debug("lang: " + lang);
         
         //create the recognize options
         options = new RecognizeOptions.Builder().contentType(HttpMediaType.createAudioRaw(hertz))
@@ -119,12 +118,12 @@ public class WatsonAsrDriver implements AsrDriver {
                                                 .interimResults(interimResults).build();
 
         // Setup streams
-        this.inputStream = new PipedInputStream();
-        this.outputStream = new PipedOutputStream();
-        try {
-            this.inputStream.connect(outputStream);
+        try {                
+            this.inputStream = new PipedInputStream();
+            this.outputStream = new PipedOutputStream(inputStream);
         } catch (IOException e) {
             log.error(e);
+            listener.onError(new AsrDriverException(e));
         }
 
         // Establish session with watson
@@ -139,7 +138,7 @@ public class WatsonAsrDriver implements AsrDriver {
                     }
                 }
 
-                log.info("speech result: " + result.toString() + ", isFinal: " + speechResults.isFinal());
+                log.debug("speech result: " + result.toString() + ", isFinal: " + speechResults.isFinal());
 
                 listener.onSpeechRecognized(result.toString(), speechResults.isFinal());
             }
