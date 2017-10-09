@@ -22,131 +22,166 @@ package org.restcomm.media.drivers.asr.driver.watson;
 
 import com.ibm.watson.developer_cloud.http.HttpMediaType;
 import com.ibm.watson.developer_cloud.speech_to_text.v1.SpeechToText;
-import com.ibm.watson.developer_cloud.speech_to_text.v1.model.*;
+import com.ibm.watson.developer_cloud.speech_to_text.v1.model.RecognizeOptions;
+import com.ibm.watson.developer_cloud.speech_to_text.v1.model.SpeechAlternative;
+import com.ibm.watson.developer_cloud.speech_to_text.v1.model.SpeechResults;
+import com.ibm.watson.developer_cloud.speech_to_text.v1.model.Transcript;
 import com.ibm.watson.developer_cloud.speech_to_text.v1.websocket.BaseRecognizeCallback;
-
-import java.io.*;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import okhttp3.WebSocket;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.restcomm.media.drivers.asr.AsrDriver;
 import org.restcomm.media.drivers.asr.AsrDriverEventListener;
 import org.restcomm.media.drivers.asr.AsrDriverException;
 
+import java.io.IOException;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.restcomm.media.drivers.asr.driver.watson.WatsonDriverParameter.*;
 
 /**
  * @author Ricardo Limonta
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public class WatsonAsrDriver implements AsrDriver {
 
     private static final Logger log = Logger.getLogger(WatsonAsrDriver.class);
 
-    private SpeechToText service;
-    private PipedInputStream inputStream;
-    private PipedOutputStream outputStream;
-    private WebSocket ws;
-    private RecognizeOptions options;
+    private static final int DEFAULT_RESPONSE_TIMEOUT = 2000;
+    private static final int DEFAULT_HERTZ = 8000;
+    private static final int DEFAULT_ALTERNATIVES = 1;
+    private static final boolean DEFAULT_INTERIM_RESULTS = false;
+    private static final String DEFAULT_LANGUAGE = "en-US";
+
+    // Configuration
+    private final Map<String, String> languages;
+
     private int responseTimeout;
     private int hertz;
     private boolean interimResults;
+    private String language;
+    private int alternatives;
+
+    // Execution Context
+    private SpeechToText service;
+    private WebSocket webSocket;
+    private PipedInputStream inputStream;
+    private PipedOutputStream outputStream;
+
+    private boolean running;
+
+    // Result Listener
     private AsrDriverEventListener listener;
-    private Map<String, String> languages;
+
+    public WatsonAsrDriver() {
+        // Configuration
+        this.languages = new HashMap<>(6);
+        this.languages.put("en-GB", "en-GB_NarrowbandModel");
+        this.languages.put("en-US", "en-US_NarrowbandModel");
+        this.languages.put("es-ES", "es-ES_NarrowbandModel");
+        this.languages.put("ja-JP", "ja-JP_NarrowbandModel");
+        this.languages.put("pt-BR", "pt-BR_NarrowbandModel");
+        this.languages.put("zh-CN", "zh-CN_NarrowbandModel");
+
+        this.responseTimeout = DEFAULT_RESPONSE_TIMEOUT;
+        this.hertz = DEFAULT_HERTZ;
+        this.interimResults = DEFAULT_INTERIM_RESULTS;
+        this.language = DEFAULT_LANGUAGE;
+        this.alternatives = DEFAULT_ALTERNATIVES;
+
+        // Execution Context
+        this.running = false;
+    }
 
     @Override
     public void configure(Map<String, String> parameters) {
+        // Create new ASR Service
+        this.service = new SpeechToText(parameters.get(API_USERNAME.symbol()), parameters.get(API_PASSWORD.symbol()));
 
-        log.debug("Configuring  WatsonAsrDriver...");
+        // Configure response timeout
+        this.responseTimeout = DEFAULT_RESPONSE_TIMEOUT;
 
-        //create service instance
-        this.service = new SpeechToText(parameters.get("apiUsername"), parameters.get("apiPassword"));
-
-        //configure response timeout
-        if (parameters.containsKey("responseTimeout")) {
-            this.responseTimeout = Integer.parseInt(parameters.get("responseTimeout"));
-        } else {
-            this.responseTimeout = 2000;
+        final String responseTimeoutParam = parameters.get(RESPONSE_TIMEOUT.symbol());
+        if (!StringUtils.isEmpty(responseTimeoutParam)) {
+            try {
+                this.responseTimeout = Integer.parseInt(responseTimeoutParam);
+            } catch (NumberFormatException e) {
+                log.warn("Could not apply " + RESPONSE_TIMEOUT.symbol() + " parameter: " + responseTimeoutParam + ". Defaulting to " + DEFAULT_RESPONSE_TIMEOUT);
+            }
         }
 
-        //configure interim results
-        if (parameters.containsKey("interimResults")) {
-            this.interimResults = Boolean.parseBoolean(parameters.get("interimResults"));
-        }
+        // Configure interim results
+        final String interimResultsParam = parameters.get(INTERIM_RESULTS.symbol());
+        this.interimResults = Boolean.parseBoolean(interimResultsParam);
 
         //configure media hertz
-        if (parameters.containsKey("hertz")) {
-            this.hertz = Integer.parseInt(parameters.get("hertz"));
-        } else {
-            hertz = 8000;
-        }
-        
-        log.debug("interimResults: " + this.interimResults);
-        log.debug("hertz: " + this.hertz);
-        log.debug("responseTimeout: " + this.responseTimeout);
+        this.hertz = DEFAULT_HERTZ;
 
-        //create a list of supported languages (supports only NarrowbandModel 8000KHz)
-        languages = new HashMap<>();
-        languages.put("en-GB", "en-GB_NarrowbandModel");
-        languages.put("en-US", "en-US_NarrowbandModel");
-        languages.put("es-ES", "es-ES_NarrowbandModel");
-        languages.put("ja-JP", "ja-JP_NarrowbandModel");
-        languages.put("pt-BR", "pt-BR_NarrowbandModel");
-        languages.put("zh-CN", "zh-CN_NarrowbandModel");
+        final String hertzParameter = parameters.get(HERTZ.symbol());
+        if (!StringUtils.isEmpty(hertzParameter)) {
+            try {
+                this.hertz = Integer.parseInt(hertzParameter);
+            } catch (NumberFormatException e) {
+                log.warn("Could not apply " + HERTZ.symbol() + " parameter: " + hertzParameter + ". Defaulting to " + DEFAULT_HERTZ);
+            }
+        }
     }
 
     @Override
     public void startRecognizing(String lang, List<String> hints) {
-
-        log.debug("start recognizing...");
-        
-        //verify if language is supported
-        //TODO confirm with Henrique the unsupported language strategy
-        if (!languages.containsKey(lang)) {
-            //if not supported, set english as default
-            lang = languages.get("en-US");
+        if (this.running) {
+            throw new IllegalStateException("Driver is already running.");
         }
 
-        log.debug("lang: " + lang);
-        
+        //verify if language is supported
+        if (!languages.containsKey(lang)) {
+            //if not supported, stop the recognition process
+            final AsrDriverException e = new AsrDriverException("Language " + lang + " not supported");
+            this.listener.onError(e);
+            return;
+        }
+
+        // Start execution
+        this.running = true;
+
         //create the recognize options
-        options = new RecognizeOptions.Builder().contentType(HttpMediaType.createAudioRaw(hertz))
-                                                .maxAlternatives(1)
-                                                .continuous(true)
-                                                .model(languages.get(lang))
-                                                .interimResults(interimResults).build();
+        final String[] hintsArray = hints == null ? new String[0] : hints.toArray(new String[hints.size()]);
+        final RecognizeOptions options = new RecognizeOptions.Builder().contentType(HttpMediaType.createAudioRaw(this.hertz)).maxAlternatives(this.alternatives).model(this.language).interimResults(this.interimResults).continuous(true).keywords(hintsArray).build();
 
         // Setup streams
-        try {                
+        try {
             this.inputStream = new PipedInputStream();
             this.outputStream = new PipedOutputStream(inputStream);
         } catch (IOException e) {
-            log.error(e);
-            listener.onError(new AsrDriverException(e));
+            listener.onError(new AsrDriverException("Could not open streams for ASR operation.", e));
         }
 
         // Establish session with watson
-        ws = service.recognizeUsingWebSocket(this.inputStream, options, new BaseRecognizeCallback() {
+        this.webSocket = service.recognizeUsingWebSocket(this.inputStream, options, new BaseRecognizeCallback() {
 
             @Override
             public void onTranscription(SpeechResults speechResults) {
-                StringBuilder result = new StringBuilder();
+                final StringBuilder result = new StringBuilder();
                 for (Transcript transcript : speechResults.getResults()) {
                     for (SpeechAlternative alternative : transcript.getAlternatives()) {
                         result.append(alternative.getTranscript());
                     }
                 }
 
-                log.debug("speech result: " + result.toString() + ", isFinal: " + speechResults.isFinal());
-
-                listener.onSpeechRecognized(result.toString(), speechResults.isFinal());
+                if (WatsonAsrDriver.this.listener != null) {
+                    listener.onSpeechRecognized(result.toString(), speechResults.isFinal());
+                }
             }
-            
+
             @Override
             public void onError(Exception e) {
-                log.error("Watson Driver Error", e);
-                listener.onError(new AsrDriverException(e));
+                if (WatsonAsrDriver.this.listener != null) {
+                    listener.onError(new AsrDriverException("Unexpected driver error.", e));
+                }
             }
         });
     }
@@ -160,17 +195,46 @@ public class WatsonAsrDriver implements AsrDriver {
     public void write(byte[] data, int offset, int len) {
         try {
             this.outputStream.write(data, offset, len);
+            this.outputStream.flush();
         } catch (IOException e) {
-            log.error(e);
+            final AsrDriverException error = new AsrDriverException("Could not write into live stream.", e);
+            if (this.listener != null) {
+                listener.onError(error);
+            }
         }
     }
 
     @Override
     public void finishRecognizing() {
-        //destroy websocket connection
-        if (this.ws != null) {
-            //Section 7.4 of RFC 6455.
-            this.ws.close(1000, "finishing speech recognition");
+        if (this.running) {
+            this.running = false;
+
+            // Destroy websocket connection
+            if (this.webSocket != null) {
+                //Section 7.4 of RFC 6455.
+                this.webSocket.close(1000, "finishing speech recognition");
+                this.webSocket = null;
+            }
+
+            // Close input stream
+            if (this.inputStream != null) {
+                try {
+                    this.inputStream.close();
+                } catch (IOException e) {
+                    log.error("Failed to close input stream", e);
+                }
+                this.inputStream = null;
+            }
+
+            // Close output stream
+            if (this.outputStream != null) {
+                try {
+                    this.outputStream.close();
+                } catch (IOException e) {
+                    log.error("Failed to close output stream", e);
+                }
+                this.outputStream = null;
+            }
         }
     }
 
@@ -183,4 +247,5 @@ public class WatsonAsrDriver implements AsrDriver {
     public int getResponseTimeoutInMilliseconds() {
         return responseTimeout;
     }
+
 }

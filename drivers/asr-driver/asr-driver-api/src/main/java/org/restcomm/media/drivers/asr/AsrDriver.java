@@ -42,7 +42,7 @@ public interface AsrDriver {
      * Starts the speech recognition process.
      * 
      * @param lang The language code as defined by BCP-47.
-     * @param hints A list of words and setences to help improve the detection accuracy.
+     * @param hints A list of words and sentences to help improve the detection accuracy.
      */
     void startRecognizing(String lang, List<String> hints);
 

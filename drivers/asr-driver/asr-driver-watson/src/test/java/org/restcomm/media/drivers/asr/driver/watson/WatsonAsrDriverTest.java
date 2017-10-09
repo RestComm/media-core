@@ -20,69 +20,84 @@
  */
 package org.restcomm.media.drivers.asr.driver.watson;
 
+import org.apache.log4j.Logger;
+import org.junit.After;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.restcomm.media.drivers.asr.AsrDriverEventListener;
+import org.restcomm.media.drivers.asr.AsrDriverException;
+
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.restcomm.media.drivers.asr.AsrDriverEventListener;
+
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Ricardo Limonta
  */
 @Ignore
 public class WatsonAsrDriverTest {
-    
-    private WatsonAsrDriver watsonAsrDriver;
-    private AsrDriverEventListener eventListener;
-    
-    @Before
-    public void setUp() {
-        //create a driver instance
-        watsonAsrDriver = new WatsonAsrDriver();
-        
-        //create a driver listener instance
-        eventListener = new WatsonAsrDriverEventListenerMock();
-        
-        //setup parameters
+
+    private static final Logger log = Logger.getLogger(WatsonAsrDriverTest.class);
+
+    private WatsonAsrDriver driver;
+
+    @After
+    public void after() {
+        if (this.driver != null) {
+            this.driver.setListener(null);
+            this.driver.finishRecognizing();
+            this.driver = null;
+        }
+    }
+
+    @Test
+    public void transcriptionTest() throws Exception {
+        // given
         Map<String, String> params = new HashMap<>();
         params.put("hertz", "8000");
         params.put("interimResults", "true");
         params.put("responseTimeout", "1000");
         params.put("apiUsername", "[watson api username]");
         params.put("apiPassword", "[watson api password]");
-        
-        //call configure method
-        watsonAsrDriver.configure(params);
-        
-        //set event listener
-        watsonAsrDriver.setListener(eventListener);
-        
-        //call start recognition
-        watsonAsrDriver.startRecognizing("pt-BR", null);   
-    }
-    
-    @Test
-    public void transcriptionTest() throws Exception {
-        // Demo audio file
-        URL url = WatsonAsrDriver.class.getResource("/audio/audio_demo.wav");
-	Path path = Paths.get(url.toURI());
-	byte[] data = Files.readAllBytes(path);
-        
-        //process transcription
-        watsonAsrDriver.write(data);
 
-        //waits for 10 seconds to simulate an active call
-        Thread.sleep(10000); 
+        final int duration = 6000;
+        final URL url = WatsonAsrDriver.class.getResource("/audio/audio_demo.wav");
+        final Path path = Paths.get(url.toURI());
+        final byte[] data = Files.readAllBytes(path);
+
+        final AsrDriverEventListener listener = spy(new AsrDriverEventListener() {
+
+            @Override
+            public void onSpeechRecognized(String text, boolean isFinal) {
+                log.info("Transcription: " + text + ", isFinal: " + isFinal);
+            }
+
+            @Override
+            public void onError(AsrDriverException error) {
+                log.error("Unexpected Error", error);
+                fail();
+            }
+
+        });
+
+        this.driver = new WatsonAsrDriver();
+        this.driver.configure(params);
+        this.driver.setListener(listener);
+
+        // when
+        this.driver.startRecognizing("pt-BR", Collections.<String>emptyList());
+        this.driver.write(data);
+
+        // then
+        verify(listener, timeout(duration)).onSpeechRecognized(any(String.class), any(Boolean.class));
+        verify(listener, never()).onError(any(AsrDriverException.class));
     }
-    
-    @After
-    public void tearDown() {
-        watsonAsrDriver.finishRecognizing();
-    }
+
 }

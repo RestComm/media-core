@@ -1,7 +1,7 @@
 /*
  * TeleStax, Open Source Cloud Communications
  * Copyright 2011-2017, Telestax Inc and individual contributors
- * by the @authors tag. 
+ * by the @authors tag.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -18,26 +18,23 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
+
 package org.restcomm.media.drivers.asr.driver.watson;
 
-import org.restcomm.media.drivers.asr.AsrDriverEventListener;
-import org.restcomm.media.drivers.asr.AsrDriverException;
-
-
 /**
- * @author Ricardo Limonta
+ * @author Henrique Rosa (henrique.rosa@telestax.com) on 06/10/2017
  */
-public class WatsonAsrDriverEventListenerMock implements AsrDriverEventListener {
+public enum WatsonDriverParameter {
 
-    @Override
-    public void onSpeechRecognized(String text, boolean isFinal) {
-        System.out.println("------------------------------------------------");
-        System.out.println("Final: " + isFinal);
-        System.out.println("Transcription: " + text);
-        System.out.println("------------------------------------------------");
+    RESPONSE_TIMEOUT("responseTimeout"), INTERIM_RESULTS("interimResults"), HERTZ("hertz"), API_USERNAME("apiUsername"), API_PASSWORD("apiPassword");
+
+    private final String symbol;
+
+    WatsonDriverParameter(String symbol) {
+        this.symbol = symbol;
     }
 
-    @Override
-    public void onError(AsrDriverException error) {
+    public String symbol() {
+        return symbol;
     }
 }
