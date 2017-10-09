@@ -156,6 +156,7 @@ public class AsrFsmImpl extends AbstractStateMachine<AsrFsm, AsrState, AsrEvent,
         if (log.isTraceEnabled()) {
             log.trace("Exited PLAY_COLLECT state");
         }
+        deactivateAsrEngine();
     }
 
     @Override
@@ -366,7 +367,6 @@ public class AsrFsmImpl extends AbstractStateMachine<AsrFsm, AsrState, AsrEvent,
         if (log.isTraceEnabled()) {
             log.trace("Entered EVALUATING state.");
         }
-        deactivateAsrEngine();
         if (context.isDigitsOnlyMode()) {
             final int digitCount = context.countCollectedDigits();
             if (context.hasDigitPattern()) {

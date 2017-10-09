@@ -150,21 +150,18 @@ public class WatsonAsrDriver implements AsrDriver {
 
         //create the recognize options
         final String[] hintsArray = hints == null ? new String[0] : hints.toArray(new String[hints.size()]);
-        final RecognizeOptions options = new RecognizeOptions.Builder().contentType(HttpMediaType.createAudioRaw(this.hertz)).maxAlternatives(this.alternatives).model(this.language).interimResults(this.interimResults).continuous(true).keywords(hintsArray).build();
+        final RecognizeOptions options = new RecognizeOptions.Builder().contentType(HttpMediaType.createAudioRaw(this.hertz)).maxAlternatives(this.alternatives).model(this.languages.get(lang)).interimResults(this.interimResults).continuous(true).keywords(hintsArray).build();
 
         // Setup streams
-        long start = System.currentTimeMillis();
         try {
-            this.inputStream = new PipedInputStream(320 * 50);
+            // TODO calculate buffer size automatically
+            this.inputStream = new PipedInputStream(320 * 40);
             this.outputStream = new PipedOutputStream(inputStream);
         } catch (IOException e) {
             listener.onError(new AsrDriverException("Could not open streams for ASR operation.", e));
         }
-        long end = System.currentTimeMillis();
-        log.info("Watson driver took " + (end - start) + "ms to open streams");
 
         // Establish session with watson
-        start = System.currentTimeMillis();
         this.webSocket = service.recognizeUsingWebSocket(this.inputStream, options, new BaseRecognizeCallback() {
 
             @Override
@@ -188,8 +185,6 @@ public class WatsonAsrDriver implements AsrDriver {
                 }
             }
         });
-        end = System.currentTimeMillis();
-        log.info("Watson driver took " + (end - start) + "ms to open session");
     }
 
     @Override
@@ -203,7 +198,6 @@ public class WatsonAsrDriver implements AsrDriver {
             return;
         }
 
-        final long start = System.currentTimeMillis();
         try {
             this.outputStream.write(data, offset, len);
             this.outputStream.flush();
@@ -213,8 +207,6 @@ public class WatsonAsrDriver implements AsrDriver {
                 listener.onError(error);
             }
         }
-        final long end = System.currentTimeMillis();
-        log.info("Watson driver took " + (end - start) + "ms to write data");
     }
 
     @Override
