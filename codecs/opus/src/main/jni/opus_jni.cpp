@@ -22,7 +22,9 @@
 *
 */
 
+#if defined(_WIN32)
 #define OPUS_EXPORT __declspec(dllimport)
+#endif
 #include "opus.h"
 
 #include "jni.h"
@@ -82,7 +84,7 @@ void OnHello() {
 }
 
 JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_sayHelloNative(JNIEnv *, jobject) {
-	printf("Hello World - native!\n");
+  printf("Hello World - native!\n");
   OnHello();
 }
 

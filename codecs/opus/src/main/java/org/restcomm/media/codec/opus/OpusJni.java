@@ -34,7 +34,7 @@ public class OpusJni {
    }
 	   
    static {
-      System.loadLibrary("libopus-0");
+      System.loadLibrary("opus");
       System.loadLibrary("opus_jni");
    }
 
