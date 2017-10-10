@@ -28,6 +28,10 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import static org.junit.Assert.*;
 
 import java.io.File;
@@ -52,7 +56,7 @@ import org.restcomm.media.spi.memory.Memory;
  * @author Vladimir Morosev (vladimir.morosev@telestax.com)
  * 
  */
-public class OpusCodecTest implements OpusJni.Observer {
+public class OpusCodecTest {
 
     private static final Logger log = Logger.getLogger(OpusCodecTest.class);
 
@@ -84,51 +88,61 @@ public class OpusCodecTest implements OpusJni.Observer {
     @Test
     public void testCodec() throws Exception {
     	
-    	boolean testPassed = false;
+        boolean testPassed = false;
     	
-    	try {
-	    	//OpusJni opus = new OpusJni();
-	    	//opus.setOpusObserverNative(this);
-	    	//opus.sayHelloNative();
-    		
-    		final int packetSize = 480;
-    		File outputFile = File.createTempFile("opustest", ".tmp");
-    		URL inputFileUrl = this.getClass().getResource("/test_sound_mono_48.pcm");
-	        FileInputStream inputStream = new FileInputStream(inputFileUrl.getFile());
-	        FileOutputStream outputStream = new FileOutputStream(outputFile, false);
-	        Encoder encoder = new Encoder();
-	        Decoder decoder = new Decoder();
-
-	        try {
-	        	byte[] input = new byte[2 * packetSize];
-	        	while (inputStream.read(input) == 2 * packetSize) {
-	        		Frame inputFrame = Memory.allocate(2 * packetSize);
-	        		inputFrame.setOffset(0);
-	        		inputFrame.setLength(2 * packetSize);
-	        		inputFrame.setFormat(encoder.getSupportedInputFormat());
-	        		inputFrame.setTimestamp(System.currentTimeMillis());
-	        		inputFrame.setDuration(10);
-	        		System.arraycopy(input, 0, inputFrame.getData(), 0, 2 * packetSize);
-	        		Frame encodedFrame = encoder.process(inputFrame);
-	        		Frame decodedFrame = decoder.process(encodedFrame);
-	        		outputStream.write(decodedFrame.getData());
-	        	}
-        		testPassed = true;
-	        } finally {
-	        	inputStream.close();
-	        	outputStream.close();
-	        	outputFile.delete();
-	        }
-    	} catch (IOException exc) {
-    		log.error("IOException: " + exc.getMessage());
-        	fail("Opus test file access error");
-    	}
+        try {
+            final int packetSize = 480;
+            File outputFile = File.createTempFile("opustest", ".tmp");
+            URL inputFileUrl = this.getClass().getResource("/test_sound_mono_48.pcm");
+            Encoder encoder = new Encoder();
+            Decoder decoder = new Decoder();
+            try (FileInputStream inputStream = new FileInputStream("src\\test\\resources\\test_sound_mono_48.pcm");
+                FileOutputStream outputStream = new FileOutputStream(outputFile, false)) {
+                byte[] input = new byte[2 * packetSize];
+                short[] inputData = new short[packetSize];
+                while (inputStream.read(input) == 2 * packetSize) {
+                     Frame inputFrame = Memory.allocate(2 * packetSize);
+                     inputFrame.setOffset(0);
+                     inputFrame.setLength(2 * packetSize);
+                     inputFrame.setFormat(encoder.getSupportedInputFormat());
+                     inputFrame.setTimestamp(System.currentTimeMillis());
+                     inputFrame.setDuration(10);
+                     System.arraycopy(input, 0, inputFrame.getData(), 0, 2 * packetSize);
+                     Frame encodedFrame = encoder.process(inputFrame);
+                     Frame decodedFrame = decoder.process(encodedFrame);
+                     outputStream.write(decodedFrame.getData());
+                }
+                testPassed = true;
+            } finally {
+                outputFile.delete();
+            }
+	        
+            opus.closeNative();
+            outputFile.delete();
+        } catch (IOException exc) {
+            log.error("IOException: " + exc.getMessage());
+            fail("Opus test file access error");
+        }
     	
-    	assertTrue(testPassed);
+        assertTrue(testPassed);
     }
     
-    @Override
-    public void onHello() {
-    	log.info("Hello World - Java!");
+    /**
+     * Test for observer.
+     */
+    @Test
+    public void testObserver() throws Exception {
+    	
+      // given
+    	final OpusJni.Observer observer = mock(OpusJni.Observer.class);
+    	
+    	// when
+    	OpusJni opus = new OpusJni();
+    	opus.setOpusObserverNative(observer);
+    	opus.sayHelloNative();
+    	opus.unsetOpusObserverNative();
+    	
+      // then
+      verify(observer, times(1)).onHello();
     }
 }
