@@ -21,6 +21,11 @@
 
 package org.restcomm.media.codec.opus;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.log4j.Logger;
 import org.restcomm.media.spi.dsp.Codec;
 import org.restcomm.media.spi.format.Format;
 import org.restcomm.media.spi.format.FormatFactory;
@@ -35,10 +40,23 @@ import org.restcomm.media.spi.memory.Memory;
  */
 public class Encoder implements Codec {
 
-    private final static Format opus = FormatFactory.createAudioFormat("opus", 48000, 8, 1);
-    private final static Format linear = FormatFactory.createAudioFormat("linear", 8000, 16, 1);
+    private final static Logger log = Logger.getLogger(Encoder.class);
 
-    private int i,j,count;
+    private final static Format opus = FormatFactory.createAudioFormat("opus", 48000, 8, 1);
+    private final static Format linear = FormatFactory.createAudioFormat("linear", 48000, 16, 1);
+    
+	private OpusJni opusJni = new OpusJni();
+    private String encoderId = RandomStringUtils.random(10, true, true);
+    
+    public Encoder() {
+    	opusJni.initEncoderNative(encoderId);
+    }
+    
+    @Override
+    protected void finalize() throws Throwable {
+    	super.finalize();
+    	opusJni.closeEncoderNative(encoderId);
+    }
 
     @Override
     public Format getSupportedInputFormat() {
@@ -52,17 +70,17 @@ public class Encoder implements Codec {
 
     @Override
     public Frame process(Frame frame) {
-    	count = frame.getLength() / 2;
-        Frame res = Memory.allocate(count);
-        
-        byte[] data=frame.getData();
-        byte[] resData=res.getData();
-        
-        for (i = 0, j = 0; i < count; i++,j++) {
-        }
+    	
+    	byte[] input = frame.getData();
+    	short[] inputData = new short[frame.getLength() / 2];
+    	ByteBuffer.wrap(input).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(inputData);
+    	byte[] encodedData = opusJni.encodeNative(encoderId, inputData);
+    	
+        Frame res = Memory.allocate(encodedData.length);
+        System.arraycopy(encodedData, 0, res.getData(), 0, encodedData.length);
         
         res.setOffset(0);
-        res.setLength(count);
+        res.setLength(encodedData.length);
         res.setFormat(opus);
         res.setTimestamp(frame.getTimestamp());
         res.setDuration(frame.getDuration());

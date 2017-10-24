@@ -21,6 +21,7 @@
 
 package org.restcomm.media.codec.opus;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -37,6 +38,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigInteger;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -85,37 +88,43 @@ public class OpusCodecTest {
     @Test
     public void testCodec() throws Exception {
     	
-    	boolean testPassed = false;
+        boolean testPassed = false;
     	
-    	try {	    	
-	    	OpusJni opus = new OpusJni();
-	    	opus.initNative();
-
-    		final int packetSize = 480;
-    		File outputFile = File.createTempFile("opustest", ".tmp");
-    		byte[] output = new byte[2 * packetSize];
-	        try (FileInputStream inputStream = new FileInputStream("src\\test\\resources\\test_sound_mono_48.pcm");
-	        		FileOutputStream outputStream = new FileOutputStream(outputFile, false)) {
-	        	byte[] input = new byte[packetSize];
-	        	short[] inputData = new short[packetSize];
-	        	while (inputStream.read(input) == 2 * packetSize) {
-	        		ByteBuffer.wrap(input).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(inputData);
-	        		byte[] encodedData = opus.encodeNative(inputData);
-	        		short[] decodedData = opus.decodeNative(encodedData);
-	        		ByteBuffer.wrap(output).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().put(decodedData);
-	        		outputStream.write(output);
-	        	}
-        		testPassed = true;
-	        }
+        try {
+            final int packetSize = 480;
+            File outputFile = File.createTempFile("opustest", ".tmp");
+            URL inputFileUrl = this.getClass().getResource("/test_sound_mono_48.pcm");
+            Encoder encoder = new Encoder();
+            Decoder decoder = new Decoder();
+            try (FileInputStream inputStream = new FileInputStream("src\\test\\resources\\test_sound_mono_48.pcm");
+                FileOutputStream outputStream = new FileOutputStream(outputFile, false)) {
+                byte[] input = new byte[2 * packetSize];
+                short[] inputData = new short[packetSize];
+                while (inputStream.read(input) == 2 * packetSize) {
+                     Frame inputFrame = Memory.allocate(2 * packetSize);
+                     inputFrame.setOffset(0);
+                     inputFrame.setLength(2 * packetSize);
+                     inputFrame.setFormat(encoder.getSupportedInputFormat());
+                     inputFrame.setTimestamp(System.currentTimeMillis());
+                     inputFrame.setDuration(10);
+                     System.arraycopy(input, 0, inputFrame.getData(), 0, 2 * packetSize);
+                     Frame encodedFrame = encoder.process(inputFrame);
+                     Frame decodedFrame = decoder.process(encodedFrame);
+                     outputStream.write(decodedFrame.getData());
+                }
+                testPassed = true;
+            } finally {
+                outputFile.delete();
+            }
 	        
-        	opus.closeNative();
-        	outputFile.delete();
-    	} catch (IOException exc) {
-    		log.error("IOException: " + exc.getMessage());
-        	fail("Opus test file access error");
-    	}
+            opus.closeNative();
+            outputFile.delete();
+        } catch (IOException exc) {
+            log.error("IOException: " + exc.getMessage());
+            fail("Opus test file access error");
+        }
     	
-    	assertTrue(testPassed);
+        assertTrue(testPassed);
     }
     
     /**
@@ -124,7 +133,7 @@ public class OpusCodecTest {
     @Test
     public void testObserver() throws Exception {
     	
-        // given
+      // given
     	final OpusJni.Observer observer = mock(OpusJni.Observer.class);
     	
     	// when
@@ -133,7 +142,7 @@ public class OpusCodecTest {
     	opus.sayHelloNative();
     	opus.unsetOpusObserverNative();
     	
-    	// then
-        verify(observer, times(1)).onHello();
+      // then
+      verify(observer, times(1)).onHello();
     }
 }
