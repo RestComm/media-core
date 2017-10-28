@@ -52,6 +52,7 @@ public class AVProfile {
     private final static RTPFormat dtmf = new RTPFormat(telephoneEventsID, telephoneEvent, 8000);
     private final static RTPFormat dtmf126 = new RTPFormat(telephoneEvent126, telephoneEvent, 8000);
     private final static RTPFormat ilbc = new RTPFormat(102, FormatFactory.createAudioFormat("ilbc", 8000, 16, 1), 8000);
+    private final static RTPFormat opus = new RTPFormat(111, FormatFactory.createAudioFormat("opus", 48000, 16, 2), 48000);
     private final static RTPFormat linear = new RTPFormat(150, FormatFactory.createAudioFormat("linear", 8000, 16, 1), 8000);
 
     private final static RTPFormat H261 = new RTPFormat(45, FormatFactory.createVideoFormat("h261"));
@@ -65,6 +66,7 @@ public class AVProfile {
         audio.add(g729);
         audio.add(l16);
         audio.add(ilbc);
+        audio.add(opus);
         audio.add(dtmf);
         audio.add(dtmf126);
     }

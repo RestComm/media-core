@@ -54,6 +54,11 @@
 			<artifactId>g711</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+                <dependency>
+                        <groupId>org.restcomm.media.codecs</groupId>
+                        <artifactId>opus</artifactId>
+                        <version>${project.version}</version>
+                </dependency>
 		<dependency>
 			<groupId>org.restcomm.media</groupId>
 			<artifactId>rtp</artifactId>
