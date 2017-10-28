@@ -34,14 +34,14 @@
 #include <string.h>
 #include <map>
 
-#define FRAME_SIZE 480
-#define SAMPLE_RATE 48000
+#define FRAME_SIZE 80
+#define SAMPLE_RATE 8000
 #define CHANNELS 1
 #define APPLICATION OPUS_APPLICATION_VOIP
-#define BITRATE 48000
+#define BITRATE 32000
 
-#define MAX_FRAME_SIZE 6*480
-#define MAX_PACKET_SIZE (3*1276)
+#define MAX_FRAME_SIZE 6*80
+#define MAX_PACKET_SIZE 320
 
 JavaVM* gJvm;
 jobject gOpusObserver;

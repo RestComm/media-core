@@ -42,10 +42,10 @@ public class Decoder implements Codec {
 
     private final static Logger log = Logger.getLogger(Encoder.class);
 
-    private final static Format opus = FormatFactory.createAudioFormat("opus", 48000, 8, 1);
-    private final static Format linear = FormatFactory.createAudioFormat("linear", 48000, 16, 1);
+    private final static Format opus = FormatFactory.createAudioFormat("opus", 48000, 8, 2);
+    private final static Format linear = FormatFactory.createAudioFormat("linear", 8000, 16, 1);
 
-	private OpusJni opusJni = new OpusJni();
+    private OpusJni opusJni = new OpusJni();
     String decoderId = RandomStringUtils.random(10, true, true);
     
     public Decoder() {
@@ -71,9 +71,9 @@ public class Decoder implements Codec {
     @Override
     public Frame process(Frame frame) {
     	
-		short[] decodedData = opusJni.decodeNative(decoderId, frame.getData());
-		byte[] output = new byte[2 * decodedData.length];
-		ByteBuffer.wrap(output).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().put(decodedData);
+        short[] decodedData = opusJni.decodeNative(decoderId, frame.getData());
+        byte[] output = new byte[2 * decodedData.length];
+        ByteBuffer.wrap(output).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().put(decodedData);
     	
         Frame res = Memory.allocate(output.length);
         System.arraycopy(output, 0, res.getData(), 0, output.length);

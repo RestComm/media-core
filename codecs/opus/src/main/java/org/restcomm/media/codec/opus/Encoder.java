@@ -42,10 +42,10 @@ public class Encoder implements Codec {
 
     private final static Logger log = Logger.getLogger(Encoder.class);
 
-    private final static Format opus = FormatFactory.createAudioFormat("opus", 48000, 8, 1);
-    private final static Format linear = FormatFactory.createAudioFormat("linear", 48000, 16, 1);
+    private final static Format opus = FormatFactory.createAudioFormat("opus", 48000, 8, 2);
+    private final static Format linear = FormatFactory.createAudioFormat("linear", 8000, 16, 1);
     
-	private OpusJni opusJni = new OpusJni();
+    private OpusJni opusJni = new OpusJni();
     private String encoderId = RandomStringUtils.random(10, true, true);
     
     public Encoder() {
