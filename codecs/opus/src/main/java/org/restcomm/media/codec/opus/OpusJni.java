@@ -29,22 +29,22 @@ package org.restcomm.media.codec.opus;
  */
 public class OpusJni {
     
-   public static interface Observer {
-      public void onHello();
-   }
+    public static interface Observer {
+        public void onHello();
+    }
 	   
-   static {
-      System.loadLibrary("opus");
-      System.loadLibrary("opus_jni");
-   }
+    static {
+        System.loadLibrary("opus");
+        System.loadLibrary("opus_jni");
+    }
 
-   public native void sayHelloNative();
-   public native void initEncoderNative(String encoderId);
-   public native void initDecoderNative(String decoderId);
-   public native void closeEncoderNative(String encoderId);
-   public native void closeDecoderNative(String decoderId);
-   public native byte[] encodeNative(String encoderId, short[] pcmData);
-   public native short[] decodeNative(String decoderId, byte[] opusData);
-   public native void setOpusObserverNative(Observer observer);
-   public native void unsetOpusObserverNative();
+    public native void sayHelloNative();
+    public native void initEncoderNative(String encoderId);
+    public native void initDecoderNative(String decoderId);
+    public native void closeEncoderNative(String encoderId);
+    public native void closeDecoderNative(String decoderId);
+    public native byte[] encodeNative(String encoderId, short[] pcmData);
+    public native short[] decodeNative(String decoderId, byte[] opusData);
+    public native void setOpusObserverNative(Observer observer);
+    public native void unsetOpusObserverNative();
 }

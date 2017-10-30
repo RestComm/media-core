@@ -49,13 +49,13 @@ public class Decoder implements Codec {
     String decoderId = RandomStringUtils.random(10, true, true);
     
     public Decoder() {
-    	opusJni.initDecoderNative(decoderId);
+        opusJni.initDecoderNative(decoderId);
     }
     
     @Override
     protected void finalize() throws Throwable {
-    	super.finalize();
-    	opusJni.closeDecoderNative(decoderId);
+        super.finalize();
+        opusJni.closeDecoderNative(decoderId);
     }
 
     @Override

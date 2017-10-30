@@ -133,16 +133,16 @@ public class OpusCodecTest {
     @Test
     public void testObserver() throws Exception {
     	
-      // given
-    	final OpusJni.Observer observer = mock(OpusJni.Observer.class);
+        // given
+    	  final OpusJni.Observer observer = mock(OpusJni.Observer.class);
     	
-    	// when
-    	OpusJni opus = new OpusJni();
-    	opus.setOpusObserverNative(observer);
-    	opus.sayHelloNative();
-    	opus.unsetOpusObserverNative();
+    	  // when
+    	  OpusJni opus = new OpusJni();
+    	  opus.setOpusObserverNative(observer);
+    	  opus.sayHelloNative();
+    	  opus.unsetOpusObserverNative();
     	
-      // then
-      verify(observer, times(1)).onHello();
+    	  // then
+    	  verify(observer, times(1)).onHello();
     }
 }

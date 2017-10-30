@@ -49,13 +49,13 @@ public class Encoder implements Codec {
     private String encoderId = RandomStringUtils.random(10, true, true);
     
     public Encoder() {
-    	opusJni.initEncoderNative(encoderId);
+        opusJni.initEncoderNative(encoderId);
     }
     
     @Override
     protected void finalize() throws Throwable {
-    	super.finalize();
-    	opusJni.closeEncoderNative(encoderId);
+        super.finalize();
+        opusJni.closeEncoderNative(encoderId);
     }
 
     @Override
@@ -71,10 +71,10 @@ public class Encoder implements Codec {
     @Override
     public Frame process(Frame frame) {
     	
-    	byte[] input = frame.getData();
-    	short[] inputData = new short[frame.getLength() / 2];
-    	ByteBuffer.wrap(input).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(inputData);
-    	byte[] encodedData = opusJni.encodeNative(encoderId, inputData);
+        byte[] input = frame.getData();
+        short[] inputData = new short[frame.getLength() / 2];
+        ByteBuffer.wrap(input).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(inputData);
+        byte[] encodedData = opusJni.encodeNative(encoderId, inputData);
     	
         Frame res = Memory.allocate(encodedData.length);
         System.arraycopy(encodedData, 0, res.getData(), 0, encodedData.length);
