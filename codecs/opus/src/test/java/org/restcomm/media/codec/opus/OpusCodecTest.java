@@ -117,7 +117,6 @@ public class OpusCodecTest {
                 outputFile.delete();
             }
 	        
-            opus.closeNative();
             outputFile.delete();
         } catch (IOException exc) {
             log.error("IOException: " + exc.getMessage());

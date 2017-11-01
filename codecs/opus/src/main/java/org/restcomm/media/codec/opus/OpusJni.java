@@ -29,6 +29,10 @@ package org.restcomm.media.codec.opus;
  */
 public class OpusJni {
     
+    public final static int OPUS_APPLICATION_VOIP                   = 2048;
+    public final static int OPUS_APPLICATION_AUDIO                  = 2049;
+    public final static int OPUS_APPLICATION_RESTRICTED_LOWDELAY    = 2051;
+
     public static interface Observer {
         public void onHello();
     }
@@ -38,13 +42,14 @@ public class OpusJni {
         System.loadLibrary("opus_jni");
     }
 
+    public static native long createEncoderNative(int sampleRate, int channels, int application, int bitRate);
+    public static native long createDecoderNative(int sampleRate, int channels);
+    public static native void releaseEncoderNative(long encoderAddress);
+    public static native void releaseDecoderNative(long decoderAddress);
+    public static native byte[] encodeNative(long encoderAddress, short[] pcmData);
+    public static native short[] decodeNative(long decoderAddress, byte[] opusData);
+
     public native void sayHelloNative();
-    public native void initEncoderNative(String encoderId);
-    public native void initDecoderNative(String decoderId);
-    public native void closeEncoderNative(String encoderId);
-    public native void closeDecoderNative(String decoderId);
-    public native byte[] encodeNative(String encoderId, short[] pcmData);
-    public native short[] decodeNative(String decoderId, byte[] opusData);
     public native void setOpusObserverNative(Observer observer);
     public native void unsetOpusObserverNative();
 }

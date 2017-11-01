@@ -34,42 +34,137 @@
 #include <string.h>
 #include <map>
 
-#define FRAME_SIZE 80
-#define SAMPLE_RATE 8000
-#define CHANNELS 1
-#define APPLICATION OPUS_APPLICATION_VOIP
-#define BITRATE 32000
-
 #define MAX_FRAME_SIZE 6*80
 #define MAX_PACKET_SIZE 320
 
 JavaVM* gJvm;
 jobject gOpusObserver;
 
-std::map<std::string, OpusEncoder *> gEncoderMap;
-std::map<std::string, OpusDecoder *> gDecoderMap;
-
 extern "C" {
 
-  JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_sayHelloNative(JNIEnv *, jobject);
+  JNIEXPORT jlong JNICALL Java_org_restcomm_media_codec_opus_OpusJni_createEncoderNative(JNIEnv *, jobject,
+    jint, jint, jint, jint);
 
-  JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_initEncoderNative(JNIEnv *, jobject, jstring);
+  JNIEXPORT jlong JNICALL Java_org_restcomm_media_codec_opus_OpusJni_createDecoderNative(JNIEnv *, jobject,
+    jint, jint);
 
-  JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_initDecoderNative(JNIEnv *, jobject, jstring);
+  JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_releaseEncoderNative(JNIEnv *, jobject,
+    jlong);
 
-  JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_closeEncoderNative(JNIEnv *, jobject, jstring);
-
-  JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_closeDecoderNative(JNIEnv *, jobject, jstring);
+  JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_releaseDecoderNative(JNIEnv *, jobject,
+    jlong);
 
   JNIEXPORT jbyteArray JNICALL Java_org_restcomm_media_codec_opus_OpusJni_encodeNative(
-    JNIEnv *jni, jobject, jstring, jshortArray);
+    JNIEnv *jni, jobject, jlong, jshortArray);
 
   JNIEXPORT jshortArray JNICALL Java_org_restcomm_media_codec_opus_OpusJni_decodeNative(
-    JNIEnv *jni, jobject, jstring, jbyteArray);
+    JNIEnv *jni, jobject, jlong, jbyteArray);
+
+  JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_sayHelloNative(JNIEnv *, jobject);
 
   JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_setOpusObserverNative(JNIEnv *, jobject, jobject);
 
   JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_unsetOpusObserverNative(JNIEnv *, jobject);
+}
+
+JNIEXPORT jlong JNICALL Java_org_restcomm_media_codec_opus_OpusJni_createEncoderNative(JNIEnv *env, jobject,
+  jint jSampleRate, jint jChannels, jint jApplicationType, jint jBitrate) {
+
+  int err;
+
+  OpusEncoder *encoder = opus_encoder_create(jSampleRate, jChannels, jApplicationType, &err);
+  if (err < 0) {
+    fprintf(stderr, "Failed to create an encoder: %s\n", opus_strerror(err));
+    return 0;
+  }
+
+  err = opus_encoder_ctl(encoder, OPUS_SET_BITRATE(jBitrate));
+  if (err < 0) {
+    fprintf(stderr, "Failed to set bitrate: %s\n", opus_strerror(err));
+    return 0;
+  }
+
+  return (jlong)encoder;
+}
+
+JNIEXPORT jlong JNICALL Java_org_restcomm_media_codec_opus_OpusJni_createDecoderNative(JNIEnv *env, jobject,
+  jint jSampleRate, jint jChannels) {
+
+  int err;
+
+  OpusDecoder *decoder = opus_decoder_create(jSampleRate, jChannels, &err);
+  if (err < 0) {
+    fprintf(stderr, "Failed to create decoder: %s\n", opus_strerror(err));
+    return 0;
+  }
+
+  return (jlong)decoder;
+}
+
+JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_releaseEncoderNative(JNIEnv *env, jobject,
+  jlong jEncoderAddress) {
+
+  OpusEncoder *encoder = (OpusEncoder *)jEncoderAddress;
+
+  opus_encoder_destroy(encoder);
+}
+
+JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_releaseDecoderNative(JNIEnv *env, jobject,
+  jlong jDecoderAddress) {
+
+  OpusDecoder *decoder = (OpusDecoder *)jDecoderAddress;
+
+  opus_decoder_destroy(decoder);
+}
+
+JNIEXPORT jbyteArray JNICALL Java_org_restcomm_media_codec_opus_OpusJni_encodeNative(
+  JNIEnv *env, jobject, jlong jEncoderAddress, jshortArray jPcmData) {
+
+  jshort *pcmData = env->GetShortArrayElements(jPcmData, NULL);
+  jsize pcmLen = env->GetArrayLength(jPcmData);
+
+  OpusEncoder *encoder = (OpusEncoder *)jEncoderAddress;
+
+  unsigned char encoded[MAX_PACKET_SIZE];
+
+  int packetSize;
+  packetSize = opus_encode(encoder, pcmData, pcmLen, encoded, MAX_PACKET_SIZE);
+  if (packetSize < 0) {
+    fprintf(stderr, "Encode failed: %s\n", opus_strerror(packetSize));
+    return nullptr;
+  }
+
+  env->ReleaseShortArrayElements(jPcmData, pcmData, 0);
+
+  jbyteArray jOpusData = env->NewByteArray(packetSize);
+  env->SetByteArrayRegion(jOpusData, 0, packetSize, (jbyte *)encoded);
+
+  return jOpusData;
+}
+
+JNIEXPORT jshortArray JNICALL Java_org_restcomm_media_codec_opus_OpusJni_decodeNative(
+  JNIEnv *env, jobject, jlong jDecoderAddress, jbyteArray jOpusData) {
+
+  jbyte *opusData = env->GetByteArrayElements(jOpusData, NULL);
+  jsize opusLen = env->GetArrayLength(jOpusData);
+
+  OpusDecoder *decoder = (OpusDecoder *)jDecoderAddress;
+
+  short decoded[MAX_FRAME_SIZE];
+
+  int frameSize;
+  frameSize = opus_decode(decoder, (unsigned char *)opusData, opusLen, decoded, MAX_FRAME_SIZE, 0);
+  if (frameSize < 0) {
+    fprintf(stderr, "Decoder failed: %s\n", opus_strerror(frameSize));
+    return nullptr;
+  }
+
+  env->ReleaseByteArrayElements(jOpusData, opusData, 0);
+
+  jshortArray jPcmData = env->NewShortArray(frameSize);
+  env->SetShortArrayRegion(jPcmData, 0, frameSize, decoded);
+
+  return jPcmData;
 }
 
 void OnHello() {
@@ -86,126 +181,6 @@ void OnHello() {
 JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_sayHelloNative(JNIEnv *, jobject) {
   printf("Hello World - native!\n");
   OnHello();
-}
-
-JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_initEncoderNative(JNIEnv *env, jobject, jstring jEncoderId) {
-
-  int err;
-  const char *encoderId = env->GetStringUTFChars(jEncoderId, NULL);
-
-  OpusEncoder *encoder = opus_encoder_create(SAMPLE_RATE, CHANNELS, APPLICATION, &err);
-  if (err < 0) {
-    fprintf(stderr, "Failed to create an encoder: %s\n", opus_strerror(err));
-    return;
-  }
-
-  err = opus_encoder_ctl(encoder, OPUS_SET_BITRATE(BITRATE));
-  if (err < 0) {
-    fprintf(stderr, "Failed to set bitrate: %s\n", opus_strerror(err));
-    return;
-  }
-
-  gEncoderMap[encoderId] = encoder;
-
-  env->ReleaseStringUTFChars(jEncoderId, encoderId);
-}
-
-JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_initDecoderNative(JNIEnv *env, jobject, jstring jDecoderId) {
-
-  int err;
-  const char *decoderId = env->GetStringUTFChars(jDecoderId, NULL);
-
-  OpusDecoder *decoder = opus_decoder_create(SAMPLE_RATE, CHANNELS, &err);
-  if (err < 0) {
-    fprintf(stderr, "Failed to create decoder: %s\n", opus_strerror(err));
-    return;
-  }
-
-  gDecoderMap[decoderId] = decoder;
-
-  env->ReleaseStringUTFChars(jDecoderId, decoderId);
-}
-
-JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_closeEncoderNative(JNIEnv *env, jobject, jstring jEncoderId) {
-  
-  const char *encoderId = env->GetStringUTFChars(jEncoderId, NULL);
-
-  OpusEncoder *encoder = gEncoderMap[encoderId];
-
-  opus_encoder_destroy(encoder);
-
-  gEncoderMap.erase(encoderId);
-
-  env->ReleaseStringUTFChars(jEncoderId, encoderId);
-}
-
-JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_closeDecoderNative(JNIEnv *env, jobject, jstring jDecoderId) {
-
-  const char *decoderId = env->GetStringUTFChars(jDecoderId, NULL);
-
-  OpusDecoder *decoder = gDecoderMap[decoderId];
-
-  opus_decoder_destroy(decoder);
-
-  gDecoderMap.erase(decoderId);
-
-  env->ReleaseStringUTFChars(jDecoderId, decoderId);
-}
-
-JNIEXPORT jbyteArray JNICALL Java_org_restcomm_media_codec_opus_OpusJni_encodeNative(
-  JNIEnv *env, jobject, jstring jEncoderId, jshortArray jPcmData) {
-
-  const char *encoderId = env->GetStringUTFChars(jEncoderId, NULL);
-
-  jshort *pcmData = env->GetShortArrayElements(jPcmData, NULL);
-  jsize pcmLen = env->GetArrayLength(jPcmData);
-
-  OpusEncoder *encoder = gEncoderMap[encoderId];
-
-  unsigned char encoded[MAX_PACKET_SIZE];
-
-  int packetSize;
-  packetSize = opus_encode(encoder, pcmData, pcmLen, encoded, MAX_PACKET_SIZE);
-  if (packetSize < 0) {
-    fprintf(stderr, "Encode failed: %s\n", opus_strerror(packetSize));
-    return nullptr;
-  }
-
-  env->ReleaseStringUTFChars(jEncoderId, encoderId);
-  env->ReleaseShortArrayElements(jPcmData, pcmData, 0);
-
-  jbyteArray jOpusData = env->NewByteArray(packetSize);
-  env->SetByteArrayRegion(jOpusData, 0, packetSize, (jbyte *)encoded);
-
-  return jOpusData;
-}
-
-JNIEXPORT jshortArray JNICALL Java_org_restcomm_media_codec_opus_OpusJni_decodeNative(
-  JNIEnv *env, jobject, jstring jDecoderId, jbyteArray jOpusData) {
-
-  const char *decoderId = env->GetStringUTFChars(jDecoderId, NULL);
-
-  jbyte *opusData = env->GetByteArrayElements(jOpusData, NULL);
-  jsize opusLen = env->GetArrayLength(jOpusData);
-
-  OpusDecoder *decoder = gDecoderMap[decoderId];
-
-  short decoded[MAX_FRAME_SIZE];
-
-  int frameSize;
-  frameSize = opus_decode(decoder, (unsigned char *)opusData, opusLen, decoded, MAX_FRAME_SIZE, 0);
-  if (frameSize < 0) {
-    fprintf(stderr, "Decoder failed: %s\n", opus_strerror(frameSize));
-    return nullptr;
-  }
-
-  env->ReleaseStringUTFChars(jDecoderId, decoderId);
-  env->ReleaseByteArrayElements(jOpusData, opusData, 0);
-
-  jshortArray jPcmData = env->NewShortArray(frameSize);
-  env->SetShortArrayRegion(jPcmData, 0, frameSize, decoded);
-
-  return jPcmData;
 }
 
 JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_setOpusObserverNative(

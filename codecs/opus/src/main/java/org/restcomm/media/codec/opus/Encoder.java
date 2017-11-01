@@ -45,17 +45,19 @@ public class Encoder implements Codec {
     private final static Format opus = FormatFactory.createAudioFormat("opus", 48000, 8, 2);
     private final static Format linear = FormatFactory.createAudioFormat("linear", 8000, 16, 1);
     
-    private OpusJni opusJni = new OpusJni();
-    private String encoderId = RandomStringUtils.random(10, true, true);
-    
+    private long encoderAddress;
+
+    private final int OPUS_SAMPLE_RATE = 8000;
+    private final int OPUS_BITRATE = 20000;
+
     public Encoder() {
-        opusJni.initEncoderNative(encoderId);
+        encoderAddress = OpusJni.createEncoderNative(OPUS_SAMPLE_RATE, 1, OpusJni.OPUS_APPLICATION_VOIP, OPUS_BITRATE);
     }
     
     @Override
     protected void finalize() throws Throwable {
+        OpusJni.releaseEncoderNative(encoderAddress);
         super.finalize();
-        opusJni.closeEncoderNative(encoderId);
     }
 
     @Override
@@ -74,7 +76,7 @@ public class Encoder implements Codec {
         byte[] input = frame.getData();
         short[] inputData = new short[frame.getLength() / 2];
         ByteBuffer.wrap(input).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(inputData);
-        byte[] encodedData = opusJni.encodeNative(encoderId, inputData);
+        byte[] encodedData = OpusJni.encodeNative(encoderAddress, inputData);
     	
         Frame res = Memory.allocate(encodedData.length);
         System.arraycopy(encodedData, 0, res.getData(), 0, encodedData.length);
