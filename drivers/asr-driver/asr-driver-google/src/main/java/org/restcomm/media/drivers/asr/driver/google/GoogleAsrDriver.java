@@ -320,7 +320,7 @@ public class GoogleAsrDriver implements AsrDriver {
         }
         
         //send audio data
-        requestObserver.onNext(StreamingRecognizeRequest.newBuilder().setAudioContent(ByteString.copyFrom(data)).build());   
+        requestObserver.onNext(StreamingRecognizeRequest.newBuilder().setAudioContent(ByteString.copyFrom(data)).build());
     }
 
     @Override

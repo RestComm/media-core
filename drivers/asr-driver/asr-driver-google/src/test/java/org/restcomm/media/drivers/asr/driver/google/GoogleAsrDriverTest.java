@@ -41,6 +41,7 @@ import static org.mockito.Mockito.*;
 /**
  * @author Ricardo Limonta
  */
+@Ignore
 public class GoogleAsrDriverTest {
 
     private static final Logger log = Logger.getLogger(GoogleAsrDriverTest.class);

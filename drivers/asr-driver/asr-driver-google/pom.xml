@@ -28,10 +28,17 @@
         
         <!-- Google Libs -->
         <dependency>
-          <groupId>com.google.cloud</groupId>
-          <artifactId>google-cloud-speech</artifactId>
-          <version>${google.cloud.version}</version>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>google-cloud-speech</artifactId>
+            <version>0.26.0-alpha</version>
         </dependency>
+        
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-tcnative-boringssl-static</artifactId>
+            <version>1.1.33.Fork26</version>
+        </dependency>
+
     </dependencies>
 
     <build>
