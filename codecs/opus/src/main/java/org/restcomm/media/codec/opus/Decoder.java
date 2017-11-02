@@ -45,17 +45,18 @@ public class Decoder implements Codec {
     private final static Format opus = FormatFactory.createAudioFormat("opus", 48000, 8, 2);
     private final static Format linear = FormatFactory.createAudioFormat("linear", 8000, 16, 1);
 
-    private OpusJni opusJni = new OpusJni();
-    String decoderId = RandomStringUtils.random(10, true, true);
+    private long decoderAddress;
     
+    private final int OPUS_SAMPLE_RATE = 8000;
+
     public Decoder() {
-    	opusJni.initDecoderNative(decoderId);
+        decoderAddress = OpusJni.createDecoderNative(OPUS_SAMPLE_RATE, 1);
     }
     
     @Override
     protected void finalize() throws Throwable {
-    	super.finalize();
-    	opusJni.closeDecoderNative(decoderId);
+        if (decoderAddress != 0) OpusJni.releaseDecoderNative(decoderAddress);
+        super.finalize();
     }
 
     @Override
@@ -71,7 +72,7 @@ public class Decoder implements Codec {
     @Override
     public Frame process(Frame frame) {
     	
-        short[] decodedData = opusJni.decodeNative(decoderId, frame.getData());
+        short[] decodedData = OpusJni.decodeNative(decoderAddress, frame.getData());
         byte[] output = new byte[2 * decodedData.length];
         ByteBuffer.wrap(output).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().put(decodedData);
     	
