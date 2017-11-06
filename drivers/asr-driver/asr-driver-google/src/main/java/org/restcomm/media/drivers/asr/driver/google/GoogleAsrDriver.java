@@ -58,8 +58,6 @@ public class GoogleAsrDriver implements AsrDriver {
     private int responseTimeout;
     private int hertz;
     private boolean interimResults;
-    private String language;
-    private int alternatives;
 
     private boolean running;
 
@@ -196,8 +194,6 @@ public class GoogleAsrDriver implements AsrDriver {
         this.responseTimeout = DEFAULT_RESPONSE_TIMEOUT;
         this.hertz = DEFAULT_HERTZ;
         this.interimResults = DEFAULT_INTERIM_RESULTS;
-        this.language = DEFAULT_LANGUAGE;
-        this.alternatives = DEFAULT_ALTERNATIVES;
 
         // Execution Context
         this.running = false;
@@ -211,7 +207,7 @@ public class GoogleAsrDriver implements AsrDriver {
             log.warn("Error on create Google SpeechClient", ex);
         }
 
-        // Configure response timeout
+        //Configure response timeout
         this.responseTimeout = DEFAULT_RESPONSE_TIMEOUT;
         
         String responseTimeoutParam = null;
@@ -224,14 +220,19 @@ public class GoogleAsrDriver implements AsrDriver {
             }
         }
         
-        // Configure interim results
+        log.debug("responseTimeout: " + this.responseTimeout);
+        
+        
+        //Configure interim results
         this.interimResults = DEFAULT_INTERIM_RESULTS;
         
         if (parameters.containsKey(INTERIM_RESULTS.symbol())) {
             this.interimResults = Boolean.parseBoolean(parameters.get(INTERIM_RESULTS.symbol()));
         }
 
-        //configure media hertz
+        log.debug("interimResults: " + this.interimResults);
+        
+        //Configure media hertz
         this.hertz = DEFAULT_HERTZ;
 
         String hertzParameter = null;
@@ -243,6 +244,9 @@ public class GoogleAsrDriver implements AsrDriver {
                 log.warn("Could not apply " + HERTZ.symbol() + " parameter: " + hertzParameter + ". Defaulting to " + DEFAULT_HERTZ);
             }
         }
+
+        log.debug("mediaHertz: " + this.hertz);
+        
     }
 
     @Override
@@ -252,7 +256,7 @@ public class GoogleAsrDriver implements AsrDriver {
             throw new IllegalStateException("Driver is already running.");
         }
         
-        //verify if language is supported
+        //Verify if language is supported
         if (!languages.contains(lang)) {
             //if not supported, stop the recognition process
             final AsrDriverException e = new AsrDriverException("Language " + lang + " not supported");
@@ -260,30 +264,32 @@ public class GoogleAsrDriver implements AsrDriver {
             return;
         }
         
-        // Start execution
+        log.debug("lang: " + lang);
+        
+        
+        //Start execution
         this.running = true;
         
-        // Configure request with local raw PCM audio
+        //Configure request with AudioEncoding LINEAR16, LanguageCode and Sample Rate Hertz
         RecognitionConfig recConfig = RecognitionConfig.newBuilder()
                 .setEncoding(AudioEncoding.LINEAR16)
                 .setLanguageCode(lang)
                 .setSampleRateHertz(this.hertz)
                 .build();
 
+        //Create Stream Recognition Config
         StreamingRecognitionConfig config = StreamingRecognitionConfig.newBuilder()
                 .setConfig(recConfig)
                 .setInterimResults(this.interimResults)
                 .build();
 
-        
         class ResponseApiStreamingObserver<T> implements ApiStreamObserver<T> {
             @Override
             public void onNext(T message) {                        
                 StreamingRecognitionResult result = ((StreamingRecognizeResponse)message).getResultsList().get(0);
                 if (listener != null) {
-                    listener.onSpeechRecognized(result.getAlternativesList().get(0).getTranscript(), 
-                                                result.getIsFinal());
-                    log.info("Transcript: " + result.getAlternativesList().get(0).getTranscript() + ", isFinal: " + result.getIsFinal());
+                    listener.onSpeechRecognized(result.getAlternativesList().get(0).getTranscript(), result.getIsFinal());
+                    log.debug("Transcript: " + result.getAlternativesList().get(0).getTranscript() + ", isFinal: " + result.getIsFinal());
                 }
             }
 
@@ -298,13 +304,16 @@ public class GoogleAsrDriver implements AsrDriver {
             public void onCompleted() {}
         }
 
-        responseObserver = new ResponseApiStreamingObserver<>();
-
+        //Create a bi-directional streaming channel
         BidiStreamingCallable<StreamingRecognizeRequest, StreamingRecognizeResponse> callable = speech.streamingRecognizeCallable();
 
+        //Create Response Observer
+        responseObserver = new ResponseApiStreamingObserver<>();
+
+        //Create Resquest Observer
         requestObserver = callable.bidiStreamingCall(responseObserver);
 
-        // The first request must **only** contain the audio configuration:
+        //The first request must only contain the audio configuration
         requestObserver.onNext(StreamingRecognizeRequest.newBuilder().setStreamingConfig(config).build());        
     }
 
@@ -319,7 +328,7 @@ public class GoogleAsrDriver implements AsrDriver {
             return;
         }
         
-        //send audio data
+        //Send audio data
         requestObserver.onNext(StreamingRecognizeRequest.newBuilder().setAudioContent(ByteString.copyFrom(data)).build());
     }
 
