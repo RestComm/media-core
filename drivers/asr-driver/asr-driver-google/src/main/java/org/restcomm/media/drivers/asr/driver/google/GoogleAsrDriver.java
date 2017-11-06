@@ -37,6 +37,7 @@ import org.restcomm.media.drivers.asr.AsrDriver;
 import org.restcomm.media.drivers.asr.AsrDriverEventListener;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.restcomm.media.drivers.asr.AsrDriverException;
 import static org.restcomm.media.drivers.asr.driver.google.GoogleDriverParameter.*;
 /**
@@ -53,13 +54,13 @@ public class GoogleAsrDriver implements AsrDriver {
     private static final String DEFAULT_LANGUAGE = "en-US";
 
     // Configuration
-    private final List<String> languages;
+    private static final List<String> LANGUAGES = new ArrayList<>();;
 
     private int responseTimeout;
     private int hertz;
     private boolean interimResults;
-
-    private boolean running;
+    
+    private AtomicBoolean running = new AtomicBoolean();
 
     // Result Listener
     private AsrDriverEventListener listener;
@@ -70,133 +71,129 @@ public class GoogleAsrDriver implements AsrDriver {
 
     public GoogleAsrDriver() {
         // Configuration
-        this.languages = new ArrayList<>();
-        this.languages.add("af-ZA"); //Afrikaans (South Africa)
-        this.languages.add("am-ET"); //Amharic (Ethiopia)
-        this.languages.add("hy-AM"); //Armenian (Armenia)
-        this.languages.add("az-AZ"); //Azerbaijani (Azerbaijan)
-        this.languages.add("id-ID"); //Indonesian (Indonesia)
-        this.languages.add("ms-MY"); //Malay (Malaysia)
-        this.languages.add("bn-BD"); //Bengali (Bangladesh)
-        this.languages.add("bn-IN"); //Bengali (India)
-        this.languages.add("ca-ES"); //Catalan (Spain)
-        this.languages.add("cs-CZ"); //Czech (Czech Republic)
-        this.languages.add("da-DK"); //Danish (Denmark)
-        this.languages.add("de-DE"); //German (Germany)
-        this.languages.add("en-AU"); //English (Australia)
-        this.languages.add("en-CA"); //English (Canada)
-        this.languages.add("en-GH"); //English (Ghana)
-        this.languages.add("en-GB"); //English (United Kingdom)
-        this.languages.add("en-IN"); //English (India)
-        this.languages.add("en-IE"); //English (Ireland)
-        this.languages.add("en-KE"); //English (Kenya)
-        this.languages.add("en-NZ"); //English (New Zealand)
-        this.languages.add("en-NG"); //English (Nigeria)
-        this.languages.add("en-PH"); //English (Philippines)
-        this.languages.add("en-ZA"); //English (South Africa)
-        this.languages.add("en-TZ"); //English (Tanzania)
-        this.languages.add("en-US"); //English (United States)
-        this.languages.add("es-AR"); //Spanish (Argentina)
-        this.languages.add("es-BO"); //Spanish (Bolivia)
-        this.languages.add("es-CL"); //Spanish (Chile)
-        this.languages.add("es-CO"); //Spanish (Colombia)
-        this.languages.add("es-CR"); //Spanish (Costa Rica)
-        this.languages.add("es-EC"); //Spanish (Ecuador)
-        this.languages.add("es-SV"); //Spanish (El Salvador)
-        this.languages.add("es-ES"); //Spanish (Spain)
-        this.languages.add("es-US"); //Spanish (United States)
-        this.languages.add("es-GT"); //Spanish (Guatemala)
-        this.languages.add("es-HN"); //Spanish (Honduras)
-        this.languages.add("es-MX"); //Spanish (Mexico)
-        this.languages.add("es-NI"); //Spanish (Nicaragua)
-        this.languages.add("es-PA"); //Spanish (Panama)
-        this.languages.add("es-PY"); //Spanish (Paraguay)
-        this.languages.add("es-PE"); //Spanish (Peru)
-        this.languages.add("es-PR"); //Spanish (Puerto Rico)
-        this.languages.add("es-DO"); //Spanish (Dominican Republic)
-        this.languages.add("es-UY"); //Spanish (Uruguay)
-        this.languages.add("es-VE"); //Spanish (Venezuela)
-        this.languages.add("eu-ES"); //Basque (Spain)
-        this.languages.add("fil-PH"); //Filipino (Philippines)
-        this.languages.add("fr-CA"); //French (Canada)
-        this.languages.add("fr-FR"); //French (France)
-        this.languages.add("gl-ES"); //Galician (Spain)
-        this.languages.add("ka-GE"); //Georgian (Georgia)
-        this.languages.add("gu-IN"); //Gujarati (India)
-        this.languages.add("hr-HR"); //Croatian (Croatia)
-        this.languages.add("zu-ZA"); //Zulu (South Africa)
-        this.languages.add("is-IS"); //Icelandic (Iceland)
-        this.languages.add("it-IT"); //Italian (Italy)
-        this.languages.add("jv-ID"); //Javanese (Indonesia)
-        this.languages.add("kn-IN"); //Kannada (India)
-        this.languages.add("km-KH"); //Khmer (Cambodia)
-        this.languages.add("lo-LA"); //Lao (Laos)
-        this.languages.add("lv-LV"); //Latvian (Latvia)
-        this.languages.add("lt-LT"); //Lithuanian (Lithuania)
-        this.languages.add("hu-HU"); //Hungarian (Hungary)
-        this.languages.add("ml-IN"); //Malayalam (India)
-        this.languages.add("mr-IN"); //Marathi (India)
-        this.languages.add("nl-NL"); //Dutch (Netherlands)
-        this.languages.add("ne-NP"); //Nepali (Nepal)
-        this.languages.add("nb-NO"); //Norwegian Bokmål (Norway)
-        this.languages.add("pl-PL"); //Polish (Poland)
-        this.languages.add("pt-BR"); //Portuguese (Brazil)
-        this.languages.add("pt-PT"); //Portuguese (Portugal)
-        this.languages.add("ro-RO"); //Romanian (Romania)
-        this.languages.add("si-LK"); //Sinhala (Srilanka)
-        this.languages.add("sk-SK"); //Slovak (Slovakia)
-        this.languages.add("sl-SI"); //Slovenian (Slovenia)
-        this.languages.add("su-ID"); //Sundanese (Indonesia)
-        this.languages.add("sw-TZ"); //Swahili (Tanzania)
-        this.languages.add("sw-KE"); //Swahili (Kenya)
-        this.languages.add("fi-FI"); //Finnish (Finland)
-        this.languages.add("sv-SE"); //Swedish (Sweden)
-        this.languages.add("ta-IN"); //Tamil (India)
-        this.languages.add("ta-SG"); //Tamil (Singapore)
-        this.languages.add("ta-LK"); //Tamil (Sri Lanka)
-        this.languages.add("ta-MY"); //Tamil (Malaysia)
-        this.languages.add("te-IN"); //Telugu (India)
-        this.languages.add("vi-VN"); //Vietnamese (Vietnam)
-        this.languages.add("tr-TR"); //Turkish (Turkey)
-        this.languages.add("ur-PK"); //Urdu (Pakistan)
-        this.languages.add("ur-IN"); //Urdu (India)
-        this.languages.add("el-GR"); //Greek (Greece)
-        this.languages.add("bg-BG"); //Bulgarian (Bulgaria)
-        this.languages.add("ru-RU"); //Russian (Russia)
-        this.languages.add("sr-RS"); //Serbian (Serbia)
-        this.languages.add("uk-UA"); //Ukrainian (Ukraine)
-        this.languages.add("he-IL"); //Hebrew (Israel)
-        this.languages.add("ar-IL"); //Arabic (Israel)
-        this.languages.add("ar-JO"); //Arabic (Jordan)
-        this.languages.add("ar-AE"); //Arabic (United Arab Emirates)
-        this.languages.add("ar-BH"); //Arabic (Bahrain)
-        this.languages.add("ar-DZ"); //Arabic (Algeria)
-        this.languages.add("ar-SA"); //Arabic (Saudi Arabia)
-        this.languages.add("ar-IQ"); //Arabic (Iraq)
-        this.languages.add("ar-KW"); //Arabic (Kuwait)
-        this.languages.add("ar-MA"); //Arabic (Morocco)
-        this.languages.add("ar-TN"); //Arabic (Tunisia)
-        this.languages.add("ar-OM"); //Arabic (Oman)
-        this.languages.add("ar-PS"); //Arabic (State of Palestine)
-        this.languages.add("ar-QA"); //Arabic (Qatar)
-        this.languages.add("ar-LB"); //Arabic (Lebanon)
-        this.languages.add("ar-EG"); //Arabic (Egypt)
-        this.languages.add("fa-IR"); //Persian (Iran)
-        this.languages.add("hi-IN"); //Hindi (India)
-        this.languages.add("th-TH"); //Thai (Thailand)
-        this.languages.add("ko-KR"); //Korean (South Korea)
-        this.languages.add("cmn-Hant-TW"); //Chinese, Mandarin (Traditional, Taiwan)
-        this.languages.add("yue-Hant-HK"); //Chinese, Cantonese (Traditional, Hong Kong)
-        this.languages.add("ja-JP"); //Japanese (Japan)
-        this.languages.add("cmn-Hans-HK"); //Chinese, Mandarin (Simplified, Hong Kong)
-        this.languages.add("cmn-Hans-CN"); //Chinese, Mandarin (Simplified, China)
+        GoogleAsrDriver.LANGUAGES.add("af-ZA"); //Afrikaans (South Africa)
+        GoogleAsrDriver.LANGUAGES.add("am-ET"); //Amharic (Ethiopia)
+        GoogleAsrDriver.LANGUAGES.add("hy-AM"); //Armenian (Armenia)
+        GoogleAsrDriver.LANGUAGES.add("az-AZ"); //Azerbaijani (Azerbaijan)
+        GoogleAsrDriver.LANGUAGES.add("id-ID"); //Indonesian (Indonesia)
+        GoogleAsrDriver.LANGUAGES.add("ms-MY"); //Malay (Malaysia)
+        GoogleAsrDriver.LANGUAGES.add("bn-BD"); //Bengali (Bangladesh)
+        GoogleAsrDriver.LANGUAGES.add("bn-IN"); //Bengali (India)
+        GoogleAsrDriver.LANGUAGES.add("ca-ES"); //Catalan (Spain)
+        GoogleAsrDriver.LANGUAGES.add("cs-CZ"); //Czech (Czech Republic)
+        GoogleAsrDriver.LANGUAGES.add("da-DK"); //Danish (Denmark)
+        GoogleAsrDriver.LANGUAGES.add("de-DE"); //German (Germany)
+        GoogleAsrDriver.LANGUAGES.add("en-AU"); //English (Australia)
+        GoogleAsrDriver.LANGUAGES.add("en-CA"); //English (Canada)
+        GoogleAsrDriver.LANGUAGES.add("en-GH"); //English (Ghana)
+        GoogleAsrDriver.LANGUAGES.add("en-GB"); //English (United Kingdom)
+        GoogleAsrDriver.LANGUAGES.add("en-IN"); //English (India)
+        GoogleAsrDriver.LANGUAGES.add("en-IE"); //English (Ireland)
+        GoogleAsrDriver.LANGUAGES.add("en-KE"); //English (Kenya)
+        GoogleAsrDriver.LANGUAGES.add("en-NZ"); //English (New Zealand)
+        GoogleAsrDriver.LANGUAGES.add("en-NG"); //English (Nigeria)
+        GoogleAsrDriver.LANGUAGES.add("en-PH"); //English (Philippines)
+        GoogleAsrDriver.LANGUAGES.add("en-ZA"); //English (South Africa)
+        GoogleAsrDriver.LANGUAGES.add("en-TZ"); //English (Tanzania)
+        GoogleAsrDriver.LANGUAGES.add("en-US"); //English (United States)
+        GoogleAsrDriver.LANGUAGES.add("es-AR"); //Spanish (Argentina)
+        GoogleAsrDriver.LANGUAGES.add("es-BO"); //Spanish (Bolivia)
+        GoogleAsrDriver.LANGUAGES.add("es-CL"); //Spanish (Chile)
+        GoogleAsrDriver.LANGUAGES.add("es-CO"); //Spanish (Colombia)
+        GoogleAsrDriver.LANGUAGES.add("es-CR"); //Spanish (Costa Rica)
+        GoogleAsrDriver.LANGUAGES.add("es-EC"); //Spanish (Ecuador)
+        GoogleAsrDriver.LANGUAGES.add("es-SV"); //Spanish (El Salvador)
+        GoogleAsrDriver.LANGUAGES.add("es-ES"); //Spanish (Spain)
+        GoogleAsrDriver.LANGUAGES.add("es-US"); //Spanish (United States)
+        GoogleAsrDriver.LANGUAGES.add("es-GT"); //Spanish (Guatemala)
+        GoogleAsrDriver.LANGUAGES.add("es-HN"); //Spanish (Honduras)
+        GoogleAsrDriver.LANGUAGES.add("es-MX"); //Spanish (Mexico)
+        GoogleAsrDriver.LANGUAGES.add("es-NI"); //Spanish (Nicaragua)
+        GoogleAsrDriver.LANGUAGES.add("es-PA"); //Spanish (Panama)
+        GoogleAsrDriver.LANGUAGES.add("es-PY"); //Spanish (Paraguay)
+        GoogleAsrDriver.LANGUAGES.add("es-PE"); //Spanish (Peru)
+        GoogleAsrDriver.LANGUAGES.add("es-PR"); //Spanish (Puerto Rico)
+        GoogleAsrDriver.LANGUAGES.add("es-DO"); //Spanish (Dominican Republic)
+        GoogleAsrDriver.LANGUAGES.add("es-UY"); //Spanish (Uruguay)
+        GoogleAsrDriver.LANGUAGES.add("es-VE"); //Spanish (Venezuela)
+        GoogleAsrDriver.LANGUAGES.add("eu-ES"); //Basque (Spain)
+        GoogleAsrDriver.LANGUAGES.add("fil-PH"); //Filipino (Philippines)
+        GoogleAsrDriver.LANGUAGES.add("fr-CA"); //French (Canada)
+        GoogleAsrDriver.LANGUAGES.add("fr-FR"); //French (France)
+        GoogleAsrDriver.LANGUAGES.add("gl-ES"); //Galician (Spain)
+        GoogleAsrDriver.LANGUAGES.add("ka-GE"); //Georgian (Georgia)
+        GoogleAsrDriver.LANGUAGES.add("gu-IN"); //Gujarati (India)
+        GoogleAsrDriver.LANGUAGES.add("hr-HR"); //Croatian (Croatia)
+        GoogleAsrDriver.LANGUAGES.add("zu-ZA"); //Zulu (South Africa)
+        GoogleAsrDriver.LANGUAGES.add("is-IS"); //Icelandic (Iceland)
+        GoogleAsrDriver.LANGUAGES.add("it-IT"); //Italian (Italy)
+        GoogleAsrDriver.LANGUAGES.add("jv-ID"); //Javanese (Indonesia)
+        GoogleAsrDriver.LANGUAGES.add("kn-IN"); //Kannada (India)
+        GoogleAsrDriver.LANGUAGES.add("km-KH"); //Khmer (Cambodia)
+        GoogleAsrDriver.LANGUAGES.add("lo-LA"); //Lao (Laos)
+        GoogleAsrDriver.LANGUAGES.add("lv-LV"); //Latvian (Latvia)
+        GoogleAsrDriver.LANGUAGES.add("lt-LT"); //Lithuanian (Lithuania)
+        GoogleAsrDriver.LANGUAGES.add("hu-HU"); //Hungarian (Hungary)
+        GoogleAsrDriver.LANGUAGES.add("ml-IN"); //Malayalam (India)
+        GoogleAsrDriver.LANGUAGES.add("mr-IN"); //Marathi (India)
+        GoogleAsrDriver.LANGUAGES.add("nl-NL"); //Dutch (Netherlands)
+        GoogleAsrDriver.LANGUAGES.add("ne-NP"); //Nepali (Nepal)
+        GoogleAsrDriver.LANGUAGES.add("nb-NO"); //Norwegian Bokmål (Norway)
+        GoogleAsrDriver.LANGUAGES.add("pl-PL"); //Polish (Poland)
+        GoogleAsrDriver.LANGUAGES.add("pt-BR"); //Portuguese (Brazil)
+        GoogleAsrDriver.LANGUAGES.add("pt-PT"); //Portuguese (Portugal)
+        GoogleAsrDriver.LANGUAGES.add("ro-RO"); //Romanian (Romania)
+        GoogleAsrDriver.LANGUAGES.add("si-LK"); //Sinhala (Srilanka)
+        GoogleAsrDriver.LANGUAGES.add("sk-SK"); //Slovak (Slovakia)
+        GoogleAsrDriver.LANGUAGES.add("sl-SI"); //Slovenian (Slovenia)
+        GoogleAsrDriver.LANGUAGES.add("su-ID"); //Sundanese (Indonesia)
+        GoogleAsrDriver.LANGUAGES.add("sw-TZ"); //Swahili (Tanzania)
+        GoogleAsrDriver.LANGUAGES.add("sw-KE"); //Swahili (Kenya)
+        GoogleAsrDriver.LANGUAGES.add("fi-FI"); //Finnish (Finland)
+        GoogleAsrDriver.LANGUAGES.add("sv-SE"); //Swedish (Sweden)
+        GoogleAsrDriver.LANGUAGES.add("ta-IN"); //Tamil (India)
+        GoogleAsrDriver.LANGUAGES.add("ta-SG"); //Tamil (Singapore)
+        GoogleAsrDriver.LANGUAGES.add("ta-LK"); //Tamil (Sri Lanka)
+        GoogleAsrDriver.LANGUAGES.add("ta-MY"); //Tamil (Malaysia)
+        GoogleAsrDriver.LANGUAGES.add("te-IN"); //Telugu (India)
+        GoogleAsrDriver.LANGUAGES.add("vi-VN"); //Vietnamese (Vietnam)
+        GoogleAsrDriver.LANGUAGES.add("tr-TR"); //Turkish (Turkey)
+        GoogleAsrDriver.LANGUAGES.add("ur-PK"); //Urdu (Pakistan)
+        GoogleAsrDriver.LANGUAGES.add("ur-IN"); //Urdu (India)
+        GoogleAsrDriver.LANGUAGES.add("el-GR"); //Greek (Greece)
+        GoogleAsrDriver.LANGUAGES.add("bg-BG"); //Bulgarian (Bulgaria)
+        GoogleAsrDriver.LANGUAGES.add("ru-RU"); //Russian (Russia)
+        GoogleAsrDriver.LANGUAGES.add("sr-RS"); //Serbian (Serbia)
+        GoogleAsrDriver.LANGUAGES.add("uk-UA"); //Ukrainian (Ukraine)
+        GoogleAsrDriver.LANGUAGES.add("he-IL"); //Hebrew (Israel)
+        GoogleAsrDriver.LANGUAGES.add("ar-IL"); //Arabic (Israel)
+        GoogleAsrDriver.LANGUAGES.add("ar-JO"); //Arabic (Jordan)
+        GoogleAsrDriver.LANGUAGES.add("ar-AE"); //Arabic (United Arab Emirates)
+        GoogleAsrDriver.LANGUAGES.add("ar-BH"); //Arabic (Bahrain)
+        GoogleAsrDriver.LANGUAGES.add("ar-DZ"); //Arabic (Algeria)
+        GoogleAsrDriver.LANGUAGES.add("ar-SA"); //Arabic (Saudi Arabia)
+        GoogleAsrDriver.LANGUAGES.add("ar-IQ"); //Arabic (Iraq)
+        GoogleAsrDriver.LANGUAGES.add("ar-KW"); //Arabic (Kuwait)
+        GoogleAsrDriver.LANGUAGES.add("ar-MA"); //Arabic (Morocco)
+        GoogleAsrDriver.LANGUAGES.add("ar-TN"); //Arabic (Tunisia)
+        GoogleAsrDriver.LANGUAGES.add("ar-OM"); //Arabic (Oman)
+        GoogleAsrDriver.LANGUAGES.add("ar-PS"); //Arabic (State of Palestine)
+        GoogleAsrDriver.LANGUAGES.add("ar-QA"); //Arabic (Qatar)
+        GoogleAsrDriver.LANGUAGES.add("ar-LB"); //Arabic (Lebanon)
+        GoogleAsrDriver.LANGUAGES.add("ar-EG"); //Arabic (Egypt)
+        GoogleAsrDriver.LANGUAGES.add("fa-IR"); //Persian (Iran)
+        GoogleAsrDriver.LANGUAGES.add("hi-IN"); //Hindi (India)
+        GoogleAsrDriver.LANGUAGES.add("th-TH"); //Thai (Thailand)
+        GoogleAsrDriver.LANGUAGES.add("ko-KR"); //Korean (South Korea)
+        GoogleAsrDriver.LANGUAGES.add("cmn-Hant-TW"); //Chinese, Mandarin (Traditional, Taiwan)
+        GoogleAsrDriver.LANGUAGES.add("yue-Hant-HK"); //Chinese, Cantonese (Traditional, Hong Kong)
+        GoogleAsrDriver.LANGUAGES.add("ja-JP"); //Japanese (Japan)
+        GoogleAsrDriver.LANGUAGES.add("cmn-Hans-HK"); //Chinese, Mandarin (Simplified, Hong Kong)
+        GoogleAsrDriver.LANGUAGES.add("cmn-Hans-CN"); //Chinese, Mandarin (Simplified, China)
 
         this.responseTimeout = DEFAULT_RESPONSE_TIMEOUT;
         this.hertz = DEFAULT_HERTZ;
         this.interimResults = DEFAULT_INTERIM_RESULTS;
-
-        // Execution Context
-        this.running = false;
     }
 
     @Override
@@ -219,18 +216,13 @@ public class GoogleAsrDriver implements AsrDriver {
                 log.warn("Could not apply " + RESPONSE_TIMEOUT.symbol() + " parameter: " + responseTimeoutParam + ". Defaulting to " + DEFAULT_RESPONSE_TIMEOUT);
             }
         }
-        
-        log.debug("responseTimeout: " + this.responseTimeout);
-        
-        
+
         //Configure interim results
         this.interimResults = DEFAULT_INTERIM_RESULTS;
         
         if (parameters.containsKey(INTERIM_RESULTS.symbol())) {
             this.interimResults = Boolean.parseBoolean(parameters.get(INTERIM_RESULTS.symbol()));
         }
-
-        log.debug("interimResults: " + this.interimResults);
         
         //Configure media hertz
         this.hertz = DEFAULT_HERTZ;
@@ -245,30 +237,35 @@ public class GoogleAsrDriver implements AsrDriver {
             }
         }
 
-        log.debug("mediaHertz: " + this.hertz);
+        if (log.isDebugEnabled()) {
+            log.debug("responseTimeout: " + this.responseTimeout);
+            log.debug("interimResults: " + this.interimResults);
+            log.debug("mediaHertz: " + this.hertz);
+        }
         
     }
 
     @Override
     public void startRecognizing(String lang, List<String> hints) {
         
-        if (this.running) {
+        if (this.running.get()) {
             throw new IllegalStateException("Driver is already running.");
         }
         
         //Verify if language is supported
-        if (!languages.contains(lang)) {
+        if (!GoogleAsrDriver.LANGUAGES.contains(lang)) {
             //if not supported, stop the recognition process
             final AsrDriverException e = new AsrDriverException("Language " + lang + " not supported");
             this.listener.onError(e);
             return;
         }
         
-        log.debug("lang: " + lang);
-        
+        if (log.isDebugEnabled()) {
+            log.debug("lang: " + lang);
+        }
         
         //Start execution
-        this.running = true;
+        this.running.set(true);
         
         //Configure request with AudioEncoding LINEAR16, LanguageCode and Sample Rate Hertz
         RecognitionConfig recConfig = RecognitionConfig.newBuilder()
@@ -289,7 +286,9 @@ public class GoogleAsrDriver implements AsrDriver {
                 StreamingRecognitionResult result = ((StreamingRecognizeResponse)message).getResultsList().get(0);
                 if (listener != null) {
                     listener.onSpeechRecognized(result.getAlternativesList().get(0).getTranscript(), result.getIsFinal());
-                    log.debug("Transcript: " + result.getAlternativesList().get(0).getTranscript() + ", isFinal: " + result.getIsFinal());
+                    if (log.isDebugEnabled()) {
+                        log.debug("Transcript: " + result.getAlternativesList().get(0).getTranscript() + ", isFinal: " + result.getIsFinal());
+                    }
                 }
             }
 
@@ -324,12 +323,12 @@ public class GoogleAsrDriver implements AsrDriver {
 
     @Override
     public void write(byte[] data, int offset, int len) {
-        if(!this.running) {
+        if(!this.running.get()) {
             return;
         }
         
         //Send audio data
-        requestObserver.onNext(StreamingRecognizeRequest.newBuilder().setAudioContent(ByteString.copyFrom(data)).build());
+        requestObserver.onNext(StreamingRecognizeRequest.newBuilder().setAudioContent(ByteString.copyFrom(data, offset, len)).build());
     }
 
     @Override
