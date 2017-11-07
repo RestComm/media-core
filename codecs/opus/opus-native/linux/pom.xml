@@ -10,7 +10,7 @@
     </parent>
 
     <groupId>org.restcomm.media.codecs.opus</groupId>
-    <artifactId>libopus-jni-linux</artifactId>
+    <artifactId>libopus_jni_linux</artifactId>
     <name>Opus Native Linux</name>
 
     <build>
@@ -32,7 +32,7 @@
                     <linkerEndOptions>
                         <linkerEndOption>-lopus</linkerEndOption>
                     </linkerEndOptions>
-                    <linkerFinalName>libopus-jni-linux</linkerFinalName>
+                    <linkerFinalName>${artifactId}</linkerFinalName>
 
                     <sources>
                         <source>
