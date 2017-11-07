@@ -12,20 +12,52 @@
     <groupId>org.restcomm.media.codecs.opus</groupId>
     <artifactId>opus-java</artifactId>
     <name>Opus Java</name>
-    
+
     <dependencies>
         <dependency>
             <groupId>org.restcomm.media</groupId>
             <artifactId>spi</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.restcomm.media.codecs.opus</groupId>
-            <artifactId>libopus_jni</artifactId>
-            <version>${project.version}</version>
-            <type>so</type>
-        </dependency>
     </dependencies>
+
+    <profiles>
+
+        <profile>
+            <id>linux-profile</id>
+            <activation>
+                <os>
+                    <family>unix</family>
+                </os>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.restcomm.media.codecs.opus</groupId>
+                    <artifactId>libopus-jni-linux</artifactId>
+                    <version>${project.version}</version>
+                    <type>so</type>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <profile>
+            <id>macosx-profile</id>
+            <activation>
+                <os>
+                    <family>mac</family>
+                </os>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.restcomm.media.codecs.opus</groupId>
+                    <artifactId>libopus-jni-osx</artifactId>
+                    <version>${project.version}</version>
+                    <type>so</type>
+                </dependency>
+            </dependencies>
+         </profile>
+
+    </profiles>
 
     <build>
         <plugins>

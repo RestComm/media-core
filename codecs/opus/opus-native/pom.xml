@@ -38,6 +38,7 @@
                 <module>macosx</module>
             </modules>
         </profile>
+
     </profiles>
 
 </project>
