@@ -21,11 +21,41 @@
         </dependency>
         <dependency>
             <groupId>org.restcomm.media.codecs.opus</groupId>
-            <artifactId>libopus_jni</artifactId>
+            <artifactId>libopus_jni_macos</artifactId>
             <version>${project.version}</version>
-            <type>so</type>
+            <type>dylib</type>
         </dependency>
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>linux-profile</id>
+            <activation>
+                <os>
+                    <family>unix</family>
+                </os>
+            </activation>
+            <properties>
+                <libopus.artifactId>libopus_jni_linux</libopus.artifactId>
+                <libopus.packaging>so</libopus.packaging>
+                <libopus.distro>linux</libopus.distro>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>macosx-profile</id>
+            <activation>
+                <os>
+                    <family>mac</family>
+                </os>
+            </activation>
+            <properties>
+                <libopus.artifactId>libopus_jni_macos</libopus.artifactId>
+                <libopus.packaging>dylib</libopus.packaging>
+                <libopus.distro>macosx</libopus.distro>
+            </properties>
+        </profile>
+    </profiles>
 
     <build>
         <plugins>
@@ -33,7 +63,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <argLine>-Djava.library.path=../opus-native/linux/target</argLine>
+                    <argLine>-Djava.library.path=../opus-native/${libopus.distro}/target</argLine>
                 </configuration>
             </plugin>
             <plugin>

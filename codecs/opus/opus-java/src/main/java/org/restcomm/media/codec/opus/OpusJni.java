@@ -38,7 +38,7 @@ public class OpusJni {
     }
 	   
     static {
-        System.loadLibrary("opus_jni");
+        System.loadLibrary("opus_jni_macos");
     }
 
     public static native long createEncoderNative(int sampleRate, int channels, int application, int bitRate);

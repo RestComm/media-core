@@ -55,8 +55,8 @@
 			<version>${project.version}</version>
 		</dependency>
                 <dependency>
-                        <groupId>org.restcomm.media.codecs</groupId>
-                        <artifactId>opus</artifactId>
+                        <groupId>org.restcomm.media.codecs.opus</groupId>
+                        <artifactId>opus-java</artifactId>
                         <version>${project.version}</version>
                 </dependency>
 		<dependency>

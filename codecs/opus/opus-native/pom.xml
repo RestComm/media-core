@@ -14,7 +14,6 @@
     <name>Opus Native</name>
     
     <profiles>
-
         <profile>
             <id>linux-profile</id>
             <activation>
@@ -23,7 +22,7 @@
                 </os>
             </activation>
             <modules>
-                <module>linux</module>
+                <!--module>linux</module-->
             </modules>
         </profile>
 
