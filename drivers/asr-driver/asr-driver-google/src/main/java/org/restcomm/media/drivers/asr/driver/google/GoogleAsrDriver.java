@@ -69,8 +69,8 @@ public class GoogleAsrDriver implements AsrDriver {
     private ApiStreamObserver requestObserver;
     private ApiStreamObserver responseObserver;
 
-    public GoogleAsrDriver() {
-        // Configuration
+    static {
+        //Configure Supported Languages
         GoogleAsrDriver.LANGUAGES.add("af-ZA"); //Afrikaans (South Africa)
         GoogleAsrDriver.LANGUAGES.add("am-ET"); //Amharic (Ethiopia)
         GoogleAsrDriver.LANGUAGES.add("hy-AM"); //Armenian (Armenia)
@@ -190,7 +190,9 @@ public class GoogleAsrDriver implements AsrDriver {
         GoogleAsrDriver.LANGUAGES.add("ja-JP"); //Japanese (Japan)
         GoogleAsrDriver.LANGUAGES.add("cmn-Hans-HK"); //Chinese, Mandarin (Simplified, Hong Kong)
         GoogleAsrDriver.LANGUAGES.add("cmn-Hans-CN"); //Chinese, Mandarin (Simplified, China)
-
+    }
+    
+    public GoogleAsrDriver() {
         this.responseTimeout = DEFAULT_RESPONSE_TIMEOUT;
         this.hertz = DEFAULT_HERTZ;
         this.interimResults = DEFAULT_INTERIM_RESULTS;
