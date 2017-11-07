@@ -10,7 +10,7 @@
     </parent>
 
     <groupId>org.restcomm.media.codecs.opus</groupId>
-    <artifactId>libopus_jni</artifactId>
+    <artifactId>libopus_jni_macos</artifactId>
     <name>Opus Native Mac OSX</name>
 
     <build>
@@ -23,13 +23,13 @@
                 <configuration>
                     <compilerProvider>generic</compilerProvider>
                     <compilerStartOptions>
-                        <compilerStartOption>-std=c++11 -I${java.home}/../include -I${java.home}/../include/linux -I/usr/include/opus -Wall -fPIC</compilerStartOption>
+                        <compilerStartOption>-std=c++11 -I${java.home}/../include -I${java.home}/../include/darwin -I/usr/local/include/opus -Wall -fPIC</compilerStartOption>
                     </compilerStartOptions>
 
                     <linkerStartOptions>
                         <linkerStartOption>-shared -lopus</linkerStartOption>
                     </linkerStartOptions>
-                    <linkerFinalName>libopus_jni</linkerFinalName>
+                    <linkerFinalName>${artifactId}</linkerFinalName>
 
                     <sources>
                         <source>
