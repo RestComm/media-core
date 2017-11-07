@@ -21,6 +21,8 @@
 
 package org.restcomm.media.codec.opus;
 
+import org.apache.log4j.Logger;
+
 /**
  * Implements access to JNI layer for native Opus library.
  * 
@@ -28,6 +30,8 @@ package org.restcomm.media.codec.opus;
  * 
  */
 public class OpusJni {
+
+    private static final Logger log = Logger.getLogger(OpusJni.class);
     
     public final static int OPUS_APPLICATION_VOIP                   = 2048;
     public final static int OPUS_APPLICATION_AUDIO                  = 2049;
@@ -38,7 +42,17 @@ public class OpusJni {
     }
 	   
     static {
-        System.loadLibrary("opus_jni_linux");
+        String libraryName = System.getProperty("restcomm.opus.library");
+        if (libraryName != null) {
+            try {
+                System.loadLibrary(libraryName);
+            } catch (UnsatisfiedLinkError e) {
+                log.error("Failed to load native Opus library. " + e.getMessage());
+                throw e;
+            }
+        } else {
+            log.error("Native Opus library parameter has not been defined (restcomm.opus.library).");
+        }
     }
 
     public static native long createEncoderNative(int sampleRate, int channels, int application, int bitRate);

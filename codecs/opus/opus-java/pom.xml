@@ -63,7 +63,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <argLine>-Djava.library.path=../opus-native/${libopus.distro}/target</argLine>
+                    <argLine>-Djava.library.path=../opus-native/${libopus.distro}/target -Drestcomm.opus.library=opus_jni_linux</argLine>
                 </configuration>
             </plugin>
             <plugin>
