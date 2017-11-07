@@ -333,14 +333,16 @@ public class JainMgcpStackProviderImpl implements ExtendedJainMgcpProvider {
     		while(active)
     		{
     			currEvent=null;
-    			while(currEvent==null)
+    			while(currEvent==null && active)
     			{
     				try {
     					currEvent=waitingQueue.take();
     				}
     				catch(Exception e)
     				{
-    					
+    					if(!active) {
+    						return;
+    					}
     				}
     			}
     			
@@ -454,6 +456,7 @@ public class JainMgcpStackProviderImpl implements ExtendedJainMgcpProvider {
          */
         private void shutdown() {
             this.active = false;
+            this.interrupt();
         }
 	}	
 }
