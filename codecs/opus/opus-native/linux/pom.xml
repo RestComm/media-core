@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <packaging>so</packaging>
+
+    <parent>
+        <groupId>org.restcomm.media.codecs.opus</groupId>
+        <artifactId>opus-native</artifactId>
+        <version>6.0.0-SNAPSHOT</version>
+    </parent>
+
+    <groupId>org.restcomm.media.codecs.opus</groupId>
+    <artifactId>libopus_jni_linux</artifactId>
+    <name>Opus Native Linux</name>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>native-maven-plugin</artifactId>
+                <extensions>true</extensions>       
+            
+                <configuration>
+                    <compilerProvider>generic</compilerProvider>
+                    <compilerStartOptions>
+                        <compilerStartOption>-std=c++11 -I${java.home}/../include -I${java.home}/../include/linux -I/usr/include/opus -Wall -fPIC</compilerStartOption>
+                    </compilerStartOptions>
+
+                    <linkerStartOptions>
+                        <linkerStartOption>-shared</linkerStartOption>
+                    </linkerStartOptions>
+                    <linkerEndOptions>
+                        <linkerEndOption>-lopus</linkerEndOption>
+                    </linkerEndOptions>
+                    <linkerFinalName>${artifactId}</linkerFinalName>
+
+                    <sources>
+                        <source>
+                            <directory>../src</directory>
+	                    <fileNames>
+                                <fileName>opus_jni.cpp</fileName>
+	                    </fileNames>
+                        </source>
+                    </sources>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

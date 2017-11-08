@@ -96,7 +96,7 @@ public class OpusCodecTest {
             URL inputFileUrl = this.getClass().getResource("/test_sound_mono_48.pcm");
             Encoder encoder = new Encoder();
             Decoder decoder = new Decoder();
-            try (FileInputStream inputStream = new FileInputStream("src\\test\\resources\\test_sound_mono_48.pcm");
+            try (FileInputStream inputStream = new FileInputStream("src/test/resources/test_sound_mono_48.pcm");
                 FileOutputStream outputStream = new FileOutputStream(outputFile, false)) {
                 byte[] input = new byte[2 * packetSize];
                 short[] inputData = new short[packetSize];
