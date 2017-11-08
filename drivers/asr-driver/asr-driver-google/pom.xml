@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <packaging>jar</packaging>
+    
+    <parent>
+        <groupId>org.restcomm.media.drivers</groupId>
+        <artifactId>asr-driver</artifactId>
+        <version>6.0.0-SNAPSHOT</version>
+    </parent>
+    
+    <groupId>org.restcomm.media.drivers.asr</groupId>
+    <artifactId>asr-driver-google</artifactId>
+    <name>ASR Driver Google</name>
+    
+    <properties>
+        <google.cloud.version>0.26.0-alpha</google.cloud.version>
+    </properties>
+    
+    <dependencies>
+        <!-- Project Modules -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>asr-driver-api</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        
+        <!-- Google Libs -->
+        <dependency>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>google-cloud-speech</artifactId>
+            <version>0.26.0-alpha</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-tcnative-boringssl-static</artifactId>
+            <version>1.1.33.Fork26</version>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                </configuration>
+            </plugin>
+        </plugins>
+        <finalName>restcomm-mediaserver-drivers-asr-google-${project.parent.version}</finalName>
+    </build>
+</project>
