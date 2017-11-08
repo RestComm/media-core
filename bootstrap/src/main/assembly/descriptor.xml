@@ -19,6 +19,20 @@
 			<outputDirectory>/lib</outputDirectory>
 			<unpack>false</unpack>
 			<scope>runtime</scope>
+			<excludes>
+				<exclude>*:so</exclude>
+			</excludes>
+		</dependencySet>
+		<dependencySet>
+			<outputDirectory>lib/native</outputDirectory>
+			<outputFileNameMapping>${artifact.artifactId}.${artifact.extension}</outputFileNameMapping>
+			<unpack>false</unpack>
+			<scope>runtime</scope>
+			<useProjectArtifact>false</useProjectArtifact>
+			<useStrictFiltering>false</useStrictFiltering>
+			<includes>
+				<include>*:so</include>
+			</includes>
 		</dependencySet>
 	</dependencySets>
 	<componentDescriptors>

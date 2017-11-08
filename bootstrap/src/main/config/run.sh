@@ -50,11 +50,11 @@ esac
 
 # Force IPv4 on Linux systems since IPv6 doesn't work correctly with jdk5 and lower
 if [ "$linux" = "true" ]; then
-   JAVA_OPTS="$JAVA_OPTS -Djava.net.preferIPv4Stack=true -Djava.library.path=/usr/lib/x86_64-linux-gnu:~/mediaserver/codecs/opus/opus-native/linux/target -Drestcomm.opus.library=opus_jni_linux"
+   JAVA_OPTS="$JAVA_OPTS -Djava.net.preferIPv4Stack=true -Djava.library.path=/usr/lib/x86_64-linux-gnu:../lib/native -Drestcomm.opus.library=opus_jni_linux"
 fi
 
 if [ "$darwin" = "true" ]; then
-   JAVA_OPTS="$JAVA_OPTS -Djava.library.path=/home/morosev/mediaserver/codecs/opus/opus-native/macosx/target -Drestcomm.opus.library=opus_jni_macos"
+   JAVA_OPTS="$JAVA_OPTS -Djava.library.path=../lib/native -Drestcomm.opus.library=opus_jni_macos"
 fi
 
 
