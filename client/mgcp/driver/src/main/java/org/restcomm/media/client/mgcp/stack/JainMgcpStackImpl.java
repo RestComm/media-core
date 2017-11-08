@@ -226,6 +226,10 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 				this.channel.close();
 			}
 
+			for(int i=0;i<decodingThreads.length;i++) {
+				decodingThreads[i].shutdown();
+			}
+			
 		} catch (Exception e) {
 			if(logger.isEnabledFor(Level.ERROR))
 			{
@@ -259,6 +263,7 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 			throw new DeleteProviderException("Passed provider is not current one.");
 		}
 		this.close();
+		this.provider.stop();
 		this.provider = null;
 	}
 
@@ -423,14 +428,16 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
     		while(active)
     		{
     			current=null;
-    			while(current==null)
+    			while(current==null && active)
     			{
     				try {        				
     					current=inputQueue.take();        				
         			}
     				catch(Exception e)
         			{
-    					
+    					if(!active) {
+    						return;
+    					}
         			}
     			}
     			
@@ -456,6 +463,10 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
          */
         private void shutdown() {
             this.active = false;
+            //FIXME 
+            //Interrupting the thread on shutdown is the way to unblock 
+            //the take method of a ConcurrentCyclicFIFO throwing an InterruptedException
+            this.interrupt();
         }
 	}
 }
