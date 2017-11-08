@@ -21,6 +21,7 @@
 			<scope>runtime</scope>
 			<excludes>
 				<exclude>*:so</exclude>
+				<exclude>*:dylib</exclude>
 			</excludes>
 		</dependencySet>
 		<dependencySet>
@@ -32,6 +33,7 @@
 			<useStrictFiltering>false</useStrictFiltering>
 			<includes>
 				<include>*:so</include>
+				<include>*:dylib</include>
 			</includes>
 		</dependencySet>
 	</dependencySets>
