@@ -456,6 +456,9 @@ public class JainMgcpStackProviderImpl implements ExtendedJainMgcpProvider {
          */
         private void shutdown() {
             this.active = false;
+            //FIXME 
+            //Interrupting the thread on shutdown is the way to unblock 
+            //the take method of a ConcurrentCyclicFIFO throwing an InterruptedException
             this.interrupt();
         }
 	}	
