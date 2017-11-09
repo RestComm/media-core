@@ -29,11 +29,6 @@
 			<artifactId>stun</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<!-- Resources -->
-		<dependency>
-			<groupId>javax.sip</groupId>
-			<artifactId>jain-sip-ri</artifactId>
-		</dependency>
 	</dependencies>
 
     <build>

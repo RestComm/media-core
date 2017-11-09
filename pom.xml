@@ -4,9 +4,9 @@
     <packaging>pom</packaging>
 
     <parent>
-        <artifactId>mobicents-parent</artifactId>
-        <groupId>org.mobicents</groupId>
-        <version>2.27.23</version>
+        <groupId>org.restcomm</groupId>
+        <artifactId>restcomm-parent</artifactId>
+        <version>4.1.0-14</version>
     </parent>
 
     <groupId>org.restcomm</groupId>
@@ -38,6 +38,7 @@
         <version.guava>19.0</version.guava>
         <version.apache.commons.codec>1.10</version.apache.commons.codec>
         <fsm.squirrel.version>0.3.9.11</fsm.squirrel.version>
+        <jain-mgcp.version>1.0</jain-mgcp.version>
     </properties>
 
     <modules>
@@ -163,6 +164,20 @@
                 <artifactId>squirrel-foundation</artifactId>
                 <version>${fsm.squirrel.version}</version>
             </dependency>
+
+            <!-- JAIN MGCP -->
+            <dependency>
+                <groupId>jain</groupId>
+                <artifactId>jain-mgcp-ri</artifactId>
+                <version>${jain-mgcp.version}</version>
+            </dependency>
+
+            <!-- jUnit -->
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${version.junit}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -273,9 +288,9 @@
         <plugins>
             <plugin>
                 <artifactId>maven-eclipse-plugin</artifactId>
-                <groupId>org.mobicents.tools</groupId>
+                <groupId>org.restcomm.tools</groupId>
                 <version>
-                    ${mobicents.tools.mavenplugin.eclipse.version}
+                    ${restcomm.tools.mavenplugin.eclipse.version}
                 </version>
                 <inherited>false</inherited>
                 <executions/>
