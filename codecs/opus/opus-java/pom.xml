@@ -25,6 +25,7 @@
                 <libopus.artifactId>libopus_jni_linux</libopus.artifactId>
                 <libopus.packaging>so</libopus.packaging>
                 <libopus.distro>linux</libopus.distro>
+                <libopus.libName>opus_jni_linux</libopus.libName>
             </properties>
         </profile>
 
@@ -39,6 +40,7 @@
                 <libopus.artifactId>libopus_jni_macos</libopus.artifactId>
                 <libopus.packaging>dylib</libopus.packaging>
                 <libopus.distro>macosx</libopus.distro>
+                <libopus.libName>opus_jni_macos</libopus.libName>
             </properties>
         </profile>
     </profiles>
@@ -63,7 +65,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <argLine>-Djava.library.path=../opus-native/${libopus.distro}/target</argLine>
+                    <argLine>-Djava.library.path=../opus-native/${libopus.distro}/target -Drestcomm.opus.library=${libopus.libName}</argLine>
                 </configuration>
             </plugin>
             <plugin>
