@@ -18,6 +18,7 @@
             <id>linux-profile</id>
             <activation>
                 <os>
+                    <name>Linux</name>
                     <family>unix</family>
                 </os>
             </activation>
