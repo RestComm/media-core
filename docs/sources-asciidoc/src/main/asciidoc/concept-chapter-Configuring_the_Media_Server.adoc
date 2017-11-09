@@ -255,7 +255,7 @@ yum install libopus
 apt-get install libopus
 
 # macOS
-homebrew install libopus
+brew install opus
 ----
 
 The location of libopus library and name of compiled JNI library used by media server are specified by command line parameters. The values of the parameters are defined in file `bin/run.sh`.
