@@ -21,9 +21,9 @@
 
 package org.restcomm.media.control.mgcp.endpoint;
 
-import javax.sound.sampled.spi.AudioFileReader;
-
-import org.restcomm.media.ComponentType;
+import org.restcomm.media.asr.AsrEngine;
+import org.restcomm.media.asr.AsrEngineImpl;
+import org.restcomm.media.asr.AsrEngineProvider;
 import org.restcomm.media.component.audio.AudioComponent;
 import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.resource.dtmf.DetectorImpl;
@@ -51,16 +51,18 @@ public class MediaGroupImpl implements MediaGroup {
     private final Recorder recorder;
     private final DtmfDetector detector;
     private final DtmfGenerator generator;
+    private final AsrEngine asrEngine;
 
     // TODO Add list of enum that declare which media components are created in the media group
     public MediaGroupImpl(AudioComponent audioComponent, OOBComponent oobComponent, PlayerProvider players,
-            RecorderProvider recorders, DtmfDetectorProvider detectors) {
+            RecorderProvider recorders, DtmfDetectorProvider detectors, AsrEngineProvider asrEngines) {
         // Media Components
         this.audioComponent = audioComponent;
         this.oobComponent = oobComponent;
 
         this.player = initializePlayer(players);
         this.recorder = initializeRecorder(recorders);
+        this.asrEngine = initializeAsr(asrEngines);
         this.detector = initializeDetector(detectors);
         this.generator = null;
     }
@@ -104,6 +106,17 @@ public class MediaGroupImpl implements MediaGroup {
         // updateEndpoint(0,1);
         return recorder;
     }
+    
+    private AsrEngine initializeAsr(AsrEngineProvider provider) {
+        // TODO try getting rid of AudioRecorderImpl cast
+        AsrEngineImpl engine = (AsrEngineImpl) provider.provide();
+        audioComponent.addOutput(engine.getAudioOutput());
+        // oobComponent.addOutput(engine.getAudioOutput());
+        audioComponent.updateMode(false, true);
+        // oobComponent.updateMode(false, true);
+        // updateEndpoint(0,1);
+        return engine;
+    }
 
     @Override
     public Player getPlayer() {
@@ -123,6 +136,11 @@ public class MediaGroupImpl implements MediaGroup {
     @Override
     public DtmfGenerator getGenerator() {
         return this.generator;
+    }
+    
+    @Override
+    public AsrEngine getAsrEngine() {
+        return this.asrEngine;
     }
 
     public AudioComponent getAudioComponent() {

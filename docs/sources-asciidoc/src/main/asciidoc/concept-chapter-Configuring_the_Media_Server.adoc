@@ -450,6 +450,52 @@ The following examples show how to properly set up mediaserver according to the 
 ----
 ====
 
+=== Configure Speech Recognition Drivers
+
+Media Server supports Automatic Speech Recognition functionality albeit depending on third party service providers such as Google Speech or IBM Watson.
+
+It features a *pluggable* architecture, allowing users to choose their favourite provider. To do so, the user only needs to provide and register a driver in the configuration file.
+To install a new driver users simply need to copy the driver’s jar file to the `MS_HOME/lib` directory and declare it in the configuration file.
+
+The `mediaserver.xml` configuration file contains a specific section to define list of supported drivers grouped by subsystem:
+
+.Configuration for drivers subsystem
+====
+[source,xml]
+----
+<subsystems>
+        <subsystem name="asr">
+            ...
+        </subsystem>
+</subsystems>
+----
+====
+
+Each driver must declare the attributes `name` and `class`. Furthermore, each driver can require a custom list of parameters. Each parameter is composed by a pair of `name` and `value` attributes.
+Example:
+
+.Example configuration for drivers subsystem
+====
+[source,xml]
+----
+<subsystems>
+         <subsystem name="asr">
+                <driver name="some-driver" class="org.restcomm.media.drivers.asr.provider.ProviderAsrDriver">
+                        <parameter name="param1">value1</parameter>
+                        <parameter name="param2">value2</parameter>
+                </driver>
+        </subsystem>
+</subsystems>
+----
+====
+
+[WARNING]
+====
+Sometimes a driver will require system-wide configuration, such as environment variables to be defined.
+
+It’s responsibility of the user to consult with ASR Service Provider about configuration requirements for a given driver.
+====
+
 [[_ctms_configuring_the_media_server_automatic]]
 == Automatic Configuration
 
@@ -512,6 +558,7 @@ Kills the active tmux session named _mediaserver_.
 |.autoconfig/autoconfig.d/config-media.sh|Script responsible for configuring Media aspects of the Media Server.
 |.autoconfig/autoconfig.d/config-resources.sh|Script responsible for configuring Resource Pooling aspects of the Media Server.
 |.autoconfig/autoconfig.d/config-dtls.sh|Script responsible for configuring DTLS aspects of the Media Server.
+|.autoconfig/autoconfig.d/config-asr.sh|Script responsible for configuring ASR drivers registered in the Media Server.
 |.autoconfig/autoconfig.d/config-logger.sh|Script responsible for configuring the Logger of the Media Server.
 |.autoconfig/autoconfig.d/config-java-opts.sh|Script responsible for configuring the JAVA_OPTS of the Media Server process.
 |.autoconfig/autoconfig.d/config-ssl.sh|Script responsible for configuring SSL.
@@ -519,6 +566,44 @@ Kills the active tmux session named _mediaserver_.
 |.autoconfig/verify-dependencies.sh|Script responsible for verifying if all dependencies are installed in the system. Interrupts auto-configuration process if not all requirements are met.
 ||
 |===
+
+[[_ctms_configuring_the_media_server_automatic_asr]]
+=== Configuring Speech Recognition Drivers
+
+To install an ASR driver, the user must simply copy the driver's jar file to `MS_HOME/lib` directory and specify it in `mediaserver.conf`.
+
+Users can follow this template to register and configure an ASR Driver:
+
+.Configuration in mediaserver.conf
+====
+[source,shell]
+----
+ASR_DRIVER_<provider>=<driver-name>
+ASR_DRIVER_<provider>_CLASS=<driver-class>
+ASR_DRIVER_<provider>_PROPERTY_<property>=<property-name>
+ASR_DRIVER_<provider>_PROPERTY_<property>_VALUE=<property-value>
+----
+====
+
+.Example configuration in mediaserver.conf
+====
+[source,shell]
+----
+ASR_DRIVER_SOMEPROVIDER=some-provider
+ASR_DRIVER_SOMEPROVIDER_CLASS=org.restcomm.media.drivers.asr.ProviderAsrDriver
+ASR_DRIVER_SOMEPROVIDER_PROPERTY_PARAM1=param1
+ASR_DRIVER_SOMEPROVIDER_PROPERTY_PARAM1_VALUE=value1
+ASR_DRIVER_SOMEPROVIDER_PROPERTY_PARAM2=param2
+ASR_DRIVER_SOMEPROVIDER_PROPERTY_PARAM2_VALUE=value2
+----
+====
+
+If the ASR Driver depends on environment variables, then the user can define them in `mediaserver.conf` like:
+
+[source,shell]
+----
+export VARIABLE_NAME=variable_value
+----
 
 [[_ctms_configuring_the_media_server_automatic_logger]]
 === Configuring the logger

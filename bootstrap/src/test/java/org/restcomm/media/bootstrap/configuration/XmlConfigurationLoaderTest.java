@@ -21,12 +21,15 @@
 
 package org.restcomm.media.bootstrap.configuration;
 
+import java.util.Collection;
+import java.util.Map;
+
 import org.bouncycastle.crypto.tls.ClientCertificateType;
 import org.bouncycastle.crypto.tls.ProtocolVersion;
 import org.bouncycastle.crypto.tls.SignatureAlgorithm;
 import org.junit.Assert;
 import org.junit.Test;
-import org.restcomm.media.bootstrap.configuration.XmlConfigurationLoader;
+import org.restcomm.media.core.configuration.DriverConfiguration;
 import org.restcomm.media.core.configuration.DtlsConfiguration;
 import org.restcomm.media.core.configuration.MediaConfiguration;
 import org.restcomm.media.core.configuration.MediaServerConfiguration;
@@ -34,6 +37,7 @@ import org.restcomm.media.core.configuration.MgcpControllerConfiguration;
 import org.restcomm.media.core.configuration.MgcpEndpointConfiguration;
 import org.restcomm.media.core.configuration.NetworkConfiguration;
 import org.restcomm.media.core.configuration.ResourcesConfiguration;
+import org.restcomm.media.core.configuration.SubsystemsConfiguration;
 import org.restcomm.media.spi.RelayType;
 
 /**
@@ -107,6 +111,33 @@ public class XmlConfigurationLoaderTest {
 
         Assert.assertEquals(100, resources.getPlayerCacheSize());
         Assert.assertEquals(true, resources.getPlayerCacheEnabled());
+        Assert.assertEquals(100, resources.getSpeechDetectorSilenceLevel());
+
+        final SubsystemsConfiguration subsystemsConf = config.getSubsystemsConfiguration();
+        Assert.assertNotNull(subsystemsConf);
+        final Collection<DriverConfiguration> drivers = subsystemsConf.getDrivers("asr");
+        Assert.assertNotNull(drivers);
+        Assert.assertEquals(2, drivers.size());
+        {
+            final DriverConfiguration driver = subsystemsConf.getDriver("asr", "stub");
+            Assert.assertEquals("stub", driver.getDriverName());
+            Assert.assertEquals("org.mobicents.media.resource.asr.StubAsrDriver", driver.getClassName());
+            final Map<String, String> parameters = driver.getParameters();
+            Assert.assertNotNull(parameters);
+            Assert.assertEquals(1, parameters.size());
+            Assert.assertTrue(parameters.containsKey("stubName"));
+            Assert.assertEquals("Stub Driver", parameters.get("stubName"));
+        }
+        {
+            final DriverConfiguration driver = subsystemsConf.getDriver("asr", "stub2");
+            Assert.assertEquals("stub2", driver.getDriverName());
+            Assert.assertEquals("org.mobicents.media.resource.asr.StubAsrDriver2", driver.getClassName());
+            final Map<String, String> parameters = driver.getParameters();
+            Assert.assertNotNull(parameters);
+            Assert.assertEquals(1, parameters.size());
+            Assert.assertTrue(parameters.containsKey("stubName2"));
+            Assert.assertEquals("Stub Driver 2", parameters.get("stubName2"));
+        }
     }
 
     /**
