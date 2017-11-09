@@ -21,7 +21,6 @@
 
 package org.restcomm.media.codec.opus;
 
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;

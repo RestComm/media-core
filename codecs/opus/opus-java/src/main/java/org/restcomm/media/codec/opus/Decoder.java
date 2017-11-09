@@ -24,7 +24,6 @@ package org.restcomm.media.codec.opus;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.log4j.Logger;
 import org.restcomm.media.spi.dsp.Codec;
 import org.restcomm.media.spi.format.Format;
