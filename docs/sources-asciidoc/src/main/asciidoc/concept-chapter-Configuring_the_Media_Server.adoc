@@ -174,6 +174,7 @@ The media configuration contains definitions that have an impact on the media ch
 		<codec name="pcmu" />
 		<codec name="pcma" />
 		<codec name="gsm" />
+		<codec name="opus" />
 		<codec name="g729" />
 	</codecs>
 </media>
@@ -224,7 +225,7 @@ In case of 180 or 183 without SDP response , intermediate MDCX is not required.
 
 ==== Codecs
 
-Currently media server supports five codecs : G711 A/U, Linear PCM Raw, GSM, ILBC and G.729.
+Currently media server supports six codecs : G711 A/U, Linear PCM Raw, GSM, ILBC, Opus and G.729.
 
 .G.729 usage
 WARNING: Please note that a valid license is required to use G.729 , therefore you should purchase a license prior to enabling this codec. 
@@ -235,6 +236,30 @@ This is useful only in case of a one way activity.
 .L16 usage
 NOTE: L16 codec is useful only in server to server communication where you have enough network bandwidth.
 It is not recommended to allow L16 codec for UA – server connections, this can lead to degradation of the signal quality due to increased jitter and packet loss.
+
+.Opus usage
+NOTE: Opus codec processes data internally at 8kHz as mono signal. This sample rate and number of channels are limiting factors for sound quality when this codec is used. Bitrate is around 20 kbps. Payload type is fixed to value 111. It won't work with clients with other payload type values assigned to Opus codec. 
+
+==== Opus Codec Configuration
+
+http://opus-codec.org/[Opus Codec] is open, royalty-free, highly versatile audio codec.
+
+Prerequisite library for Opus codec is `libopus` (or `libopus-dev` if the project is compiled from sources).
+
+[source,shell]
+----
+# CentOS/RHEL
+yum install libopus
+
+# Ubuntu/Debian
+apt-get install libopus
+
+# macOS
+brew install opus
+----
+
+The location of libopus library and name of compiled JNI library used by media server are specified by command line parameters. The values of the parameters are defined in file `bin/run.sh`.
+
 
 === Resources Configuration
 

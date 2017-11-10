@@ -89,6 +89,11 @@
 			<artifactId>ilbc</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.restcomm.media.codecs.opus</groupId>
+			<artifactId>opus-java</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
 		<!-- External Dependencies -->
 		<dependency>
