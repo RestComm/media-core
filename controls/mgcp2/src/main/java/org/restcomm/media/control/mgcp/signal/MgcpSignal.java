@@ -45,6 +45,8 @@ public interface MgcpSignal<T> {
 
     String getRequestId();
 
+    boolean isParameterSupported(String name);
+
     void execute(FutureCallback<T> callback);
     
     @Override
