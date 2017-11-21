@@ -64,7 +64,7 @@ public abstract class AbstractSignal<T> implements MgcpSignal<T> {
 
     @Override
     public String toString() {
-        return new StringBuilder(this.pkg).append("/").append(this.symbol).append(" (X:").append(this.requestId).append(")").toString();
+        return this.pkg + "/" + this.symbol + " (X:" + this.requestId + ")";
     }
 
 }
