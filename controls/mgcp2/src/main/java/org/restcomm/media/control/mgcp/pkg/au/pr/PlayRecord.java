@@ -129,6 +129,7 @@ public class PlayRecord extends AbstractSignal<MgcpEvent> implements TimeoutSign
     @Override
     public void timeout(FutureCallback<MgcpEvent> callback) {
         if (this.fsm.isStarted()) {
+            this.callback.set(callback);
             this.fsm.fire(PlayRecordEvent.CANCEL, this.context);
         }
     }
@@ -136,6 +137,7 @@ public class PlayRecord extends AbstractSignal<MgcpEvent> implements TimeoutSign
     @Override
     public void cancel(FutureCallback<MgcpEvent> callback) {
         if (this.fsm.isStarted()) {
+            this.callback.set(callback);
             this.fsm.fire(PlayRecordEvent.CANCEL, this.context);
         }
     }
