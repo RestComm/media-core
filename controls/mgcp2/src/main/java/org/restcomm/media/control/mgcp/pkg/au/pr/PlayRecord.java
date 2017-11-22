@@ -21,13 +21,13 @@
 
 package org.restcomm.media.control.mgcp.pkg.au.pr;
 
-import java.util.Map;
-
-import org.restcomm.media.control.mgcp.command.param.NotifiedEntity;
-import org.restcomm.media.control.mgcp.pkg.AbstractMgcpSignal;
-import org.restcomm.media.control.mgcp.pkg.SignalType;
+import com.google.common.util.concurrent.FutureCallback;
+import org.restcomm.media.control.mgcp.pkg.MgcpEvent;
+import org.restcomm.media.control.mgcp.pkg.MgcpEventObserver;
 import org.restcomm.media.control.mgcp.pkg.au.AudioPackage;
 import org.restcomm.media.control.mgcp.pkg.au.SignalParameters;
+import org.restcomm.media.control.mgcp.signal.AbstractSignal;
+import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
 import org.restcomm.media.spi.dtmf.DtmfDetector;
 import org.restcomm.media.spi.dtmf.DtmfDetectorListener;
 import org.restcomm.media.spi.dtmf.DtmfEvent;
@@ -38,11 +38,13 @@ import org.restcomm.media.spi.recorder.Recorder;
 import org.restcomm.media.spi.recorder.RecorderEvent;
 import org.restcomm.media.spi.recorder.RecorderListener;
 
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
+
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
  */
-public class PlayRecord extends AbstractMgcpSignal {
+public class PlayRecord extends AbstractSignal<MgcpEvent> implements TimeoutSignal, MgcpEventObserver {
 
     static final String SYMBOL = "pr";
 
@@ -50,60 +52,33 @@ public class PlayRecord extends AbstractMgcpSignal {
     private final PlayRecordFsm fsm;
 
     // Media Components
-    private final Player player;
     final PlayerListener playerListener;
-
-    private final DtmfDetector detector;
     final DtmfDetectorListener detectorListener;
-
-    private final Recorder recorder;
     final RecorderListener recorderListener;
 
     // Execution Context
     private final PlayRecordContext context;
+    private final AtomicReference<FutureCallback<MgcpEvent>> callback;
 
-    public PlayRecord(Player player, DtmfDetector detector, Recorder recorder, int requestId, NotifiedEntity notifiedEntity, Map<String, String> parameters) {
-        super(AudioPackage.PACKAGE_NAME, SYMBOL, SignalType.TIME_OUT, requestId, notifiedEntity, parameters);
+    public PlayRecord(Player player, DtmfDetector detector, Recorder recorder, String requestId, Map<String, String> parameters) {
+        super(requestId, AudioPackage.PACKAGE_NAME, SYMBOL, parameters);
 
         // Media Components
-        this.player = player;
         this.playerListener = new AudioPlayerListener();
-
-        this.detector = detector;
         this.detectorListener = new DetectorListener();
-
-        this.recorder = recorder;
         this.recorderListener = new AudioRecorderListener();
 
         // Execution Context
         this.context = new PlayRecordContext(parameters);
+        this.callback = new AtomicReference<>(null);
 
         // Finite State Machine
-        this.fsm = PlayRecordFsmBuilder.INSTANCE.build(this, recorder, recorderListener, detector, detectorListener, player,
-                playerListener, context);
+        this.fsm = PlayRecordFsmBuilder.INSTANCE.build(this, recorder, recorderListener, detector, detectorListener, player, playerListener, context);
     }
-    
-    public PlayRecord(Player player, DtmfDetector detector, Recorder recorder, int requestId, Map<String, String> parameters) {
-        this(player, detector, recorder, requestId, null, parameters);
-    }
+
 
     @Override
-    public void execute() {
-        if (!this.fsm.isStarted()) {
-            this.fsm.start(this.context);
-        }
-    }
-
-    @Override
-    public void cancel() {
-        if (this.fsm.isStarted()) {
-            this.fsm.fire(PlayRecordEvent.CANCEL, this.context);
-        }
-
-    }
-
-    @Override
-    protected boolean isParameterSupported(String name) {
+    public boolean isParameterSupported(String name) {
         // Check if parameter is valid
         SignalParameters parameter = SignalParameters.fromSymbol(name);
         if (parameter == null) {
@@ -138,11 +113,37 @@ public class PlayRecord extends AbstractMgcpSignal {
         }
     }
 
+    @Override
+    public void onEvent(Object originator, MgcpEvent event) {
+        this.callback.get().onSuccess(event);
+    }
+
+    @Override
+    public void execute(FutureCallback<MgcpEvent> callback) {
+        if (!this.fsm.isStarted()) {
+            this.callback.set(callback);
+            this.fsm.start(this.context);
+        }
+    }
+
+    @Override
+    public void timeout(FutureCallback<MgcpEvent> callback) {
+        if (this.fsm.isStarted()) {
+            this.fsm.fire(PlayRecordEvent.CANCEL, this.context);
+        }
+    }
+
+    @Override
+    public void cancel(FutureCallback<MgcpEvent> callback) {
+        if (this.fsm.isStarted()) {
+            this.fsm.fire(PlayRecordEvent.CANCEL, this.context);
+        }
+    }
+
     /**
      * Listens to DTMF events raised by the DTMF Detector.
-     * 
-     * @author Henrique Rosa (henrique.rosa@telestax.com)
      *
+     * @author Henrique Rosa (henrique.rosa@telestax.com)
      */
     private final class DetectorListener implements DtmfDetectorListener {
 
@@ -157,9 +158,8 @@ public class PlayRecord extends AbstractMgcpSignal {
 
     /**
      * Listen to Play events raised by the Player.
-     * 
-     * @author Henrique Rosa (henrique.rosa@telestax.com)
      *
+     * @author Henrique Rosa (henrique.rosa@telestax.com)
      */
     private final class AudioPlayerListener implements PlayerListener {
 
@@ -182,9 +182,8 @@ public class PlayRecord extends AbstractMgcpSignal {
 
     /**
      * Listen to Record events raised by the Recorder.
-     * 
-     * @author Henrique Rosa (henrique.rosa@telestax.com)
      *
+     * @author Henrique Rosa (henrique.rosa@telestax.com)
      */
     private final class AudioRecorderListener implements RecorderListener {
 
