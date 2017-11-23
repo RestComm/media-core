@@ -26,8 +26,8 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.restcomm.media.control.mgcp.pkg.MgcpEvent;
-import org.restcomm.media.control.mgcp.pkg.MgcpSignal;
 import org.restcomm.media.control.mgcp.pkg.au.SignalParameters;
+import org.restcomm.media.control.mgcp.signal.MgcpSignal;
 
 import java.util.HashMap;
 import java.util.Map;

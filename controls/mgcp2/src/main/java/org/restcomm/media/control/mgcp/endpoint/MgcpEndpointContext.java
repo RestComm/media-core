@@ -21,19 +21,18 @@
 
 package org.restcomm.media.control.mgcp.endpoint;
 
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.restcomm.media.control.mgcp.command.param.NotifiedEntity;
-import org.restcomm.media.control.mgcp.connection.MgcpConnection;
-import org.restcomm.media.control.mgcp.message.MgcpMessageObserver;
-import org.restcomm.media.control.mgcp.pkg.MgcpRequestedEvent;
-import org.restcomm.media.control.mgcp.pkg.MgcpSignal;
-
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
+import org.restcomm.media.control.mgcp.command.param.NotifiedEntity;
+import org.restcomm.media.control.mgcp.connection.MgcpConnection;
+import org.restcomm.media.control.mgcp.message.MgcpMessageObserver;
+import org.restcomm.media.control.mgcp.pkg.MgcpRequestedEvent;
+import org.restcomm.media.control.mgcp.signal.MgcpSignal;
+
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -41,7 +40,7 @@ import com.google.common.collect.Sets;
  */
 public class MgcpEndpointContext {
 
-    static final MgcpRequestedEvent[] EMPTY_ENDPOINT_EVENTS = new MgcpRequestedEvent[0];
+    private static final MgcpRequestedEvent[] EMPTY_ENDPOINT_EVENTS = new MgcpRequestedEvent[0];
 
     // Media Components
     protected final MediaGroup mediaGroup;
