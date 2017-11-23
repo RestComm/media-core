@@ -22,8 +22,8 @@ configSsl() {
     fi
 
     # Configure keystore and password
-    sed -e "s|trustStore=[a-zA-Z0-9_\/\.\-]*|trustStore=$ssl_keystore|g" \
-        -e "s|trustStorePassword=[a-zA-Z0-9_]*|trustStorePassword=$ssl_password|g" \
+    sed -e "s|trustStore=\(.*\)|trustStore=$ssl_keystore\"|g" \
+        -e "s|trustStorePassword=\(.*\)|trustStorePassword=$ssl_password\"|g" \
         $config_file > $config_file.bak
     mv $config_file.bak $config_file
 

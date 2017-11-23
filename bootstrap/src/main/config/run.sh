@@ -141,8 +141,12 @@ fi
 JAVA_OPTS="-Dprogram.name=$PROGNAME -Xms3400m -Xmx3400m -XX:+UseG1GC -XX:ParallelGCThreads=8 -XX:ConcGCThreads=8 -XX:G1RSetUpdatingPauseTimePercent=10 -XX:+ParallelRefProcEnabled -XX:G1HeapRegionSize=4m -XX:G1HeapWastePercent=5 -XX:InitiatingHeapOccupancyPercent=85 -XX:+UnlockExperimentalVMOptions -XX:G1MixedGCLiveThresholdPercent=85 -XX:+AlwaysPreTouch -XX:+UseCompressedOops -Djava.net.preferIPv4Stack=true -Dorg.jboss.resolver.warning=true -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000 -Dhttp.keepAlive=false $JAVA_OPTS"
 #JAVA_OPTS="$JAVA_OPTS -Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=n"
 
+TRUSTSTORE_PWD="-Djavax.net.ssl.trustStorePassword=changeme"
+TRUSTSTORE_PATH="-Djavax.net.ssl.trustStore=../conf/ssl/mediaserver.jks"
 # SSL Configuration
-#JAVA_OPTS="$JAVA_OPTS -Djavax.net.ssl.trustStore=../conf/ssl/mediaserver.jks -Djavax.net.ssl.trustStorePassword=changeme"
+#JAVA_OPTS="$JAVA_OPTS $TRUSTSTORE_PATH $TRUSTSTORE_PWD"
+
+
 
 # Setup the java endorsed dirs
 MMS_ENDORSED_DIRS="$MMS_HOME/lib"
