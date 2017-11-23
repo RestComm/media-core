@@ -21,22 +21,16 @@
 
 package org.restcomm.media.control.mgcp.pkg.au.pc;
 
-import org.restcomm.media.control.mgcp.pkg.MgcpEventSubject;
+import com.google.common.util.concurrent.ListeningScheduledExecutorService;
+import org.restcomm.media.control.mgcp.pkg.MgcpEventObserver;
 import org.restcomm.media.spi.dtmf.DtmfDetector;
 import org.restcomm.media.spi.dtmf.DtmfDetectorListener;
 import org.restcomm.media.spi.player.Player;
 import org.restcomm.media.spi.player.PlayerListener;
-import org.squirrelframework.foundation.fsm.HistoryType;
-import org.squirrelframework.foundation.fsm.StateMachineBuilder;
-import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
-import org.squirrelframework.foundation.fsm.StateMachineConfiguration;
-import org.squirrelframework.foundation.fsm.TransitionPriority;
-
-import com.google.common.util.concurrent.ListeningScheduledExecutorService;
+import org.squirrelframework.foundation.fsm.*;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
  */
 public class PlayCollectFsmBuilder {
 
@@ -46,11 +40,7 @@ public class PlayCollectFsmBuilder {
 
     private PlayCollectFsmBuilder() {
         // Finite State Machine
-        this.builder = StateMachineBuilderFactory
-                .<PlayCollectFsm, PlayCollectState, PlayCollectEvent, PlayCollectContext> create(PlayCollectFsmImpl.class,
-                        PlayCollectState.class, PlayCollectEvent.class, PlayCollectContext.class, DtmfDetector.class,
-                        DtmfDetectorListener.class, Player.class, PlayerListener.class, MgcpEventSubject.class,
-                        ListeningScheduledExecutorService.class, PlayCollectContext.class);
+        this.builder = StateMachineBuilderFactory.<PlayCollectFsm, PlayCollectState, PlayCollectEvent, PlayCollectContext>create(PlayCollectFsmImpl.class, PlayCollectState.class, PlayCollectEvent.class, PlayCollectContext.class, DtmfDetector.class, DtmfDetectorListener.class, Player.class, PlayerListener.class, MgcpEventObserver.class, ListeningScheduledExecutorService.class, PlayCollectContext.class);
 
         this.builder.defineFinishEvent(PlayCollectEvent.EVALUATE);
 
@@ -71,44 +61,44 @@ public class PlayCollectFsmBuilder {
         this.builder.transition().from(PlayCollectState.LOADING_PLAYLIST).to(PlayCollectState.NO_DIGITS_REPROMPTING).on(PlayCollectEvent.NO_DIGITS);
         this.builder.transition().from(PlayCollectState.LOADING_PLAYLIST).toFinal(PlayCollectState.PROMPTED).on(PlayCollectEvent.NO_PROMPT);
         this.builder.onExit(PlayCollectState.LOADING_PLAYLIST).callMethod("exitLoadingPlaylist");
-        
+
         this.builder.onEntry(PlayCollectState.PROMPTING).callMethod("enterPrompting");
         this.builder.internalTransition().within(PlayCollectState.PROMPTING).on(PlayCollectEvent.NEXT_TRACK).callMethod("onPrompting");
         this.builder.transition().from(PlayCollectState.PROMPTING).toFinal(PlayCollectState.PROMPTED).on(PlayCollectEvent.END_PROMPT);
         this.builder.transition().from(PlayCollectState.PROMPTING).toFinal(PlayCollectState.PROMPTED).on(PlayCollectEvent.END_INPUT);
         this.builder.onExit(PlayCollectState.PROMPTING).callMethod("exitPrompting");
-        
+
         this.builder.onEntry(PlayCollectState.REPROMPTING).callMethod("enterReprompting");
         this.builder.internalTransition().within(PlayCollectState.REPROMPTING).on(PlayCollectEvent.NEXT_TRACK).callMethod("onReprompting");
         this.builder.transition().from(PlayCollectState.REPROMPTING).toFinal(PlayCollectState.PROMPTED).on(PlayCollectEvent.END_PROMPT);
         this.builder.transition().from(PlayCollectState.REPROMPTING).toFinal(PlayCollectState.PROMPTED).on(PlayCollectEvent.END_INPUT);
         this.builder.onExit(PlayCollectState.REPROMPTING).callMethod("exitReprompting");
-        
+
         this.builder.onEntry(PlayCollectState.NO_DIGITS_REPROMPTING).callMethod("enterNoDigitsReprompting");
         this.builder.internalTransition().within(PlayCollectState.NO_DIGITS_REPROMPTING).on(PlayCollectEvent.NEXT_TRACK).callMethod("onNoDigitsReprompting");
         this.builder.transition().from(PlayCollectState.NO_DIGITS_REPROMPTING).toFinal(PlayCollectState.PROMPTED).on(PlayCollectEvent.END_PROMPT);
         this.builder.transition().from(PlayCollectState.NO_DIGITS_REPROMPTING).toFinal(PlayCollectState.PROMPTED).on(PlayCollectEvent.END_INPUT);
         this.builder.onExit(PlayCollectState.NO_DIGITS_REPROMPTING).callMethod("exitNoDigitsReprompting");
-        
+
         this.builder.onEntry(PlayCollectState.PROMPTED).callMethod("enterPrompted");
 
         this.builder.onEntry(PlayCollectState.COLLECTING).callMethod("enterCollecting");
         this.builder.internalTransition().within(PlayCollectState.COLLECTING).on(PlayCollectEvent.DTMF_TONE).callMethod("onCollecting");
         this.builder.transition().from(PlayCollectState.COLLECTING).toFinal(PlayCollectState.COLLECTED).on(PlayCollectEvent.END_INPUT);
         this.builder.onExit(PlayCollectState.COLLECTING).callMethod("exitCollecting");
-        
+
         this.builder.onEntry(PlayCollectState.EVALUATING).callMethod("enterEvaluating");
         this.builder.transition().from(PlayCollectState.EVALUATING).to(PlayCollectState.SUCCEEDING).on(PlayCollectEvent.SUCCEED);
         this.builder.transition().from(PlayCollectState.EVALUATING).to(PlayCollectState.FAILING).on(PlayCollectEvent.NO_DIGITS);
         this.builder.transition().from(PlayCollectState.EVALUATING).to(PlayCollectState.FAILING).on(PlayCollectEvent.PATTERN_MISMATCH);
         this.builder.transition(TransitionPriority.HIGHEST).from(PlayCollectState.EVALUATING).to(PlayCollectState.CANCELED).on(PlayCollectEvent.CANCEL);
         this.builder.onExit(PlayCollectState.EVALUATING).callMethod("exitEvaluating");
-        
+
         this.builder.onEntry(PlayCollectState.CANCELED).callMethod("enterCanceled");
         this.builder.transition().from(PlayCollectState.CANCELED).to(PlayCollectState.SUCCEEDED).on(PlayCollectEvent.SUCCEED);
         this.builder.transition().from(PlayCollectState.CANCELED).to(PlayCollectState.FAILED).on(PlayCollectEvent.FAIL);
         this.builder.onExit(PlayCollectState.CANCELED).callMethod("exitCanceled");
-        
+
         this.builder.onEntry(PlayCollectState.FAILING).callMethod("enterFailing");
         this.builder.transition().from(PlayCollectState.FAILING).to(PlayCollectState.PLAY_COLLECT).on(PlayCollectEvent.REINPUT);
         this.builder.transition().from(PlayCollectState.FAILING).to(PlayCollectState.PLAY_COLLECT).on(PlayCollectEvent.RESTART);
@@ -129,7 +119,7 @@ public class PlayCollectFsmBuilder {
         this.builder.transition().from(PlayCollectState.SUCCEEDING).toFinal(PlayCollectState.SUCCEEDED).on(PlayCollectEvent.NO_PROMPT);
         this.builder.transition(TransitionPriority.HIGHEST).from(PlayCollectState.SUCCEEDING).toFinal(PlayCollectState.SUCCEEDED).on(PlayCollectEvent.CANCEL);
         this.builder.onExit(PlayCollectState.SUCCEEDING).callMethod("exitSucceeding");
-        
+
         this.builder.onEntry(PlayCollectState.PLAYING_SUCCESS).callMethod("enterPlayingSuccess");
         this.builder.internalTransition().within(PlayCollectState.PLAYING_SUCCESS).on(PlayCollectEvent.NEXT_TRACK).callMethod("onPlayingSuccess");
         this.builder.transition().from(PlayCollectState.PLAYING_SUCCESS).toFinal(PlayCollectState.SUCCEEDED).on(PlayCollectEvent.END_PROMPT);
@@ -140,12 +130,8 @@ public class PlayCollectFsmBuilder {
         this.builder.onEntry(PlayCollectState.FAILED).callMethod("enterFailed");
     }
 
-    public PlayCollectFsm build(DtmfDetector detector, DtmfDetectorListener detectorListener, Player player,
-            PlayerListener playerListener, MgcpEventSubject eventSubject, ListeningScheduledExecutorService scheduler,
-            PlayCollectContext context) {
-        return builder.newStateMachine(PlayCollectState.PLAY_COLLECT,
-                StateMachineConfiguration.getInstance().enableDebugMode(false), detector, detectorListener, player,
-                playerListener, eventSubject, scheduler, context);
+    public PlayCollectFsm build(DtmfDetector detector, DtmfDetectorListener detectorListener, Player player, PlayerListener playerListener, MgcpEventObserver eventObserver, ListeningScheduledExecutorService scheduler, PlayCollectContext context) {
+        return builder.newStateMachine(PlayCollectState.PLAY_COLLECT, StateMachineConfiguration.getInstance().enableDebugMode(false), detector, detectorListener, player, playerListener, eventObserver, scheduler, context);
     }
 
 }
