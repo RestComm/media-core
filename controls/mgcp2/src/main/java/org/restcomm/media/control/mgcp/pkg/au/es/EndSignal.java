@@ -53,6 +53,24 @@ public class EndSignal extends AbstractSignal<Void> implements BriefSignal {
     }
 
     @Override
+    public boolean isParameterSupported(String name) {
+        // Check if parameter is valid
+        SignalParameters parameter = SignalParameters.fromSymbol(name);
+        if (parameter == null) {
+            return false;
+        }
+
+        // Check if parameter is supported
+        switch (parameter) {
+            case SIGNAL:
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    @Override
     public void execute(final FutureCallback<Void> callback) {
         final String signal = Optional.fromNullable(getParameter(SignalParameters.SIGNAL.symbol())).or("");
 
