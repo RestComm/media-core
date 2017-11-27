@@ -21,34 +21,27 @@
 
 package org.restcomm.media.control.mgcp.pkg;
 
+import org.junit.Test;
+import org.restcomm.media.control.mgcp.exception.MgcpParseException;
+import org.restcomm.media.control.mgcp.pkg.exception.UnrecognizedMgcpActionException;
+import org.restcomm.media.control.mgcp.pkg.exception.UnrecognizedMgcpEventException;
+import org.restcomm.media.control.mgcp.pkg.exception.UnrecognizedMgcpPackageException;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.junit.Test;
-import org.restcomm.media.control.mgcp.exception.MgcpParseException;
-import org.restcomm.media.control.mgcp.pkg.MgcpActionType;
-import org.restcomm.media.control.mgcp.pkg.MgcpEventType;
-import org.restcomm.media.control.mgcp.pkg.MgcpPackage;
-import org.restcomm.media.control.mgcp.pkg.MgcpPackageManager;
-import org.restcomm.media.control.mgcp.pkg.MgcpRequestedEvent;
-import org.restcomm.media.control.mgcp.pkg.MgcpRequestedEventsParser;
-import org.restcomm.media.control.mgcp.pkg.exception.UnrecognizedMgcpActionException;
-import org.restcomm.media.control.mgcp.pkg.exception.UnrecognizedMgcpEventException;
-import org.restcomm.media.control.mgcp.pkg.exception.UnrecognizedMgcpPackageException;
-
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
  */
 public class MgcpRequestedEventsParserTest {
 
     @Test
     public void testParseEndpointEventWithoutParameters() throws Exception {
         // given
-        final int requestId = 16;
+        final String requestId = "16";
         final String requestedEvents = "AU/oc(N)";
         final MgcpEventType eventType = mock(MgcpEventType.class);
         final MgcpPackage mgcpPackage = mock(MgcpPackage.class);
@@ -77,7 +70,7 @@ public class MgcpRequestedEventsParserTest {
     @Test
     public void testParseEndpointEventWithParameters() throws Exception {
         // given
-        final int requestId = 16;
+        final String requestId = "16";
         final String requestedEvents = "AU/oc(N)(param1=value1,param2=value2)";
         final MgcpEventType eventType = mock(MgcpEventType.class);
         final MgcpPackage mgcpPackage = mock(MgcpPackage.class);
@@ -106,7 +99,7 @@ public class MgcpRequestedEventsParserTest {
     @Test
     public void testParseConnectionEventWithoutParameters() throws Exception {
         // given
-        final int requestId = 16;
+        final String requestId = "16";
         final String requestedEvents = "R/rto@364823(N)";
         final MgcpEventType eventType = mock(MgcpEventType.class);
         final MgcpPackage mgcpPackage = mock(MgcpPackage.class);
@@ -134,7 +127,7 @@ public class MgcpRequestedEventsParserTest {
     @Test
     public void testParseMulitpleEvents() throws Exception {
         // given
-        final int requestId = 16;
+        final String requestId = "16";
         final String requestedEvents = "AU/oc(N),R/rto@AB23F(N)(100,st=im),AU/of(N)";
         final MgcpEventType audioEventType = mock(MgcpEventType.class);
         final MgcpPackage audioPackage = mock(MgcpPackage.class);
@@ -187,7 +180,7 @@ public class MgcpRequestedEventsParserTest {
     @Test(expected = UnrecognizedMgcpPackageException.class)
     public void testParseUnrecognizedPackage() throws Exception {
         // given
-        final int requestId = 16;
+        final String requestId = "16";
         final String requestedEvents = "XYZ/oc(N),AU/of(N)";
         final MgcpPackageManager packageManager = mock(MgcpPackageManager.class);
 
@@ -199,7 +192,7 @@ public class MgcpRequestedEventsParserTest {
     @Test(expected = UnrecognizedMgcpEventException.class)
     public void testParseUnrecognizedEvent() throws Exception {
         // given
-        final int requestId = 16;
+        final String requestId = "16";
         final String requestedEvents = "AU/xyz(N),AU/of(N)";
         final MgcpPackage mgcpPackage = mock(MgcpPackage.class);
         final MgcpPackageManager packageManager = mock(MgcpPackageManager.class);
@@ -214,7 +207,7 @@ public class MgcpRequestedEventsParserTest {
     @Test(expected = UnrecognizedMgcpActionException.class)
     public void testParseUnrecognizedAction() throws Exception {
         // given
-        final int requestId = 16;
+        final String requestId = "16";
         final String requestedEvents = "AU/oc(XYZ),AU/of(N)";
         final MgcpPackage mgcpPackage = mock(MgcpPackage.class);
         final MgcpEventType eventType = mock(MgcpEventType.class);
@@ -231,7 +224,7 @@ public class MgcpRequestedEventsParserTest {
     @Test(expected = MgcpParseException.class)
     public void testParseMalformedRequest() throws Exception {
         // given
-        final int requestId = 16;
+        final String requestId = "16";
         final String requestedEvents = "AU/oc(XYZ";
         final MgcpPackage mgcpPackage = mock(MgcpPackage.class);
         final MgcpEventType eventType = mock(MgcpEventType.class);
