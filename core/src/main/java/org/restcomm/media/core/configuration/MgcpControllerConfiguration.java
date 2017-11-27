@@ -35,14 +35,17 @@ public class MgcpControllerConfiguration {
     
     public static final String ADDRESS = "127.0.0.1";
     public static final int PORT = 2427;
+    public static final int MGCP_BUFFER_SIZE = 5000;
 
     private String address;
     private int port;
+    private int mgcpBufferSize = MGCP_BUFFER_SIZE;
     private final Map<String, MgcpEndpointConfiguration> endpoints;
 
     public MgcpControllerConfiguration() {
         this.address = ADDRESS;
         this.port = PORT;
+        this.mgcpBufferSize = MGCP_BUFFER_SIZE;
         this.endpoints = new HashMap<>(5);
     }
 
@@ -66,6 +69,17 @@ public class MgcpControllerConfiguration {
             throw new IllegalArgumentException("Illegal MGCP port value: 0 < " + port + " < 65536");
         }
         this.port = port;
+    }
+
+    public int getMgcpBufferSize() {
+        return mgcpBufferSize;
+    }
+
+    public void setMgcpBufferSize(int mgcpBufferSize) {
+        if (mgcpBufferSize < 2000 || mgcpBufferSize > 10000) {
+            throw new IllegalArgumentException("Illegal MGCP buffer size value: 2000 < " + port + " < 10000");
+        }
+        this.mgcpBufferSize = mgcpBufferSize;
     }
     
     public int countEndpoints() {

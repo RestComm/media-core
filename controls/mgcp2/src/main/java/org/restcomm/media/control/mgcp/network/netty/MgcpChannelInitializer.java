@@ -36,21 +36,21 @@ import io.netty.channel.FixedRecvByteBufAllocator;
  */
 public class MgcpChannelInitializer extends ChannelInitializer<Channel> {
 
-    private static final int BUFFER_SIZE = 5000;
+    private static int mgcpBufferSize;
     private static final ChannelHandler[] NO_HANDLERS = new ChannelHandler[0];
 
     private final ChannelHandler[] handlers;
 
-    public MgcpChannelInitializer(ChannelHandler... handlers) {
-        this.handlers = (handlers == null || handlers.length == 0) ? NO_HANDLERS : handlers;
+    public MgcpChannelInitializer(int mgcpBufferSize, ChannelHandler... handlers) {
+		/* mgcpBufferSize configuration from MGCP section of mediaserver.xml */
+		this.mgcpBufferSize = mgcpBufferSize;
+		this.handlers = (handlers == null || handlers.length == 0) ? NO_HANDLERS : handlers;
     }
 
     @Override
     protected void initChannel(Channel ch) throws Exception {
-        // Increase default buffer size for Netty Buffers
-        // MEDIA-472: https://github.com/RestComm/mediaserver/issues/472
-        ch.config().setOption(ChannelOption.SO_RCVBUF, BUFFER_SIZE);
-        ch.config().setOption(ChannelOption.RCVBUF_ALLOCATOR, new FixedRecvByteBufAllocator(BUFFER_SIZE));
+        ch.config().setOption(ChannelOption.SO_RCVBUF, this.mgcpBufferSize);
+        ch.config().setOption(ChannelOption.RCVBUF_ALLOCATOR, new FixedRecvByteBufAllocator(this.mgcpBufferSize));
 
         // Build handlers pipeline
         ChannelPipeline pipeline = ch.pipeline();
