@@ -28,7 +28,7 @@ import static org.junit.Assert.*;
 import org.junit.After;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.restcomm.media.control.mgcp.command.NotificationRequest;
+import org.restcomm.media.control.mgcp.command.rqnt.NotificationRequest;
 import org.restcomm.media.control.mgcp.command.param.NotifiedEntity;
 import org.restcomm.media.control.mgcp.endpoint.EndpointIdentifier;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpoint;

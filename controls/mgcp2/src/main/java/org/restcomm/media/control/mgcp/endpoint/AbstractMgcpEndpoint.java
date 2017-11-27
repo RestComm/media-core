@@ -23,7 +23,7 @@ package org.restcomm.media.control.mgcp.endpoint;
 
 import com.google.common.util.concurrent.FutureCallback;
 import org.apache.log4j.Logger;
-import org.restcomm.media.control.mgcp.command.NotificationRequest;
+import org.restcomm.media.control.mgcp.command.rqnt.NotificationRequest;
 import org.restcomm.media.control.mgcp.connection.MgcpConnection;
 import org.restcomm.media.control.mgcp.message.MessageDirection;
 import org.restcomm.media.control.mgcp.message.MgcpMessage;

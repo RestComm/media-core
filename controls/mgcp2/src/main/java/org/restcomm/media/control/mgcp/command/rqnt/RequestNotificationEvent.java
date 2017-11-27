@@ -18,23 +18,14 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
-package org.restcomm.media.control.mgcp.endpoint.notification;
 
-import org.restcomm.media.control.mgcp.command.rqnt.NotificationRequest;
-
-import com.google.common.util.concurrent.FutureCallback;
+package org.restcomm.media.control.mgcp.command.rqnt;
 
 /**
- * Notification Center where MGCP Events and Signals can be submitted.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
  */
-public interface NotificationCenter {
-    
-    void requestNotification(NotificationRequest request, FutureCallback<Void> callback);
-    
-    void shutdown(FutureCallback<Void> callback);
-    
+public enum RequestNotificationEvent {
+
+    VALIDATED_PARAMETERS, EXECUTED, FAILURE
+
 }
