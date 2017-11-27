@@ -44,7 +44,7 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
     private final RequestNotificationFsm fsm;
     private final RequestNotificationContext context;
 
-    RequestNotificationCommand(int transactionId, Parameters<MgcpParameterType> parameters, RequestNotificationFsm fsm, MgcpEndpointManager endpointManager, MgcpPackageManager packageManager, MgcpSignalProvider signalProvider) {
+    public RequestNotificationCommand(int transactionId, Parameters<MgcpParameterType> parameters, RequestNotificationFsm fsm, MgcpEndpointManager endpointManager, MgcpPackageManager packageManager, MgcpSignalProvider signalProvider) {
         super(transactionId, parameters, endpointManager);
         this.fsm = fsm;
         this.context = new RequestNotificationContext(transactionId, parameters, endpointManager, signalProvider, packageManager);

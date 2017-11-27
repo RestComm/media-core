@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.restcomm.media.control.mgcp.command.crcx.CreateConnectionCommand;
 import org.restcomm.media.control.mgcp.command.dlcx.DeleteConnectionCommand;
 import org.restcomm.media.control.mgcp.command.mdcx.ModifyConnectionCommand;
+import org.restcomm.media.control.mgcp.command.rqnt.RequestNotificationCommand;
 import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.restcomm.media.control.mgcp.message.MgcpParameterType;

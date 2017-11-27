@@ -33,6 +33,8 @@ import org.restcomm.media.control.mgcp.command.mdcx.ModifyConnectionCommand;
 import org.restcomm.media.control.mgcp.command.mdcx.ModifyConnectionContext;
 import org.restcomm.media.control.mgcp.command.mdcx.ModifyConnectionFsmBuilder;
 import org.restcomm.media.control.mgcp.command.rqnt.RequestNotificationCommand;
+import org.restcomm.media.control.mgcp.command.rqnt.RequestNotificationFsm;
+import org.restcomm.media.control.mgcp.command.rqnt.RequestNotificationFsmBuilder;
 import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.restcomm.media.control.mgcp.message.MgcpParameterType;
@@ -82,8 +84,10 @@ public class MgcpCommandProvider {
                 DeleteConnectionContext context = new DeleteConnectionContext(transactionId, parameters, this.endpointManager);
                 return new DeleteConnectionCommand(context, fsmBuilder.build());
             }
-            case RQNT:
-                return new RequestNotificationCommand(transactionId, parameters, this.endpointManager, this.packageManager, this.signalProvider);
+            case RQNT: {
+                final RequestNotificationFsm fsm = RequestNotificationFsmBuilder.INSTANCE.build();
+                return new RequestNotificationCommand(transactionId, parameters, fsm, this.endpointManager, this.packageManager, this.signalProvider);
+            }
 
             case AUCX:
                 return new AuditConnectionCommand(transactionId, parameters, this.endpointManager);
