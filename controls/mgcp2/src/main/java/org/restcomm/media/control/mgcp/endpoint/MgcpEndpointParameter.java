@@ -21,7 +21,7 @@
 
 package org.restcomm.media.control.mgcp.endpoint;
 
-import org.restcomm.media.control.mgcp.command.NotificationRequest;
+import org.restcomm.media.control.mgcp.command.rqnt.NotificationRequest;
 import org.restcomm.media.control.mgcp.connection.MgcpConnection;
 import org.restcomm.media.control.mgcp.pkg.MgcpEventObserver;
 

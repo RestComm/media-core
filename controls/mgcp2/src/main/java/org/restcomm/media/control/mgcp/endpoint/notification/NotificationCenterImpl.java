@@ -21,7 +21,7 @@
 
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
-import org.restcomm.media.control.mgcp.command.NotificationRequest;
+import org.restcomm.media.control.mgcp.command.rqnt.NotificationRequest;
 
 import com.google.common.util.concurrent.FutureCallback;
 

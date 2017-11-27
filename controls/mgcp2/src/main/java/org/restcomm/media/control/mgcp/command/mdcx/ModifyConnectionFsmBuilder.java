@@ -37,7 +37,7 @@ public class ModifyConnectionFsmBuilder {
 
     private final StateMachineBuilder<ModifyConnectionFsm, ModifyConnectionState, ModifyConnectionEvent, ModifyConnectionContext> builder;
 
-    public ModifyConnectionFsmBuilder() {
+    private ModifyConnectionFsmBuilder() {
         this.builder = StateMachineBuilderFactory.<ModifyConnectionFsm, ModifyConnectionState, ModifyConnectionEvent, ModifyConnectionContext> create(ModifyConnectionFsmImpl.class, ModifyConnectionState.class, ModifyConnectionEvent.class, ModifyConnectionContext.class);
 
         this.builder.onEntry(VALIDATING_PARAMETERS).perform(ValidateParametersAction.INSTANCE);
