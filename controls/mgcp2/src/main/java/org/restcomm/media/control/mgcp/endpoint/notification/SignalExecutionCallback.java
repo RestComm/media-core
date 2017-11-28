@@ -52,7 +52,7 @@ public class SignalExecutionCallback<T> implements FutureCallback<T> {
 
         if(log.isDebugEnabled()) {
             final NotificationCenterContext context = this.fsm.getContext();
-            final String endpointId = context.getEndpoint().getEndpointId().toString();
+            final String endpointId = context.getEndpointId();
             log.debug("Signal " + this.signal + " finished executing on endpoint " + endpointId);
         }
     }
@@ -67,7 +67,7 @@ public class SignalExecutionCallback<T> implements FutureCallback<T> {
         
         if(log.isDebugEnabled()) {
             final NotificationCenterContext context = this.fsm.getContext();
-            final String endpointId = context.getEndpoint().getEndpointId().toString();
+            final String endpointId = context.getEndpointId();
             log.debug("Signal " + this.signal + " failed on endpoint " + endpointId, t);
         }
     }

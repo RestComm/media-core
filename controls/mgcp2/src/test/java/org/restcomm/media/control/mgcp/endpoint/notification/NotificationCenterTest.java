@@ -92,9 +92,13 @@ public class NotificationCenterTest {
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/mock/1", "127.0.0.1:2427");
         when(endpoint.getEndpointId()).thenReturn(endpointId);
 
-        final NotificationCenterContext context = new NotificationCenterContext(endpoint);
+        final NotificationCenterContext context = new NotificationCenterContext();
         this.fsm = NotificationCenterFsmBuilder.INSTANCE.build(context);
         final NotificationCenterImpl notificationCenter = new NotificationCenterImpl(this.fsm);
+
+        context.setEndpointId(endpointId.toString());
+
+        notificationCenter.observe(endpoint);
 
         // when - submit rqnt
         final FutureCallback<Void> callback = mock(FutureCallback.class);
@@ -174,9 +178,13 @@ public class NotificationCenterTest {
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/mock/1", "127.0.0.1:2427");
         when(endpoint.getEndpointId()).thenReturn(endpointId);
 
-        final NotificationCenterContext context = new NotificationCenterContext(endpoint);
+        final NotificationCenterContext context = new NotificationCenterContext();
         this.fsm = NotificationCenterFsmBuilder.INSTANCE.build(context);
         final NotificationCenterImpl notificationCenter = new NotificationCenterImpl(this.fsm);
+
+        context.setEndpointId(endpointId.toString());
+
+        notificationCenter.observe(endpoint);
 
         // when - submit rqnt
         final FutureCallback<Void> callback1 = mock(FutureCallback.class);
@@ -231,9 +239,13 @@ public class NotificationCenterTest {
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/mock/1", "127.0.0.1:2427");
         when(endpoint.getEndpointId()).thenReturn(endpointId);
 
-        final NotificationCenterContext context = new NotificationCenterContext(endpoint);
+        final NotificationCenterContext context = new NotificationCenterContext();
         this.fsm = NotificationCenterFsmBuilder.INSTANCE.build(context);
         final NotificationCenterImpl notificationCenter = new NotificationCenterImpl(this.fsm);
+
+        context.setEndpointId(endpointId.toString());
+
+        notificationCenter.observe(endpoint);
 
         // when - submit rqnt
         final FutureCallback<Void> callback1 = mock(FutureCallback.class);
@@ -297,9 +309,13 @@ public class NotificationCenterTest {
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/mock/1", "127.0.0.1:2427");
         when(endpoint.getEndpointId()).thenReturn(endpointId);
 
-        final NotificationCenterContext context = new NotificationCenterContext(endpoint);
+        final NotificationCenterContext context = new NotificationCenterContext();
         this.fsm = NotificationCenterFsmBuilder.INSTANCE.build(context);
         final NotificationCenterImpl notificationCenter = new NotificationCenterImpl(this.fsm);
+
+        context.setEndpointId(endpointId.toString());
+
+        notificationCenter.observe(endpoint);
 
         // when - submit rqnt
         final FutureCallback<Void> callback1 = mock(FutureCallback.class);
@@ -380,9 +396,13 @@ public class NotificationCenterTest {
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/mock/1", "127.0.0.1:2427");
         when(endpoint.getEndpointId()).thenReturn(endpointId);
 
-        final NotificationCenterContext context = new NotificationCenterContext(endpoint);
+        final NotificationCenterContext context = new NotificationCenterContext();
         this.fsm = NotificationCenterFsmBuilder.INSTANCE.build(context);
         final NotificationCenterImpl notificationCenter = new NotificationCenterImpl(this.fsm);
+
+        context.setEndpointId(endpointId.toString());
+
+        notificationCenter.observe(endpoint);
 
         // when - submit rqnt
         final FutureCallback<Void> callback1 = mock(FutureCallback.class);
@@ -460,14 +480,17 @@ public class NotificationCenterTest {
 
         final MgcpSignal<?>[] requestedSignals = new MgcpSignal[]{timeoutSignal1, timeoutSignal2, timeoutSignal3};
 
-
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/mock/1", "127.0.0.1:2427");
         when(endpoint.getEndpointId()).thenReturn(endpointId);
 
-        final NotificationCenterContext context = new NotificationCenterContext(endpoint);
+        final NotificationCenterContext context = new NotificationCenterContext();
         this.fsm = NotificationCenterFsmBuilder.INSTANCE.build(context);
         final NotificationCenterImpl notificationCenter = new NotificationCenterImpl(this.fsm);
+
+        context.setEndpointId(endpointId.toString());
+
+        notificationCenter.observe(endpoint);
 
         // when - submit rqnt
         final FutureCallback<Void> callback1 = mock(FutureCallback.class);
@@ -530,9 +553,13 @@ public class NotificationCenterTest {
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/mock/1", "127.0.0.1:2427");
         when(endpoint.getEndpointId()).thenReturn(endpointId);
 
-        final NotificationCenterContext context = new NotificationCenterContext(endpoint);
+        final NotificationCenterContext context = new NotificationCenterContext();
         this.fsm = NotificationCenterFsmBuilder.INSTANCE.build(context);
         final NotificationCenterImpl notificationCenter = new NotificationCenterImpl(this.fsm);
+
+        context.setEndpointId(endpointId.toString());
+
+        notificationCenter.observe(endpoint);
 
         // when - submit rqnt, wait for callback and then shutdown
         final FutureCallback<Void> rqntCallback = mock(FutureCallback.class);
@@ -608,9 +635,13 @@ public class NotificationCenterTest {
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/mock/1", "127.0.0.1:2427");
         when(endpoint.getEndpointId()).thenReturn(endpointId);
 
-        final NotificationCenterContext context = new NotificationCenterContext(endpoint);
+        final NotificationCenterContext context = new NotificationCenterContext();
         this.fsm = NotificationCenterFsmBuilder.INSTANCE.build(context);
         final NotificationCenterImpl notificationCenter = new NotificationCenterImpl(this.fsm);
+
+        context.setEndpointId(endpointId.toString());
+
+        notificationCenter.observe(endpoint);
 
         // when - submit rqnt, wait for callback and then shutdown
         final FutureCallback<Void> rqntCallback = mock(FutureCallback.class);
@@ -680,9 +711,13 @@ public class NotificationCenterTest {
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/mock/1", "127.0.0.1:2427");
         when(endpoint.getEndpointId()).thenReturn(endpointId);
 
-        final NotificationCenterContext context = new NotificationCenterContext(endpoint);
+        final NotificationCenterContext context = new NotificationCenterContext();
         this.fsm = NotificationCenterFsmBuilder.INSTANCE.build(context);
         final NotificationCenterImpl notificationCenter = new NotificationCenterImpl(this.fsm);
+
+        context.setEndpointId(endpointId.toString());
+
+        notificationCenter.observe(endpoint);
 
         // when - submit rqnt with signals
         final FutureCallback<Void> rqntCallback = mock(FutureCallback.class);

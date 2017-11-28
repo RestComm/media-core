@@ -21,25 +21,18 @@
 
 package org.restcomm.media.control.mgcp.endpoint.mixer;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import org.junit.Test;
 import org.restcomm.media.component.audio.AudioComponent;
 import org.restcomm.media.component.audio.AudioMixer;
 import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.component.oob.OOBMixer;
-import org.restcomm.media.control.mgcp.endpoint.EndpointIdentifier;
-import org.restcomm.media.control.mgcp.endpoint.MediaGroupImpl;
-import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointEvent;
-import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointFsm;
-import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointState;
-import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointTransitionContext;
+import org.restcomm.media.control.mgcp.endpoint.*;
+import org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenter;
+
+import static org.mockito.Mockito.*;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
  */
 public class RegisterMediaGroupMixerActionTest {
 
@@ -50,7 +43,8 @@ public class RegisterMediaGroupMixerActionTest {
         final MediaGroupImpl mediaGroup = mock(MediaGroupImpl.class);
         final AudioMixer mixer = mock(AudioMixer.class);
         final OOBMixer oobMixer = mock(OOBMixer.class);
-        final MgcpMixerEndpointContext context = new MgcpMixerEndpointContext(endpointId, mediaGroup, mixer, oobMixer);
+        final NotificationCenter notificationCenter = mock(NotificationCenter.class);
+        final MgcpMixerEndpointContext context = new MgcpMixerEndpointContext(endpointId, mediaGroup, notificationCenter, mixer, oobMixer);
 
         final MgcpEndpointFsm fsm = mock(MgcpEndpointFsm.class);
         when(fsm.getContext()).thenReturn(context);

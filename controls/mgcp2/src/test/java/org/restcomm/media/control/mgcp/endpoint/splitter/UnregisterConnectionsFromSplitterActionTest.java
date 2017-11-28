@@ -21,28 +21,20 @@
 
 package org.restcomm.media.control.mgcp.endpoint.splitter;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import org.junit.Test;
 import org.restcomm.media.component.audio.AudioComponent;
 import org.restcomm.media.component.audio.AudioSplitter;
 import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.component.oob.OOBSplitter;
 import org.restcomm.media.control.mgcp.connection.MgcpConnection;
-import org.restcomm.media.control.mgcp.endpoint.EndpointIdentifier;
-import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointEvent;
-import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointFsm;
-import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointParameter;
-import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointState;
-import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointTransitionContext;
+import org.restcomm.media.control.mgcp.endpoint.*;
+import org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenter;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
  */
 public class UnregisterConnectionsFromSplitterActionTest {
 
@@ -52,7 +44,8 @@ public class UnregisterConnectionsFromSplitterActionTest {
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/mock", "127.0.0.1:2427");
         final AudioSplitter splitter = mock(AudioSplitter.class);
         final OOBSplitter oobSplitter = mock(OOBSplitter.class);
-        final MgcpSplitterEndpointContext context = new MgcpSplitterEndpointContext(endpointId, splitter, oobSplitter);
+        final NotificationCenter notificationCenter = mock(NotificationCenter.class);
+        final MgcpSplitterEndpointContext context = new MgcpSplitterEndpointContext(endpointId, notificationCenter, splitter, oobSplitter);
 
         final MgcpEndpointFsm fsm = mock(MgcpEndpointFsm.class);
         when(fsm.getContext()).thenReturn(context);
@@ -63,24 +56,24 @@ public class UnregisterConnectionsFromSplitterActionTest {
         when(connection1.getAudioComponent()).thenReturn(component1);
         when(connection1.getOutOfBandComponent()).thenReturn(oobComponent1);
         when(connection1.isLocal()).thenReturn(true);
-        
+
         final AudioComponent component2 = mock(AudioComponent.class);
         final OOBComponent oobComponent2 = mock(OOBComponent.class);
         final MgcpConnection connection2 = mock(MgcpConnection.class);
         when(connection2.getAudioComponent()).thenReturn(component2);
         when(connection2.getOutOfBandComponent()).thenReturn(oobComponent2);
         when(connection2.isLocal()).thenReturn(true);
-        
+
         final AudioComponent component3 = mock(AudioComponent.class);
         final OOBComponent oobComponent3 = mock(OOBComponent.class);
         final MgcpConnection connection3 = mock(MgcpConnection.class);
         when(connection3.getAudioComponent()).thenReturn(component3);
         when(connection3.getOutOfBandComponent()).thenReturn(oobComponent3);
         when(connection3.isLocal()).thenReturn(false);
-        
+
         // when
         final MgcpEndpointTransitionContext txContext = new MgcpEndpointTransitionContext();
-        final MgcpConnection[] unregistered = new MgcpConnection[] {connection1, connection2, connection3};
+        final MgcpConnection[] unregistered = new MgcpConnection[]{connection1, connection2, connection3};
         txContext.set(MgcpEndpointParameter.UNREGISTERED_CONNECTIONS, unregistered);
 
         final UnregisterConnectionsFromSplitterAction action = new UnregisterConnectionsFromSplitterAction();

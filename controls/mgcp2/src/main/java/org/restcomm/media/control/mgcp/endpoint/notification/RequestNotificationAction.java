@@ -100,7 +100,7 @@ class RequestNotificationAction extends NotificationCenterAction {
     private void logAction(NotificationCenterContext context) {
         if (log.isInfoEnabled()) {
             final StringBuilder builder = new StringBuilder();
-            final String endpointId = context.getEndpoint().getEndpointId().toString();
+            final String endpointId = context.getEndpointId();
             final String requestId = context.getRequestId();
 
             builder.append("Endpoint ").append(endpointId).append(" is executing RQNT ").append(requestId);

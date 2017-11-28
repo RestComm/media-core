@@ -21,14 +21,7 @@
 
 package org.restcomm.media.control.mgcp.endpoint.splitter;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
+import com.google.common.util.concurrent.FutureCallback;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.restcomm.media.component.audio.AudioComponent;
@@ -36,17 +29,15 @@ import org.restcomm.media.component.audio.AudioSplitter;
 import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.component.oob.OOBSplitter;
 import org.restcomm.media.control.mgcp.connection.MgcpConnection;
-import org.restcomm.media.control.mgcp.endpoint.EndpointIdentifier;
-import org.restcomm.media.control.mgcp.endpoint.MgcpEndpoint;
-import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointFsm;
-import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointObserver;
-import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointState;
+import org.restcomm.media.control.mgcp.endpoint.*;
+import org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenter;
 
-import com.google.common.util.concurrent.FutureCallback;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
  */
 public class MgcpSplitterEndpointTest {
 
@@ -59,7 +50,8 @@ public class MgcpSplitterEndpointTest {
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/mock", "127.0.0.1:2427");
         final AudioSplitter splitter = mock(AudioSplitter.class);
         final OOBSplitter oobSplitter = mock(OOBSplitter.class);
-        final MgcpSplitterEndpointContext context = new MgcpSplitterEndpointContext(endpointId, splitter, oobSplitter);
+        final NotificationCenter notificationCenter = mock(NotificationCenter.class);
+        final MgcpSplitterEndpointContext context = new MgcpSplitterEndpointContext(endpointId, notificationCenter, splitter, oobSplitter);
         final MgcpEndpointFsm fsm = this.fsmBuilder.build(context);
         final MgcpEndpointObserver observer = mock(MgcpEndpointObserver.class);
 
@@ -94,7 +86,7 @@ public class MgcpSplitterEndpointTest {
         verify(oobSplitter).start();
         verify(oobSplitter).addInsideComponent(localConnectionOobComponent);
         verify(observer).onEndpointStateChanged(endpoint, MgcpEndpointState.ACTIVE);
-        
+
         // when
         final int remoteConnectionId = 2;
         final AudioComponent remoteConnectionComponent = mock(AudioComponent.class);
@@ -108,7 +100,7 @@ public class MgcpSplitterEndpointTest {
         final FutureCallback<Void> registerCallback2 = mock(FutureCallback.class);
 
         endpoint.registerConnection(remoteConnection, registerCallback2);
-        
+
         // then
         verify(registerCallback2, timeout(100)).onSuccess(null);
         verify(splitter).start();

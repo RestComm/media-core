@@ -47,9 +47,11 @@ public class NotifyCallbackActionTest {
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/mock/1", "127.0.0.1:2427");
         when(endpoint.getEndpointId()).thenReturn(endpointId);
 
-        final NotificationCenterContext context = new NotificationCenterContext(endpoint);
+        final NotificationCenterContext context = new NotificationCenterContext();
         final NotificationCenterFsm stateMachine = mock(NotificationCenterFsm.class);
         when(stateMachine.getContext()).thenReturn(context);
+
+        context.setEndpointId(endpointId.toString());
 
         final FutureCallback<?> callback = mock(FutureCallback.class);
 
@@ -72,9 +74,11 @@ public class NotifyCallbackActionTest {
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/mock/1", "127.0.0.1:2427");
         when(endpoint.getEndpointId()).thenReturn(endpointId);
 
-        final NotificationCenterContext context = new NotificationCenterContext(endpoint);
+        final NotificationCenterContext context = new NotificationCenterContext();
         final NotificationCenterFsm stateMachine = mock(NotificationCenterFsm.class);
         when(stateMachine.getContext()).thenReturn(context);
+
+        context.setEndpointId(endpointId.toString());
 
         final FutureCallback<?> callback = mock(FutureCallback.class);
         final Exception exception = new Exception("test purposes");

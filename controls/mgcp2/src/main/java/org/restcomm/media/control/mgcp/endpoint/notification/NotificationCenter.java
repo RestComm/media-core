@@ -18,23 +18,27 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
+
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
-import org.restcomm.media.control.mgcp.command.rqnt.NotificationRequest;
-
 import com.google.common.util.concurrent.FutureCallback;
+import org.restcomm.media.control.mgcp.command.rqnt.NotificationRequest;
+import org.restcomm.media.control.mgcp.pkg.MgcpEvent;
+import org.restcomm.media.control.mgcp.pkg.MgcpEventSubject;
+
+import java.util.concurrent.Future;
 
 /**
  * Notification Center where MGCP Events and Signals can be submitted.
- * 
- * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
-public interface NotificationCenter {
-    
+public interface NotificationCenter extends MgcpEventSubject {
+
     void requestNotification(NotificationRequest request, FutureCallback<Void> callback);
-    
+
+    void endSignal(String requestId, String signal, FutureCallback<MgcpEvent> callback);
+
     void shutdown(FutureCallback<Void> callback);
-    
+
 }

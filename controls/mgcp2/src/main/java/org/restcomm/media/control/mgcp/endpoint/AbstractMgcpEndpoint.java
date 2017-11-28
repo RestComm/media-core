@@ -47,6 +47,10 @@ public class AbstractMgcpEndpoint implements MgcpEndpoint {
     public AbstractMgcpEndpoint(MgcpEndpointContext context, MgcpEndpointFsm fsm) {
         super();
         this.context = context;
+
+        this.context.getNotificationCenter().observe(this);
+        // TODO Unregister from notification center on deactivation
+
         this.fsm = fsm;
         this.fsm.addDeclarativeListener(new MgcpEndpointFsmListener(this, this.context));
         this.fsm.start();
@@ -112,7 +116,7 @@ public class AbstractMgcpEndpoint implements MgcpEndpoint {
 
     @Override
     public void onEvent(Object originator, MgcpEvent event) {
-        // TODO Auto-generated method stub
+        // TODO Raise NTFY
 
     }
 
@@ -210,14 +214,25 @@ public class AbstractMgcpEndpoint implements MgcpEndpoint {
 
     @Override
     public void requestNotification(NotificationRequest request, FutureCallback<Void> callback) {
-        // TODO Implement requestNotification
+        final MgcpEndpointTransitionContext txContext = new MgcpEndpointTransitionContext();
+        txContext.set(MgcpEndpointParameter.CALLBACK, callback);
+        txContext.set(MgcpEndpointParameter.REQUESTED_NOTIFICATION, request);
+
+        final MgcpEndpointEvent event = MgcpEndpointEvent.REQUEST_NOTIFICATION;
+        if (this.fsm.canAccept(event)) {
+            // Fire event to process operation
+            fsm.fire(event, txContext);
+        } else {
+            // FSM cannot process request. Alert callback of operation failure.
+            denyOperation(event, callback);
+        }
+
     }
 
     @Override
-    public void raiseQuarantinedEvent(String signal, FutureCallback<MgcpEvent> callback) {
-        // TODO Implement raiseQuarantinedEvent
+    public void endSignal(String requestId, String signal, FutureCallback<MgcpEvent> callback) {
+        this.context.getNotificationCenter().endSignal(requestId, signal, callback);
     }
-
 
     @Override
     public MediaGroup getMediaGroup() {

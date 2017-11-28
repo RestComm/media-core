@@ -23,6 +23,7 @@ package org.restcomm.media.control.mgcp.pkg.au.es;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
+import org.apache.log4j.Logger;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.restcomm.media.control.mgcp.pkg.MgcpEvent;
 import org.restcomm.media.control.mgcp.pkg.au.AudioPackage;
@@ -45,10 +46,12 @@ import java.util.Map;
  */
 public class EndSignal extends AbstractSignal<Void> implements BriefSignal {
 
+    private static final Logger log = Logger.getLogger(EndSignal.class);
+
     private final MgcpEndpoint endpoint;
 
     public EndSignal(MgcpEndpoint endpoint, String requestId, Map<String, String> parameters) {
-        super(AudioPackage.PACKAGE_NAME, "es", requestId, parameters);
+        super(requestId, AudioPackage.PACKAGE_NAME, "es", parameters);
         this.endpoint = endpoint;
     }
 
@@ -80,10 +83,14 @@ public class EndSignal extends AbstractSignal<Void> implements BriefSignal {
             callback.onFailure(t);
         } else {
             // Ask endpoint to retrieve status of quarantined signal
-            this.endpoint.raiseQuarantinedEvent(signal, new FutureCallback<MgcpEvent>() {
+            this.endpoint.endSignal(this.getRequestId(), signal, new FutureCallback<MgcpEvent>() {
 
                 @Override
                 public void onSuccess(MgcpEvent result) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Ended signal " + signal + "(X:" + getRequestId() + ") with result " + result.toString());
+                    }
+
                     // Signal was found and has a result.
                     // Raise event on endpoint
                     endpoint.onEvent(EndSignal.this, result);
@@ -94,6 +101,10 @@ public class EndSignal extends AbstractSignal<Void> implements BriefSignal {
 
                 @Override
                 public void onFailure(Throwable t) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Could not end signal " + signal + "(X:" + getRequestId() + ")");
+                    }
+
                     // Notify callback that operation failed
                     callback.onFailure(t);
                 }

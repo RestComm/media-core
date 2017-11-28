@@ -25,6 +25,10 @@ import org.restcomm.media.component.audio.AudioSplitter;
 import org.restcomm.media.component.oob.OOBSplitter;
 import org.restcomm.media.control.mgcp.endpoint.EndpointIdentifier;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointFsm;
+import org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenter;
+import org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterContext;
+import org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterFsmBuilder;
+import org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterImpl;
 import org.restcomm.media.control.mgcp.endpoint.splitter.MgcpSplitterEndpoint;
 import org.restcomm.media.control.mgcp.endpoint.splitter.MgcpSplitterEndpointContext;
 import org.restcomm.media.control.mgcp.endpoint.splitter.MgcpSplitterEndpointFsmBuilder;
@@ -50,7 +54,10 @@ public class MgcpSplitterEndpointProvider extends AbstractMgcpEndpointProvider<M
         final AudioSplitter audioSplitter = new AudioSplitter(this.mediaScheduler);
         final OOBSplitter oobSplitter = new OOBSplitter(this.mediaScheduler);
 
-        final MgcpSplitterEndpointContext context = new MgcpSplitterEndpointContext(endpointId, audioSplitter, oobSplitter);
+        final NotificationCenterContext notificationCenterContext = new NotificationCenterContext();
+        final NotificationCenter notificationCenter = new NotificationCenterImpl(NotificationCenterFsmBuilder.INSTANCE.build(notificationCenterContext));
+
+        final MgcpSplitterEndpointContext context = new MgcpSplitterEndpointContext(endpointId, notificationCenter, audioSplitter, oobSplitter);
         final MgcpEndpointFsm fsm = MgcpSplitterEndpointFsmBuilder.INSTANCE.build(context);
         return new MgcpSplitterEndpoint(context, fsm);
     }

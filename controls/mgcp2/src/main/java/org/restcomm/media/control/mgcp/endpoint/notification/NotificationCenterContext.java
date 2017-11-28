@@ -21,21 +21,14 @@
 
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
-import java.util.ArrayDeque;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Queue;
-import java.util.Set;
-
+import com.google.common.util.concurrent.FutureCallback;
 import org.restcomm.media.control.mgcp.command.param.NotifiedEntity;
-import org.restcomm.media.control.mgcp.endpoint.MgcpEndpoint;
+import org.restcomm.media.control.mgcp.pkg.MgcpEventObserver;
 import org.restcomm.media.control.mgcp.pkg.MgcpRequestedEvent;
 import org.restcomm.media.control.mgcp.signal.BriefSignal;
 import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
 
-import com.google.common.util.concurrent.FutureCallback;
+import java.util.*;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -44,9 +37,8 @@ public class NotificationCenterContext {
 
     private static final NotifiedEntity DEFAULT_NOTIFIED_ENTITY = new NotifiedEntity();
 
-    private final MgcpEndpoint endpoint;
-
     private String requestId;
+    private String endpointId;
     private NotifiedEntity notifiedEntity;
     private final Set<MgcpRequestedEvent> requestedEvents;
     private final Set<TimeoutSignal> timeoutSignals;
@@ -57,19 +49,18 @@ public class NotificationCenterContext {
 
     private FutureCallback<Void> deactivationCallback;
 
-    public NotificationCenterContext(MgcpEndpoint endpoint) {
-        this.endpoint = endpoint;
+    private final Set<MgcpEventObserver> eventObservers;
 
+    public NotificationCenterContext() {
         this.requestId = "";
+        this.endpointId = "";
         this.notifiedEntity = DEFAULT_NOTIFIED_ENTITY;
         this.requestedEvents = new HashSet<>(5);
         this.timeoutSignals = new HashSet<>(5);
         this.pendingBriefSignals = new ArrayDeque<>(5);
         this.activeBriefSignal = null;
-    }
 
-    public MgcpEndpoint getEndpoint() {
-        return endpoint;
+        this.eventObservers = new HashSet<>(5);
     }
 
     protected String getRequestId() {
@@ -78,6 +69,14 @@ public class NotificationCenterContext {
 
     protected void setRequestId(String requestId) {
         this.requestId = requestId;
+    }
+
+    public String getEndpointId() {
+        return endpointId;
+    }
+
+    public void setEndpointId(String endpointId) {
+        this.endpointId = endpointId;
     }
 
     protected NotifiedEntity getNotifiedEntity() {
@@ -146,6 +145,10 @@ public class NotificationCenterContext {
 
     public void setQuarantine(SignalQuarantine quarantine) {
         this.quarantine = quarantine;
+    }
+
+    public Set<MgcpEventObserver> getEventObservers() {
+        return eventObservers;
     }
 
     @Override

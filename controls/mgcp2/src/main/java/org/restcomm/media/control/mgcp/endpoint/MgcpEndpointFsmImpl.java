@@ -33,6 +33,10 @@ public class MgcpEndpointFsmImpl
 
     private final MgcpEndpointContext context;
 
+    // TODO Add listener for rollback in Exception
+
+    // TODO Add listener when transition is denied
+
     public MgcpEndpointFsmImpl(MgcpEndpointContext context) {
         super();
         this.context = context;

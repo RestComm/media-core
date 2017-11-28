@@ -21,13 +21,14 @@
         
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
+import org.restcomm.media.control.mgcp.pkg.MgcpEventSubject;
 import org.squirrelframework.foundation.fsm.StateMachine;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface NotificationCenterFsm extends StateMachine<NotificationCenterFsm, NotificationCenterState, NotificationCenterEvent, NotificationCenterTransitionContext> {
+public interface NotificationCenterFsm extends StateMachine<NotificationCenterFsm, NotificationCenterState, NotificationCenterEvent, NotificationCenterTransitionContext>, MgcpEventSubject {
 
     NotificationCenterContext getContext();
     

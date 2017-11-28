@@ -60,7 +60,7 @@ class RemoveTimeoutSignalAction extends NotificationCenterAction {
         final boolean hasActiveBriefSignal = (globalContext.getActiveBriefSignal() != null);
         if (removed && activeSignals.isEmpty() && !hasActiveBriefSignal) {
             if(log.isDebugEnabled()) {
-                final String endpointId = globalContext.getEndpoint().getEndpointId().toString();
+                final String endpointId = globalContext.getEndpointId();
                 log.debug("Endpoint " + endpointId + " has no more signals");
             }
             
