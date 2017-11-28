@@ -69,7 +69,7 @@ class ExecutePendingSignalsAction extends NotificationCenterAction {
             signal.execute(callback);
 
             if (log.isDebugEnabled()) {
-                log.debug("Endpoint " + globalContext.getEndpoint().getEndpointId() + " started executing signal " + signal.toString());
+                log.debug("Endpoint " + globalContext.getEndpointId() + " started executing signal " + signal.toString());
             }
         }
 
@@ -86,7 +86,7 @@ class ExecutePendingSignalsAction extends NotificationCenterAction {
                 signal.execute(callback);
 
                 if (log.isDebugEnabled()) {
-                    log.debug("Endpoint " + globalContext.getEndpoint().getEndpointId() + " started executing signal " + signal.toString());
+                    log.debug("Endpoint " + globalContext.getEndpointId() + " started executing signal " + signal.toString());
                 }
             }
         }

@@ -22,10 +22,7 @@
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
 import java.io.Closeable;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.CancellationException;
 
@@ -79,6 +76,21 @@ class SignalQuarantine implements Closeable {
             IllegalArgumentException t = new IllegalArgumentException("Signal " + signal + " was not requested in RQNT X:" + this.requestId);
             callback.onFailure(t);
         }
+    }
+
+    public void getSignalResult(String signal, FutureCallback<MgcpEvent> callback) {
+        final Set<TimeoutSignal> keys = this.quarantinedSignals.keySet();
+        for (TimeoutSignal key : keys) {
+            if (key.getSymbol().equals(signal)) {
+                getSignalResult(key, callback);
+                return;
+            }
+        }
+
+        // No matching signal
+        // Reply to callback with failure, since signal is unknown
+        IllegalArgumentException t = new IllegalArgumentException("Signal " + signal + " was not requested in RQNT X:" + this.requestId);
+        callback.onFailure(t);
     }
 
     void onSignalCompleted(TimeoutSignal signal, MgcpEvent event) {

@@ -1,7 +1,7 @@
 /*
  * TeleStax, Open Source Cloud Communications
  * Copyright 2011-2017, Telestax Inc and individual contributors
- * by the @authors tag. 
+ * by the @authors tag.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -18,15 +18,26 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
+
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
-/**
- * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
- */
-public enum NotificationCenterEvent {
-    
-    NOTIFICATION_REQUEST, SIGNAL_CANCELLED, SIGNAL_EXECUTED, SIGNAL_FAILED, ALL_SIGNALS_COMPLETED, FAILURE, STOP, STOPPED, QUERY_QUARANTINED;
+import org.apache.log4j.Logger;
 
+/**
+ * @author Henrique Rosa (henrique.rosa@telestax.com) on 28/11/2017
+ */
+class UnregisterEventObservers extends NotificationCenterAction {
+
+    private static final Logger log = Logger.getLogger(UnregisterEventObservers.class);
+
+    static final UnregisterEventObservers INSTANCE = new UnregisterEventObservers();
+
+    @Override
+    public void execute(NotificationCenterState from, NotificationCenterState to, NotificationCenterEvent event, NotificationCenterTransitionContext context, NotificationCenterFsm stateMachine) {
+        stateMachine.getContext().getEventObservers().clear();
+
+        if (log.isTraceEnabled()) {
+            log.trace("Endpoint " + stateMachine.getContext().getEndpointId() + " unregistered all event observers.");
+        }
+    }
 }

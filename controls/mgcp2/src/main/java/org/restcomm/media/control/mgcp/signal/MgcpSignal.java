@@ -43,6 +43,12 @@ import com.google.common.util.concurrent.FutureCallback;
  */
 public interface MgcpSignal<T> {
 
+    String getPackage();
+
+    String getSymbol();
+
+    String getQualifiedName();
+
     String getRequestId();
 
     boolean isParameterSupported(String name);

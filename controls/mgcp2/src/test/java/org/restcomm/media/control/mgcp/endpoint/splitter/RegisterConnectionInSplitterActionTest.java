@@ -38,6 +38,7 @@ import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointFsm;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointParameter;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointState;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointTransitionContext;
+import org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenter;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -51,7 +52,8 @@ public class RegisterConnectionInSplitterActionTest {
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/mock", "127.0.0.1:2427");
         final AudioSplitter splitter = mock(AudioSplitter.class);
         final OOBSplitter oobSplitter = mock(OOBSplitter.class);
-        final MgcpSplitterEndpointContext context = new MgcpSplitterEndpointContext(endpointId, splitter, oobSplitter);
+        final NotificationCenter notificationCenter = mock(NotificationCenter.class);
+        final MgcpSplitterEndpointContext context = new MgcpSplitterEndpointContext(endpointId, notificationCenter, splitter, oobSplitter);
 
         final MgcpEndpointFsm fsm = mock(MgcpEndpointFsm.class);
         when(fsm.getContext()).thenReturn(context);
@@ -83,7 +85,8 @@ public class RegisterConnectionInSplitterActionTest {
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/mock", "127.0.0.1:2427");
         final AudioSplitter splitter = mock(AudioSplitter.class);
         final OOBSplitter oobSplitter = mock(OOBSplitter.class);
-        final MgcpSplitterEndpointContext context = new MgcpSplitterEndpointContext(endpointId, splitter, oobSplitter);
+        final NotificationCenter notificationCenter = mock(NotificationCenter.class);
+        final MgcpSplitterEndpointContext context = new MgcpSplitterEndpointContext(endpointId, notificationCenter, splitter, oobSplitter);
         
         final MgcpEndpointFsm fsm = mock(MgcpEndpointFsm.class);
         when(fsm.getContext()).thenReturn(context);

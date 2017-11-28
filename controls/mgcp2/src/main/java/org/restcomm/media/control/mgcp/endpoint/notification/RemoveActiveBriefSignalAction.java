@@ -60,7 +60,7 @@ class RemoveActiveBriefSignalAction extends NotificationCenterAction {
             final Set<TimeoutSignal> timeoutSignals = globalContext.getTimeoutSignals();
             if (timeoutSignals.isEmpty()) {
                 if(log.isDebugEnabled()) {
-                    final String endpointId = globalContext.getEndpoint().getEndpointId().toString();
+                    final String endpointId = globalContext.getEndpointId();
                     log.debug("Endpoint " + endpointId + " has no more signals");
                 }
                 stateMachine.fire(NotificationCenterEvent.ALL_SIGNALS_COMPLETED, context);

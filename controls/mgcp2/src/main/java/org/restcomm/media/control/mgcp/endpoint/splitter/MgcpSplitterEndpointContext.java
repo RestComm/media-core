@@ -25,18 +25,18 @@ import org.restcomm.media.component.audio.AudioSplitter;
 import org.restcomm.media.component.oob.OOBSplitter;
 import org.restcomm.media.control.mgcp.endpoint.EndpointIdentifier;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointContext;
+import org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenter;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
  */
 public class MgcpSplitterEndpointContext extends MgcpEndpointContext {
 
     private final AudioSplitter splitter;
     private final OOBSplitter oobSplitter;
 
-    public MgcpSplitterEndpointContext(EndpointIdentifier endpointId, AudioSplitter splitter, OOBSplitter oobSplitter) {
-        super(endpointId, null);
+    public MgcpSplitterEndpointContext(EndpointIdentifier endpointId, NotificationCenter notificationCenter, AudioSplitter splitter, OOBSplitter oobSplitter) {
+        super(endpointId, null, notificationCenter);
         this.splitter = splitter;
         this.oobSplitter = oobSplitter;
     }

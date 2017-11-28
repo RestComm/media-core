@@ -42,12 +42,19 @@ public abstract class AbstractSignal<T> implements MgcpSignal<T> {
         this.parameters = parameters;
     }
 
+    @Override
     public String getPackage() {
         return pkg;
     }
 
+    @Override
     public String getSymbol() {
         return symbol;
+    }
+
+    @Override
+    public String getQualifiedName() {
+        return this.pkg + "/" + this.symbol;
     }
 
     public String getParameter(String name) {

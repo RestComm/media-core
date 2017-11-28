@@ -30,7 +30,6 @@ import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
  */
 class CancelAllSignalsAction extends NotificationCenterAction {
 
@@ -38,7 +37,7 @@ class CancelAllSignalsAction extends NotificationCenterAction {
 
     static final CancelAllSignalsAction INSTANCE = new CancelAllSignalsAction();
 
-    public CancelAllSignalsAction() {
+    CancelAllSignalsAction() {
         super();
     }
 
@@ -50,7 +49,7 @@ class CancelAllSignalsAction extends NotificationCenterAction {
         final Queue<BriefSignal> briefSignals = globalContext.getPendingBriefSignals();
 
         if (log.isDebugEnabled() && !briefSignals.isEmpty()) {
-            final String endpointId = globalContext.getEndpoint().getEndpointId().toString();
+            final String endpointId = globalContext.getEndpointId();
             log.debug("Endpoint " + endpointId + " canceled pending brief signals " + briefSignals.toString());
         }
 
@@ -58,12 +57,12 @@ class CancelAllSignalsAction extends NotificationCenterAction {
 
         // Cancel active timeout signals
         final Set<TimeoutSignal> timeoutSignals = globalContext.getTimeoutSignals();
-        
+
         if (log.isDebugEnabled() && !timeoutSignals.isEmpty()) {
-            final String endpointId = globalContext.getEndpoint().getEndpointId().toString();
+            final String endpointId = globalContext.getEndpointId();
             log.debug("Endpoint " + endpointId + " canceled active timeout signals " + timeoutSignals.toString());
         }
-        
+
         for (TimeoutSignal signal : timeoutSignals) {
             final TimeoutSignalCancellationCallback callback = new TimeoutSignalCancellationCallback(signal, stateMachine);
             signal.cancel(callback);

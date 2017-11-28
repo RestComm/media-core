@@ -51,9 +51,10 @@ public class ExecuteNextBriefSignalActionTest {
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/mock/1", "127.0.0.1:2427");
         when(endpoint.getEndpointId()).thenReturn(endpointId);
         
-        final NotificationCenterContext context = spy(new NotificationCenterContext(endpoint));
+        final NotificationCenterContext context = spy(new NotificationCenterContext());
         final NotificationCenterFsm stateMachine = mock(NotificationCenterFsm.class);
         when(stateMachine.getContext()).thenReturn(context);
+        context.setEndpointId(endpointId.toString());
         
         context.setActiveBriefSignal(activeBriefSignal);
         Collections.addAll(context.getPendingBriefSignals(), pendingBriefSignals);
@@ -85,9 +86,10 @@ public class ExecuteNextBriefSignalActionTest {
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/mock/1", "127.0.0.1:2427");
         when(endpoint.getEndpointId()).thenReturn(endpointId);
         
-        final NotificationCenterContext context = spy(new NotificationCenterContext(endpoint));
+        final NotificationCenterContext context = spy(new NotificationCenterContext());
         final NotificationCenterFsm stateMachine = mock(NotificationCenterFsm.class);
         when(stateMachine.getContext()).thenReturn(context);
+        context.setEndpointId(endpointId.toString());
         
         context.setActiveBriefSignal(activeBriefSignal);
         Collections.addAll(context.getPendingBriefSignals(), pendingBriefSignals);

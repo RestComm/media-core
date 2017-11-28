@@ -21,29 +21,20 @@
 
 package org.restcomm.media.control.mgcp.endpoint.mixer;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import org.junit.Test;
 import org.restcomm.media.component.audio.AudioComponent;
 import org.restcomm.media.component.audio.AudioMixer;
 import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.component.oob.OOBMixer;
 import org.restcomm.media.control.mgcp.connection.MgcpConnection;
-import org.restcomm.media.control.mgcp.endpoint.EndpointIdentifier;
-import org.restcomm.media.control.mgcp.endpoint.MediaGroupImpl;
-import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointEvent;
-import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointFsm;
-import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointParameter;
-import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointState;
-import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointTransitionContext;
+import org.restcomm.media.control.mgcp.endpoint.*;
+import org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenter;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
  */
 public class UnregisterConnectionsFromMixerActionTest {
 
@@ -54,7 +45,8 @@ public class UnregisterConnectionsFromMixerActionTest {
         final MediaGroupImpl mediaGroup = mock(MediaGroupImpl.class);
         final AudioMixer mixer = mock(AudioMixer.class);
         final OOBMixer oobMixer = mock(OOBMixer.class);
-        final MgcpMixerEndpointContext context = new MgcpMixerEndpointContext(endpointId, mediaGroup, mixer, oobMixer);
+        final NotificationCenter notificationCenter = mock(NotificationCenter.class);
+        final MgcpMixerEndpointContext context = new MgcpMixerEndpointContext(endpointId, mediaGroup, notificationCenter, mixer, oobMixer);
 
         final MgcpEndpointFsm fsm = mock(MgcpEndpointFsm.class);
         when(fsm.getContext()).thenReturn(context);
@@ -64,22 +56,22 @@ public class UnregisterConnectionsFromMixerActionTest {
         final MgcpConnection connection1 = mock(MgcpConnection.class);
         when(connection1.getAudioComponent()).thenReturn(component1);
         when(connection1.getOutOfBandComponent()).thenReturn(oobComponent1);
-        
+
         final AudioComponent component2 = mock(AudioComponent.class);
         final OOBComponent oobComponent2 = mock(OOBComponent.class);
         final MgcpConnection connection2 = mock(MgcpConnection.class);
         when(connection2.getAudioComponent()).thenReturn(component2);
         when(connection2.getOutOfBandComponent()).thenReturn(oobComponent2);
-        
+
         final AudioComponent component3 = mock(AudioComponent.class);
         final OOBComponent oobComponent3 = mock(OOBComponent.class);
         final MgcpConnection connection3 = mock(MgcpConnection.class);
         when(connection3.getAudioComponent()).thenReturn(component3);
         when(connection3.getOutOfBandComponent()).thenReturn(oobComponent3);
-        
+
         // when
         final MgcpEndpointTransitionContext txContext = new MgcpEndpointTransitionContext();
-        final MgcpConnection[] unregistered = new MgcpConnection[] {connection1, connection2, connection3};
+        final MgcpConnection[] unregistered = new MgcpConnection[]{connection1, connection2, connection3};
         txContext.set(MgcpEndpointParameter.UNREGISTERED_CONNECTIONS, unregistered);
 
         final UnregisterConnectionsFromMixerAction action = new UnregisterConnectionsFromMixerAction();

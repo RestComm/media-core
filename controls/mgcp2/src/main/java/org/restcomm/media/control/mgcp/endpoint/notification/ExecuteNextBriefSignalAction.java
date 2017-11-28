@@ -59,7 +59,7 @@ class ExecuteNextBriefSignalAction extends NotificationCenterAction {
         if(signal != null) {
             // Execute next pending BR signal
             if(log.isDebugEnabled()) {
-                final String endpointId = globalContext.getEndpoint().getEndpointId().toString();
+                final String endpointId = globalContext.getEndpointId();
                 log.debug("Endpoint " + endpointId + " started executing brief signal " + signal);
             }
             
@@ -68,7 +68,7 @@ class ExecuteNextBriefSignalAction extends NotificationCenterAction {
         } else if (timeoutSignals.isEmpty()){
             // There are no more signals (BR nor TO) to be executed. Move to IDLE state.
             if(log.isDebugEnabled()) {
-                final String endpointId = globalContext.getEndpoint().getEndpointId().toString();
+                final String endpointId = globalContext.getEndpointId();
                 log.debug("Endpoint " + endpointId + " has no more signals");
             }
             

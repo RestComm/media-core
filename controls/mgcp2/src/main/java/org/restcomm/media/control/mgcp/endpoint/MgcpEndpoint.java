@@ -116,13 +116,14 @@ public interface MgcpEndpoint extends MgcpEndpointSubject, MgcpMessageSubject, M
 
     /**
      * Raises an event triggered by a quarantined signal.
-     *
+     * <p>
      * <b>NOTE:</b> To be used in special situations only, such as EndSignal.
      *
-     * @param signal   The name of the signal.
-     * @param callback The callback that is notified about completion of the task.
+     * @param requestId The request identifier that belongs to the signal.
+     * @param signal    The name of the signal.
+     * @param callback  The callback that is notified about completion of the task.
      */
-    void raiseQuarantinedEvent(String signal, FutureCallback<MgcpEvent> callback);
+    void endSignal(String requestId, String signal, FutureCallback<MgcpEvent> callback);
 
     /**
      * Gets the media group that holds media components of the endpoint.

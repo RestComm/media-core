@@ -28,7 +28,7 @@ import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
 
 /**
  * Cancels all active signals that were not requested in a new RQNT.
- * 
+ * <p>
  * Input parameters:
  * <ul>
  * <li>UNREQUESTED_TIMEOUT_SIGNALS</li>
@@ -41,9 +41,8 @@ import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
  * <li>
  * </ul>
  * </p>
- * 
- * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 class CancelUnrequestedTimeoutSignalsAction extends NotificationCenterAction {
 
@@ -61,7 +60,7 @@ class CancelUnrequestedTimeoutSignalsAction extends NotificationCenterAction {
         final Set<TimeoutSignal> unrequestedSignals = context.get(NotificationCenterTransitionParameter.UNREQUESTED_TIMEOUT_SIGNALS, Set.class);
 
         if (log.isDebugEnabled() && !unrequestedSignals.isEmpty()) {
-            final String endpointId = stateMachine.getContext().getEndpoint().getEndpointId().toString();
+            final String endpointId = stateMachine.getContext().getEndpointId();
             log.debug("Endpoint " + endpointId + " canceled active timeout signals " + unrequestedSignals.toString());
         }
 

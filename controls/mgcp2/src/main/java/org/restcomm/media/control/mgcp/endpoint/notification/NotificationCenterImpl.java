@@ -21,13 +21,13 @@
 
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
-import org.restcomm.media.control.mgcp.command.rqnt.NotificationRequest;
-
 import com.google.common.util.concurrent.FutureCallback;
+import org.restcomm.media.control.mgcp.command.rqnt.NotificationRequest;
+import org.restcomm.media.control.mgcp.pkg.MgcpEvent;
+import org.restcomm.media.control.mgcp.pkg.MgcpEventObserver;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
  */
 public class NotificationCenterImpl implements NotificationCenter {
 
@@ -52,11 +52,36 @@ public class NotificationCenterImpl implements NotificationCenter {
     }
 
     @Override
+    public void endSignal(String requestId, String signal, FutureCallback<MgcpEvent> callback) {
+        final NotificationCenterTransitionContext txContext = new NotificationCenterTransitionContext();
+        txContext.set(NotificationCenterTransitionParameter.REQUEST_IDENTIFIER, requestId);
+        txContext.set(NotificationCenterTransitionParameter.SIGNAL, signal);
+        txContext.set(NotificationCenterTransitionParameter.CALLBACK, callback);
+
+        this.fsm.fire(NotificationCenterEvent.QUERY_QUARANTINED, txContext);
+    }
+
+    @Override
     public void shutdown(FutureCallback<Void> callback) {
         final NotificationCenterTransitionContext txContext = new NotificationCenterTransitionContext();
         txContext.set(NotificationCenterTransitionParameter.CALLBACK, callback);
 
         this.fsm.fire(NotificationCenterEvent.STOP, txContext);
+    }
+
+    @Override
+    public void observe(MgcpEventObserver observer) {
+        this.fsm.observe(observer);
+    }
+
+    @Override
+    public void forget(MgcpEventObserver observer) {
+        this.fsm.forget(observer);
+    }
+
+    @Override
+    public void notify(Object originator, MgcpEvent event) {
+        this.fsm.notify(originator, event);
     }
 
 }

@@ -21,30 +21,22 @@
 
 package org.restcomm.media.control.mgcp.endpoint;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.Map;
-
+import com.google.common.util.concurrent.FutureCallback;
 import org.junit.Test;
 import org.restcomm.media.control.mgcp.connection.MgcpConnection;
+import org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenter;
 import org.restcomm.media.control.mgcp.exception.MgcpCallNotFoundException;
 import org.restcomm.media.control.mgcp.exception.MgcpConnectionNotFoundException;
 import org.restcomm.media.control.mgcp.pkg.MgcpEventObserver;
 
-import com.google.common.util.concurrent.FutureCallback;
+import java.util.Map;
+
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
  */
 public class UnregisterConnectionActionTest {
 
@@ -54,7 +46,8 @@ public class UnregisterConnectionActionTest {
         // given
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/bridge/1", "127.0.0.1:2427");
         final MediaGroup mediaGroup = mock(MediaGroup.class);
-        final MgcpEndpointContext context = new MgcpEndpointContext(endpointId, mediaGroup);
+        final NotificationCenter notificationCenter = mock(NotificationCenter.class);
+        final MgcpEndpointContext context = new MgcpEndpointContext(endpointId, mediaGroup, notificationCenter);
         final Map<Integer, MgcpConnection> connections = context.getConnections();
 
         final MgcpEndpointFsm fsm = mock(MgcpEndpointFsm.class);
@@ -102,7 +95,8 @@ public class UnregisterConnectionActionTest {
         // given
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/bridge/1", "127.0.0.1:2427");
         final MediaGroup mediaGroup = mock(MediaGroup.class);
-        final MgcpEndpointContext context = new MgcpEndpointContext(endpointId, mediaGroup);
+        final NotificationCenter notificationCenter = mock(NotificationCenter.class);
+        final MgcpEndpointContext context = new MgcpEndpointContext(endpointId, mediaGroup, notificationCenter);
 
         final MgcpEndpointFsm fsm = mock(MgcpEndpointFsm.class);
         when(fsm.getContext()).thenReturn(context);
@@ -138,7 +132,8 @@ public class UnregisterConnectionActionTest {
         // given
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/bridge/1", "127.0.0.1:2427");
         final MediaGroup mediaGroup = mock(MediaGroup.class);
-        final MgcpEndpointContext context = new MgcpEndpointContext(endpointId, mediaGroup);
+        final NotificationCenter notificationCenter = mock(NotificationCenter.class);
+        final MgcpEndpointContext context = new MgcpEndpointContext(endpointId, mediaGroup, notificationCenter);
         Map<Integer, MgcpConnection> connections = context.getConnections();
 
         final MgcpEndpointFsm fsm = mock(MgcpEndpointFsm.class);

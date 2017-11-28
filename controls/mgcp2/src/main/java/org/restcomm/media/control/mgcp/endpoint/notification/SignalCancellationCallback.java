@@ -52,7 +52,7 @@ class SignalCancellationCallback<T> implements FutureCallback<T> {
 
         if (log.isDebugEnabled()) {
             final NotificationCenterContext context = this.fsm.getContext();
-            final String endpointId = context.getEndpoint().getEndpointId().toString();
+            final String endpointId = context.getEndpointId();
             log.debug("Signal " + this.signal + " was canceled on endpoint " + endpointId);
         }
     }
@@ -67,7 +67,7 @@ class SignalCancellationCallback<T> implements FutureCallback<T> {
 
         if (log.isDebugEnabled()) {
             final NotificationCenterContext context = this.fsm.getContext();
-            final String endpointId = context.getEndpoint().getEndpointId().toString();
+            final String endpointId = context.getEndpointId();
             log.debug("Signal " + this.signal + " was canceled (with error) on endpoint " + endpointId, t);
         }
     }

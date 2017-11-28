@@ -38,6 +38,7 @@ import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointFsm;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointParameter;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointState;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointTransitionContext;
+import org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenter;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -52,7 +53,8 @@ public class RegisterConnectionInMixerActionTest {
         final MediaGroupImpl mediaGroup = mock(MediaGroupImpl.class);
         final AudioMixer mixer = mock(AudioMixer.class);
         final OOBMixer oobMixer = mock(OOBMixer.class);
-        final MgcpMixerEndpointContext context = new MgcpMixerEndpointContext(endpointId, mediaGroup, mixer, oobMixer);
+        final NotificationCenter notificationCenter = mock(NotificationCenter.class);
+        final MgcpMixerEndpointContext context = new MgcpMixerEndpointContext(endpointId, mediaGroup, notificationCenter, mixer, oobMixer);
 
         final MgcpEndpointFsm fsm = mock(MgcpEndpointFsm.class);
         when(fsm.getContext()).thenReturn(context);

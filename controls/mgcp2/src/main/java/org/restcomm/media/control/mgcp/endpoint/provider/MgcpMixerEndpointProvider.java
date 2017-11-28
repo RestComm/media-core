@@ -29,6 +29,10 @@ import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointFsm;
 import org.restcomm.media.control.mgcp.endpoint.mixer.MgcpMixerEndpoint;
 import org.restcomm.media.control.mgcp.endpoint.mixer.MgcpMixerEndpointContext;
 import org.restcomm.media.control.mgcp.endpoint.mixer.MgcpMixerEndpointFsmBuilder;
+import org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenter;
+import org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterContext;
+import org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterFsmBuilder;
+import org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterImpl;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 
 /**
@@ -54,7 +58,10 @@ public class MgcpMixerEndpointProvider extends AbstractMgcpEndpointProvider<Mgcp
         final OOBMixer oobMixer = new OOBMixer(this.mediaScheduler);
         final MediaGroup mediaGroup = this.mediaGroupProvider.provide();
 
-        final MgcpMixerEndpointContext context = new MgcpMixerEndpointContext(endpointId, mediaGroup, audioMixer, oobMixer);
+        final NotificationCenterContext notificationCenterContext = new NotificationCenterContext();
+        final NotificationCenter notificationCenter = new NotificationCenterImpl(NotificationCenterFsmBuilder.INSTANCE.build(notificationCenterContext));
+
+        final MgcpMixerEndpointContext context = new MgcpMixerEndpointContext(endpointId, mediaGroup, notificationCenter, audioMixer, oobMixer);
         final MgcpEndpointFsm fsm = MgcpMixerEndpointFsmBuilder.INSTANCE.build(context);
 
         return new MgcpMixerEndpoint(context, fsm);

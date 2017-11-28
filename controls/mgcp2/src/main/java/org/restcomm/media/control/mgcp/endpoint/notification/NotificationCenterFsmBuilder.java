@@ -44,9 +44,10 @@ public class NotificationCenterFsmBuilder {
 
         final List<NotificationCenterAction> rqntActionsIdle = Arrays.asList(FilterRequestedSignalsAction.INSTANCE, RequestNotificationAction.INSTANCE, ExecutePendingSignalsAction.INSTANCE, NotifyCallbackAction.INSTANCE);
         final List<NotificationCenterAction> rqntActionsActive = Arrays.asList(FilterRequestedSignalsAction.INSTANCE, QuarantineSignalsAction.INSTANCE, UnregisterSignalsAction.INSTANCE, CancelUnrequestedTimeoutSignalsAction.INSTANCE, RequestNotificationAction.INSTANCE, ExecutePendingSignalsAction.INSTANCE, NotifyCallbackAction.INSTANCE);
-        final List<NotificationCenterAction> deactivationActions = Arrays.asList(PersistDeactivationCallbackAction.INSTANCE, CancelAllSignalsAction.INSTANCE);
+        final List<NotificationCenterAction> deactivationActions = Arrays.asList(PersistDeactivationCallbackAction.INSTANCE, CancelAllSignalsAction.INSTANCE, UnregisterEventObservers.INSTANCE);
 
         this.builder.onEntry(IDLE);
+        this.builder.internalTransition().within(IDLE).on(QUERY_QUARANTINED).perform(RaiseQuarantinedEventAction.INSTANCE);
         this.builder.internalTransition().within(IDLE).on(NOTIFICATION_REQUEST).when(NoRequestedSignalsCondition.INSTANCE).perform(rqntActionsIdle);
         this.builder.transition().from(IDLE).to(ACTIVE).on(NOTIFICATION_REQUEST).when(HasRequestedSignalsCondition.INSTANCE).perform(rqntActionsIdle);
         this.builder.internalTransition().within(IDLE).on(SIGNAL_EXECUTED).when(IsQuarantinedTimeoutSignalCondition.INSTANCE).perform(NotifyQuarantinedSignalCompletionAction.INSTANCE);
@@ -54,6 +55,7 @@ public class NotificationCenterFsmBuilder {
         this.builder.transition().from(IDLE).toFinal(DEACTIVATED).on(STOP);
 
         this.builder.onEntry(ACTIVE);
+        this.builder.internalTransition().within(ACTIVE).on(QUERY_QUARANTINED).perform(RaiseQuarantinedEventAction.INSTANCE);
         this.builder.transition().from(ACTIVE).to(IDLE).on(NOTIFICATION_REQUEST).when(NoRequestedSignalsCondition.INSTANCE).perform(rqntActionsActive);
         this.builder.transition().from(ACTIVE).to(IDLE).on(ALL_SIGNALS_COMPLETED);
         this.builder.internalTransition().within(ACTIVE).on(NOTIFICATION_REQUEST).when(HasRequestedSignalsCondition.INSTANCE).perform(rqntActionsActive);

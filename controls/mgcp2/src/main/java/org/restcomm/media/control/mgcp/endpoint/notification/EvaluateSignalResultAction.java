@@ -21,17 +21,16 @@
 
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
-import java.util.Iterator;
-import java.util.Queue;
-import java.util.Set;
-
+import com.google.common.util.concurrent.FutureCallback;
 import org.apache.log4j.Logger;
 import org.restcomm.media.control.mgcp.pkg.MgcpEvent;
 import org.restcomm.media.control.mgcp.signal.BriefSignal;
 import org.restcomm.media.control.mgcp.signal.MgcpSignal;
 import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
 
-import com.google.common.util.concurrent.FutureCallback;
+import java.util.Iterator;
+import java.util.Queue;
+import java.util.Set;
 
 /**
  * Input parameters:
@@ -45,12 +44,11 @@ import com.google.common.util.concurrent.FutureCallback;
  * <li>n/a</li>
  * </ul>
  * </p>
- * 
- * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 class EvaluateSignalResultAction extends NotificationCenterAction {
-    
+
     private static final Logger log = Logger.getLogger(EvaluateSignalResultAction.class);
 
     static final EvaluateSignalResultAction INSTANCE = new EvaluateSignalResultAction();
@@ -74,21 +72,21 @@ class EvaluateSignalResultAction extends NotificationCenterAction {
             // Verify if endpoint is listening for such event
             final String mgcpEventName = mgcpEvent.getPackage() + "/" + mgcpEvent.getSymbol();
             final boolean eventRequested = globalContext.isEventRequested(mgcpEventName);
-            
-            if(log.isDebugEnabled()) {
-                final String endpointId = globalContext.getEndpoint().getEndpointId().toString();
+
+            if (log.isDebugEnabled()) {
+                final String endpointId = globalContext.getEndpointId();
                 final String requested = eventRequested ? "requested" : "unrequested";
-                log.debug("Endpoint " + endpointId + " detected "+ requested + " event " + mgcpEventName + " raised by " + signal);
+                log.debug("Endpoint " + endpointId + " detected " + requested + " event " + mgcpEventName + " raised by " + signal);
             }
 
             if (eventRequested) {
                 // Requested event was raised.
                 // Cancel remaining Timeout signals
-                if(log.isDebugEnabled()) {
-                    final String endpointId = globalContext.getEndpoint().getEndpointId().toString();
+                if (log.isDebugEnabled()) {
+                    final String endpointId = globalContext.getEndpointId();
                     log.debug("Endpoint " + endpointId + " canceled active timeout signals " + timeoutSignals);
                 }
-                
+
                 final Iterator<TimeoutSignal> signalsIterator = timeoutSignals.iterator();
                 while (signalsIterator.hasNext()) {
                     TimeoutSignal timeoutSignal = signalsIterator.next();
@@ -100,29 +98,28 @@ class EvaluateSignalResultAction extends NotificationCenterAction {
                     final FutureCallback<MgcpEvent> callback = new TimeoutSignalCancellationCallback(timeoutSignal, stateMachine);
                     timeoutSignal.cancel(callback);
                 }
-                
+
                 // Cancel pending Brief signals
-                if(log.isDebugEnabled()) {
-                    final String endpointId = globalContext.getEndpoint().getEndpointId().toString();
+                if (log.isDebugEnabled()) {
+                    final String endpointId = globalContext.getEndpointId();
                     log.debug("Endpoint " + endpointId + " canceled pending brief signals " + briefSignals);
                 }
-                
+
                 briefSignals.clear();
 
                 // Raise event on Endpoint to send NTFY to Notified Entity
-                globalContext.getEndpoint().onEvent(this, mgcpEvent);
-                
+                stateMachine.notify(this, mgcpEvent);
             } else {
                 // If no requested event is raised, then allow remaining signals to continue execution.
             }
 
             // Move to IDLE state IF there are no active signals
             final BriefSignal activeBriefSignal = globalContext.getActiveBriefSignal();
-            if(activeBriefSignal == null && timeoutSignals.isEmpty()) {
+            if (activeBriefSignal == null && timeoutSignals.isEmpty()) {
                 stateMachine.fire(NotificationCenterEvent.ALL_SIGNALS_COMPLETED, context);
-                
-                if(log.isDebugEnabled()) {
-                    final String endpointId = globalContext.getEndpoint().getEndpointId().toString();
+
+                if (log.isDebugEnabled()) {
+                    final String endpointId = globalContext.getEndpointId();
                     log.debug("Endpoint " + endpointId + " has no more signals.");
                 }
             }

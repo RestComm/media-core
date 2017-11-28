@@ -56,9 +56,11 @@ public class CancelUnrequestedTimeoutSignalsActionTest {
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/mock/1", "127.0.0.1:2427");
         when(endpoint.getEndpointId()).thenReturn(endpointId);
 
-        final NotificationCenterContext context = spy(new NotificationCenterContext(endpoint));
+        final NotificationCenterContext context = spy(new NotificationCenterContext());
         final NotificationCenterFsm stateMachine = mock(NotificationCenterFsm.class);
         when(stateMachine.getContext()).thenReturn(context);
+
+        context.setEndpointId(endpointId.toString());
 
         // when
         final NotificationCenterTransitionContext txContext = new NotificationCenterTransitionContext();

@@ -59,7 +59,7 @@ public class EndSignalTest {
 
         // then
         final ArgumentCaptor<FutureCallback> callbackCaptor = ArgumentCaptor.forClass(FutureCallback.class);
-        verify(endpoint).raiseQuarantinedEvent(eq(targetSignal), callbackCaptor.capture());
+        verify(endpoint).endSignal(eq(requestId), eq(targetSignal), callbackCaptor.capture());
 
         // when - endpoint replies with success
         final MgcpEvent event = mock(MgcpEvent.class);
@@ -88,7 +88,7 @@ public class EndSignalTest {
 
         // then
         final ArgumentCaptor<FutureCallback> callbackCaptor = ArgumentCaptor.forClass(FutureCallback.class);
-        verify(endpoint).raiseQuarantinedEvent(eq(targetSignal), callbackCaptor.capture());
+        verify(endpoint).endSignal(eq(requestId), eq(targetSignal), callbackCaptor.capture());
 
         // when - endpoint replies with failure
         Throwable t = new Exception("test purposes");
@@ -114,7 +114,7 @@ public class EndSignalTest {
         signal.execute(callback);
 
         // then
-        verify(endpoint, never()).raiseQuarantinedEvent(any(String.class), any(FutureCallback.class));
+        verify(endpoint, never()).endSignal(eq(requestId), any(String.class), any(FutureCallback.class));
         verify(callback).onFailure(any(IllegalArgumentException.class));
     }
 

@@ -35,6 +35,7 @@ import java.util.Map;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.restcomm.media.control.mgcp.connection.MgcpConnection;
+import org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenter;
 import org.restcomm.media.control.mgcp.exception.MgcpCallNotFoundException;
 import org.restcomm.media.control.mgcp.pkg.MgcpEventObserver;
 
@@ -52,7 +53,8 @@ public class UnregisterConnectionsByCallActionTest {
         // given
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/bridge/1", "127.0.0.1:2427");
         final MediaGroup mediaGroup = mock(MediaGroup.class);
-        final MgcpEndpointContext context = new MgcpEndpointContext(endpointId, mediaGroup);
+        final NotificationCenter notificationCenter = mock(NotificationCenter.class);
+        final MgcpEndpointContext context = new MgcpEndpointContext(endpointId, mediaGroup, notificationCenter);
         final Map<Integer, MgcpConnection> connections = context.getConnections();
 
         final MgcpEndpointFsm fsm = mock(MgcpEndpointFsm.class);
@@ -117,7 +119,8 @@ public class UnregisterConnectionsByCallActionTest {
         // given
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/bridge/1", "127.0.0.1:2427");
         final MediaGroup mediaGroup = mock(MediaGroup.class);
-        final MgcpEndpointContext context = new MgcpEndpointContext(endpointId, mediaGroup);
+        final NotificationCenter notificationCenter = mock(NotificationCenter.class);
+        final MgcpEndpointContext context = new MgcpEndpointContext(endpointId, mediaGroup, notificationCenter);
         final Map<Integer, MgcpConnection> connections = context.getConnections();
         
         final MgcpEndpointFsm fsm = mock(MgcpEndpointFsm.class);

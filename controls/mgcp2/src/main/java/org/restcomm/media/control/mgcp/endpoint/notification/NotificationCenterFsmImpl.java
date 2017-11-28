@@ -21,20 +21,19 @@
 
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
+import com.google.common.util.concurrent.FutureCallback;
 import org.apache.log4j.Logger;
-import org.restcomm.media.control.mgcp.endpoint.EndpointIdentifier;
+import org.restcomm.media.control.mgcp.pkg.MgcpEvent;
+import org.restcomm.media.control.mgcp.pkg.MgcpEventObserver;
 import org.squirrelframework.foundation.fsm.StateMachineStatus;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
 
-import com.google.common.util.concurrent.FutureCallback;
+import java.util.Set;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
  */
-public class NotificationCenterFsmImpl extends
-        AbstractStateMachine<NotificationCenterFsm, NotificationCenterState, NotificationCenterEvent, NotificationCenterTransitionContext>
-        implements NotificationCenterFsm {
+public class NotificationCenterFsmImpl extends AbstractStateMachine<NotificationCenterFsm, NotificationCenterState, NotificationCenterEvent, NotificationCenterTransitionContext> implements NotificationCenterFsm {
 
     private static final Logger log = Logger.getLogger(NotificationCenterFsmImpl.class);
 
@@ -54,9 +53,8 @@ public class NotificationCenterFsmImpl extends
     protected void afterTransitionCausedException(NotificationCenterState fromState, NotificationCenterState toState, NotificationCenterEvent event, NotificationCenterTransitionContext context) {
         final Throwable t = this.getLastException().getTargetException();
         final String requestId = this.context.getRequestId();
-        final EndpointIdentifier endpointId = this.context.getEndpoint().getEndpointId();
 
-        log.error("Endpoint " + endpointId + " caught unexpected error in MGCP RQNT " + requestId + ". Cancelling request.", t);
+        log.error("Endpoint " + this.context.getEndpointId() + " caught unexpected error in MGCP RQNT " + requestId + ". Cancelling request.", t);
 
         this.setStatus(StateMachineStatus.IDLE);
         this.fire(NotificationCenterEvent.FAILURE, context);
@@ -71,6 +69,30 @@ public class NotificationCenterFsmImpl extends
             // Warn callback that requested operation failed
             final IllegalStateException error = new IllegalStateException("Operation " + event.name() + " not allowed on state " + fromState);
             callback.onFailure(error);
+        }
+    }
+
+    @Override
+    public void observe(MgcpEventObserver observer) {
+        final boolean added = this.context.getEventObservers().add(observer);
+        if (added && log.isTraceEnabled()) {
+            log.trace("Registered MgcpEventObserver@" + observer.hashCode() + ". Count: " + this.context.getEventObservers().size());
+        }
+    }
+
+    @Override
+    public void forget(MgcpEventObserver observer) {
+        final boolean removed = this.context.getEventObservers().remove(observer);
+        if (removed && log.isTraceEnabled()) {
+            log.trace("Unregistered MgcpEventObserver@" + observer.hashCode() + ". Count: " + this.context.getEventObservers().size());
+        }
+    }
+
+    @Override
+    public void notify(Object originator, MgcpEvent event) {
+        final Set<MgcpEventObserver> observers = this.context.getEventObservers();
+        for (MgcpEventObserver observer : observers) {
+            observer.onEvent(originator, event);
         }
     }
 
