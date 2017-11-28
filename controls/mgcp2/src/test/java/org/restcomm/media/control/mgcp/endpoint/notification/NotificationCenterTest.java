@@ -21,15 +21,12 @@
 
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
-import static org.mockito.Mockito.*;
-
-import static org.junit.Assert.*;
-
+import com.google.common.util.concurrent.FutureCallback;
 import org.junit.After;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.restcomm.media.control.mgcp.command.rqnt.NotificationRequest;
 import org.restcomm.media.control.mgcp.command.param.NotifiedEntity;
+import org.restcomm.media.control.mgcp.command.rqnt.NotificationRequest;
 import org.restcomm.media.control.mgcp.endpoint.EndpointIdentifier;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.restcomm.media.control.mgcp.pkg.MgcpActionType;
@@ -39,7 +36,8 @@ import org.restcomm.media.control.mgcp.signal.BriefSignal;
 import org.restcomm.media.control.mgcp.signal.MgcpSignal;
 import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
 
-import com.google.common.util.concurrent.FutureCallback;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -369,6 +367,7 @@ public class NotificationCenterTest {
         verify(quarantineResultCallback2).onSuccess(event2);
         verify(quarantineResultCallback3).onSuccess(event3);
     }
+
     @Test
     @SuppressWarnings("unchecked")
     public void testQuarantinedEventsWhileIdle() throws InterruptedException {
@@ -737,6 +736,70 @@ public class NotificationCenterTest {
 
         // then - second RQNT is denied
         verify(rqntCallback2, timeout(50)).onFailure(any(IllegalStateException.class));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testRaiseQuarantinedEvent() {
+        // given
+        final int transactionId = 12345;
+        final String requestId = "555";
+        final NotifiedEntity notifiedEntity = new NotifiedEntity();
+
+        final MgcpRequestedEvent requestedEvent1 = new MgcpRequestedEvent(requestId, "AU", "oc", MgcpActionType.NOTIFY);
+        final MgcpRequestedEvent requestedEvent2 = new MgcpRequestedEvent(requestId, "AU", "of", MgcpActionType.NOTIFY);
+        final MgcpRequestedEvent[] requestedEvents = new MgcpRequestedEvent[]{requestedEvent1, requestedEvent2};
+
+        final TimeoutSignal timeoutSignal1 = mock(TimeoutSignal.class);
+        when(timeoutSignal1.getRequestId()).thenReturn(requestId);
+        when(timeoutSignal1.getName()).thenReturn("pa");
+
+        final MgcpEvent mgcpEvent = mock(MgcpEvent.class);
+
+        final MgcpSignal<?>[] requestedSignals = new MgcpSignal[]{timeoutSignal1};
+
+        final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
+        final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/mock/1", "127.0.0.1:2427");
+        when(endpoint.getEndpointId()).thenReturn(endpointId);
+
+        final NotificationCenterContext context = new NotificationCenterContext();
+        this.fsm = NotificationCenterFsmBuilder.INSTANCE.build(context);
+        final NotificationCenterImpl notificationCenter = new NotificationCenterImpl(this.fsm);
+
+        context.setEndpointId(endpointId.toString());
+
+        notificationCenter.observe(endpoint);
+
+        // when - submit rqnt
+        final FutureCallback<Void> callback1 = mock(FutureCallback.class);
+        final NotificationRequest rqnt1 = new NotificationRequest(transactionId, requestId, notifiedEntity, requestedEvents, requestedSignals);
+
+        notificationCenter.requestNotification(rqnt1, callback1);
+
+        // then
+        verify(callback1, timeout(50)).onSuccess(null);
+
+        // when - override signals
+        final FutureCallback<Void> callback2 = mock(FutureCallback.class);
+        final NotificationRequest rqnt2 = new NotificationRequest(transactionId, requestId, notifiedEntity, requestedEvents, new MgcpSignal<?>[0]);
+
+        notificationCenter.requestNotification(rqnt2, callback2);
+
+        // then
+        verify(callback2, timeout(50)).onSuccess(null);
+        verify(timeoutSignal1).cancel(any(TimeoutSignalCancellationCallback.class));
+
+        assertTrue(context.getPendingBriefSignals().isEmpty());
+        assertTrue(context.getTimeoutSignals().isEmpty());
+        assertNull(context.getActiveBriefSignal());
+
+        // when - Raise quarantined event
+        final FutureCallback<MgcpEvent> callback3 = mock(FutureCallback.class);
+        notificationCenter.endSignal(requestId, timeoutSignal1.getName(), callback3);
+        context.getQuarantine().onSignalCompleted(timeoutSignal1, mgcpEvent);
+
+        // then
+        verify(callback3).onSuccess(any(MgcpEvent.class));
     }
 
 }

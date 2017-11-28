@@ -76,7 +76,6 @@ public class PlayRecord extends AbstractSignal<MgcpEvent> implements TimeoutSign
         this.fsm = PlayRecordFsmBuilder.INSTANCE.build(this, recorder, recorderListener, detector, detectorListener, player, playerListener, context);
     }
 
-
     @Override
     public boolean isParameterSupported(String name) {
         // Check if parameter is valid
