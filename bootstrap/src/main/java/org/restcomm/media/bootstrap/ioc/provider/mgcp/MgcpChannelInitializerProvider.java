@@ -49,6 +49,15 @@ public class MgcpChannelInitializerProvider implements Provider<MgcpChannelIniti
     private final int mgcpBufferSize;
 
     @Inject
+    public MgcpChannelInitializerProvider(@Named("mgcpNetworkGuard") NetworkGuard networkGuard, MgcpMessageParser parser, MgcpChannelInboundHandler inboundHandler) {
+        this.filter = new NetworkFilter(networkGuard);
+        this.decoder = new MgcpMessageDecoder(parser);
+        this.encoder = new MgcpMessageEncoder();
+        this.inboundHandler = inboundHandler;
+        this.controller = null;
+        this.mgcpBufferSize = 5000;
+    }
+
     public MgcpChannelInitializerProvider(MediaServerConfiguration config, @Named("mgcpNetworkGuard") NetworkGuard networkGuard, MgcpMessageParser parser, MgcpChannelInboundHandler inboundHandler) {
         this.filter = new NetworkFilter(networkGuard);
         this.decoder = new MgcpMessageDecoder(parser);

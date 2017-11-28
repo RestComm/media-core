@@ -41,6 +41,11 @@ public class MgcpChannelInitializer extends ChannelInitializer<Channel> {
 
     private final ChannelHandler[] handlers;
 
+    public MgcpChannelInitializer(ChannelHandler... handlers) {
+		this.mgcpBufferSize = 5000;
+		this.handlers = (handlers == null || handlers.length == 0) ? NO_HANDLERS : handlers;
+    }
+
     public MgcpChannelInitializer(int mgcpBufferSize, ChannelHandler... handlers) {
 		/* mgcpBufferSize configuration from MGCP section of mediaserver.xml */
 		this.mgcpBufferSize = mgcpBufferSize;

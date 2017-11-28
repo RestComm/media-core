@@ -77,7 +77,7 @@ public class MgcpControllerConfiguration {
 
     public void setMgcpBufferSize(int mgcpBufferSize) {
         if (mgcpBufferSize < 2000 || mgcpBufferSize > 10000) {
-            throw new IllegalArgumentException("Illegal MGCP buffer size value: 2000 < " + port + " < 10000");
+            throw new IllegalArgumentException("Illegal MGCP buffer size value: 2000 < " + mgcpBufferSize + " < 10000");
         }
         this.mgcpBufferSize = mgcpBufferSize;
     }
