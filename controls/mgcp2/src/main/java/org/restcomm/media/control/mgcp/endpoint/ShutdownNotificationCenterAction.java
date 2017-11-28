@@ -22,25 +22,36 @@
 package org.restcomm.media.control.mgcp.endpoint;
 
 import com.google.common.util.concurrent.FutureCallback;
-import org.restcomm.media.control.mgcp.command.rqnt.NotificationRequest;
+import org.apache.log4j.Logger;
 import org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenter;
 import org.squirrelframework.foundation.fsm.AnonymousAction;
 
 /**
- * @author Henrique Rosa (henrique.rosa@telestax.com) on 27/11/2017
+ * @author Henrique Rosa (henrique.rosa@telestax.com) on 28/11/2017
  */
-class RequestNotificationAction extends AnonymousAction<MgcpEndpointFsm, MgcpEndpointState, MgcpEndpointEvent, MgcpEndpointTransitionContext> implements MgcpEndpointAction {
+class ShutdownNotificationCenterAction extends AnonymousAction<MgcpEndpointFsm, MgcpEndpointState, MgcpEndpointEvent, MgcpEndpointTransitionContext> implements MgcpEndpointAction {
 
-    static final RequestNotificationAction INSTANCE = new RequestNotificationAction();
+    static final ShutdownNotificationCenterAction INSTANCE = new ShutdownNotificationCenterAction();
+
+    private static final Logger log = Logger.getLogger(ShutdownNotificationCenterAction.class);
 
     @Override
-    @SuppressWarnings("unchecked")
-    public void execute(MgcpEndpointState from, MgcpEndpointState to, MgcpEndpointEvent event, MgcpEndpointTransitionContext context, MgcpEndpointFsm stateMachine) {
+    public void execute(MgcpEndpointState from, MgcpEndpointState to, MgcpEndpointEvent event, final MgcpEndpointTransitionContext context, final MgcpEndpointFsm stateMachine) {
         final NotificationCenter notificationCenter = stateMachine.getContext().getNotificationCenter();
-        final FutureCallback<Void> callback = context.get(MgcpEndpointParameter.CALL_ID, FutureCallback.class);
-        final NotificationRequest notificationRequest = context.get(MgcpEndpointParameter.REQUESTED_NOTIFICATION, NotificationRequest.class);
 
-        notificationCenter.requestNotification(notificationRequest, callback);
+        notificationCenter.shutdown(new FutureCallback<Void>() {
+
+            @Override
+            public void onSuccess(Void result) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Shutdown Notification Center for endpoint " + stateMachine.getContext().getEndpointId());
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                log.error("Failed to shutdown Notification Center for endpoint " + stateMachine.getContext().getEndpointId(), t);
+            }
+        });
     }
-
 }

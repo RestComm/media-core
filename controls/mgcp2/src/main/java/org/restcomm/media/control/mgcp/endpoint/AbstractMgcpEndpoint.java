@@ -226,7 +226,6 @@ public class AbstractMgcpEndpoint implements MgcpEndpoint {
             // FSM cannot process request. Alert callback of operation failure.
             denyOperation(event, callback);
         }
-
     }
 
     @Override

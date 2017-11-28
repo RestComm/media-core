@@ -52,7 +52,7 @@ public abstract class AbstractMgcpEndpointFsmBuilder {
         this.builder.internalTransition().within(MgcpEndpointState.ACTIVE).on(MgcpEndpointEvent.UNREGISTERED_CONNECTION).when(HasConnectionsCondition.INSTANCE).perform(getUnregisteredConnectionActions());
         this.builder.externalTransition().from(MgcpEndpointState.ACTIVE).to(MgcpEndpointState.IDLE).on(MgcpEndpointEvent.UNREGISTERED_CONNECTION).when(NoConnectionsCondition.INSTANCE).perform(getUnregisteredConnectionActions());
 
-        this.builder.onEntry(MgcpEndpointState.TERMINATED);
+        this.builder.onEntry(MgcpEndpointState.TERMINATED).perform(ShutdownNotificationCenterAction.INSTANCE);
     }
 
     public MgcpEndpointFsm build(MgcpEndpointContext context) {
