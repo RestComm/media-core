@@ -44,7 +44,7 @@ public class NotificationCenterFsmBuilder {
 
         final List<NotificationCenterAction> rqntActionsIdle = Arrays.asList(FilterRequestedSignalsAction.INSTANCE, RequestNotificationAction.INSTANCE, ExecutePendingSignalsAction.INSTANCE, NotifyCallbackAction.INSTANCE);
         final List<NotificationCenterAction> rqntActionsActive = Arrays.asList(FilterRequestedSignalsAction.INSTANCE, QuarantineSignalsAction.INSTANCE, UnregisterSignalsAction.INSTANCE, CancelUnrequestedTimeoutSignalsAction.INSTANCE, RequestNotificationAction.INSTANCE, ExecutePendingSignalsAction.INSTANCE, NotifyCallbackAction.INSTANCE);
-        final List<NotificationCenterAction> deactivationActions = Arrays.asList(PersistDeactivationCallbackAction.INSTANCE, CancelAllSignalsAction.INSTANCE);
+        final List<NotificationCenterAction> deactivationActions = Arrays.asList(PersistDeactivationCallbackAction.INSTANCE, CancelAllSignalsAction.INSTANCE, UnregisterEventObservers.INSTANCE);
 
         this.builder.onEntry(IDLE);
         this.builder.internalTransition().within(IDLE).on(QUERY_QUARANTINED).perform(RaiseQuarantinedEventAction.INSTANCE);

@@ -602,6 +602,7 @@ public class NotificationCenterTest {
         // then
         assertNull(context.getActiveBriefSignal());
         verify(shutdownCallback).onSuccess(null);
+        assertTrue(context.getEventObservers().isEmpty());
         assertEquals(NotificationCenterState.DEACTIVATED, fsm.getCurrentState());
     }
 
