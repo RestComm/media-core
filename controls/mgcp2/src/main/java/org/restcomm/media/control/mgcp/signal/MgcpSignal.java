@@ -45,7 +45,9 @@ public interface MgcpSignal<T> {
 
     String getPackage();
 
-    String getName();
+    String getSymbol();
+
+    String getQualifiedName();
 
     String getRequestId();
 

@@ -81,7 +81,7 @@ class SignalQuarantine implements Closeable {
     public void getSignalResult(String signal, FutureCallback<MgcpEvent> callback) {
         final Set<TimeoutSignal> keys = this.quarantinedSignals.keySet();
         for (TimeoutSignal key : keys) {
-            if (key.getName().equals(signal)) {
+            if (key.getSymbol().equals(signal)) {
                 getSignalResult(key, callback);
                 return;
             }

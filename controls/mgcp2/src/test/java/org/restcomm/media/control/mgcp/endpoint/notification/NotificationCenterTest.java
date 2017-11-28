@@ -411,8 +411,6 @@ public class NotificationCenterTest {
 
         // when - override signals
         final String requestId2 = "666";
-        final BriefSignal briefSignal1 = mock(BriefSignal.class);
-        final BriefSignal briefSignal2 = mock(BriefSignal.class);
         final NotificationRequest rqnt2 = new NotificationRequest(transactionId, requestId2, notifiedEntity, requestedEvents, new MgcpSignal<?>[0]);
         final FutureCallback<Void> callback2 = mock(FutureCallback.class);
 
@@ -752,7 +750,7 @@ public class NotificationCenterTest {
 
         final TimeoutSignal timeoutSignal1 = mock(TimeoutSignal.class);
         when(timeoutSignal1.getRequestId()).thenReturn(requestId);
-        when(timeoutSignal1.getName()).thenReturn("pa");
+        when(timeoutSignal1.getSymbol()).thenReturn("pa");
 
         final MgcpEvent mgcpEvent = mock(MgcpEvent.class);
 
@@ -795,7 +793,7 @@ public class NotificationCenterTest {
 
         // when - Raise quarantined event
         final FutureCallback<MgcpEvent> callback3 = mock(FutureCallback.class);
-        notificationCenter.endSignal(requestId, timeoutSignal1.getName(), callback3);
+        notificationCenter.endSignal(requestId, timeoutSignal1.getSymbol(), callback3);
         context.getQuarantine().onSignalCompleted(timeoutSignal1, mgcpEvent);
 
         // then
