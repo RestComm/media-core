@@ -45,6 +45,7 @@ public class CA implements JainMgcpExtendedListener {
 	private JainMgcpStackProviderImpl caProvider;
 	private int mgStack = 0;
 	private boolean responseReceived = false;
+	private boolean responseCorrect = true;
 
 	public CA(JainMgcpStackProviderImpl caProvider, JainMgcpStackProviderImpl mgwProvider) {
 		this.caProvider = caProvider;
@@ -82,8 +83,33 @@ public class CA implements JainMgcpExtendedListener {
 		}
 	}
 
+	public void sendCreateConnectionTwoEndpoints() {
+
+		try {
+			caProvider.addJainMgcpListener(this);
+
+			CallIdentifier callID = caProvider.getUniqueCallIdentifier();
+
+			EndpointIdentifier endpointID = new EndpointIdentifier("media/trunk/Announcement/$", "127.0.0.1:" + mgStack);
+			EndpointIdentifier endpointID2 = new EndpointIdentifier("mobicents/ivr/$", "127.0.0.1:" + mgStack);
+
+			CreateConnection createConnection = new CreateConnection(this, callID, endpointID, ConnectionMode.SendRecv);
+			createConnection.setSecondEndpointIdentifier(endpointID2);
+			createConnection.setTransactionHandle(caProvider.getUniqueTransactionHandler());
+
+			caProvider.sendMgcpEvents(new JainMgcpEvent[] { createConnection });
+
+			logger.debug(" CreateConnection command sent for TxId " + createConnection.getTransactionHandle() + " and CallId " + callID);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			CreateConnectionTest.fail("Unexpected Exception");
+		}
+	}
+
 	public void checkState() {
 		CreateConnectionTest.assertTrue("Expect to receive CRCX Response", responseReceived);
+		CreateConnectionTest.assertTrue("Expect to receive correct CRCX Response", responseCorrect);
 
 	}
 
@@ -114,6 +140,11 @@ public class CA implements JainMgcpExtendedListener {
 			if (response.getReturnCode().getValue() == ReturnCode.ENDPOINT_UNKNOWN
 					|| response.getReturnCode().getValue() == ReturnCode.TRANSACTION_EXECUTED_NORMALLY) {
 				responseReceived = true;
+				if(response.getSecondEndpointIdentifier()!=null)
+				{
+					if(response.getSecondConnectionIdentifier()==null)
+						responseCorrect = false;
+				}
 			}
 			break;
 		default:
