@@ -55,7 +55,7 @@ public class MgcpSplitterEndpointProvider extends AbstractMgcpEndpointProvider<M
         final OOBSplitter oobSplitter = new OOBSplitter(this.mediaScheduler);
 
         final NotificationCenterContext notificationCenterContext = new NotificationCenterContext();
-        final NotificationCenter notificationCenter = new NotificationCenterImpl(NotificationCenterFsmBuilder.INSTANCE.build(notificationCenterContext));
+        final NotificationCenter notificationCenter = new NotificationCenterImpl(NotificationCenterFsmBuilder.INSTANCE.build(notificationCenterContext), notificationCenterContext);
 
         final MgcpSplitterEndpointContext context = new MgcpSplitterEndpointContext(endpointId, notificationCenter, audioSplitter, oobSplitter);
         final MgcpEndpointFsm fsm = MgcpSplitterEndpointFsmBuilder.INSTANCE.build(context);

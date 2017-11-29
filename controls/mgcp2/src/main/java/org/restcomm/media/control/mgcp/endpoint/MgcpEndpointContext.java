@@ -47,7 +47,6 @@ public class MgcpEndpointContext {
     private final ConcurrentHashMap<Integer, MgcpConnection> connections;
 
     // Events and Signals
-    private NotifiedEntity notifiedEntity;
     private final NotificationCenter notificationCenter;
     // TODO add support for MGCP Connection Events
     private final Multimap<Integer, MgcpRequestedEvent> requestedConnectionEvents;
@@ -65,21 +64,12 @@ public class MgcpEndpointContext {
         this.mediaGroup = mediaGroup;
 
         // Events and Signals
-        this.notifiedEntity = new NotifiedEntity();
         this.notificationCenter = notificationCenter;
         this.requestedConnectionEvents = Multimaps.synchronizedSetMultimap(HashMultimap.<Integer, MgcpRequestedEvent>create());
 
         // Observers
         this.endpointObservers = Sets.newConcurrentHashSet();
         this.messageObservers = Sets.newConcurrentHashSet();
-    }
-
-    public NotifiedEntity getNotifiedEntity() {
-        return notifiedEntity;
-    }
-
-    public void setNotifiedEntity(NotifiedEntity notifiedEntity) {
-        this.notifiedEntity = notifiedEntity;
     }
 
     public NotificationCenter getNotificationCenter() {
