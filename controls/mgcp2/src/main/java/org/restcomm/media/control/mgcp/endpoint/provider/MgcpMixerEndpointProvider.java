@@ -59,7 +59,7 @@ public class MgcpMixerEndpointProvider extends AbstractMgcpEndpointProvider<Mgcp
         final MediaGroup mediaGroup = this.mediaGroupProvider.provide();
 
         final NotificationCenterContext notificationCenterContext = new NotificationCenterContext();
-        final NotificationCenter notificationCenter = new NotificationCenterImpl(NotificationCenterFsmBuilder.INSTANCE.build(notificationCenterContext));
+        final NotificationCenter notificationCenter = new NotificationCenterImpl(NotificationCenterFsmBuilder.INSTANCE.build(notificationCenterContext), notificationCenterContext);
 
         final MgcpMixerEndpointContext context = new MgcpMixerEndpointContext(endpointId, mediaGroup, notificationCenter, audioMixer, oobMixer);
         final MgcpEndpointFsm fsm = MgcpMixerEndpointFsmBuilder.INSTANCE.build(context);

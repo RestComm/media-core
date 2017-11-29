@@ -22,6 +22,7 @@
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
 import com.google.common.util.concurrent.FutureCallback;
+import org.restcomm.media.control.mgcp.command.param.NotifiedEntity;
 import org.restcomm.media.control.mgcp.command.rqnt.NotificationRequest;
 import org.restcomm.media.control.mgcp.pkg.MgcpEvent;
 import org.restcomm.media.control.mgcp.pkg.MgcpEventSubject;
@@ -34,6 +35,10 @@ import java.util.concurrent.Future;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public interface NotificationCenter extends MgcpEventSubject {
+
+    String getRequestId();
+
+    NotifiedEntity getNotifiedEntity();
 
     void requestNotification(NotificationRequest request, FutureCallback<Void> callback);
 

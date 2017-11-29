@@ -92,7 +92,7 @@ public class NotificationCenterTest {
 
         final NotificationCenterContext context = new NotificationCenterContext();
         this.fsm = NotificationCenterFsmBuilder.INSTANCE.build(context);
-        final NotificationCenterImpl notificationCenter = new NotificationCenterImpl(this.fsm);
+        final NotificationCenterImpl notificationCenter = new NotificationCenterImpl(this.fsm, context);
 
         context.setEndpointId(endpointId.toString());
 
@@ -178,7 +178,7 @@ public class NotificationCenterTest {
 
         final NotificationCenterContext context = new NotificationCenterContext();
         this.fsm = NotificationCenterFsmBuilder.INSTANCE.build(context);
-        final NotificationCenterImpl notificationCenter = new NotificationCenterImpl(this.fsm);
+        final NotificationCenterImpl notificationCenter = new NotificationCenterImpl(this.fsm, context);
 
         context.setEndpointId(endpointId.toString());
 
@@ -239,7 +239,7 @@ public class NotificationCenterTest {
 
         final NotificationCenterContext context = new NotificationCenterContext();
         this.fsm = NotificationCenterFsmBuilder.INSTANCE.build(context);
-        final NotificationCenterImpl notificationCenter = new NotificationCenterImpl(this.fsm);
+        final NotificationCenterImpl notificationCenter = new NotificationCenterImpl(this.fsm, context);
 
         context.setEndpointId(endpointId.toString());
 
@@ -309,7 +309,7 @@ public class NotificationCenterTest {
 
         final NotificationCenterContext context = new NotificationCenterContext();
         this.fsm = NotificationCenterFsmBuilder.INSTANCE.build(context);
-        final NotificationCenterImpl notificationCenter = new NotificationCenterImpl(this.fsm);
+        final NotificationCenterImpl notificationCenter = new NotificationCenterImpl(this.fsm, context);
 
         context.setEndpointId(endpointId.toString());
 
@@ -397,7 +397,7 @@ public class NotificationCenterTest {
 
         final NotificationCenterContext context = new NotificationCenterContext();
         this.fsm = NotificationCenterFsmBuilder.INSTANCE.build(context);
-        final NotificationCenterImpl notificationCenter = new NotificationCenterImpl(this.fsm);
+        final NotificationCenterImpl notificationCenter = new NotificationCenterImpl(this.fsm, context);
 
         context.setEndpointId(endpointId.toString());
 
@@ -483,7 +483,7 @@ public class NotificationCenterTest {
 
         final NotificationCenterContext context = new NotificationCenterContext();
         this.fsm = NotificationCenterFsmBuilder.INSTANCE.build(context);
-        final NotificationCenterImpl notificationCenter = new NotificationCenterImpl(this.fsm);
+        final NotificationCenterImpl notificationCenter = new NotificationCenterImpl(this.fsm, context);
 
         context.setEndpointId(endpointId.toString());
 
@@ -552,7 +552,7 @@ public class NotificationCenterTest {
 
         final NotificationCenterContext context = new NotificationCenterContext();
         this.fsm = NotificationCenterFsmBuilder.INSTANCE.build(context);
-        final NotificationCenterImpl notificationCenter = new NotificationCenterImpl(this.fsm);
+        final NotificationCenterImpl notificationCenter = new NotificationCenterImpl(this.fsm, context);
 
         context.setEndpointId(endpointId.toString());
 
@@ -635,7 +635,7 @@ public class NotificationCenterTest {
 
         final NotificationCenterContext context = new NotificationCenterContext();
         this.fsm = NotificationCenterFsmBuilder.INSTANCE.build(context);
-        final NotificationCenterImpl notificationCenter = new NotificationCenterImpl(this.fsm);
+        final NotificationCenterImpl notificationCenter = new NotificationCenterImpl(this.fsm, context);
 
         context.setEndpointId(endpointId.toString());
 
@@ -711,7 +711,7 @@ public class NotificationCenterTest {
 
         final NotificationCenterContext context = new NotificationCenterContext();
         this.fsm = NotificationCenterFsmBuilder.INSTANCE.build(context);
-        final NotificationCenterImpl notificationCenter = new NotificationCenterImpl(this.fsm);
+        final NotificationCenterImpl notificationCenter = new NotificationCenterImpl(this.fsm, context);
 
         context.setEndpointId(endpointId.toString());
 
@@ -763,7 +763,7 @@ public class NotificationCenterTest {
 
         final NotificationCenterContext context = new NotificationCenterContext();
         this.fsm = NotificationCenterFsmBuilder.INSTANCE.build(context);
-        final NotificationCenterImpl notificationCenter = new NotificationCenterImpl(this.fsm);
+        final NotificationCenterImpl notificationCenter = new NotificationCenterImpl(this.fsm, context);
 
         context.setEndpointId(endpointId.toString());
 

@@ -23,12 +23,12 @@ package org.restcomm.media.control.mgcp.endpoint;
 
 import com.google.common.util.concurrent.FutureCallback;
 import org.apache.log4j.Logger;
+import org.restcomm.media.control.mgcp.command.param.NotifiedEntity;
 import org.restcomm.media.control.mgcp.command.rqnt.NotificationRequest;
 import org.restcomm.media.control.mgcp.connection.MgcpConnection;
-import org.restcomm.media.control.mgcp.message.MessageDirection;
-import org.restcomm.media.control.mgcp.message.MgcpMessage;
-import org.restcomm.media.control.mgcp.message.MgcpMessageObserver;
+import org.restcomm.media.control.mgcp.message.*;
 import org.restcomm.media.control.mgcp.pkg.MgcpEvent;
+import org.restcomm.media.control.mgcp.util.collections.Parameters;
 
 import java.net.InetSocketAddress;
 import java.util.Set;
@@ -116,8 +116,19 @@ public class AbstractMgcpEndpoint implements MgcpEndpoint {
 
     @Override
     public void onEvent(Object originator, MgcpEvent event) {
-        // TODO Raise NTFY
+        final MgcpRequest ntfy = new MgcpRequest();
+        ntfy.setTransactionId(0);
+        ntfy.setRequestType(MgcpRequestType.NTFY);
+        ntfy.setEndpointId(getEndpointId().toString());
+        final Parameters<MgcpParameterType> params = ntfy.getParameters();
+        params.put(MgcpParameterType.REQUEST_ID, this.context.getNotificationCenter().getRequestId());
+        params.put(MgcpParameterType.OBSERVED_EVENT, event.toString());
 
+        // FIXME hard-coded MGCP port
+        final NotifiedEntity notifiedEntity = this.context.getNotificationCenter().getNotifiedEntity();
+        final InetSocketAddress from = new InetSocketAddress(getEndpointId().getDomainName(), 2427);
+        final InetSocketAddress to = new InetSocketAddress(notifiedEntity.getDomain(), notifiedEntity.getPort());
+        notify(this, from, to, ntfy, MessageDirection.OUTGOING);
     }
 
     @Override

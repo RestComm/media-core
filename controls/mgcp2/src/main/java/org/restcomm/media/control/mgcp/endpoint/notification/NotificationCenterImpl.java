@@ -22,6 +22,7 @@
 package org.restcomm.media.control.mgcp.endpoint.notification;
 
 import com.google.common.util.concurrent.FutureCallback;
+import org.restcomm.media.control.mgcp.command.param.NotifiedEntity;
 import org.restcomm.media.control.mgcp.command.rqnt.NotificationRequest;
 import org.restcomm.media.control.mgcp.pkg.MgcpEvent;
 import org.restcomm.media.control.mgcp.pkg.MgcpEventObserver;
@@ -32,10 +33,22 @@ import org.restcomm.media.control.mgcp.pkg.MgcpEventObserver;
 public class NotificationCenterImpl implements NotificationCenter {
 
     private final NotificationCenterFsm fsm;
+    private final NotificationCenterContext context;
 
-    public NotificationCenterImpl(NotificationCenterFsm fsm) {
+    public NotificationCenterImpl(NotificationCenterFsm fsm, NotificationCenterContext context) {
+        this.context = context;
         this.fsm = fsm;
         this.fsm.start();
+    }
+
+    @Override
+    public String getRequestId() {
+        return this.context.getRequestId();
+    }
+
+    @Override
+    public NotifiedEntity getNotifiedEntity() {
+        return this.context.getNotifiedEntity();
     }
 
     @Override
