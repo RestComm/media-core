@@ -21,6 +21,8 @@
 
 package org.restcomm.media.control.mgcp.command.crcx;
 
+import com.google.common.util.concurrent.FutureCallback;
+import org.restcomm.media.control.mgcp.command.MgcpCommandResult;
 import org.restcomm.media.control.mgcp.connection.MgcpConnection;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.squirrelframework.foundation.fsm.AnonymousAction;
@@ -53,6 +55,7 @@ abstract class UnregisterConnectionAction
             endpoint.unregisterConnection(callId, connectionId, callback);
             // Callback will handle logic from here
         } else {
+            // FIXME shouldnt we fail?
             stateMachine.fire(CreateConnectionEvent.CONNECTION_UNREGISTERED, context);
         }
     }

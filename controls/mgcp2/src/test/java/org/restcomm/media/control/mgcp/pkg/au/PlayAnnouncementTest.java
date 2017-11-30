@@ -25,18 +25,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.common.util.concurrent.FutureCallback;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.restcomm.media.control.mgcp.pkg.MgcpEvent;
@@ -52,7 +49,6 @@ import org.restcomm.media.spi.player.PlayerEvent;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
  */
 public class PlayAnnouncementTest {
 
@@ -62,33 +58,24 @@ public class PlayAnnouncementTest {
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put(SignalParameters.ANNOUNCEMENT.symbol(), "track1.wav");
         final Player player = mock(Player.class);
-        final PlayAnnouncement signal = new PlayAnnouncement(player, 1, parameters);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
+        final PlayAnnouncement signal = new PlayAnnouncement(player, "1", parameters);
         final PlayerEvent playerEvent = mock(PlayerEvent.class);
+        when(playerEvent.getID()).thenReturn(PlayerEvent.STOP);
 
         // when
-        when(playerEvent.getID()).thenReturn(PlayerEvent.STOP);
-        doAnswer(new Answer<Object>() {
-
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                MgcpEvent event = invocation.getArgumentAt(1, MgcpEvent.class);
-                assertNotNull(event);
-                assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), event.getParameter("rc"));
-                return null;
-            }
-
-        }).when(observer).onEvent(eq(signal), any(OperationComplete.class));
-
-        signal.observe(observer);
-        signal.execute();
+        final FutureCallback<MgcpEvent> callback = mock(FutureCallback.class);
+        signal.execute(callback);
         signal.process(playerEvent);
 
         // then
         verify(player).setInitialDelay(0);
         verify(player).setURL(parameters.get(SignalParameters.ANNOUNCEMENT.symbol()));
         verify(player).activate();
-        verify(observer).onEvent(eq(signal), any(OperationComplete.class));
+
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, timeout(10)).onSuccess(eventCaptor.capture());
+        assertNotNull(eventCaptor.getValue());
+        assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
     }
 
     @Test
@@ -101,33 +88,22 @@ public class PlayAnnouncementTest {
         parameters.put(SignalParameters.ANNOUNCEMENT.symbol(), announcements);
         parameters.put(SignalParameters.ITERATIONS.symbol(), String.valueOf(iterations));
         final Player player = mock(Player.class);
-        final PlayAnnouncement signal = new PlayAnnouncement(player, 1, parameters);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
+        final PlayAnnouncement signal = new PlayAnnouncement(player, "1", parameters);
         final PlayerEvent playerEvent = mock(PlayerEvent.class);
+        when(playerEvent.getID()).thenReturn(PlayerEvent.STOP);
 
         // when
-        when(playerEvent.getID()).thenReturn(PlayerEvent.STOP);
-        doAnswer(new Answer<Object>() {
-
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                MgcpEvent event = invocation.getArgumentAt(1, MgcpEvent.class);
-                assertNotNull(event);
-                assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), event.getParameter("rc"));
-                return null;
-            }
-
-        }).when(observer).onEvent(eq(signal), any(OperationComplete.class));
-
-        signal.observe(observer);
-        signal.execute();
+        final FutureCallback<MgcpEvent> callback = mock(FutureCallback.class);
+        signal.execute(callback);
         for (int i = 0; i < iterations; i++) {
             signal.process(playerEvent);
         }
 
         // then
-        verify(player, times(iterations)).activate();
-        verify(observer).onEvent(eq(signal), any(OperationComplete.class));
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, timeout(10)).onSuccess(eventCaptor.capture());
+        assertNotNull(eventCaptor.getValue());
+        assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
     }
 
     @Test
@@ -135,29 +111,20 @@ public class PlayAnnouncementTest {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put(SignalParameters.ANNOUNCEMENT.symbol(), "");
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Player player = mock(Player.class);
-        final PlayAnnouncement signal = new PlayAnnouncement(player, 1, parameters);
+        final PlayAnnouncement signal = new PlayAnnouncement(player, "1", parameters);
 
         // when
-        doAnswer(new Answer<Object>() {
-
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                MgcpEvent event = invocation.getArgumentAt(1, MgcpEvent.class);
-                assertNotNull(event);
-                assertEquals(String.valueOf(ReturnCode.BAD_AUDIO_ID.code()), event.getParameter("rc"));
-                return null;
-            }
-
-        }).when(observer).onEvent(eq(signal), any(OperationFailed.class));
-
-        signal.observe(observer);
-        signal.execute();
+        final FutureCallback<MgcpEvent> callback = mock(FutureCallback.class);
+        signal.execute(callback);
 
         // then
         verify(player, never()).activate();
-        verify(observer).onEvent(eq(signal), any(OperationFailed.class));
+
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, timeout(10)).onSuccess(eventCaptor.capture());
+        assertNotNull(eventCaptor.getValue());
+        assertEquals(String.valueOf(ReturnCode.BAD_AUDIO_ID.code()), eventCaptor.getValue().getParameter("rc"));
     }
 
     @Test
@@ -167,26 +134,13 @@ public class PlayAnnouncementTest {
         parameters.put(SignalParameters.ANNOUNCEMENT.symbol(), "track1.wav,track2.wav");
         parameters.put(SignalParameters.INTERVAL.symbol(), "50");
         final Player player = mock(Player.class);
-        final PlayAnnouncement signal = new PlayAnnouncement(player, 1, parameters);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
+        final PlayAnnouncement signal = new PlayAnnouncement(player, "1", parameters);
         final PlayerEvent playerEvent = mock(PlayerEvent.class);
+        when(playerEvent.getID()).thenReturn(PlayerEvent.STOP);
 
         // when
-        when(playerEvent.getID()).thenReturn(PlayerEvent.STOP);
-        doAnswer(new Answer<Object>() {
-
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                MgcpEvent event = invocation.getArgumentAt(1, MgcpEvent.class);
-                assertNotNull(event);
-                assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), event.getParameter("rc"));
-                return null;
-            }
-
-        }).when(observer).onEvent(eq(signal), any(OperationComplete.class));
-
-        signal.observe(observer);
-        signal.execute();
+        final FutureCallback<MgcpEvent> callback = mock(FutureCallback.class);
+        signal.execute(callback);
         signal.process(playerEvent);
         signal.process(playerEvent);
 
@@ -196,6 +150,11 @@ public class PlayAnnouncementTest {
         verify(player).setInitialDelay(50 * 1000000);
         verify(player).setURL("track2.wav");
         verify(player, times(2)).activate();
+
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, timeout(10)).onSuccess(eventCaptor.capture());
+        assertNotNull(eventCaptor.getValue());
+        assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
     }
 
     @Test
@@ -204,15 +163,28 @@ public class PlayAnnouncementTest {
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put(SignalParameters.ANNOUNCEMENT.symbol(), "track1.wav");
         final Player player = mock(Player.class);
-        final PlayAnnouncement signal = new PlayAnnouncement(player, 1, parameters);
+        final PlayAnnouncement signal = new PlayAnnouncement(player, "1", parameters);
+        final PlayerEvent playerEvent = mock(PlayerEvent.class);
+        when(playerEvent.getID()).thenReturn(PlayerEvent.STOP);
 
         // when
-        signal.execute();
-        signal.cancel();
+        final FutureCallback<MgcpEvent> executeCallback = mock(FutureCallback.class);
+        signal.execute(executeCallback);
+
+        final FutureCallback<MgcpEvent> cancelCallback = mock(FutureCallback.class);
+        signal.cancel(cancelCallback);
+        signal.process(playerEvent);
 
         // then
         verify(player).activate();
         verify(player).deactivate();
+
+        verify(executeCallback, never()).onSuccess(any(MgcpEvent.class));
+
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(cancelCallback, timeout(10)).onSuccess(eventCaptor.capture());
+        assertNotNull(eventCaptor.getValue());
+        assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
     }
 
     @Test
@@ -221,33 +193,25 @@ public class PlayAnnouncementTest {
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put(SignalParameters.ANNOUNCEMENT.symbol(), "track1.wav");
         final Player player = mock(Player.class);
-        final PlayAnnouncement signal = new PlayAnnouncement(player, 1, parameters);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
+        final PlayAnnouncement signal = new PlayAnnouncement(player, "1", parameters);
         final PlayerEvent playerEvent = mock(PlayerEvent.class);
+        when(playerEvent.getID()).thenReturn(PlayerEvent.FAILED);
+
 
         // when
-        when(playerEvent.getID()).thenReturn(PlayerEvent.FAILED);
-        doAnswer(new Answer<Object>() {
-
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                MgcpEvent event = invocation.getArgumentAt(1, MgcpEvent.class);
-                assertNotNull(event);
-                assertEquals(String.valueOf(ReturnCode.UNSPECIFIED_FAILURE.code()), event.getParameter("rc"));
-                return null;
-            }
-
-        }).when(observer).onEvent(eq(signal), any(OperationComplete.class));
-
-        signal.observe(observer);
-        signal.execute();
+        final FutureCallback<MgcpEvent> callback = mock(FutureCallback.class);
+        signal.execute(callback);
         signal.process(playerEvent);
 
         // then
         verify(player).setInitialDelay(0);
         verify(player).setURL(parameters.get(SignalParameters.ANNOUNCEMENT.symbol()));
         verify(player).activate();
-        verify(observer).onEvent(eq(signal), any(OperationFailed.class));
+
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, timeout(10)).onSuccess(eventCaptor.capture());
+        assertNotNull(eventCaptor.getValue());
+        assertEquals(String.valueOf(ReturnCode.UNSPECIFIED_FAILURE.code()), eventCaptor.getValue().getParameter("rc"));
     }
 
 }

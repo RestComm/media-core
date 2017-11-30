@@ -21,10 +21,9 @@
 
 package org.restcomm.media.control.mgcp.connection.local;
 
+import com.google.common.util.concurrent.ListenableScheduledFuture;
 import org.apache.log4j.Logger;
 import org.squirrelframework.foundation.fsm.AnonymousAction;
-
-import com.google.common.util.concurrent.ListenableScheduledFuture;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -32,7 +31,7 @@ import com.google.common.util.concurrent.ListenableScheduledFuture;
  */
 class CancelTimeoutAction extends AnonymousAction<MgcpLocalConnectionFsm, MgcpLocalConnectionState, MgcpLocalConnectionEvent, MgcpLocalConnectionTransitionContext> implements MgcpLocalConnectionAction {
 
-    private static final Logger log = Logger.getLogger(CancelTimerActionTest.class);
+    private static final Logger log = Logger.getLogger(CancelTimeoutAction.class);
     
     static final CancelTimeoutAction INSTANCE = new CancelTimeoutAction();
     

@@ -21,17 +21,18 @@
 
 package org.restcomm.media.control.mgcp.endpoint.splitter;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.restcomm.media.control.mgcp.endpoint.AbstractMgcpEndpointFsmBuilder;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointAction;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
  */
 public class MgcpSplitterEndpointFsmBuilder extends AbstractMgcpEndpointFsmBuilder {
+
+    public static final MgcpSplitterEndpointFsmBuilder INSTANCE = new MgcpSplitterEndpointFsmBuilder();
 
     private static final List<MgcpEndpointAction> activationActions;
     private static final List<MgcpEndpointAction> deactivationActions;
@@ -52,7 +53,7 @@ public class MgcpSplitterEndpointFsmBuilder extends AbstractMgcpEndpointFsmBuild
         unregisteredConnectionActions.add(UnregisterConnectionsFromSplitterAction.INSTANCE);
     }
 
-    public MgcpSplitterEndpointFsmBuilder() {
+    MgcpSplitterEndpointFsmBuilder() {
         super();
     }
 

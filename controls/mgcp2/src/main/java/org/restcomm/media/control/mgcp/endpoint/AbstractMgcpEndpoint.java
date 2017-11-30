@@ -21,39 +21,38 @@
 
 package org.restcomm.media.control.mgcp.endpoint;
 
+import com.google.common.util.concurrent.FutureCallback;
+import org.apache.log4j.Logger;
+import org.restcomm.media.control.mgcp.command.param.NotifiedEntity;
+import org.restcomm.media.control.mgcp.command.rqnt.NotificationRequest;
+import org.restcomm.media.control.mgcp.connection.MgcpConnection;
+import org.restcomm.media.control.mgcp.message.*;
+import org.restcomm.media.control.mgcp.pkg.MgcpEvent;
+import org.restcomm.media.control.mgcp.util.collections.Parameters;
+
 import java.net.InetSocketAddress;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.log4j.Logger;
-import org.restcomm.media.control.mgcp.command.NotificationRequest;
-import org.restcomm.media.control.mgcp.connection.MgcpConnection;
-import org.restcomm.media.control.mgcp.message.MessageDirection;
-import org.restcomm.media.control.mgcp.message.MgcpMessage;
-import org.restcomm.media.control.mgcp.message.MgcpMessageObserver;
-import org.restcomm.media.control.mgcp.pkg.MgcpEvent;
-
-import com.google.common.util.concurrent.FutureCallback;
-
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
  */
 public class AbstractMgcpEndpoint implements MgcpEndpoint {
 
     private static final Logger log = Logger.getLogger(AbstractMgcpEndpoint.class);
 
     private final MgcpEndpointContext context;
-    private final MgcpEndpointFsmListener fsmListener;
     private final MgcpEndpointFsm fsm;
 
     public AbstractMgcpEndpoint(MgcpEndpointContext context, MgcpEndpointFsm fsm) {
         super();
         this.context = context;
-        this.fsmListener = new MgcpEndpointFsmListener(this, this.context);
+
+        this.context.getNotificationCenter().observe(this);
+        // TODO Unregister from notification center on deactivation
+
         this.fsm = fsm;
-        this.fsm.addDeclarativeListener(this.fsmListener);
+        this.fsm.addDeclarativeListener(new MgcpEndpointFsmListener(this, this.context));
         this.fsm.start();
     }
 
@@ -63,8 +62,7 @@ public class AbstractMgcpEndpoint implements MgcpEndpoint {
         boolean added = observers.add(observer);
         if (added && log.isTraceEnabled()) {
             EndpointIdentifier endpointId = context.getEndpointId();
-            log.trace("Endpoint " + endpointId.toString() + " registered MgcpEndpointObserver@" + observer.hashCode()
-                    + ". Count: " + observers.size());
+            log.trace("Endpoint " + endpointId.toString() + " registered MgcpEndpointObserver@" + observer.hashCode() + ". Count: " + observers.size());
         }
     }
 
@@ -74,51 +72,42 @@ public class AbstractMgcpEndpoint implements MgcpEndpoint {
         boolean removed = observers.remove(observer);
         if (removed && log.isTraceEnabled()) {
             EndpointIdentifier endpointId = context.getEndpointId();
-            log.trace("Endpoint " + endpointId.toString() + " unregistered MgcpEndpointObserver@" + observer.hashCode()
-                    + ". Count: " + observers.size());
+            log.trace("Endpoint " + endpointId.toString() + " unregistered MgcpEndpointObserver@" + observer.hashCode() + ". Count: " + observers.size());
         }
     }
 
     @Override
     public void notify(MgcpEndpoint endpoint, MgcpEndpointState state) {
-        Set<MgcpEndpointObserver> observers = context.getEndpointObservers();
-        Iterator<MgcpEndpointObserver> iterator = observers.iterator();
-
-        while (iterator.hasNext()) {
-            MgcpEndpointObserver observer = iterator.next();
+        final Set<MgcpEndpointObserver> observers = context.getEndpointObservers();
+        for (MgcpEndpointObserver observer : observers) {
             observer.onEndpointStateChanged(this, state);
         }
     }
 
     @Override
     public void observe(MgcpMessageObserver observer) {
-        Set<MgcpMessageObserver> observers = this.context.getMessageObservers();
+        final Set<MgcpMessageObserver> observers = this.context.getMessageObservers();
         boolean added = observers.add(observer);
         if (added && log.isTraceEnabled()) {
             EndpointIdentifier endpointId = context.getEndpointId();
-            log.trace("Endpoint " + endpointId.toString() + " registered MgcpMessageObserver@" + observer.hashCode()
-                    + ". Count: " + observers.size());
+            log.trace("Endpoint " + endpointId.toString() + " registered MgcpMessageObserver@" + observer.hashCode() + ". Count: " + observers.size());
         }
     }
 
     @Override
     public void forget(MgcpMessageObserver observer) {
-        Set<MgcpMessageObserver> observers = this.context.getMessageObservers();
+        final Set<MgcpMessageObserver> observers = this.context.getMessageObservers();
         boolean removed = observers.remove(observer);
         if (removed && log.isTraceEnabled()) {
             EndpointIdentifier endpointId = context.getEndpointId();
-            log.trace("Endpoint " + endpointId.toString() + " unregistered MgcpMessageObserver@" + observer.hashCode()
-                    + ". Count: " + observers.size());
+            log.trace("Endpoint " + endpointId.toString() + " unregistered MgcpMessageObserver@" + observer.hashCode() + ". Count: " + observers.size());
         }
     }
 
     @Override
-    public void notify(Object originator, InetSocketAddress from, InetSocketAddress to, MgcpMessage message,
-            MessageDirection direction) {
-        Set<MgcpMessageObserver> observers = this.context.getMessageObservers();
-        Iterator<MgcpMessageObserver> iterator = observers.iterator();
-        while (iterator.hasNext()) {
-            MgcpMessageObserver observer = iterator.next();
+    public void notify(Object originator, InetSocketAddress from, InetSocketAddress to, MgcpMessage message, MessageDirection direction) {
+        final Set<MgcpMessageObserver> observers = this.context.getMessageObservers();
+        for (MgcpMessageObserver observer : observers) {
             if (observer != originator) {
                 observer.onMessage(from, to, message, direction);
             }
@@ -127,8 +116,19 @@ public class AbstractMgcpEndpoint implements MgcpEndpoint {
 
     @Override
     public void onEvent(Object originator, MgcpEvent event) {
-        // TODO Auto-generated method stub
+        final MgcpRequest ntfy = new MgcpRequest();
+        ntfy.setTransactionId(0);
+        ntfy.setRequestType(MgcpRequestType.NTFY);
+        ntfy.setEndpointId(getEndpointId().toString());
+        final Parameters<MgcpParameterType> params = ntfy.getParameters();
+        params.put(MgcpParameterType.REQUEST_ID, this.context.getNotificationCenter().getRequestId());
+        params.put(MgcpParameterType.OBSERVED_EVENT, event.toString());
 
+        // FIXME hard-coded MGCP port
+        final NotifiedEntity notifiedEntity = this.context.getNotificationCenter().getNotifiedEntity();
+        final InetSocketAddress from = new InetSocketAddress(getEndpointId().getDomainName(), 2427);
+        final InetSocketAddress to = new InetSocketAddress(notifiedEntity.getDomain(), notifiedEntity.getPort());
+        notify(this, from, to, ntfy, MessageDirection.OUTGOING);
     }
 
     @Override
@@ -145,7 +145,7 @@ public class AbstractMgcpEndpoint implements MgcpEndpoint {
         }
         return null;
     }
-    
+
     @Override
     public boolean isRegistered(int callId, int connectionId) {
         return getConnection(callId, connectionId) != null;
@@ -224,15 +224,24 @@ public class AbstractMgcpEndpoint implements MgcpEndpoint {
     }
 
     @Override
-    public void requestNotification(NotificationRequest request) {
-        // TODO Auto-generated method stub
+    public void requestNotification(NotificationRequest request, FutureCallback<Void> callback) {
+        final MgcpEndpointTransitionContext txContext = new MgcpEndpointTransitionContext();
+        txContext.set(MgcpEndpointParameter.CALLBACK, callback);
+        txContext.set(MgcpEndpointParameter.REQUESTED_NOTIFICATION, request);
 
+        final MgcpEndpointEvent event = MgcpEndpointEvent.REQUEST_NOTIFICATION;
+        if (this.fsm.canAccept(event)) {
+            // Fire event to process operation
+            fsm.fire(event, txContext);
+        } else {
+            // FSM cannot process request. Alert callback of operation failure.
+            denyOperation(event, callback);
+        }
     }
 
     @Override
-    public void cancelSignal(String signal) {
-        // TODO Auto-generated method stub
-
+    public void endSignal(String requestId, String signal, FutureCallback<MgcpEvent> callback) {
+        this.context.getNotificationCenter().endSignal(requestId, signal, callback);
     }
 
     @Override

@@ -21,7 +21,7 @@
 
 package org.restcomm.media.control.mgcp.pkg.au.pr;
 
-import org.restcomm.media.control.mgcp.pkg.MgcpEventSubject;
+import org.restcomm.media.control.mgcp.pkg.MgcpEventObserver;
 import org.restcomm.media.spi.dtmf.DtmfDetector;
 import org.restcomm.media.spi.dtmf.DtmfDetectorListener;
 import org.restcomm.media.spi.player.Player;
@@ -46,7 +46,7 @@ public class PlayRecordFsmBuilder {
     private PlayRecordFsmBuilder() {
         this.builder = StateMachineBuilderFactory.<PlayRecordFsm, PlayRecordState, PlayRecordEvent, PlayRecordContext> create(
                 PlayRecordFsmImpl.class, PlayRecordState.class, PlayRecordEvent.class, PlayRecordContext.class,
-                MgcpEventSubject.class, Recorder.class, RecorderListener.class, DtmfDetector.class, DtmfDetectorListener.class,
+                MgcpEventObserver.class, Recorder.class, RecorderListener.class, DtmfDetector.class, DtmfDetectorListener.class,
                 Player.class, PlayerListener.class, PlayRecordContext.class);
 
         this.builder.defineFinishEvent(PlayRecordEvent.RECORD_SUCCESS);
@@ -138,11 +138,11 @@ public class PlayRecordFsmBuilder {
         this.builder.onEntry(PlayRecordState.FAILED).callMethod("enterFailed");
     }
 
-    public PlayRecordFsm build(MgcpEventSubject mgcpEventSubject, Recorder recorder, RecorderListener recorderListener,
-            DtmfDetector detector, DtmfDetectorListener detectorListener, Player player, PlayerListener playerListener,
-            PlayRecordContext context) {
+    public PlayRecordFsm build(MgcpEventObserver mgcpEventObserver, Recorder recorder, RecorderListener recorderListener,
+                               DtmfDetector detector, DtmfDetectorListener detectorListener, Player player, PlayerListener playerListener,
+                               PlayRecordContext context) {
         return this.builder.newStateMachine(PlayRecordState.LOADING_PLAYLIST,
-                StateMachineConfiguration.getInstance().enableDebugMode(false), mgcpEventSubject, recorder, recorderListener,
+                StateMachineConfiguration.getInstance().enableDebugMode(false), mgcpEventObserver, recorder, recorderListener,
                 detector, detectorListener, player, playerListener, context);
     }
 

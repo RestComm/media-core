@@ -33,6 +33,8 @@ import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointAction;
  */
 public class MgcpMixerEndpointFsmBuilder extends AbstractMgcpEndpointFsmBuilder {
 
+    public static final MgcpMixerEndpointFsmBuilder INSTANCE = new MgcpMixerEndpointFsmBuilder();
+
     private static final List<MgcpEndpointAction> activationActions;
     private static final List<MgcpEndpointAction> deactivationActions;
     private static final List<MgcpEndpointAction> registeredConnectionActions;
@@ -54,7 +56,7 @@ public class MgcpMixerEndpointFsmBuilder extends AbstractMgcpEndpointFsmBuilder 
         unregisteredConnectionActions.add(UnregisterConnectionsFromMixerAction.INSTANCE);
     }
 
-    public MgcpMixerEndpointFsmBuilder() {
+    MgcpMixerEndpointFsmBuilder() {
         super();
     }
 

@@ -21,14 +21,8 @@
 
 package org.restcomm.media.control.mgcp.pkg.au.pr;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 import org.apache.log4j.Logger;
-import org.restcomm.media.control.mgcp.pkg.MgcpEventSubject;
+import org.restcomm.media.control.mgcp.pkg.MgcpEventObserver;
 import org.restcomm.media.control.mgcp.pkg.au.OperationComplete;
 import org.restcomm.media.control.mgcp.pkg.au.OperationFailed;
 import org.restcomm.media.control.mgcp.pkg.au.Playlist;
@@ -43,6 +37,12 @@ import org.restcomm.media.spi.recorder.Recorder;
 import org.restcomm.media.spi.recorder.RecorderListener;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
@@ -53,27 +53,27 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
     private static final Logger log = Logger.getLogger(PlayRecordFsmImpl.class);
 
     // Event Listener
-    private final MgcpEventSubject mgcpEventSubject;
+    private final MgcpEventObserver mgcpEventObserver;
 
     // Media Components
     private final DtmfDetector detector;
-    final DtmfDetectorListener detectorListener;
+    private final DtmfDetectorListener detectorListener;
 
     private final Player player;
-    final PlayerListener playerListener;
+    private final PlayerListener playerListener;
 
     private final Recorder recorder;
-    final RecorderListener recorderListener;
+    private final RecorderListener recorderListener;
 
     // Execution Context
     private final PlayRecordContext context;
 
-    public PlayRecordFsmImpl(MgcpEventSubject mgcpEventSubject, Recorder recorder, RecorderListener recorderListener,
+    public PlayRecordFsmImpl(MgcpEventObserver mgcpEventObserver, Recorder recorder, RecorderListener recorderListener,
             DtmfDetector detector, DtmfDetectorListener detectorListener, Player player, PlayerListener playerListener,
             PlayRecordContext context) {
         super();
         // Event Listener
-        this.mgcpEventSubject = mgcpEventSubject;
+        this.mgcpEventObserver = mgcpEventObserver;
 
         // Media Components
         this.recorder = recorder;
@@ -476,7 +476,7 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
         oc.setParameter("vi", Boolean.FALSE.toString());
         oc.setParameter("ri", context.getRecordId());
 
-        this.mgcpEventSubject.notify(this.mgcpEventSubject, oc);
+        this.mgcpEventObserver.onEvent(this, oc);
     }
     
     @Override
@@ -579,7 +579,7 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
         final OperationFailed of = new OperationFailed(PlayRecord.SYMBOL, context.getReturnCode());
         of.setParameter("na", String.valueOf(context.getAttempt()));
 
-        this.mgcpEventSubject.notify(this.mgcpEventSubject, of);
+        this.mgcpEventObserver.onEvent(this, of);
     }
 
 }

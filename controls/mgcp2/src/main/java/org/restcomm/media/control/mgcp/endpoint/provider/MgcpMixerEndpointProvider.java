@@ -23,28 +23,31 @@ package org.restcomm.media.control.mgcp.endpoint.provider;
 
 import org.restcomm.media.component.audio.AudioMixer;
 import org.restcomm.media.component.oob.OOBMixer;
-import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.restcomm.media.control.mgcp.endpoint.EndpointIdentifier;
 import org.restcomm.media.control.mgcp.endpoint.MediaGroup;
-import org.restcomm.media.control.mgcp.endpoint.MgcpMixerEndpoint;
+import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointFsm;
+import org.restcomm.media.control.mgcp.endpoint.mixer.MgcpMixerEndpoint;
+import org.restcomm.media.control.mgcp.endpoint.mixer.MgcpMixerEndpointContext;
+import org.restcomm.media.control.mgcp.endpoint.mixer.MgcpMixerEndpointFsmBuilder;
+import org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenter;
+import org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterContext;
+import org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterFsmBuilder;
+import org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenterImpl;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 
 /**
  * Provides MGCP endpoints that rely on a Mixer to relay media.
- * 
- * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public class MgcpMixerEndpointProvider extends AbstractMgcpEndpointProvider<MgcpMixerEndpoint> {
 
     private final PriorityQueueScheduler mediaScheduler;
-    private final MgcpConnectionProvider connectionProvider;
     private final MediaGroupProvider mediaGroupProvider;
 
-    public MgcpMixerEndpointProvider(String namespace, String domain, PriorityQueueScheduler mediaScheduler, MgcpConnectionProvider connectionProvider, MediaGroupProvider mediaGroupProvider) {
+    public MgcpMixerEndpointProvider(String namespace, String domain, PriorityQueueScheduler mediaScheduler, MediaGroupProvider mediaGroupProvider) {
         super(namespace, domain);
         this.mediaScheduler = mediaScheduler;
-        this.connectionProvider = connectionProvider;
         this.mediaGroupProvider = mediaGroupProvider;
     }
 
@@ -54,7 +57,14 @@ public class MgcpMixerEndpointProvider extends AbstractMgcpEndpointProvider<Mgcp
         final AudioMixer audioMixer = new AudioMixer(this.mediaScheduler);
         final OOBMixer oobMixer = new OOBMixer(this.mediaScheduler);
         final MediaGroup mediaGroup = this.mediaGroupProvider.provide();
-        return new MgcpMixerEndpoint(endpointId, audioMixer, oobMixer, this.connectionProvider, mediaGroup);
+
+        final NotificationCenterContext notificationCenterContext = new NotificationCenterContext();
+        final NotificationCenter notificationCenter = new NotificationCenterImpl(NotificationCenterFsmBuilder.INSTANCE.build(notificationCenterContext), notificationCenterContext);
+
+        final MgcpMixerEndpointContext context = new MgcpMixerEndpointContext(endpointId, mediaGroup, notificationCenter, audioMixer, oobMixer);
+        final MgcpEndpointFsm fsm = MgcpMixerEndpointFsmBuilder.INSTANCE.build(context);
+
+        return new MgcpMixerEndpoint(context, fsm);
     }
 
 }

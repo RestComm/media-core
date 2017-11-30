@@ -21,10 +21,9 @@
 
 package org.restcomm.media.bootstrap.ioc.provider.mgcp;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.TypeLiteral;
 import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.restcomm.media.control.mgcp.endpoint.provider.MediaGroupProvider;
@@ -36,27 +35,26 @@ import org.restcomm.media.core.configuration.MgcpControllerConfiguration;
 import org.restcomm.media.core.configuration.MgcpEndpointConfiguration;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.google.inject.TypeLiteral;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
  */
 public class MgcpEndpointInstallerProvider implements Provider<List<MgcpEndpointProvider<? extends MgcpEndpoint>>> {
 
     private final MediaServerConfiguration configuration;
     private final PriorityQueueScheduler mediaScheduler;
     private final MgcpConnectionProvider connectionProvider;
-    private final MediaGroupProvider MediaGroupProvider;
+    private final MediaGroupProvider mediaGroupProvider;
 
     @Inject
     public MgcpEndpointInstallerProvider(MediaServerConfiguration configuration, PriorityQueueScheduler mediaScheduler, MgcpConnectionProvider connectionProvider, MediaGroupProvider mediaGroupProvider) {
         this.configuration = configuration;
         this.mediaScheduler = mediaScheduler;
         this.connectionProvider = connectionProvider;
-        this.MediaGroupProvider = mediaGroupProvider;
+        this.mediaGroupProvider = mediaGroupProvider;
     }
 
     @Override
@@ -65,7 +63,7 @@ public class MgcpEndpointInstallerProvider implements Provider<List<MgcpEndpoint
         final Iterator<MgcpEndpointConfiguration> iterator = controller.getEndpoints();
         final List<MgcpEndpointProvider<? extends MgcpEndpoint>> providers = new ArrayList<>(controller.countEndpoints());
         final String domain = this.configuration.getControllerConfiguration().getAddress() + ":" + this.configuration.getControllerConfiguration().getPort();
-        
+
         while (iterator.hasNext()) {
             final MgcpEndpointConfiguration endpoint = iterator.next();
             final MgcpEndpointProvider<? extends MgcpEndpoint> provider;
@@ -73,11 +71,11 @@ public class MgcpEndpointInstallerProvider implements Provider<List<MgcpEndpoint
 
             switch (endpoint.getRelayType()) {
                 case MIXER:
-                    provider = new MgcpMixerEndpointProvider(namespace, domain, this.mediaScheduler, this.connectionProvider, this.MediaGroupProvider);
+                    provider = new MgcpMixerEndpointProvider(namespace, domain, this.mediaScheduler, this.mediaGroupProvider);
                     break;
 
                 case SPLITTER:
-                    provider = new MgcpSplitterEndpointProvider(namespace, domain, this.mediaScheduler, this.connectionProvider, this.MediaGroupProvider);
+                    provider = new MgcpSplitterEndpointProvider(namespace, domain, this.mediaScheduler);
                     break;
 
                 default:
@@ -88,8 +86,7 @@ public class MgcpEndpointInstallerProvider implements Provider<List<MgcpEndpoint
         return providers;
     }
 
-    public static final class MgcpEndpointInstallerListType
-            extends TypeLiteral<List<MgcpEndpointProvider<? extends MgcpEndpoint>>> {
+    public static final class MgcpEndpointInstallerListType extends TypeLiteral<List<MgcpEndpointProvider<? extends MgcpEndpoint>>> {
 
         public static final MgcpEndpointInstallerListType INSTANCE = new MgcpEndpointInstallerListType();
 

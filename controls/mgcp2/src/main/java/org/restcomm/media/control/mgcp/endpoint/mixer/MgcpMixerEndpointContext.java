@@ -26,6 +26,7 @@ import org.restcomm.media.component.oob.OOBMixer;
 import org.restcomm.media.control.mgcp.endpoint.EndpointIdentifier;
 import org.restcomm.media.control.mgcp.endpoint.MediaGroup;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointContext;
+import org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenter;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -36,8 +37,8 @@ public class MgcpMixerEndpointContext extends MgcpEndpointContext {
     private final AudioMixer mixer;
     private final OOBMixer oobMixer;
 
-    MgcpMixerEndpointContext(EndpointIdentifier endpointId, MediaGroup mediaGroup, AudioMixer mixer, OOBMixer oobMixer) {
-        super(endpointId, mediaGroup);
+    public MgcpMixerEndpointContext(EndpointIdentifier endpointId, MediaGroup mediaGroup, NotificationCenter notificationCenter, AudioMixer mixer, OOBMixer oobMixer) {
+        super(endpointId, mediaGroup, notificationCenter);
         this.mixer = mixer;
         this.oobMixer = oobMixer;
     }

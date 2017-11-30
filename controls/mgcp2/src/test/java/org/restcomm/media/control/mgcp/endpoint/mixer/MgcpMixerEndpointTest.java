@@ -44,6 +44,7 @@ import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointObserver;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointState;
 
 import com.google.common.util.concurrent.FutureCallback;
+import org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenter;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -66,7 +67,8 @@ public class MgcpMixerEndpointTest {
         
         final AudioMixer mixer = mock(AudioMixer.class);
         final OOBMixer oobMixer = mock(OOBMixer.class);
-        final MgcpMixerEndpointContext context = new MgcpMixerEndpointContext(endpointId, mediaGroup, mixer, oobMixer);
+        final NotificationCenter notificationCenter = mock(NotificationCenter.class);
+        final MgcpMixerEndpointContext context = new MgcpMixerEndpointContext(endpointId, mediaGroup, notificationCenter, mixer, oobMixer);
         final MgcpEndpointFsm fsm = this.fsmBuilder.build(context);
         final MgcpEndpointObserver observer = mock(MgcpEndpointObserver.class);
 

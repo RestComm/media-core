@@ -21,27 +21,23 @@
 
 package org.restcomm.media.control.mgcp.endpoint;
 
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.restcomm.media.control.mgcp.command.param.NotifiedEntity;
-import org.restcomm.media.control.mgcp.connection.MgcpConnection;
-import org.restcomm.media.control.mgcp.message.MgcpMessageObserver;
-import org.restcomm.media.control.mgcp.pkg.MgcpRequestedEvent;
-import org.restcomm.media.control.mgcp.pkg.MgcpSignal;
-
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
+import org.restcomm.media.control.mgcp.command.param.NotifiedEntity;
+import org.restcomm.media.control.mgcp.connection.MgcpConnection;
+import org.restcomm.media.control.mgcp.endpoint.notification.NotificationCenter;
+import org.restcomm.media.control.mgcp.message.MgcpMessageObserver;
+import org.restcomm.media.control.mgcp.pkg.MgcpRequestedEvent;
+
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
  */
 public class MgcpEndpointContext {
-
-    static final MgcpRequestedEvent[] EMPTY_ENDPOINT_EVENTS = new MgcpRequestedEvent[0];
 
     // Media Components
     protected final MediaGroup mediaGroup;
@@ -51,17 +47,15 @@ public class MgcpEndpointContext {
     private final ConcurrentHashMap<Integer, MgcpConnection> connections;
 
     // Events and Signals
-    private NotifiedEntity notifiedEntity;
-    private ConcurrentHashMap<String, MgcpSignal> signals;
-    // TODO requestedEndpointEvents needs to be synchronized!
-    private MgcpRequestedEvent[] requestedEndpointEvents;
+    private final NotificationCenter notificationCenter;
+    // TODO add support for MGCP Connection Events
     private final Multimap<Integer, MgcpRequestedEvent> requestedConnectionEvents;
 
     // Observers
     private final Set<MgcpEndpointObserver> endpointObservers;
     private final Set<MgcpMessageObserver> messageObservers;
 
-    protected MgcpEndpointContext(EndpointIdentifier endpointId, MediaGroup mediaGroup) {
+    protected MgcpEndpointContext(EndpointIdentifier endpointId, MediaGroup mediaGroup, NotificationCenter notificationCenter) {
         // Endpoint Properties
         this.endpointId = endpointId;
         this.connections = new ConcurrentHashMap<>(5);
@@ -70,38 +64,16 @@ public class MgcpEndpointContext {
         this.mediaGroup = mediaGroup;
 
         // Events and Signals
-        this.notifiedEntity = new NotifiedEntity();
-        this.signals = new ConcurrentHashMap<>(5);
-        this.requestedEndpointEvents = MgcpEndpointContext.EMPTY_ENDPOINT_EVENTS;
-        this.requestedConnectionEvents = Multimaps.synchronizedSetMultimap(HashMultimap.<Integer, MgcpRequestedEvent> create());
+        this.notificationCenter = notificationCenter;
+        this.requestedConnectionEvents = Multimaps.synchronizedSetMultimap(HashMultimap.<Integer, MgcpRequestedEvent>create());
 
         // Observers
         this.endpointObservers = Sets.newConcurrentHashSet();
         this.messageObservers = Sets.newConcurrentHashSet();
     }
 
-    public NotifiedEntity getNotifiedEntity() {
-        return notifiedEntity;
-    }
-
-    public void setNotifiedEntity(NotifiedEntity notifiedEntity) {
-        this.notifiedEntity = notifiedEntity;
-    }
-
-    public ConcurrentHashMap<String, MgcpSignal> getSignals() {
-        return signals;
-    }
-
-    public void setSignals(ConcurrentHashMap<String, MgcpSignal> signals) {
-        this.signals = signals;
-    }
-
-    public MgcpRequestedEvent[] getRequestedEndpointEvents() {
-        return requestedEndpointEvents;
-    }
-
-    public void setRequestedEndpointEvents(MgcpRequestedEvent[] requestedEndpointEvents) {
-        this.requestedEndpointEvents = requestedEndpointEvents;
+    public NotificationCenter getNotificationCenter() {
+        return notificationCenter;
     }
 
     public MediaGroup getMediaGroup() {
@@ -112,7 +84,7 @@ public class MgcpEndpointContext {
         return endpointId;
     }
 
-    public boolean hasConnections() {
+    boolean hasConnections() {
         return !this.connections.isEmpty();
     }
 

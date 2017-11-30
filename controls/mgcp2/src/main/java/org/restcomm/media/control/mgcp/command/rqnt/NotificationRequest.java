@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
+ * Copyright 2011-2017, Telestax Inc and individual contributors
  * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
@@ -19,14 +19,15 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.control.mgcp.command;
+package org.restcomm.media.control.mgcp.command.rqnt;
 
-import java.util.ArrayDeque;
-import java.util.Queue;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import org.restcomm.media.control.mgcp.command.param.NotifiedEntity;
 import org.restcomm.media.control.mgcp.pkg.MgcpRequestedEvent;
-import org.restcomm.media.control.mgcp.pkg.MgcpSignal;
+import org.restcomm.media.control.mgcp.signal.MgcpSignal;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -38,19 +39,16 @@ public class NotificationRequest {
     private final String requestIdentifier;
     private final NotifiedEntity notifiedEntity;
     private final MgcpRequestedEvent[] requestedEvents;
-    private final Queue<MgcpSignal> requestedSignals;
+    private final List<MgcpSignal<?>> requestedSignals;
 
-    public NotificationRequest(int transactionId, String requestIdentifier, NotifiedEntity notifiedEntity,
-            MgcpRequestedEvent[] requestedEvents, MgcpSignal... requestedSignals) {
+    public NotificationRequest(int transactionId, String requestIdentifier, NotifiedEntity notifiedEntity, MgcpRequestedEvent[] requestedEvents, MgcpSignal<?>... requestedSignals) {
         super();
         this.transactionId = transactionId;
         this.requestIdentifier = requestIdentifier;
         this.notifiedEntity = notifiedEntity;
         this.requestedEvents = requestedEvents;
-        this.requestedSignals = new ArrayDeque<>(requestedSignals.length);
-        for (MgcpSignal signal : requestedSignals) {
-            this.requestedSignals.add(signal);
-        }
+        this.requestedSignals = new ArrayList<>(requestedSignals.length);
+        Collections.addAll(this.requestedSignals, requestedSignals);
     }
 
     public int getTransactionId() {
@@ -69,12 +67,8 @@ public class NotificationRequest {
         return requestedEvents;
     }
 
-    public MgcpSignal pollSignal() {
-        return this.requestedSignals.poll();
-    }
-
-    public int countSignals() {
-        return this.requestedSignals.size();
+    public List<MgcpSignal<?>> getRequestedSignals() {
+        return this.requestedSignals;
     }
 
     public boolean isListening(String event) {
