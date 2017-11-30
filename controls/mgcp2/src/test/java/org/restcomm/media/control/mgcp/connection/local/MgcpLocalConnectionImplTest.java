@@ -88,7 +88,7 @@ public class MgcpLocalConnectionImplTest {
         assertNotNull(timerFuture);
 
         // when
-        Thread.sleep(halfOpenTimeout);
+        Thread.sleep(halfOpenTimeout + 5);
 
         // then
         assertTrue(timerFuture.isDone());
@@ -116,7 +116,7 @@ public class MgcpLocalConnectionImplTest {
         assertNotNull(timerFuture);
 
         // when
-        Thread.sleep(openTimeout);
+        Thread.sleep(openTimeout + 5);
 
         // then
         assertTrue(timerFuture.isDone());

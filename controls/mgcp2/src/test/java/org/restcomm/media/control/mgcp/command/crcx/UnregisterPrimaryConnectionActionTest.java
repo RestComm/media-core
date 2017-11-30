@@ -64,6 +64,7 @@ public class UnregisterPrimaryConnectionActionTest {
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/mock", "127.0.0.1:2427");
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         when(endpoint.getEndpointId()).thenReturn(endpointId);
+        when(endpoint.isRegistered(callId, connectionId)).thenReturn(true);
         doAnswer(new Answer<Void>() {
 
             @Override
@@ -104,11 +105,12 @@ public class UnregisterPrimaryConnectionActionTest {
         final MgcpConnection connection = mock(MgcpConnection.class);
         when(connection.getIdentifier()).thenReturn(connectionId);
         when(connection.getCallIdentifier()).thenReturn(callId);
-        
+
         final Exception error = new Exception("test purposes");
         final EndpointIdentifier endpointId = new EndpointIdentifier("restcomm/mock", "127.0.0.1:2427");
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         when(endpoint.getEndpointId()).thenReturn(endpointId);
+        when(endpoint.isRegistered(callId, connectionId)).thenReturn(true);
         doAnswer(new Answer<Void>() {
             
             @Override
