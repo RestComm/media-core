@@ -30,6 +30,7 @@ import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.configuration2.ex.ConfigurationRuntimeException;
 import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.apache.log4j.Logger;
+import org.restcomm.media.core.configuration.DriverConfiguration;
 import org.restcomm.media.core.configuration.DtlsConfiguration;
 import org.restcomm.media.core.configuration.MediaConfiguration;
 import org.restcomm.media.core.configuration.MediaServerConfiguration;
@@ -37,6 +38,8 @@ import org.restcomm.media.core.configuration.MgcpControllerConfiguration;
 import org.restcomm.media.core.configuration.MgcpEndpointConfiguration;
 import org.restcomm.media.core.configuration.NetworkConfiguration;
 import org.restcomm.media.core.configuration.ResourcesConfiguration;
+import org.restcomm.media.core.configuration.SubsystemConfiguration;
+import org.restcomm.media.core.configuration.SubsystemsConfiguration;
 
 /**
  * Loads Media Server configurations from an XML file.
@@ -81,6 +84,7 @@ public class XmlConfigurationLoader implements ConfigurationLoader {
         configureMedia(xml.configurationAt("media"), configuration.getMediaConfiguration());
         configureResource(xml.configurationAt("resources"), configuration.getResourcesConfiguration());
         configureDtls(xml.configurationAt("dtls"), configuration.getDtlsConfiguration());
+        configureSubsystems(xml, configuration.getSubsystemsConfiguration());
         return configuration;
     }
 
@@ -127,6 +131,7 @@ public class XmlConfigurationLoader implements ConfigurationLoader {
         dst.setDtmfDetectorToneDuration(src.getInt("dtmfDetector[@toneDuration]", ResourcesConfiguration.DTMF_DETECTOR_TONE_DURATION));
         dst.setDtmfGeneratorToneVolume(src.getInt("dtmfGenerator[@toneVolume]", ResourcesConfiguration.DTMF_GENERATOR_TONE_VOLUME));
         dst.setDtmfGeneratorToneDuration(src.getInt("dtmfGenerator[@toneDuration]", ResourcesConfiguration.DTMF_GENERATOR_TONE_DURATION));
+        dst.setSpeechDetectorSilenceLevel(src.getInt("speechDetector[@silenceLevel]", ResourcesConfiguration.SPEECH_DETECTOR_SILENCE_LEVEL));
         configurePlayer(src, dst);
     }
 
@@ -154,4 +159,49 @@ public class XmlConfigurationLoader implements ConfigurationLoader {
         );
 
     }
+
+    private static void configureSubsystems(final XMLConfiguration xml, final SubsystemsConfiguration dst) throws javax.naming.ConfigurationException {
+        final HierarchicalConfiguration<ImmutableNode> subsystems;
+        try {
+            subsystems = xml.configurationAt("subsystems");
+        } catch (ConfigurationRuntimeException exception) {
+            if(log.isInfoEnabled()) {
+                log.info("No subsystems are specified");
+            }
+            return;
+        }
+        readSubsystems(subsystems, dst);
+    }
+
+    private static void readSubsystems(final HierarchicalConfiguration<ImmutableNode> src, final SubsystemsConfiguration dst) throws javax.naming.ConfigurationException {
+        final List<HierarchicalConfiguration<ImmutableNode>> subsystems = src.configurationsAt("subsystem");
+        
+        if (subsystems == null) {
+            return;
+        }
+
+        for (final HierarchicalConfiguration<ImmutableNode> subsystem : subsystems) {
+
+            final String subsystemName = subsystem.getString("[@name]");
+            final SubsystemConfiguration subsystemConf = new SubsystemConfiguration(subsystemName);
+            final List<HierarchicalConfiguration<ImmutableNode>> drivers = subsystem.configurationsAt("driver");
+            if (drivers != null) {
+                for (final HierarchicalConfiguration<ImmutableNode> driver : drivers) {
+                    final String driverName = driver.getString("[@name]");
+                    final DriverConfiguration driverConf = new DriverConfiguration(driverName, driver.getString("[@class]"));
+                    final List<HierarchicalConfiguration<ImmutableNode>> parameters = driver.configurationsAt("parameter");
+                    if (parameters != null) {
+                        for (final HierarchicalConfiguration<ImmutableNode> parameter : parameters) {
+                            if (parameter != null) {
+                                driverConf.addParameter(parameter.getString("[@name]"), parameter.getString("."));
+                            }
+                        }
+                    }
+                    subsystemConf.addDriver(driverName, driverConf);
+                }
+                dst.addSubsystem(subsystemName, subsystemConf);
+            }
+        }
+    }
+
 }

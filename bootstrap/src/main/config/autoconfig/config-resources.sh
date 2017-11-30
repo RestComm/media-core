@@ -1,5 +1,5 @@
 #!/bin/bash
-## Description: Configures the Resource Pooling of the Media Server.
+## Description: Configures the Resources of the Media Server.
 ## Author: Henrique Rosa (henrique.rosa@telestax.com)
 
 configAudioCache() {
@@ -28,5 +28,16 @@ configDtmfDetector() {
         $MS_HOME/conf/mediaserver.xml
 }
 
+configSpeechDetector() {
+    readonly silence_level=${1-10}
+
+    echo "Configuring Speech Detector [Silence Level=$silence_level]"
+
+    xmlstarlet ed --inplace --pf \
+        -u "/mediaserver/resources/speechDetector/@silenceLevel" -v "$silence_level" \
+        $MS_HOME/conf/mediaserver.xml
+}
+
 configAudioCache $AUDIO_CACHE_ENABLED $AUDIO_CACHE_SIZE
 configDtmfDetector $DTMF_DETECTOR_DBI $DTMF_DETECTOR_TONE_DURATION $DTMF_DETECTOR_TONE_INTERVAL
+configSpeechDetector $SPEECH_DETECTOR_SILENCE_LEVEL

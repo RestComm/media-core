@@ -54,6 +54,7 @@ The Restcomm Media Server is capable of
 ** GSM
 ** Linear PCM(L16)
 ** G729
+** Opus
 ** DTMF(RFC 2833, INBAND)				
 
 * Media Files : 

@@ -35,6 +35,7 @@ public enum CodecType {
     L16(97, "l16", org.restcomm.media.codec.l16.Encoder.class.getName(), org.restcomm.media.codec.l16.Decoder.class.getName()),
     G729(18, "g729", org.restcomm.media.codec.g729.Encoder.class.getName(), org.restcomm.media.codec.g729.Decoder.class.getName()),
     ILBC(102, "ilbc", org.restcomm.media.codec.ilbc.Encoder.class.getName(), org.restcomm.media.codec.ilbc.Decoder.class.getName()),
+    OPUS(111, "opus", org.restcomm.media.codec.opus.Encoder.class.getName(), org.restcomm.media.codec.opus.Decoder.class.getName()),
     DTMF(101, "telephone-event", "", "");
 
     private final int payloadType;

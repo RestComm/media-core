@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.restcomm.media.client</groupId>
         <artifactId>mgcp</artifactId>
-        <version>6.0.0-SNAPSHOT</version>
+        <version>7.0.0-SNAPSHOT</version>
     </parent>
 
         <groupId>org.restcomm.media.client.mgcp</groupId>
@@ -59,8 +59,8 @@
 	</developers>
 	<licenses>
 		<license>
-			<name>GNU GENERAL PUBLIC LICENSE</name>
-			<url>http://www.gnu.org/licenses/gpl.html</url>
+			<name>GNU LESSER GENERAL PUBLIC LICENSE</name>
+			<url>https://www.gnu.org/licenses/lgpl-3.0.en.htmll</url>
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
