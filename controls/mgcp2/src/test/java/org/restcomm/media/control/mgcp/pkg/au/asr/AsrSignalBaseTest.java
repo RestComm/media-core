@@ -21,29 +21,27 @@
 
 package org.restcomm.media.control.mgcp.pkg.au.asr;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-
+import com.google.common.util.concurrent.ListeningScheduledExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 import org.apache.log4j.Logger;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.restcomm.media.asr.AsrEngine;
 import org.restcomm.media.asr.AsrEngineListener;
 import org.restcomm.media.asr.SpeechDetectorListener;
-import org.restcomm.media.control.mgcp.pkg.MgcpEventObserver;
 import org.restcomm.media.control.mgcp.pkg.au.SignalParameters;
 import org.restcomm.media.spi.dtmf.DtmfDetector;
 import org.restcomm.media.spi.dtmf.DtmfDetectorListener;
 import org.restcomm.media.spi.listener.TooManyListenersException;
 import org.restcomm.media.spi.player.Player;
 
-import com.google.common.util.concurrent.ListeningScheduledExecutorService;
-import com.google.common.util.concurrent.MoreExecutors;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 /**
  * @author anikiforov
@@ -68,7 +66,6 @@ public abstract class AsrSignalBaseTest {
     protected AsrEngine asrEngine;
 
     private ListeningScheduledExecutorService executor;
-    protected MgcpEventObserver observer;
     protected SpeechDetectorListener speechDetectorListener;
     protected AsrEngineListener asrEngineListener;
     protected DtmfDetectorListener detectorListener;
@@ -108,7 +105,6 @@ public abstract class AsrSignalBaseTest {
             }
         }).when(detector).addListener(any(DtmfDetectorListener.class));
         executor = MoreExecutors.listeningDecorator(threadPool);
-        observer = mock(MgcpEventObserver.class);
     }
 
     protected void after() {
@@ -138,7 +134,7 @@ public abstract class AsrSignalBaseTest {
     }
 
     protected AsrSignal generateAsrSignal(final Map<String, String> parameters) {
-        return new AsrSignal(player, detector, asrEngine, 1, null, parameters, executor);
+        return new AsrSignal(player, detector, asrEngine, "1", parameters, executor);
     }
 
     protected void waitForFinalResponse() throws InterruptedException {

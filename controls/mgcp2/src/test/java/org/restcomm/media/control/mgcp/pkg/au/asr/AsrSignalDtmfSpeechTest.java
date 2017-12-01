@@ -23,13 +23,12 @@ package org.restcomm.media.control.mgcp.pkg.au.asr;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.util.concurrent.FutureCallback;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.junit.After;
@@ -65,10 +64,8 @@ public class AsrSignalDtmfSpeechTest extends AsrSignalBaseTest {
         final AsrSignal asr = generateAsrSignal(parameters);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        asr.observe(observer);
-        asr.execute();
+        final FutureCallback<MgcpEvent> callback = mock(FutureCallback.class);
+        asr.execute(callback);
 
         speakRecognizedText("text");
         detectorListener.process(new DtmfEventImpl(detector, "#", -30));
@@ -78,7 +75,9 @@ public class AsrSignalDtmfSpeechTest extends AsrSignalBaseTest {
         // then
         verify(detector, times(1)).activate();
         verify(player, never()).activate();
-        verify(observer, times(2)).onEvent(eq(asr), eventCaptor.capture());
+
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, times(2)).onSuccess(eventCaptor.capture());
 
         final List<MgcpEvent> events = eventCaptor.getAllValues();
         final MgcpEvent firstEvent = events.get(0);
@@ -95,16 +94,16 @@ public class AsrSignalDtmfSpeechTest extends AsrSignalBaseTest {
         final AsrSignal asr = generateAsrSignal(parameters);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        asr.observe(observer);
-        asr.execute();
+        final FutureCallback<MgcpEvent> callback = mock(FutureCallback.class);
+        asr.execute(callback);
 
         Thread.sleep(EPSILON_IN_MILLISECONDS);
 
         verify(detector, times(1)).activate();
         verify(player, never()).activate();
-        verify(observer, never()).onEvent(eq(asr), eventCaptor.capture());
+
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, never()).onSuccess(any(MgcpEvent.class));
 
         speechDetectorListener.onSpeechDetected();
         detectorListener.process(new DtmfEventImpl(detector, "#", -30));
@@ -115,7 +114,7 @@ public class AsrSignalDtmfSpeechTest extends AsrSignalBaseTest {
         // then
         verify(detector, times(1)).activate();
         verify(player, never()).activate();
-        verify(observer, times(2)).onEvent(eq(asr), eventCaptor.capture());
+        verify(callback, times(2)).onSuccess(eventCaptor.capture());
 
         final List<MgcpEvent> events = eventCaptor.getAllValues();
         final MgcpEvent firstEvent = events.get(0);
@@ -132,18 +131,20 @@ public class AsrSignalDtmfSpeechTest extends AsrSignalBaseTest {
         final AsrSignal asr = generateAsrSignal(parameters);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        final FutureCallback<MgcpEvent> executeCallback = mock(FutureCallback.class);
+        asr.execute(executeCallback);
 
-        asr.observe(observer);
-        asr.execute();
-
-        asr.cancel();
+        final FutureCallback<MgcpEvent> cancelCallback = mock(FutureCallback.class);
+        asr.cancel(cancelCallback);
 
         // then
         verify(asrEngine, times(1)).activate();
         verify(detector, times(1)).activate();
         verify(player, never()).activate();
-        verify(observer, times(1)).onEvent(eq(asr), eventCaptor.capture());
+
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(cancelCallback).onSuccess(eventCaptor.capture());
+        verify(executeCallback, never()).onSuccess(any(MgcpEvent.class));
 
         assertEquals(String.valueOf(ReturnCode.NO_SPEECH.code()), eventCaptor.getValue().getParameter("rc"));
     }
@@ -155,19 +156,19 @@ public class AsrSignalDtmfSpeechTest extends AsrSignalBaseTest {
         final AsrSignal asr = generateAsrSignal(parameters);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        asr.observe(observer);
-        asr.execute();
+        final FutureCallback<MgcpEvent> callback = mock(FutureCallback.class);
+        asr.execute(callback);
 
         speakRecognizedText("text");
-        asr.cancel();
+
+        asr.cancel(callback);
 
         // then
         verify(asrEngine, times(1)).activate();
         verify(detector, times(1)).activate();
         verify(player, never()).activate();
-        verify(observer, times(2)).onEvent(eq(asr), eventCaptor.capture());
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, times(2)).onSuccess(eventCaptor.capture());
 
         final List<MgcpEvent> events = eventCaptor.getAllValues();
         final MgcpEvent firstEvent = events.get(0);
@@ -184,10 +185,8 @@ public class AsrSignalDtmfSpeechTest extends AsrSignalBaseTest {
         final AsrSignal asr = generateAsrSignal(parameters);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        asr.observe(observer);
-        asr.execute();
+        final FutureCallback<MgcpEvent> callback = mock(FutureCallback.class);
+        asr.execute(callback);
 
         Thread.sleep(MRT_IN_MILLISECONDS + EPSILON_IN_MILLISECONDS);
 
@@ -195,7 +194,9 @@ public class AsrSignalDtmfSpeechTest extends AsrSignalBaseTest {
         verify(asrEngine, times(1)).activate();
         verify(detector, times(1)).activate();
         verify(player, never()).activate();
-        verify(observer, times(1)).onEvent(eq(asr), eventCaptor.capture());
+
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, timeout(10)).onSuccess(eventCaptor.capture());
 
         final List<MgcpEvent> events = eventCaptor.getAllValues();
         final MgcpEvent firstEvent = events.get(0);
@@ -209,10 +210,8 @@ public class AsrSignalDtmfSpeechTest extends AsrSignalBaseTest {
         final AsrSignal asr = generateAsrSignal(parameters);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        asr.observe(observer);
-        asr.execute();
+        final FutureCallback<MgcpEvent> callback = mock(FutureCallback.class);
+        asr.execute(callback);
 
         speechDetectorListener.onSpeechDetected();
 
@@ -225,13 +224,14 @@ public class AsrSignalDtmfSpeechTest extends AsrSignalBaseTest {
         
         // then
         verify(player, never()).activate();
-        verify(observer, never()).onEvent(eq(asr), eventCaptor.capture());
+        verify(callback, never()).onSuccess(any(MgcpEvent.class));
         
         // when
         waitForFinalResponse();
 
         // then
-        verify(observer, times(1)).onEvent(eq(asr), eventCaptor.capture());
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback).onSuccess(eventCaptor.capture());
         final List<MgcpEvent> events = eventCaptor.getAllValues();
         final MgcpEvent firstEvent = events.get(0);
         assertEquals(String.valueOf(ReturnCode.NO_SPEECH.code()), firstEvent.getParameter("rc"));
@@ -244,10 +244,8 @@ public class AsrSignalDtmfSpeechTest extends AsrSignalBaseTest {
         final AsrSignal asr = generateAsrSignal(parameters);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        asr.observe(observer);
-        asr.execute();
+        final FutureCallback<MgcpEvent> callback = mock(FutureCallback.class);
+        asr.execute(callback);
 
         speakRecognizedText("text");
         
@@ -257,7 +255,8 @@ public class AsrSignalDtmfSpeechTest extends AsrSignalBaseTest {
         verify(asrEngine, times(1)).activate();
         verify(detector, times(1)).activate();
         verify(player, never()).activate();
-        verify(observer, times(2)).onEvent(eq(asr), eventCaptor.capture());
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, times(2)).onSuccess(eventCaptor.capture());
 
         final List<MgcpEvent> events = eventCaptor.getAllValues();
         final MgcpEvent firstEvent = events.get(0);
@@ -275,10 +274,8 @@ public class AsrSignalDtmfSpeechTest extends AsrSignalBaseTest {
         final AsrSignal asr = generateAsrSignal(parameters);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        asr.observe(observer);
-        asr.execute();
+        final FutureCallback<MgcpEvent> callback = mock(FutureCallback.class);
+        asr.execute(callback);
 
         speakRecognizedText("text");
         Thread.sleep(PST_IN_MILLISECONDS + EPSILON_IN_MILLISECONDS);
@@ -287,7 +284,8 @@ public class AsrSignalDtmfSpeechTest extends AsrSignalBaseTest {
         verify(asrEngine, times(1)).activate();
         verify(detector, times(1)).activate();
         verify(player, never()).activate();
-        verify(observer, times(2)).onEvent(eq(asr), eventCaptor.capture());
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, times(2)).onSuccess(eventCaptor.capture());
 
         final List<MgcpEvent> events = eventCaptor.getAllValues();
         final MgcpEvent firstEvent = events.get(0);
@@ -308,10 +306,8 @@ public class AsrSignalDtmfSpeechTest extends AsrSignalBaseTest {
         final AsrSignal asr = generateAsrSignal(parameters);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        asr.observe(observer);
-        asr.execute();
+        final FutureCallback<MgcpEvent> callback = mock(FutureCallback.class);
+        asr.execute(callback);
 
         speakRecognizedText("text");
 
@@ -324,7 +320,8 @@ public class AsrSignalDtmfSpeechTest extends AsrSignalBaseTest {
         // then
         verify(detector, times(1)).activate();
         verify(player, never()).activate();
-        verify(observer, times(2)).onEvent(eq(asr), eventCaptor.capture());
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, times(2)).onSuccess(eventCaptor.capture());
 
         final List<MgcpEvent> events = eventCaptor.getAllValues();
         final MgcpEvent firstEvent = events.get(0);
@@ -345,10 +342,8 @@ public class AsrSignalDtmfSpeechTest extends AsrSignalBaseTest {
         final AsrSignal asr = generateAsrSignal(parameters);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        asr.observe(observer);
-        asr.execute();
+        final FutureCallback<MgcpEvent> callback = mock(FutureCallback.class);
+        asr.execute(callback);
 
         speakRecognizedText("first text");
 
@@ -366,7 +361,8 @@ public class AsrSignalDtmfSpeechTest extends AsrSignalBaseTest {
         // then
         verify(detector, times(1)).activate();
         verify(player, never()).activate();
-        verify(observer, times(2)).onEvent(eq(asr), eventCaptor.capture());
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, times(2)).onSuccess(eventCaptor.capture());
 
         List<MgcpEvent> events = eventCaptor.getAllValues();
         assertEquals(String.valueOf(ReturnCode.PARTIAL_SUCCESS.code()), events.get(0).getParameter("rc"));
@@ -385,10 +381,8 @@ public class AsrSignalDtmfSpeechTest extends AsrSignalBaseTest {
         final AsrSignal asr = generateAsrSignal(parameters);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        asr.observe(observer);
-        asr.execute();
+        final FutureCallback<MgcpEvent> callback = mock(FutureCallback.class);
+        asr.execute(callback);
 
         detectorListener.process(new DtmfEventImpl(detector, "9", -30));
 
@@ -398,7 +392,8 @@ public class AsrSignalDtmfSpeechTest extends AsrSignalBaseTest {
         verify(asrEngine, times(1)).activate();
         verify(detector, times(1)).activate();
         verify(player, never()).activate();
-        verify(observer, times(1)).onEvent(eq(asr), eventCaptor.capture());
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback).onSuccess(eventCaptor.capture());
 
         List<MgcpEvent> events = eventCaptor.getAllValues();
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), events.get(0).getParameter("rc"));
