@@ -43,7 +43,7 @@ public class AsrFsmBuilder {
 
     private AsrFsmBuilder() {
         // Finite State Machine
-        this.builder = StateMachineBuilderFactory.<AsrFsm, AsrState, AsrEvent, AsrContext> create(AsrFsmImpl.class, AsrState.class, AsrEvent.class, AsrContext.class, DtmfDetector.class, Player.class, AsrEngine.class, MgcpEventSubject.class, ListeningScheduledExecutorService.class, AsrContext.class);
+        this.builder = StateMachineBuilderFactory.<AsrFsm, AsrState, AsrEvent, AsrContext> create(AsrFsmImpl.class, AsrState.class, AsrEvent.class, AsrContext.class, DtmfDetector.class, Player.class, AsrEngine.class, ListeningScheduledExecutorService.class, AsrContext.class);
 
         this.builder.defineFinishEvent(AsrEvent.EVALUATE);
         this.builder.defineParallelStatesOn(AsrState.PLAY_COLLECT, AsrState.PLAY, AsrState.COLLECT);
@@ -124,8 +124,8 @@ public class AsrFsmBuilder {
         this.builder.onEntry(AsrState.FAILED).callMethod("enterFailed");
     }
 
-    public AsrFsm build(DtmfDetector detector, Player player, AsrEngine asrEngine, MgcpEventSubject eventSubject, ListeningScheduledExecutorService scheduler, AsrContext context) {
-        return builder.newStateMachine(AsrState.PLAY_COLLECT, detector, player, asrEngine, eventSubject, scheduler, context);
+    public AsrFsm build(DtmfDetector detector, Player player, AsrEngine asrEngine, ListeningScheduledExecutorService scheduler, AsrContext context) {
+        return builder.newStateMachine(AsrState.PLAY_COLLECT, detector, player, asrEngine, scheduler, context);
     }
 
 }

@@ -27,8 +27,8 @@ import org.restcomm.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.restcomm.media.control.mgcp.pkg.au.AudioPackage;
 import org.restcomm.media.control.mgcp.pkg.au.AudioSignalType;
 import org.restcomm.media.control.mgcp.pkg.au.PlayAnnouncement;
-import org.restcomm.media.control.mgcp.pkg.au.es.EndSignal;
 import org.restcomm.media.control.mgcp.pkg.au.asr.AsrSignal;
+import org.restcomm.media.control.mgcp.pkg.au.es.EndSignal;
 import org.restcomm.media.control.mgcp.pkg.au.pc.PlayCollect;
 import org.restcomm.media.control.mgcp.pkg.au.pr.PlayRecord;
 import org.restcomm.media.control.mgcp.pkg.exception.UnrecognizedMgcpPackageException;
@@ -91,7 +91,7 @@ public class MgcpSignalProvider {
                 return new PlayCollect(mediaGroup.getPlayer(), mediaGroup.getDetector(), requestId, parameters, executor);
 
             case ASR_COLLECT:
-                return new AsrSignal(mediaGroup.getPlayer(), mediaGroup.getDetector(), mediaGroup.getAsrEngine(), requestId, notifiedEntity, parameters, executor);
+                return new AsrSignal(mediaGroup.getPlayer(), mediaGroup.getDetector(), mediaGroup.getAsrEngine(), requestId, parameters, executor);
                 
             case PLAY_RECORD:
                 return new PlayRecord(mediaGroup.getPlayer(), mediaGroup.getDetector(), mediaGroup.getRecorder(), requestId, parameters);

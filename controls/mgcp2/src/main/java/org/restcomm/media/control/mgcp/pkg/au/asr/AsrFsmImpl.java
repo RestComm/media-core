@@ -21,24 +21,12 @@
 
 package org.restcomm.media.control.mgcp.pkg.au.asr;
 
-import java.net.MalformedURLException;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
+import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.restcomm.media.asr.AsrEngine;
-import org.restcomm.media.asr.AsrEngineListener;
-import org.restcomm.media.asr.InputTimeoutDetector;
-import org.restcomm.media.asr.InputTimeoutListener;
-import org.restcomm.media.asr.SpeechDetectorListener;
-import org.restcomm.media.control.mgcp.pkg.MgcpEventSubject;
-import org.restcomm.media.control.mgcp.pkg.au.OperationComplete;
-import org.restcomm.media.control.mgcp.pkg.au.OperationFailed;
-import org.restcomm.media.control.mgcp.pkg.au.Playlist;
-import org.restcomm.media.control.mgcp.pkg.au.ReturnCode;
-import org.restcomm.media.control.mgcp.pkg.au.ReturnParameters;
+import org.restcomm.media.asr.*;
+import org.restcomm.media.control.mgcp.pkg.au.*;
 import org.restcomm.media.drivers.asr.AsrDriverConfigurationException;
 import org.restcomm.media.drivers.asr.AsrDriverException;
 import org.restcomm.media.drivers.asr.UnknownAsrDriverException;
@@ -52,7 +40,9 @@ import org.restcomm.media.spi.player.PlayerEvent;
 import org.restcomm.media.spi.player.PlayerListener;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
 
-import com.google.common.util.concurrent.ListeningScheduledExecutorService;
+import java.net.MalformedURLException;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author anikiforov
@@ -83,10 +73,9 @@ public class AsrFsmImpl extends AbstractStateMachine<AsrFsm, AsrState, AsrEvent,
     }
 
     private final InputTimeoutListener inputTimeoutDetectorListener;
-    private final MgcpEventSubject mgcpEventSubject;
     private final ListeningScheduledExecutorService executor;
 
-    public AsrFsmImpl(DtmfDetector detector, Player player, AsrEngine asrEngine, MgcpEventSubject mgcpEventSubject,
+    public AsrFsmImpl(DtmfDetector detector, Player player, AsrEngine asrEngine,
             ListeningScheduledExecutorService executor, AsrContext context) {
         super();
 
@@ -102,7 +91,6 @@ public class AsrFsmImpl extends AbstractStateMachine<AsrFsm, AsrState, AsrEvent,
         // Execution Context
         this.context = context;
 
-        this.mgcpEventSubject = mgcpEventSubject;
         this.executor = executor;
 
         this.asrEngineListener = new LocalAsrEngineListener();
@@ -273,7 +261,7 @@ public class AsrFsmImpl extends AbstractStateMachine<AsrFsm, AsrState, AsrEvent,
         if (context.needPartialResult()) {
             final OperationComplete operationComplete = new OperationComplete(AsrSignal.SYMBOL, ReturnCode.PARTIAL_SUCCESS.code());
             operationComplete.setParameter(ReturnParameters.ASR_RESULT.symbol(), new String(Hex.encodeHex(context.getLastRecognizedText().getBytes())));
-            mgcpEventSubject.notify(mgcpEventSubject, operationComplete);
+            context.getCallback().onSuccess(operationComplete);
         }
     }
 
@@ -496,7 +484,7 @@ public class AsrFsmImpl extends AbstractStateMachine<AsrFsm, AsrState, AsrEvent,
             operationComplete.setParameter(ReturnParameters.ASR_RESULT.symbol(),
                     new String(Hex.encodeHex(context.getFinalRecognizedText().getBytes())));
         }
-        mgcpEventSubject.notify(mgcpEventSubject, operationComplete);
+        context.getCallback().onSuccess(operationComplete);
     }
 
     @Override
@@ -583,7 +571,7 @@ public class AsrFsmImpl extends AbstractStateMachine<AsrFsm, AsrState, AsrEvent,
             log.trace("Entered FAILED state");
         }
         final OperationFailed operationFailed = new OperationFailed(AsrSignal.SYMBOL, context.getReturnCode());
-        mgcpEventSubject.notify(mgcpEventSubject, operationFailed);
+        context.getCallback().onSuccess(operationFailed);
     }
 
     private void fireEndInput() {

@@ -21,12 +21,13 @@
 
 package org.restcomm.media.control.mgcp.pkg.au.asr;
 
-import java.util.Arrays;
-import java.util.List;
-
+import com.google.common.base.Optional;
+import com.google.common.util.concurrent.FutureCallback;
+import org.restcomm.media.control.mgcp.pkg.MgcpEvent;
 import org.restcomm.media.control.mgcp.pkg.au.Playlist;
 
-import com.google.common.base.Optional;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author anikiforov
@@ -52,6 +53,8 @@ public class AsrContext {
     private String lastRecognizedText;
     private String interimRecognizedText;
     private StringBuilder finalRecognizedText;
+
+    private FutureCallback<MgcpEvent> callback;
 
     public AsrContext(Parameters params) {
         // Signal Options
@@ -212,6 +215,14 @@ public class AsrContext {
 
     public boolean needPartialResult() {
         return params.partialResult;
+    }
+
+    public FutureCallback<MgcpEvent> getCallback() {
+        return callback;
+    }
+
+    public void setCallback(FutureCallback<MgcpEvent> callback) {
+        this.callback = callback;
     }
 
     public static class Parameters {

@@ -21,32 +21,32 @@
 
 package org.restcomm.media.control.mgcp.pkg.au.asr;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
+import com.google.common.base.Optional;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.restcomm.media.asr.AsrEngine;
 import org.restcomm.media.asr.InputTimeoutListener;
-import org.restcomm.media.control.mgcp.command.param.NotifiedEntity;
-import org.restcomm.media.control.mgcp.pkg.AbstractMgcpSignal;
-import org.restcomm.media.control.mgcp.pkg.SignalType;
+import org.restcomm.media.control.mgcp.pkg.MgcpEvent;
 import org.restcomm.media.control.mgcp.pkg.au.AudioPackage;
 import org.restcomm.media.control.mgcp.pkg.au.AudioSignalType;
 import org.restcomm.media.control.mgcp.pkg.au.SignalParameters;
+import org.restcomm.media.control.mgcp.signal.AbstractSignal;
+import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
 import org.restcomm.media.spi.dtmf.DtmfDetector;
 import org.restcomm.media.spi.player.Player;
 
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.ListeningScheduledExecutorService;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author anikiforov
  */
-public class AsrSignal extends AbstractMgcpSignal {
+public class AsrSignal extends AbstractSignal<MgcpEvent> implements TimeoutSignal {
 
     private static final Logger log = Logger.getLogger(AsrSignal.class);
 
@@ -57,32 +57,18 @@ public class AsrSignal extends AbstractMgcpSignal {
     // Finite State Machine
     private final AsrFsm fsm;
 
-    public AsrSignal(Player player, DtmfDetector detector, AsrEngine asrEngine, int requestId, NotifiedEntity notifiedEntity,
+    public AsrSignal(Player player, DtmfDetector detector, AsrEngine asrEngine, String requestId,
             Map<String, String> parameters, ListeningScheduledExecutorService executor) {
-        super(AudioPackage.PACKAGE_NAME, SYMBOL, SignalType.TIME_OUT, requestId, notifiedEntity, parameters);
+        super(requestId, AudioPackage.PACKAGE_NAME, SYMBOL, parameters);
         // Execution Context
         this.context = new AsrContext(new ParameterParser().parse());
 
         // Build FSM
-        this.fsm = AsrFsmBuilder.INSTANCE.build(detector, player, asrEngine, this, executor, context);
+        this.fsm = AsrFsmBuilder.INSTANCE.build(detector, player, asrEngine, executor, context);
     }
 
     @Override
-    public void execute() {
-        if (!this.fsm.isStarted()) {
-            this.fsm.start(this.context);
-        }
-    }
-
-    @Override
-    public void cancel() {
-        if (this.fsm.isStarted()) {
-            fsm.fire(AsrEvent.CANCEL, this.context);
-        }
-    }
-
-    @Override
-    protected boolean isParameterSupported(String name) {
+    public boolean isParameterSupported(String name) {
         // Check if parameter is valid
         SignalParameters parameter = SignalParameters.fromSymbol(name);
         if (parameter == null) {
@@ -114,6 +100,30 @@ public class AsrSignal extends AbstractMgcpSignal {
 
     public InputTimeoutListener getInputTimeoutDetectorListener() { // Method to use only in unit tests
         return ((AsrFsmImpl) fsm).getInputTimeoutDetectorListener();
+    }
+
+    @Override
+    public void execute(FutureCallback<MgcpEvent> callback) {
+        if (!this.fsm.isStarted()) {
+            this.context.setCallback(callback);
+            this.fsm.start(this.context);
+        }
+    }
+
+    @Override
+    public void timeout(FutureCallback<MgcpEvent> callback) {
+        if (this.fsm.isStarted()) {
+            this.context.setCallback(callback);
+            fsm.fire(AsrEvent.CANCEL, this.context);
+        }
+    }
+
+    @Override
+    public void cancel(FutureCallback<MgcpEvent> callback) {
+        if (this.fsm.isStarted()) {
+            this.context.setCallback(callback);
+            fsm.fire(AsrEvent.CANCEL, this.context);
+        }
     }
 
     private class ParameterParser {
@@ -293,8 +303,7 @@ public class AsrSignal extends AbstractMgcpSignal {
         }
 
         public boolean needPartialResult() {
-            return StringUtils.isEmpty(getParameter(SignalParameters.PARTIAL_RESULT.symbol())) ? false
-                    : Boolean.parseBoolean(getParameter(SignalParameters.PARTIAL_RESULT.symbol()));
+            return !StringUtils.isEmpty(getParameter(SignalParameters.PARTIAL_RESULT.symbol())) && Boolean.parseBoolean(getParameter(SignalParameters.PARTIAL_RESULT.symbol()));
         }
     }
 
