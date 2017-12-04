@@ -21,13 +21,6 @@
 
 package org.restcomm.media.control.mgcp.pkg.au.asr;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
-
-import java.util.List;
-import java.util.Map;
-
 import com.google.common.util.concurrent.FutureCallback;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
@@ -40,6 +33,12 @@ import org.restcomm.media.control.mgcp.pkg.au.ReturnCode;
 import org.restcomm.media.control.mgcp.pkg.au.SignalParameters;
 import org.restcomm.media.resource.dtmf.DtmfEventImpl;
 import org.restcomm.media.spi.listener.TooManyListenersException;
+
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
