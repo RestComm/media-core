@@ -46,30 +46,21 @@ public class MgcpChannelInitializerProvider implements Provider<MgcpChannelIniti
     private final MgcpMessageEncoder encoder;
     private final MgcpChannelInboundHandler inboundHandler;
     private final MgcpControllerConfiguration controller;
-    private final int mgcpBufferSize;
+    private final int channelBuffer;
 
     @Inject
-    public MgcpChannelInitializerProvider(@Named("mgcpNetworkGuard") NetworkGuard networkGuard, MgcpMessageParser parser, MgcpChannelInboundHandler inboundHandler) {
-        this.filter = new NetworkFilter(networkGuard);
-        this.decoder = new MgcpMessageDecoder(parser);
-        this.encoder = new MgcpMessageEncoder();
-        this.inboundHandler = inboundHandler;
-        this.controller = null;
-        this.mgcpBufferSize = 5000;
-    }
-
     public MgcpChannelInitializerProvider(MediaServerConfiguration config, @Named("mgcpNetworkGuard") NetworkGuard networkGuard, MgcpMessageParser parser, MgcpChannelInboundHandler inboundHandler) {
         this.filter = new NetworkFilter(networkGuard);
         this.decoder = new MgcpMessageDecoder(parser);
         this.encoder = new MgcpMessageEncoder();
         this.inboundHandler = inboundHandler;
         this.controller = config.getControllerConfiguration();
-        this.mgcpBufferSize = this.controller.getMgcpBufferSize();
+        this.channelBuffer = this.controller.getChannelBuffer();
     }
 
     @Override
     public MgcpChannelInitializer get() {
-        return new MgcpChannelInitializer(this.mgcpBufferSize, this.filter, this.decoder, this.inboundHandler, this.encoder);
+        return new MgcpChannelInitializer(this.channelBuffer, this.filter, this.decoder, this.inboundHandler, this.encoder);
     }
 
 }

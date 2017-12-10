@@ -36,26 +36,21 @@ import io.netty.channel.FixedRecvByteBufAllocator;
  */
 public class MgcpChannelInitializer extends ChannelInitializer<Channel> {
 
-    private static int mgcpBufferSize;
+    private static int channelBuffer;
     private static final ChannelHandler[] NO_HANDLERS = new ChannelHandler[0];
 
     private final ChannelHandler[] handlers;
 
-    public MgcpChannelInitializer(ChannelHandler... handlers) {
-		this.mgcpBufferSize = 5000;
-		this.handlers = (handlers == null || handlers.length == 0) ? NO_HANDLERS : handlers;
-    }
-
-    public MgcpChannelInitializer(int mgcpBufferSize, ChannelHandler... handlers) {
-		/* mgcpBufferSize configuration from MGCP section of mediaserver.xml */
-		this.mgcpBufferSize = mgcpBufferSize;
+    public MgcpChannelInitializer(int channelBuffer, ChannelHandler... handlers) {
+		/* channelBuffer configuration from MGCP section of mediaserver.xml */
+		this.channelBuffer = channelBuffer;
 		this.handlers = (handlers == null || handlers.length == 0) ? NO_HANDLERS : handlers;
     }
 
     @Override
     protected void initChannel(Channel ch) throws Exception {
-        ch.config().setOption(ChannelOption.SO_RCVBUF, this.mgcpBufferSize);
-        ch.config().setOption(ChannelOption.RCVBUF_ALLOCATOR, new FixedRecvByteBufAllocator(this.mgcpBufferSize));
+        ch.config().setOption(ChannelOption.SO_RCVBUF, this.channelBuffer);
+        ch.config().setOption(ChannelOption.RCVBUF_ALLOCATOR, new FixedRecvByteBufAllocator(this.channelBuffer));
 
         // Build handlers pipeline
         ChannelPipeline pipeline = ch.pipeline();
