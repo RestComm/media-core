@@ -1,0 +1,258 @@
+/*
+ * TeleStax, Open Source Cloud Communications
+ * Copyright 2011-2017, Telestax Inc and individual contributors
+ * by the @authors tag. 
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
+
+package org.restcomm.media.control.mgcp.endpoint;
+
+import com.google.common.util.concurrent.FutureCallback;
+import org.apache.log4j.Logger;
+import org.restcomm.media.control.mgcp.command.param.NotifiedEntity;
+import org.restcomm.media.control.mgcp.command.rqnt.NotificationRequest;
+import org.restcomm.media.control.mgcp.connection.MgcpConnection;
+import org.restcomm.media.control.mgcp.message.*;
+import org.restcomm.media.control.mgcp.pkg.MgcpEvent;
+import org.restcomm.media.control.mgcp.util.collections.Parameters;
+
+import java.net.InetSocketAddress;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+/**
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
+ */
+public class AbstractMgcpEndpoint implements MgcpEndpoint {
+
+    private static final Logger log = Logger.getLogger(AbstractMgcpEndpoint.class);
+
+    private final MgcpEndpointContext context;
+    private final MgcpEndpointFsm fsm;
+
+    public AbstractMgcpEndpoint(MgcpEndpointContext context, MgcpEndpointFsm fsm) {
+        super();
+        this.context = context;
+
+        this.context.getNotificationCenter().observe(this);
+        // TODO Unregister from notification center on deactivation
+
+        this.fsm = fsm;
+        this.fsm.addDeclarativeListener(new MgcpEndpointFsmListener(this, this.context));
+        this.fsm.start();
+    }
+
+    @Override
+    public void observe(MgcpEndpointObserver observer) {
+        Set<MgcpEndpointObserver> observers = context.getEndpointObservers();
+        boolean added = observers.add(observer);
+        if (added && log.isTraceEnabled()) {
+            EndpointIdentifier endpointId = context.getEndpointId();
+            log.trace("Endpoint " + endpointId.toString() + " registered MgcpEndpointObserver@" + observer.hashCode() + ". Count: " + observers.size());
+        }
+    }
+
+    @Override
+    public void forget(MgcpEndpointObserver observer) {
+        Set<MgcpEndpointObserver> observers = context.getEndpointObservers();
+        boolean removed = observers.remove(observer);
+        if (removed && log.isTraceEnabled()) {
+            EndpointIdentifier endpointId = context.getEndpointId();
+            log.trace("Endpoint " + endpointId.toString() + " unregistered MgcpEndpointObserver@" + observer.hashCode() + ". Count: " + observers.size());
+        }
+    }
+
+    @Override
+    public void notify(MgcpEndpoint endpoint, MgcpEndpointState state) {
+        final Set<MgcpEndpointObserver> observers = context.getEndpointObservers();
+        for (MgcpEndpointObserver observer : observers) {
+            observer.onEndpointStateChanged(this, state);
+        }
+    }
+
+    @Override
+    public void observe(MgcpMessageObserver observer) {
+        final Set<MgcpMessageObserver> observers = this.context.getMessageObservers();
+        boolean added = observers.add(observer);
+        if (added && log.isTraceEnabled()) {
+            EndpointIdentifier endpointId = context.getEndpointId();
+            log.trace("Endpoint " + endpointId.toString() + " registered MgcpMessageObserver@" + observer.hashCode() + ". Count: " + observers.size());
+        }
+    }
+
+    @Override
+    public void forget(MgcpMessageObserver observer) {
+        final Set<MgcpMessageObserver> observers = this.context.getMessageObservers();
+        boolean removed = observers.remove(observer);
+        if (removed && log.isTraceEnabled()) {
+            EndpointIdentifier endpointId = context.getEndpointId();
+            log.trace("Endpoint " + endpointId.toString() + " unregistered MgcpMessageObserver@" + observer.hashCode() + ". Count: " + observers.size());
+        }
+    }
+
+    @Override
+    public void notify(Object originator, InetSocketAddress from, InetSocketAddress to, MgcpMessage message, MessageDirection direction) {
+        final Set<MgcpMessageObserver> observers = this.context.getMessageObservers();
+        for (MgcpMessageObserver observer : observers) {
+            if (observer != originator) {
+                observer.onMessage(from, to, message, direction);
+            }
+        }
+    }
+
+    @Override
+    public void onEvent(Object originator, MgcpEvent event) {
+        final MgcpRequest ntfy = new MgcpRequest();
+        ntfy.setTransactionId(0);
+        ntfy.setRequestType(MgcpRequestType.NTFY);
+        ntfy.setEndpointId(getEndpointId().toString());
+        final Parameters<MgcpParameterType> params = ntfy.getParameters();
+        params.put(MgcpParameterType.REQUEST_ID, this.context.getNotificationCenter().getRequestId());
+        params.put(MgcpParameterType.OBSERVED_EVENT, event.toString());
+
+        // FIXME hard-coded MGCP port
+        final NotifiedEntity notifiedEntity = this.context.getNotificationCenter().getNotifiedEntity();
+        final InetSocketAddress from = new InetSocketAddress(getEndpointId().getDomainName(), 2427);
+        final InetSocketAddress to = new InetSocketAddress(notifiedEntity.getDomain(), notifiedEntity.getPort());
+        notify(this, from, to, ntfy, MessageDirection.OUTGOING);
+    }
+
+    @Override
+    public EndpointIdentifier getEndpointId() {
+        return this.context.getEndpointId();
+    }
+
+    @Override
+    public MgcpConnection getConnection(int callId, int connectionId) {
+        ConcurrentHashMap<Integer, MgcpConnection> connections = this.context.getConnections();
+        MgcpConnection connection = connections.get(connectionId);
+        if (connection != null && connection.getCallIdentifier() == callId) {
+            return connection;
+        }
+        return null;
+    }
+
+    @Override
+    public boolean isRegistered(int callId, int connectionId) {
+        return getConnection(callId, connectionId) != null;
+    }
+
+    @Override
+    public void registerConnection(MgcpConnection connection, FutureCallback<Void> callback) {
+        // Build transition context
+        MgcpEndpointTransitionContext txContext = new MgcpEndpointTransitionContext();
+        txContext.set(MgcpEndpointParameter.CALLBACK, callback);
+        txContext.set(MgcpEndpointParameter.REGISTERED_CONNECTION, connection);
+        txContext.set(MgcpEndpointParameter.EVENT_OBSERVER, this);
+
+        MgcpEndpointEvent event = MgcpEndpointEvent.REGISTER_CONNECTION;
+        if (this.fsm.canAccept(event)) {
+            // Fire event to process operation
+            fsm.fire(event, txContext);
+        } else {
+            // FSM cannot process request. Alert callback of operation failure.
+            denyOperation(event, callback);
+        }
+    }
+
+    @Override
+    public void unregisterConnection(int callId, int connectionId, FutureCallback<MgcpConnection> callback) {
+        // Build transition context
+        MgcpEndpointTransitionContext txContext = new MgcpEndpointTransitionContext();
+        txContext.set(MgcpEndpointParameter.CALLBACK, callback);
+        txContext.set(MgcpEndpointParameter.CALL_ID, callId);
+        txContext.set(MgcpEndpointParameter.CONNECTION_ID, connectionId);
+        txContext.set(MgcpEndpointParameter.EVENT_OBSERVER, this);
+
+        MgcpEndpointEvent event = MgcpEndpointEvent.UNREGISTER_CONNECTION;
+        if (this.fsm.canAccept(event)) {
+            // Fire event to process operation
+            fsm.fire(event, txContext);
+        } else {
+            // FSM cannot process request. Alert callback of operation failure.
+            denyOperation(event, callback);
+        }
+    }
+
+    @Override
+    public void unregisterConnections(FutureCallback<MgcpConnection[]> callback) {
+        // Build transition context
+        MgcpEndpointTransitionContext txContext = new MgcpEndpointTransitionContext();
+        txContext.set(MgcpEndpointParameter.CALLBACK, callback);
+        txContext.set(MgcpEndpointParameter.EVENT_OBSERVER, this);
+
+        MgcpEndpointEvent event = MgcpEndpointEvent.UNREGISTER_CONNECTION;
+        if (this.fsm.canAccept(event)) {
+            // Fire event to process operation
+            fsm.fire(event, txContext);
+        } else {
+            // FSM cannot process request. Alert callback of operation failure.
+            denyOperation(event, callback);
+        }
+    }
+
+    @Override
+    public void unregisterConnections(int callId, FutureCallback<MgcpConnection[]> callback) {
+        // Build transition context
+        MgcpEndpointTransitionContext txContext = new MgcpEndpointTransitionContext();
+        txContext.set(MgcpEndpointParameter.CALLBACK, callback);
+        txContext.set(MgcpEndpointParameter.CALL_ID, callId);
+        txContext.set(MgcpEndpointParameter.EVENT_OBSERVER, this);
+
+        MgcpEndpointEvent event = MgcpEndpointEvent.UNREGISTER_CONNECTION;
+        if (this.fsm.canAccept(event)) {
+            // Fire event to process operation
+            fsm.fire(event, txContext);
+        } else {
+            // FSM cannot process request. Alert callback of operation failure.
+            denyOperation(event, callback);
+        }
+    }
+
+    @Override
+    public void requestNotification(NotificationRequest request, FutureCallback<Void> callback) {
+        final MgcpEndpointTransitionContext txContext = new MgcpEndpointTransitionContext();
+        txContext.set(MgcpEndpointParameter.CALLBACK, callback);
+        txContext.set(MgcpEndpointParameter.REQUESTED_NOTIFICATION, request);
+
+        final MgcpEndpointEvent event = MgcpEndpointEvent.REQUEST_NOTIFICATION;
+        if (this.fsm.canAccept(event)) {
+            // Fire event to process operation
+            fsm.fire(event, txContext);
+        } else {
+            // FSM cannot process request. Alert callback of operation failure.
+            denyOperation(event, callback);
+        }
+    }
+
+    @Override
+    public void endSignal(String requestId, String signal, FutureCallback<MgcpEvent> callback) {
+        this.context.getNotificationCenter().endSignal(requestId, signal, callback);
+    }
+
+    @Override
+    public MediaGroup getMediaGroup() {
+        return this.context.getMediaGroup();
+    }
+
+    private void denyOperation(MgcpEndpointEvent event, FutureCallback<?> callback) {
+        EndpointIdentifier endpointId = this.context.getEndpointId();
+        Throwable t = new IllegalStateException("Endpoint " + endpointId + " denied operation " + event.name());
+        callback.onFailure(t);
+    }
+
+}

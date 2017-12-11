@@ -1,0 +1,25 @@
+@startuml
+[*] --> IDLE
+IDLE --> HALF_OPENING : half_open
+IDLE --> OPENING : open
+IDLE --> CLOSED : close
+
+HALF_OPENING --> HALF_OPEN
+HALF_OPENING --> CLOSING
+HALF_OPENING --> CORRUPTED
+
+HALF_OPEN --> OPENING : open
+HALF_OPEN --> CLOSING : close,timeout
+
+OPENING --> OPEN : opened
+OPENING --> CORRUPTED : failure
+OPENING --> CLOSING : close
+
+OPEN -> OPEN : join
+OPEN --> CLOSING : close,timeout
+
+CORRUPTED --> CLOSING : close
+
+CLOSING --> CLOSED : closed
+CLOSED --> [*]
+@enduml

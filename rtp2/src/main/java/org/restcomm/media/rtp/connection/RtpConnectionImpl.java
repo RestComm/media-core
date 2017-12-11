@@ -23,8 +23,11 @@ package org.restcomm.media.rtp.connection;
 
 import java.net.InetSocketAddress;
 
+import org.restcomm.media.component.audio.AudioComponent;
+import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.network.deprecated.PortManager;
 import org.restcomm.media.rtp.RtpConnection;
+import org.restcomm.media.rtp.RtpSession;
 import org.restcomm.media.rtp.RtpSessionFactory;
 import org.restcomm.media.rtp.connection.exception.OperationDeniedException;
 import org.restcomm.media.rtp.sdp.SdpBuilder;
@@ -172,6 +175,18 @@ public class RtpConnectionImpl implements RtpConnection {
     private void denyOperation(RtpConnectionEvent event, FutureCallback<?> callback) {
         Throwable t = new OperationDeniedException("RTP Connection " + this.context.getCname() + " denied operation " + event.name());
         callback.onFailure(t);
+    }
+    
+    @Override
+    public AudioComponent getAudioComponent() {
+        RtpSession rtpSession = this.context.getRtpSession();
+        return rtpSession == null ? null : rtpSession.getAudioComponent();
+    }
+    
+    @Override
+    public OOBComponent getOOBComponent() {
+        RtpSession rtpSession = this.context.getRtpSession();
+        return rtpSession == null ? null : rtpSession.getOOBComponent();
     }
 
 }

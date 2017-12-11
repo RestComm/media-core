@@ -21,34 +21,35 @@
 
 package org.restcomm.media.control.mgcp.pkg.au;
 
-import java.net.MalformedURLException;
-import java.util.Map;
-
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.util.concurrent.FutureCallback;
 import org.apache.log4j.Logger;
-import org.restcomm.media.control.mgcp.command.param.NotifiedEntity;
-import org.restcomm.media.control.mgcp.pkg.AbstractMgcpSignal;
-import org.restcomm.media.control.mgcp.pkg.SignalType;
+import org.restcomm.media.control.mgcp.pkg.MgcpEvent;
+import org.restcomm.media.control.mgcp.signal.AbstractSignal;
+import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
 import org.restcomm.media.spi.ResourceUnavailableException;
 import org.restcomm.media.spi.listener.TooManyListenersException;
 import org.restcomm.media.spi.player.Player;
 import org.restcomm.media.spi.player.PlayerEvent;
 import org.restcomm.media.spi.player.PlayerListener;
 
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
+import java.net.MalformedURLException;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Plays an announcement in situations where there is no need for interaction with the user.
- * 
+ * <p>
  * <p>
  * Because there is no need to monitor the incoming media stream this event is an efficient mechanism for treatments,
  * informational announcements, etc.
  * </p>
- * 
- * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
-public class PlayAnnouncement extends AbstractMgcpSignal implements PlayerListener {
+public class PlayAnnouncement extends AbstractSignal<MgcpEvent> implements TimeoutSignal, PlayerListener {
 
     private static final Logger log = Logger.getLogger(PlayAnnouncement.class);
 
@@ -57,7 +58,7 @@ public class PlayAnnouncement extends AbstractMgcpSignal implements PlayerListen
 
     /**
      * The maximum number of times an announcement is to be played.
-     * 
+     * <p>
      * <p>
      * A value of minus one (-1) indicates the announcement is to be repeated forever. Defaults to one (1).
      * </p>
@@ -77,30 +78,28 @@ public class PlayAnnouncement extends AbstractMgcpSignal implements PlayerListen
     private final Playlist playlist;
 
     // Play operation
-    private final long duration;
     private final long interval;
+    private final AtomicBoolean executing;
+    private final AtomicReference<FutureCallback<MgcpEvent>> callback;
 
-    public PlayAnnouncement(Player player, int requestId, NotifiedEntity notifiedEntity, Map<String, String> parameters) {
-        super(AudioPackage.PACKAGE_NAME, SIGNAL, SignalType.TIME_OUT, requestId, notifiedEntity, parameters);
+    public PlayAnnouncement(Player player, String requestId, Map<String, String> parameters) {
+        super(requestId, AudioPackage.PACKAGE_NAME, SIGNAL, parameters);
 
         // Setup Play Parameters
-        this.duration = getDuration();
         this.interval = getInterval();
         this.playlist = new Playlist(getSegments(), getIterations());
 
         // Media Player
         this.player = player;
-        this.player.setDuration(this.duration);
+        this.player.setDuration(getDuration());
         this.player.setMediaTime(0);
         try {
             this.player.addListener(this);
         } catch (TooManyListenersException e) {
             log.error("Too many listeners for audio player", e);
         }
-    }
-
-    public PlayAnnouncement(Player player, int requestId, Map<String, String> parameters) {
-        this(player, requestId, null, parameters);
+        this.executing = new AtomicBoolean(false);
+        this.callback = new AtomicReference<>(null);
     }
 
     private String[] getSegments() {
@@ -108,21 +107,19 @@ public class PlayAnnouncement extends AbstractMgcpSignal implements PlayerListen
     }
 
     private int getIterations() {
-        return Optional.fromNullable(getParameter(SignalParameters.ITERATIONS.symbol()))
-                .transform(new Function<String, Integer>() {
+        return Optional.fromNullable(getParameter(SignalParameters.ITERATIONS.symbol())).transform(new Function<String, Integer>() {
 
-                    @Override
-                    public Integer apply(String input) {
-                        try {
-                            return (input == null || input.isEmpty()) ? null : Integer.parseInt(input);
-                        } catch (Exception e) {
-                            log.error(
-                                    "Could not parse ITERATIONS=" + input + " to integer. Using default value: " + ITERATIONS);
-                            return null;
-                        }
-                    }
+            @Override
+            public Integer apply(String input) {
+                try {
+                    return (input == null || input.isEmpty()) ? null : Integer.parseInt(input);
+                } catch (Exception e) {
+                    log.error("Could not parse ITERATIONS=" + input + " to integer. Using default value: " + ITERATIONS);
+                    return null;
+                }
+            }
 
-                }).or(ITERATIONS);
+        }).or(ITERATIONS);
     }
 
     private long getDuration() {
@@ -142,24 +139,23 @@ public class PlayAnnouncement extends AbstractMgcpSignal implements PlayerListen
     }
 
     private long getInterval() {
-        return Optional.fromNullable(getParameter(SignalParameters.INTERVAL.symbol()))
-                .transform(new Function<String, Integer>() {
+        return Optional.fromNullable(getParameter(SignalParameters.INTERVAL.symbol())).transform(new Function<String, Integer>() {
 
-                    @Override
-                    public Integer apply(String input) {
-                        try {
-                            return (input == null || input.isEmpty()) ? null : Integer.parseInt(input);
-                        } catch (Exception e) {
-                            log.error("Could not parse INTERVAL=" + input + " to long. Using default value: " + INTERVAL);
-                            return null;
-                        }
-                    }
+            @Override
+            public Integer apply(String input) {
+                try {
+                    return (input == null || input.isEmpty()) ? null : Integer.parseInt(input);
+                } catch (Exception e) {
+                    log.error("Could not parse INTERVAL=" + input + " to long. Using default value: " + INTERVAL);
+                    return null;
+                }
+            }
 
-                }).or(INTERVAL) * 1000000L;
+        }).or(INTERVAL) * 1000000L;
     }
 
     @Override
-    protected boolean isParameterSupported(String name) {
+    public boolean isParameterSupported(String name) {
         // Check if parameter is valid
         SignalParameters parameter = SignalParameters.fromSymbol(name);
         if (parameter == null) {
@@ -199,10 +195,49 @@ public class PlayAnnouncement extends AbstractMgcpSignal implements PlayerListen
     }
 
     @Override
-    public void execute() {
+    public void process(PlayerEvent event) {
+        switch (event.getID()) {
+            case PlayerEvent.STOP:
+                if (log.isDebugEnabled()) {
+                    log.debug("Announcement " + this.playlist.current() + " has completed.");
+                }
+
+                String announcement = this.playlist.next();
+                if (announcement.isEmpty() || !this.executing.get()) {
+                    this.player.removeListener(this);
+                    fireOC(ReturnCode.SUCCESS.code());
+                } else {
+                    playAnnouncement(announcement, this.interval);
+                }
+                break;
+
+            case PlayerEvent.FAILED:
+                this.player.removeListener(this);
+                fireOF(ReturnCode.UNSPECIFIED_FAILURE.code());
+                break;
+
+            default:
+                // Ignore other event types
+                break;
+        }
+    }
+
+    private void fireOC(int code) {
+        this.callback.get().onSuccess(new OperationComplete(getSymbol(), code));
+    }
+
+    private void fireOF(int code) {
+        this.callback.get().onSuccess(new OperationFailed(getSymbol(), code));
+    }
+
+    @Override
+    public void execute(FutureCallback<MgcpEvent> callback) {
         if (this.executing.getAndSet(true)) {
             throw new IllegalStateException("Already executing.");
         }
+
+        // Update callback
+        this.callback.set(callback);
 
         // Play announcements
         String announcement = this.playlist.next();
@@ -215,48 +250,18 @@ public class PlayAnnouncement extends AbstractMgcpSignal implements PlayerListen
     }
 
     @Override
-    public void cancel() {
+    public void timeout(FutureCallback<MgcpEvent> callback) {
         if (this.executing.getAndSet(false)) {
+            this.callback.set(callback);
             this.player.deactivate();
         }
     }
 
     @Override
-    public void process(PlayerEvent event) {
-        switch (event.getID()) {
-            case PlayerEvent.STOP:
-                if (log.isDebugEnabled()) {
-                    log.debug("Announcement " + this.playlist.current() + " has completed.");
-                }
-
-                String announcement = this.playlist.next();
-                if (announcement.isEmpty() || !isExecuting()) {
-                    this.player.removeListener(this);
-                    fireOC(ReturnCode.SUCCESS.code());
-                } else {
-                    playAnnouncement(announcement, this.interval);
-                }
-                break;
-
-            case PlayerEvent.FAILED:
-                if (this.executing.getAndSet(false)) {
-                    this.player.removeListener(this);
-                    fireOF(ReturnCode.UNSPECIFIED_FAILURE.code());
-                }
-                break;
-
-            default:
-                // Ignore other event types
-                break;
+    public void cancel(FutureCallback<MgcpEvent> callback) {
+        if (this.executing.getAndSet(false)) {
+            this.callback.set(callback);
+            this.player.deactivate();
         }
     }
-
-    private void fireOC(int code) {
-        notify(this, new OperationComplete(getSymbol(), code));
-    }
-
-    private void fireOF(int code) {
-        notify(this, new OperationFailed(getSymbol(), code));
-    }
-
 }

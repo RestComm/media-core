@@ -1,0 +1,13 @@
+@startuml
+[*] --> VALIDATING_PARAMETERS : execute
+VALIDATING_PARAMETERS --> EXECUTING : execute
+VALIDATING_PARAMETERS --> FAILED : failure, abort
+
+EXECUTING --> SUCCEEDED : success
+EXECUTING --> ROLLBACK : failure, abort
+
+ROLLBACK --> FAILED : rolled_back
+
+SUCCEEDED --> [*]
+FAILED --> [*]
+@enduml

@@ -21,13 +21,14 @@
 
 package org.restcomm.media.control.mgcp.pkg.au.pc;
 
-import java.util.Map;
-
-import org.restcomm.media.control.mgcp.command.param.NotifiedEntity;
-import org.restcomm.media.control.mgcp.pkg.AbstractMgcpSignal;
-import org.restcomm.media.control.mgcp.pkg.SignalType;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.ListeningScheduledExecutorService;
+import org.restcomm.media.control.mgcp.pkg.MgcpEvent;
+import org.restcomm.media.control.mgcp.pkg.MgcpEventObserver;
 import org.restcomm.media.control.mgcp.pkg.au.AudioPackage;
 import org.restcomm.media.control.mgcp.pkg.au.SignalParameters;
+import org.restcomm.media.control.mgcp.signal.AbstractSignal;
+import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
 import org.restcomm.media.spi.dtmf.DtmfDetector;
 import org.restcomm.media.spi.dtmf.DtmfDetectorListener;
 import org.restcomm.media.spi.dtmf.DtmfEvent;
@@ -35,7 +36,8 @@ import org.restcomm.media.spi.player.Player;
 import org.restcomm.media.spi.player.PlayerEvent;
 import org.restcomm.media.spi.player.PlayerListener;
 
-import com.google.common.util.concurrent.ListeningScheduledExecutorService;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Plays a prompt and collects DTMF digits entered by a user.
@@ -54,7 +56,7 @@ import com.google.common.util.concurrent.ListeningScheduledExecutorService;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class PlayCollect extends AbstractMgcpSignal {
+public class PlayCollect extends AbstractSignal<MgcpEvent> implements TimeoutSignal, MgcpEventObserver {
 
     static final String SYMBOL = "pc";
 
@@ -62,38 +64,30 @@ public class PlayCollect extends AbstractMgcpSignal {
     private final PlayCollectFsm fsm;
 
     // Media Components
-    private final DtmfDetector detector;
     final DtmfDetectorListener detectorListener;
-
-    private final Player player;
     final PlayerListener playerListener;
 
     // Execution Context
     private final PlayCollectContext context;
+    private final AtomicReference<FutureCallback<MgcpEvent>> callback;
 
-    public PlayCollect(Player player, DtmfDetector detector, int requestId, NotifiedEntity notifiedEntity, Map<String, String> parameters, ListeningScheduledExecutorService executor) {
-        super(AudioPackage.PACKAGE_NAME, SYMBOL, SignalType.TIME_OUT, requestId, notifiedEntity, parameters);
+    public PlayCollect(Player player, DtmfDetector detector, String requestId, Map<String, String> parameters, ListeningScheduledExecutorService executor) {
+        super(requestId, AudioPackage.PACKAGE_NAME, SYMBOL, parameters);
 
         // Media Components
-        this.detector = detector;
         this.detectorListener = new DetectorListener();
-
-        this.player = player;
         this.playerListener = new AudioPlayerListener();
 
         // Execution Context
         this.context = new PlayCollectContext(detector, detectorListener, parameters);
+        this.callback = new AtomicReference<>(null);
 
         // Build FSM
         this.fsm = PlayCollectFsmBuilder.INSTANCE.build(detector, detectorListener, player, playerListener, this, executor, context);
     }
-    
-    public PlayCollect(Player player, DtmfDetector detector, int requestId, Map<String, String> parameters, ListeningScheduledExecutorService executor) {
-        this(player, detector, requestId, null, parameters, executor);
-    }
 
     @Override
-    protected boolean isParameterSupported(String name) {
+    public boolean isParameterSupported(String name) {
         // Check if parameter is valid
         SignalParameters parameter = SignalParameters.fromSymbol(name);
         if (parameter == null) {
@@ -134,15 +128,30 @@ public class PlayCollect extends AbstractMgcpSignal {
     }
 
     @Override
-    public void execute() {
+    public void onEvent(Object originator, MgcpEvent event) {
+        this.callback.get().onSuccess(event);
+    }
+
+    @Override
+    public void execute(FutureCallback<MgcpEvent> callback) {
         if (!this.fsm.isStarted()) {
+            this.callback.set(callback);
             this.fsm.start(this.context);
         }
     }
 
     @Override
-    public void cancel() {
+    public void timeout(FutureCallback<MgcpEvent> callback) {
         if (this.fsm.isStarted()) {
+            this.callback.set(callback);
+            fsm.fire(PlayCollectEvent.CANCEL, this.context);
+        }
+    }
+
+    @Override
+    public void cancel(FutureCallback<MgcpEvent> callback) {
+        if (this.fsm.isStarted()) {
+            this.callback.set(callback);
             fsm.fire(PlayCollectEvent.CANCEL, this.context);
         }
     }

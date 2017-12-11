@@ -39,6 +39,7 @@
 			<codec name="pcmu" />
 			<codec name="pcma" />
 			<codec name="gsm" />
+			<codec name="opus" />
 			<!-- RestComm Media Server ships with G.729 codec. G.729 includes patents 
 				from several companies and is licensed by Sipro Lab Telecom. Sipro Lab Telecom 
 				is the authorized Intellectual Property Licensing Administrator for G.729 
@@ -59,6 +60,7 @@
 		</player>
 		<dtmfDetector dbi="-35" toneDuration="100" toneInterval="400" />
 		<dtmfGenerator toneVolume="-20" toneDuration="100" />
+		<speechDetector silenceLevel="100" />
 	</resources>
 
 	<dtls>
@@ -67,4 +69,16 @@
 		<cipherSuites>TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA</cipherSuites>
 		<certificate path="../conf/dtls/x509-server-ecdsa.pem" key="../conf/dtls/x509-server-key-ecdsa.pem" algorithm="ecdsa"/>
 	</dtls>
+
+	<subsystems>
+		<subsystem name="asr">
+			<!-- ASR Driver Example
+			<driver name="driver-name" class="org.restcomm.media.drivers.asr.gcs.somedriver"> 
+				<parameter name="hertz">8000</parameter>
+				<parameter name="responseTimeout">1000</parameter> 
+				<parameter name="interimResults">true</parameter>
+			</driver>
+			-->
+		</subsystem>
+	</subsystems>
 </mediaserver>

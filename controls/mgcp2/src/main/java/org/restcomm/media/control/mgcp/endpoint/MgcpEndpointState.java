@@ -29,6 +29,6 @@ package org.restcomm.media.control.mgcp.endpoint;
  */
 public enum MgcpEndpointState {
 
-    ACTIVE, INACTIVE;
+    IDLE, ACTIVE, TERMINATED;
 
 }

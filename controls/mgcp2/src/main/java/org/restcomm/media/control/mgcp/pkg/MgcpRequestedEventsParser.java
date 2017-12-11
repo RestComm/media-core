@@ -41,7 +41,7 @@ public class MgcpRequestedEventsParser {
     private static final String PARAMETER_START_SEPARATOR = ACTION_START_SEPARATOR;
     private static final String PARAMETER_END_SEPARATOR = ACTION_END_SEPARATOR;
 
-    public static MgcpRequestedEvent[] parse(int requestId, String requestedEvents, MgcpPackageManager packageManager)
+    public static MgcpRequestedEvent[] parse(String requestId, String requestedEvents, MgcpPackageManager packageManager)
             throws UnrecognizedMgcpPackageException, UnrecognizedMgcpEventException, UnrecognizedMgcpActionException, MgcpParseException {
         // Split requested events
         String[] tokens = requestedEvents.split("(?<=\\)),");
@@ -60,7 +60,7 @@ public class MgcpRequestedEventsParser {
      * 
      *<package>/<event>[@<connectionId>](<action>)[(<params>)],
      */
-    private static MgcpRequestedEvent parseSingle(int requestId, String requestedEvent, MgcpPackageManager packageManager)
+    private static MgcpRequestedEvent parseSingle(String requestId, String requestedEvent, MgcpPackageManager packageManager)
             throws UnrecognizedMgcpPackageException, UnrecognizedMgcpEventException, UnrecognizedMgcpActionException, MgcpParseException {
         // Get indexes of separators
         int indexOfEvent = requestedEvent.indexOf(EVENT_SEPARATOR);
@@ -120,7 +120,7 @@ public class MgcpRequestedEventsParser {
                 }
 
                 int indexOfParameterEnd = requestedEvent.indexOf(PARAMETER_END_SEPARATOR, indexOfParameterStart);
-                if (indexOfActionEnd == -1) {
+                if (indexOfParameterEnd == -1) {
                     throw new MgcpParseException("Missing parameters end separator on " + requestedEvent);
                 }
                 

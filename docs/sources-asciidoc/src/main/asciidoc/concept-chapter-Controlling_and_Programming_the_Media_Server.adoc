@@ -25,6 +25,418 @@ The Call Agent uses the MGCP to tell the Media Server:
 MGCP is, in essence, a master/slave protocol, where the gateways are expected to execute commands sent by the Call Agents.
 The general base architecture and programming interface is described in http://www.ietf.org/rfc/rfc2805.txt[RFC 2805], and the current specific MGCP definition is located in http://www.ietf.org/rfc/rfc3435.txt[RFC 3435].
 
+[[_captms_media_gateway_control_protocol_packages]]
+==== Supported MGCP Packages
+
+MGCP is a modular and extensible protocol, however with extensibility comes the need to manage, identify, and name the individual extensions.
+
+This is achieved by the concept of packages, which are simply well-defined groupings of extensions. +
+For example, one package may support a certain group of events and signals, e.g., off-hook and ringing, for analog access lines. Another package may support another group of events and signals for analog access lines or for another type of endpoint such as video. +
+One or more packages may be supported by a given endpoint.
+
+[[_captms_media_gateway_control_protocol_packages_au]]
+===== Advanced Audio Package (AU)
+
+The Advanced Audio Package, defined by https://tools.ietf.org/html/rfc2897[RFC 2897], provides support for the standard Interactive Voice Response (IVR) operations of PlayAnnouncement, PlayCollect, and PlayRecord.
+
+It supports direct references to simple audio as well as indirect references to simple and complex audio. +
+It provides audio variables, control of audio interruptibility, digit buffer control, special key sequences, and support for reprompting during data collection. +
+It also provides an arbitrary number of user defined qualifiers to be used in resolving complex audio structures. +
+For example, the user could define qualifiers for any or all of the following: language, accent, audio file format, gender, speaker, or customer.
+
+The package was extended with a proprietary command to enable Automatic Speech Recognition (ASR) capabilities.
+
+
+.MGCP AU Package
+|===
+|Symbol |Definition |R |S |Duration
+
+|pa(params)
+|PlayAnnouncement
+|
+|TO
+|variable
+
+|pc(params)
+|PlayCollect
+|
+|TO
+|variable
+
+|pr(params)
+|PlayRecord
+|
+|TO
+|variable
+
+|asr(params)
+|AutomaticSpeechRecognition
+|
+|TO
+|variable
+
+|es(param)
+|EndSignal
+|
+|BR
+|
+
+|oc(params)
+|OperationComplete
+|X
+|
+|
+
+|of(params)
+|OperationFailed
+|X
+|
+|
+|===
+
+[[_captms_media_gateway_control_protocol_packages_au_pa]]
+===== Play Announcement (pa)
+
+Plays an announcement in situations where there is no need for interaction with the user. +
+Because there is no need to monitor the incoming media stream this event is an efficient mechanism for treatments, informational announcements, etc.
+
+
+.MGCP PlayAnnouncement Command
+|===
+|Symbol |Name |Description
+
+|an
+|announcement
+|An announcement to be played.  Consists of one or more audio segments.
+
+|it
+|iterations
+|The maximum number of times an announcement is to be played. +
+A value of minus one (-1) indicates the announcement is to be repeated forever. +
+Defaults to one (1).
+
+|iv
+|interval
+|The interval of silence to be inserted between iterative plays. +
+Specified in units of 100 milliseconds. +
+Defaults to 10 (1 second).
+
+|du
+|duration
+|The maximum amount of time to play and possibly replay an announcement. +
+Takes precedence over iteration and interval. +
+Specified in units of 100 milliseconds. +
+No default.
+|===
+
+[[_captms_media_gateway_control_protocol_packages_au_pc]]
+===== Play Collect (pc)
+
+Plays a prompt and collects DTMF digits entered by a user. +
+By default PlayCollect does not play an initial prompt, makes only one attempt to collect digits, and therefore functions as a simple Collect operation. +
+
+If no digits are entered or an invalid digit pattern is entered, the user may be re-prompted and given another chance to enter a correct pattern of digits. The following digits are supported:  0-9, *, #, A, B, C, D. +
+
+
+Various special purpose keys, key sequences, and key sets can be defined for use during the PlayCollect operation.
+
+.MGCP PlayCollect Command
+|===
+|Symbol |Name |Description
+
+|ip
+|initial prompt
+|The initial announcement prompting the user to either enter DTMF digits or to speak. +
+Consists of one or more audio segments. +
+If not specified (the default), the event immediately begins digit collection or recording.
+
+|rp
+|reprompt
+|Played after the user has made an error such as entering an invalid digit pattern or not speaking. +
+Consists of one or more audio segments. +
+Defaults to the Initial Prompt.
+
+|nd
+|no digits reprompt
+|Played after the user has failed to enter a valid digit pattern during a PlayCollect event. +
+Consists of one or more audio segments. +
+Defaults to the Reprompt.
+
+|fa
+|failure announcement
+|Played when all data entry attempts have failed. +
+Consists of one or more audio segments. +
+No default.
+
+|sa
+|success announcement
+|Played when data collection has succeeded. +
+Consists of one or more audio segments. +
+No default.
+
+|ni
+|non-interruptible play
+|If set to true, initial prompt is not interruptible by either voice or digits. +
+Valid values are the text strings "true" and "false". +
+Defaults to false.
+
+|mx
+|maximum digits
+|The maximum number of digits to collect. +
+Defaults to 1. +
+This parameter should not be specified if the Digit Pattern parameter is present.
+
+|mv
+|minimum digits
+|The minimum number of digits to collect. +
+Defaults to 1. +
+This parameter should not be specified if the Digit Pattern parameter is present.
+
+|dp
+|digit pattern
+|A legal digit map as described in section 7.1.14 of the Megaco protocol using DTMF mappings. +
+This parameter should not be specified if one or both of the Minimum Number Of Digits parameter and the Maximum Number Of Digits parameter is present.
+
+|fdt
+|first digit timer
+|The amount of time allowed for the user to enter the first digit. +
+Specified in units of 100 milliseconds. +
+Defaults to 50 (5 seconds).
+
+|idt
+|inter digit timer
+|The amount of time allowed for the user to enter each subsequent digit. +
+Specified units of 100 milliseconds seconds. +
+Defaults to 30 (3 seconds).
+
+|rsk
+|restart key
+|Discards any digits collected, replay the prompt, and resume digit collection. +
+No default.
+
+|rik
+|reinput key
+|Discards any digits collected and resume digit collection. +
+ No default.
+
+|sik
+|start input key
+|Defines a set of keys that are acceptable as the first digit collected. +
+This set of keys can be specified to interrupt a playing announcement or to not interrupt a playing announcement. +
+The default key set is 0-9. +
+The default behavior is to interrupt a playing announcement when a Start Input Key is pressed. +
+This behavior can be overridden for the initial prompt only by using the ni (Non-Interruptible Play) parameter. +
+Specification is a list of keys with no separators, e.g. 123456789#.
+
+|eik
+|end input key
+|Specifies a key that signals the end of digit collection or voice recording. +
+The default end input key is the # key. +
+To specify that no End Input Key be used the parameter is set to the string "null". +
+
+The default behavior not to return the End Input Key in the digits returned to the call agent. This behavior can be overridden by the Include End Input Key (eik) parameter.
+
+|iek
+|include end input key
+|By default the End Input Key is not included in the collected digits returned to the call agent. +
+If this parameter is set to "true" then the End Input Key will be returned with the collected digits returned to the call agent. +
+Default is "false".
+
+|na
+|number of attempts
+|The number of attempts the user needed to enter a valid digit pattern. +
+Defaults to 1. +
+Also used as a return parameter to indicate the number of attempts the user made.
+|===
+
+[[_captms_media_gateway_control_protocol_packages_au_pr]]
+===== Play Record (pr)
+
+Plays a prompt and records user speech. +
+If the user does not speak, the user may be re-prompted and given another chance to record.
+
+By default PlayRecord does not play an initial prompt, makes only one attempt to record, and therefore functions as a simple Record operation.
+
+.MGCP PlayRecord Command
+|===
+|Symbol |Name |Description
+
+|ip
+|initial prompt
+|The initial announcement prompting the user to either enter DTMF digits or to speak. +
+Consists of one or more audio segments. +
+If not specified (the default), the event immediately begins digit collection or recording.
+
+|rp
+|reprompt
+|Played after the user has made an error such as entering an invalid digit pattern or not speaking. +
+Consists of one or more audio segments. +
+Defaults to the Initial Prompt.
+
+|ns
+|no speech reprompt
+|Played after the user has failed to speak during a PlayRecord event. +
+Consists of one or more audio segments. +
+Defaults to the Reprompt.
+
+|fa
+|failure announcement
+|Played when all data entry attempts have failed. +
+Consists of one or more audio segments. +
+No default.
+
+|sa
+|success announcement
+|Played when data collection has succeeded. +
+Consists of one or more audio segments. +
+No default.
+
+|ni
+|non-interruptible play
+|If set to true, initial prompt is not interruptible by either voice or digits. +
+Valid values are the text strings "true" and "false". +
+Defaults to false.
+
+|prt
+|pre-speech timer
+|The amount of time to wait for the user to initially speak. +
+Specified in units of 100 milliseconds. +
+Defaults to 30 (3 seconds).
+
+|pst
+|post-speech timer
+|The amount of silence necessary after the end of the last speech segment for the recording to be considered complete. +
+Specified in units of 100 milliseconds. +
+Defaults to 20 (2 seconds).
+
+|rlt
+|recording length timer
+|The maximum allowable length of the recording, not including pre or post speech silence. +
+Specified in units of 100 milliseconds. +
+This parameter is mandatory.
+
+|rsk
+|restart key
+|Discards any digits collected, replay the prompt, and resume digit collection. +
+No default.
+
+|rik
+|reinput key
+|Discards any digits collected and resume digit collection. +
+ No default.
+
+|eik
+|end input key
+|Specifies a key that signals the end of digit collection or voice recording. +
+The default end input key is the # key. +
+To specify that no End Input Key be used the parameter is set to the string "null". +
+
+The default behavior not to return the End Input Key in the digits returned to the call agent. This behavior can be overridden by the Include End Input Key (eik) parameter.
+
+|na
+|number of attempts
+|The number of attempts the user needed to enter a valid digit pattern. +
+Defaults to 1. +
+Also used as a return parameter to indicate the number of attempts the user made.
+|===
+
+[[_captms_media_gateway_control_protocol_packages_au_asr]]
+===== Automatic Speech Recognition (asr)
+
+Gracefully terminates a Play, PlayCollect, or PlayRecord signal.
+
+For each of these signals, if the signal is terminated with the EndSignal signal the resulting OperationComplete event or OperationFailed event will contain all the parameters it would normally, including any collected digits or the recording id of the recording that was in progress when the EndSignal signal was received.
+
+|===
+|Symbol |Name |Description
+
+|dr
+|driver
+|The driver to be used to perform the transcription.
+
+|ip
+|initial prompt
+|The initial announcement prompting the user to either enter DTMF digits or to speak. +
+Consists of one or more audio segments. +
+If not specified (the default), the event immediately begins digit collection or recording.
+
+|fa
+|failure announcement
+|Played when all data entry attempts have failed. +
+Consists of one or more audio segments. +
+No default.
+
+|sa
+|success announcement
+|Played when data collection has succeeded. +
+Consists of one or more audio segments. +
+No default.
+
+|eik
+|end input key
+|Specifies a key that signals the end of digit or voice collection. +
+The default end input key is the # key. +
+To specify that no End Input Key be used the parameter is set to the string "null". +
+
+The default behavior not to return the End Input Key in the digits returned to the call agent. This behavior can be overridden by the Include End Input Key (eik) parameter.
+
+|mrt
+|maximum recognition time
+|The maximum allowable length of the voice recognition, not including pre or post speech silence. +
+ Specified in units of 100 milliseconds. +
+ This parameter is mandatory.
+
+|wit
+|waiting input time
+|The amount of time to wait between talk-spurts. +
+Specified in units of 100 milliseconds. +
+Defaults to 30 (3 seconds).
+
+|pst
+|post-speech timer
+|The amount of silence necessary after the end of the last speech segment for the operation to be considered complete. +
+Specified in units of 100 milliseconds. +
+Defaults to 20 (2 seconds).
+
+|pr
+|partial results
+|Defines whether interim results are enabled. +
+Allowed values are "true" or "false". +
+Defaults to "false".
+
+|hw
+|hotwords
+|A list of words or phrases, *converted to octet String*, that are expected during recognition. +
+Each word may contain up to 100 characters. Up to 50 may be provided. +
+These are very useful for improving recognition of single words or phrases. +
+Entries into hints should be separated by a comma, spaces separate words within a phrase.
+
+|ln
+|language
+|The language Twilio should recognize as specified using a BCP-47 language tag. +
+Defaults to en-US. +
+The full list of supported languages depends on the underlying driver.
+
+|===
+
+
+[[_captms_media_gateway_control_protocol_packages_au_es]]
+===== End Signal (es)
+
+Gracefully terminates a Play, PlayCollect, or PlayRecord signal.
+
+For each of these signals, if the signal is terminated with the EndSignal signal the resulting OperationComplete event or OperationFailed event will contain all the parameters it would normally, including any collected digits or the recording id of the recording that was in progress when the EndSignal signal was received.
+
+|===
+|Symbol |Name |Description
+
+|sg
+|signal
+|The type of signal (pa,pc,pr) to be stopped.
+
+|===
+
+
 === JSR-309 Control protocol Interface
 
 JSR-309 defines a programming model and object model for Media Server (MS) control independent of MS control protocols.

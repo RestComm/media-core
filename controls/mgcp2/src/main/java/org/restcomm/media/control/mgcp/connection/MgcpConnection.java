@@ -23,12 +23,13 @@ package org.restcomm.media.control.mgcp.connection;
 
 import org.restcomm.media.component.audio.AudioComponent;
 import org.restcomm.media.component.oob.OOBComponent;
-import org.restcomm.media.control.mgcp.exception.MgcpConnectionException;
 import org.restcomm.media.control.mgcp.exception.UnsupportedMgcpEventException;
 import org.restcomm.media.control.mgcp.message.LocalConnectionOptions;
 import org.restcomm.media.control.mgcp.pkg.MgcpEventSubject;
 import org.restcomm.media.control.mgcp.pkg.MgcpRequestedEvent;
 import org.restcomm.media.spi.ConnectionMode;
+
+import com.google.common.util.concurrent.FutureCallback;
 
 /**
  * Connections are created on each endpoint that will be involved in the call.
@@ -86,20 +87,12 @@ public interface MgcpConnection extends MgcpEventSubject {
     ConnectionMode getMode();
 
     /**
-     * Gets the current state of the connection
-     * 
-     * @return The connection state
-     */
-    MgcpConnectionState getState();
-
-    /**
      * Sets the mode of the connection.
      * 
      * @param mode The new mode of the connection
-     * 
-     * @throws IllegalStateException Cannot update mode of closed connections
+     * @param callback Invoked when operation completes or fails.
      */
-    void setMode(ConnectionMode mode) throws IllegalStateException;
+    void updateMode(ConnectionMode mode, FutureCallback<Void> callback);
 
     /**
      * The connection allocates resources and becomes half-open, sending an SDP offer to the remote peer.
@@ -109,13 +102,9 @@ public interface MgcpConnection extends MgcpEventSubject {
      * </p>
      * 
      * @param options The options that configure the connection.
-     * 
-     * @return The SDP offer.
-     * 
-     * @throws MgcpConnectionException If connection state is not closed.
-     * @throws MgcpConnectionException If connection could not bind required resources
+     * @param callback Invoked when operation completes or fails. Holds the local session description.
      */
-    String halfOpen(LocalConnectionOptions options) throws MgcpConnectionException;
+    void halfOpen(LocalConnectionOptions options, FutureCallback<String> callback);
 
     /**
      * Moves the connection to an open state.
@@ -130,29 +119,24 @@ public interface MgcpConnection extends MgcpEventSubject {
      * </p>
      * 
      * @param sdp The SDP description of the remote peer.
-     * @return The SDP answer if the call is inbound; <code>null</code> if call is outbound.
-     * 
-     * @throws MgcpConnectionException If connection state is not closed nor half-open.
-     * @throws MgcpConnectionException If connection fails to open properly
+     * @param callback Invoked when operation completes or fails. Holds the local session description.
      */
-    String open(String sdp) throws MgcpConnectionException;
+    void open(String sdp, FutureCallback<String> callback);
     
     /**
      * Re-negotiates an open connection.
      * 
      * @param sdp The new remote session description.
-     * @return The updated local session description.
-     * @throws MgcpConnectionException If connection state is not open.
-     * @throws MgcpConnectionException If connection fails to re-negotiate.
+     * @param callback Invoked when operation completes or fails. Holds the local session description.
      */
-    String renegotiate(String sdp) throws MgcpConnectionException;
+    void negotiate(String sdp, FutureCallback<String> callback);
 
     /**
      * Closes the connection.
      * 
-     * @throws MgcpConnectionException If connection state is not half-open nor open.
+     * @param callback Invoked when operation completes or fails.
      */
-    void close() throws MgcpConnectionException;
+    void close(FutureCallback<Void> callback);
 
     /**
      * Requests the connection to send notifications about a certain event.

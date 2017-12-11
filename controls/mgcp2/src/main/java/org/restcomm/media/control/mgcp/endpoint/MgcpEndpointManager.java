@@ -181,7 +181,7 @@ public class MgcpEndpointManager implements MgcpEndpointObserver, MgcpMessageObs
             log.debug("Endpoint " + endpoint.getEndpointId().toString() + " changed state to " + state.name());
         }
         
-        if(MgcpEndpointState.INACTIVE.equals(state)) {
+        if(MgcpEndpointState.IDLE.equals(state)) {
             final String endpointId = endpoint.getEndpointId().toString();
             try {
                 unregisterEndpoint(endpointId);

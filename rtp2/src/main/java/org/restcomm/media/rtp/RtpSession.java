@@ -23,6 +23,8 @@ package org.restcomm.media.rtp;
 
 import java.net.SocketAddress;
 
+import org.restcomm.media.component.audio.AudioComponent;
+import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.sdp.fields.MediaDescriptionField;
 import org.restcomm.media.sdp.format.RTPFormats;
 import org.restcomm.media.spi.ConnectionMode;
@@ -58,5 +60,19 @@ public interface RtpSession {
     void outgoingRtp(RtpPacket packet);
     
     boolean isActive();
+    
+    /**
+     * Gets the in-band audio component of the connection.
+     * 
+     * @return The in-band media component
+     */
+    AudioComponent getAudioComponent();
+
+    /**
+     * Gets the out-of-band audio component of the connection.
+     * 
+     * @return The out-of-band media component
+     */
+    OOBComponent getOOBComponent();
 
 }

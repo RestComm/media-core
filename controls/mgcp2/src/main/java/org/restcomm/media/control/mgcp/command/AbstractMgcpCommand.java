@@ -34,10 +34,6 @@ import org.restcomm.media.control.mgcp.util.collections.Parameters;
  */
 public abstract class AbstractMgcpCommand implements MgcpCommand {
 
-    protected static final String WILDCARD_ALL = "*";
-    protected static final String WILDCARD_ANY = "$";
-    protected static final String ENDPOINT_ID_SEPARATOR = "@";
-
     protected final int transactionId;
     protected final MgcpEndpointManager endpointManager;
     protected final Parameters<MgcpParameterType> requestParameters;

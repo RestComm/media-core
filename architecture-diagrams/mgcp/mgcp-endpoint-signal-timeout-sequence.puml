@@ -1,0 +1,13 @@
+@startuml
+[*] --> IDLE
+IDLE --> IDLE : RQNT [no_signals]
+IDLE -down-> ACTIVE : RQNT [has_signals]
+
+ACTIVE -up-> IDLE : RQNT [no_signals]
+ACTIVE -up-> IDLE : no_signals
+ACTIVE -> ACTIVE : RQNT [has_signals]
+ACTIVE -> ACTIVE : signal_completed
+ACTIVE --> STOPPED : stop
+
+STOPPED --> [*]
+@enduml

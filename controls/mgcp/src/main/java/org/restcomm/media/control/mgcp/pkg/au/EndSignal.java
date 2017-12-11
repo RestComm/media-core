@@ -41,7 +41,7 @@ public class EndSignal extends Signal {
     private volatile Options options;
     
     private DtmfDetector dtmfDetector;
-    private final static Logger logger = Logger.getLogger(EndSignal.class);
+    private final static Logger logger = Logger.getLogger(org.restcomm.media.control.mgcp.pkg.au.es.EndSignal.class);
     
     public EndSignal(String name) {
         super(name);

@@ -21,28 +21,15 @@
 
 package org.restcomm.media.control.mgcp.pkg.au.pc;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
-import java.net.MalformedURLException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.ListeningScheduledExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.restcomm.media.control.mgcp.pkg.MgcpEvent;
-import org.restcomm.media.control.mgcp.pkg.MgcpEventObserver;
 import org.restcomm.media.control.mgcp.pkg.au.ReturnCode;
-import org.restcomm.media.control.mgcp.pkg.au.pc.PlayCollect;
 import org.restcomm.media.resource.dtmf.DtmfEventImpl;
 import org.restcomm.media.resource.player.audio.AudioPlayerEvent;
 import org.restcomm.media.resource.player.audio.AudioPlayerImpl;
@@ -51,12 +38,18 @@ import org.restcomm.media.spi.dtmf.DtmfDetector;
 import org.restcomm.media.spi.player.Player;
 import org.restcomm.media.spi.player.PlayerEvent;
 
-import com.google.common.util.concurrent.ListeningScheduledExecutorService;
-import com.google.common.util.concurrent.MoreExecutors;
+import java.net.MalformedURLException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
  */
 public class PlayCollectTest {
 
@@ -83,14 +76,11 @@ public class PlayCollectTest {
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback callback = mock(FutureCallback.class);
+        pc.execute(callback);
 
         pc.detectorListener.process(new DtmfEventImpl(detector, "5", -30));
         pc.detectorListener.process(new DtmfEventImpl(detector, "#", -30));
@@ -100,8 +90,9 @@ public class PlayCollectTest {
         verify(detector, times(1)).deactivate();
         verify(player, never()).activate();
         verify(player, never()).deactivate();
-        verify(observer, timeout(5)).onEvent(eq(pc), eventCaptor.capture());
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, timeout(50)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
         assertEquals("5", eventCaptor.getValue().getParameter("dc"));
         assertEquals("1", eventCaptor.getValue().getParameter("na"));
@@ -119,14 +110,11 @@ public class PlayCollectTest {
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback callback = mock(FutureCallback.class);
+        pc.execute(callback);
 
         pc.detectorListener.process(new DtmfEventImpl(detector, "5", -30));
         verify(player, times(1)).deactivate();
@@ -139,8 +127,8 @@ public class PlayCollectTest {
         verify(player, times(1)).activate();
         verify(player, times(1)).deactivate();
 
-        verify(observer, timeout(5)).onEvent(eq(pc), eventCaptor.capture());
-
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, timeout(50)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
         assertEquals("55", eventCaptor.getValue().getParameter("dc"));
         assertEquals("1", eventCaptor.getValue().getParameter("na"));
@@ -159,14 +147,11 @@ public class PlayCollectTest {
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback callback = mock(FutureCallback.class);
+        pc.execute(callback);
 
         pc.detectorListener.process(new DtmfEventImpl(detector, "5", -30));
         verify(player, times(0)).deactivate();
@@ -177,8 +162,9 @@ public class PlayCollectTest {
         verify(detector, times(1)).deactivate();
         verify(player, times(1)).activate();
         verify(player, times(1)).deactivate();
-        verify(observer, timeout(5)).onEvent(eq(pc), eventCaptor.capture());
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, timeout(50)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
         assertEquals("5", eventCaptor.getValue().getParameter("dc"));
         assertEquals("1", eventCaptor.getValue().getParameter("na"));
@@ -196,14 +182,11 @@ public class PlayCollectTest {
         final Player player = mock(Player.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback callback = mock(FutureCallback.class);
+        pc.execute(callback);
 
         pc.detectorListener.process(new DtmfEventImpl(detector, "1", -30));
         pc.detectorListener.process(new DtmfEventImpl(detector, "2", -30));
@@ -217,8 +200,9 @@ public class PlayCollectTest {
         // then
         verify(detector, times(2)).activate();
         verify(player, never()).activate();
-        verify(observer, timeout(5)).onEvent(eq(pc), eventCaptor.capture());
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, timeout(50)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
         assertEquals("456", eventCaptor.getValue().getParameter("dc"));
         assertEquals("2", eventCaptor.getValue().getParameter("na"));
@@ -234,14 +218,11 @@ public class PlayCollectTest {
         final Player player = mock(Player.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback callback = mock(FutureCallback.class);
+        pc.execute(callback);
 
         pc.detectorListener.process(new DtmfEventImpl(detector, "1", -30));
         pc.detectorListener.process(new DtmfEventImpl(detector, "2", -30));
@@ -251,8 +232,9 @@ public class PlayCollectTest {
         // then
         verify(detector, times(1)).activate();
         verify(player, never()).activate();
-        verify(observer, timeout(100)).onEvent(eq(pc), eventCaptor.capture());
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, timeout(50)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
         assertEquals("123#", eventCaptor.getValue().getParameter("dc"));
         assertEquals("1", eventCaptor.getValue().getParameter("na"));
@@ -268,14 +250,11 @@ public class PlayCollectTest {
         final Player player = mock(Player.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback callback = mock(FutureCallback.class);
+        pc.execute(callback);
 
         pc.detectorListener.process(new DtmfEventImpl(detector, "1", -30));
         pc.detectorListener.process(new DtmfEventImpl(detector, "2", -30));
@@ -284,8 +263,9 @@ public class PlayCollectTest {
         // then
         verify(detector, times(1)).activate();
         verify(player, never()).activate();
-        verify(observer, timeout(100)).onEvent(eq(pc), eventCaptor.capture());
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, timeout(50)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
         assertEquals("123", eventCaptor.getValue().getParameter("dc"));
         assertEquals("1", eventCaptor.getValue().getParameter("na"));
@@ -301,22 +281,20 @@ public class PlayCollectTest {
         final Player player = mock(Player.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback callback = mock(FutureCallback.class);
+        pc.execute(callback);
 
         pc.detectorListener.process(new DtmfEventImpl(detector, "6", -30));
 
         // then
         verify(detector, times(1)).activate();
         verify(player, never()).activate();
-        verify(observer, timeout(100)).onEvent(eq(pc), eventCaptor.capture());
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, timeout(50)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
         assertEquals("6", eventCaptor.getValue().getParameter("dc"));
         assertEquals("1", eventCaptor.getValue().getParameter("na"));
@@ -331,14 +309,11 @@ public class PlayCollectTest {
         final Player player = mock(Player.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback callback = mock(FutureCallback.class);
+        pc.execute(callback);
 
         pc.detectorListener.process(new DtmfEventImpl(detector, "1", -30));
         pc.detectorListener.process(new DtmfEventImpl(detector, "2", -30));
@@ -348,8 +323,9 @@ public class PlayCollectTest {
         // then
         verify(detector, times(1)).activate();
         verify(player, never()).activate();
-        verify(observer, timeout(100)).onEvent(eq(pc), eventCaptor.capture());
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, timeout(50)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
         assertEquals("4", eventCaptor.getValue().getParameter("dc"));
         assertEquals("1", eventCaptor.getValue().getParameter("na"));
@@ -367,14 +343,11 @@ public class PlayCollectTest {
         final Player player = mock(Player.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback callback = mock(FutureCallback.class);
+        pc.execute(callback);
 
         pc.detectorListener.process(new DtmfEventImpl(detector, "1", -30));
         pc.detectorListener.process(new DtmfEventImpl(detector, "2", -30));
@@ -383,8 +356,9 @@ public class PlayCollectTest {
         // then
         verify(detector, times(1)).activate();
         verify(player, never()).activate();
-        verify(observer, timeout(100)).onEvent(eq(pc), eventCaptor.capture());
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, timeout(50)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.DIGIT_PATTERN_NOT_MATCHED.code()), eventCaptor.getValue().getParameter("rc"));
     }
 
@@ -397,14 +371,11 @@ public class PlayCollectTest {
         final Player player = mock(Player.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback callback = mock(FutureCallback.class);
+        pc.execute(callback);
 
         pc.detectorListener.process(new DtmfEventImpl(detector, "1", -30));
         pc.detectorListener.process(new DtmfEventImpl(detector, "2", -30));
@@ -416,16 +387,16 @@ public class PlayCollectTest {
         // then
         verify(detector, times(1)).activate();
         verify(player, never()).activate();
-        verify(observer, timeout(50)).onEvent(eq(pc), eventCaptor.capture());
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, timeout(50)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
         assertEquals("12345", eventCaptor.getValue().getParameter("dc"));
         assertEquals("1", eventCaptor.getValue().getParameter("na"));
     }
 
     @Test
-    public void testSuccessfulCollectWithDigitPatternOfAtLeastOneDigitFollowedByTwoDistinctLetters()
-            throws InterruptedException {
+    public void testSuccessfulCollectWithDigitPatternOfAtLeastOneDigitFollowedByTwoDistinctLetters() throws InterruptedException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("dp", "x.AB");
@@ -433,14 +404,11 @@ public class PlayCollectTest {
         final Player player = mock(Player.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback callback = mock(FutureCallback.class);
+        pc.execute(callback);
 
         pc.detectorListener.process(new DtmfEventImpl(detector, "1", -30));
         pc.detectorListener.process(new DtmfEventImpl(detector, "2", -30));
@@ -454,16 +422,16 @@ public class PlayCollectTest {
         // then
         verify(detector, times(1)).activate();
         verify(player, never()).activate();
-        verify(observer, timeout(50)).onEvent(eq(pc), eventCaptor.capture());
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, timeout(50)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
         assertEquals("12345AB", eventCaptor.getValue().getParameter("dc"));
         assertEquals("1", eventCaptor.getValue().getParameter("na"));
     }
 
     @Test
-    public void testSuccessfulCollectWithDigitPatternOfNineFollowedByAnyDigitFollowedByOptionalLetter()
-            throws InterruptedException {
+    public void testSuccessfulCollectWithDigitPatternOfNineFollowedByAnyDigitFollowedByOptionalLetter() throws InterruptedException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("dp", "9xA*");
@@ -471,14 +439,11 @@ public class PlayCollectTest {
         final Player player = mock(Player.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback callback = mock(FutureCallback.class);
+        pc.execute(callback);
 
         pc.detectorListener.process(new DtmfEventImpl(detector, "9", -30));
         pc.detectorListener.process(new DtmfEventImpl(detector, "1", -30));
@@ -487,8 +452,9 @@ public class PlayCollectTest {
         // then
         verify(detector, times(1)).activate();
         verify(player, never()).activate();
-        verify(observer, timeout(50)).onEvent(eq(pc), eventCaptor.capture());
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, timeout(50)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
         assertEquals("91", eventCaptor.getValue().getParameter("dc"));
         assertEquals("1", eventCaptor.getValue().getParameter("na"));
@@ -503,14 +469,11 @@ public class PlayCollectTest {
         final Player player = mock(Player.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback callback = mock(FutureCallback.class);
+        pc.execute(callback);
 
         pc.detectorListener.process(new DtmfEventImpl(detector, "9", -30));
         pc.detectorListener.process(new DtmfEventImpl(detector, "A", -30));
@@ -520,8 +483,9 @@ public class PlayCollectTest {
         // then
         verify(detector, times(1)).activate();
         verify(player, never()).activate();
-        verify(observer, timeout(50)).onEvent(eq(pc), eventCaptor.capture());
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, timeout(50)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
         assertEquals("9AC", eventCaptor.getValue().getParameter("dc"));
         assertEquals("1", eventCaptor.getValue().getParameter("na"));
@@ -536,22 +500,20 @@ public class PlayCollectTest {
         final Player player = mock(Player.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback callback = mock(FutureCallback.class);
+        pc.execute(callback);
 
         Thread.sleep(10 * 100);
 
         // then
         verify(detector, times(1)).activate();
         verify(player, never()).activate();
-        verify(observer, timeout(50)).onEvent(eq(pc), eventCaptor.capture());
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, timeout(50)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.NO_DIGITS.code()), eventCaptor.getValue().getParameter("rc"));
     }
 
@@ -567,14 +529,11 @@ public class PlayCollectTest {
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback callback = mock(FutureCallback.class);
+        pc.execute(callback);
 
         pc.playerListener.process(new AudioPlayerEvent(player, AudioPlayerEvent.STOP));
         Thread.sleep(6 * 100);
@@ -584,8 +543,9 @@ public class PlayCollectTest {
         verify(detector, times(1)).deactivate();
         verify(player, times(1)).activate();
         verify(player, times(1)).deactivate();
-        verify(observer, timeout(5)).onEvent(eq(pc), eventCaptor.capture());
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, timeout(50)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.NO_DIGITS.code()), eventCaptor.getValue().getParameter("rc"));
     }
 
@@ -601,14 +561,11 @@ public class PlayCollectTest {
         final Player player = mock(Player.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback callback = mock(FutureCallback.class);
+        pc.execute(callback);
 
         Thread.sleep(40 * 100);
         pc.detectorListener.process(new DtmfEventImpl(detector, "9", -30));
@@ -617,14 +574,14 @@ public class PlayCollectTest {
         // then
         verify(detector, times(1)).activate();
         verify(player, never()).activate();
-        verify(observer, timeout(50)).onEvent(eq(pc), eventCaptor.capture());
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, timeout(50)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.DIGIT_PATTERN_NOT_MATCHED.code()), eventCaptor.getValue().getParameter("rc"));
     }
 
     @Test
-    public void testInitialPromptWithMultipleSegments()
-            throws InterruptedException, MalformedURLException, ResourceUnavailableException {
+    public void testInitialPromptWithMultipleSegments() throws InterruptedException, MalformedURLException, ResourceUnavailableException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("ip", "dummy1.wav,dummy2.wav");
@@ -632,14 +589,11 @@ public class PlayCollectTest {
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback callback = mock(FutureCallback.class);
+        pc.execute(callback);
 
         // Simulate playback time to assure FirstDigitTimer is not interrupting
         Thread.sleep(5);
@@ -653,16 +607,16 @@ public class PlayCollectTest {
         verify(player, times(2)).activate();
         verify(player, times(1)).setURL("dummy1.wav");
         verify(player, times(1)).setURL("dummy2.wav");
-        verify(observer, timeout(50)).onEvent(eq(pc), eventCaptor.capture());
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, timeout(50)).onSuccess(eventCaptor.capture());
         assertEquals("9", eventCaptor.getValue().getParameter("dc"));
         assertEquals("1", eventCaptor.getValue().getParameter("na"));
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
     }
 
     @Test
-    public void testFailAllAtemptsDueToTimeout()
-            throws InterruptedException, MalformedURLException, ResourceUnavailableException {
+    public void testFailAllAtemptsDueToTimeout() throws InterruptedException, MalformedURLException, ResourceUnavailableException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("na", "3");
@@ -672,14 +626,11 @@ public class PlayCollectTest {
         final Player player = mock(Player.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback callback = mock(FutureCallback.class);
+        pc.execute(callback);
 
         // fail all 3 attempts (10 * 100ms each)
         Thread.sleep(3 * 5 * 100);
@@ -687,14 +638,14 @@ public class PlayCollectTest {
         // then
         verify(detector, times(3)).activate();
         verify(player, never()).activate();
-        verify(observer, timeout(200)).onEvent(eq(pc), eventCaptor.capture());
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, timeout(50)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.NO_DIGITS.code()), eventCaptor.getValue().getParameter("rc"));
     }
 
     @Test
-    public void testFailAllAtemptsDueToBadPattern()
-            throws InterruptedException, MalformedURLException, ResourceUnavailableException {
+    public void testFailAllAtemptsDueToBadPattern() throws InterruptedException, MalformedURLException, ResourceUnavailableException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("na", "2");
@@ -703,14 +654,11 @@ public class PlayCollectTest {
         final Player player = mock(Player.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback callback = mock(FutureCallback.class);
+        pc.execute(callback);
 
         pc.detectorListener.process(new DtmfEventImpl(detector, "1", -30));
         pc.detectorListener.process(new DtmfEventImpl(detector, "A", -30));
@@ -723,14 +671,14 @@ public class PlayCollectTest {
         // then
         verify(detector, times(2)).activate();
         verify(player, never()).activate();
-        verify(observer, timeout(50)).onEvent(eq(pc), eventCaptor.capture());
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, timeout(50)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.DIGIT_PATTERN_NOT_MATCHED.code()), eventCaptor.getValue().getParameter("rc"));
     }
 
     @Test
-    public void testPlayCollectWithRestartKey()
-            throws InterruptedException, MalformedURLException, ResourceUnavailableException {
+    public void testPlayCollectWithRestartKey() throws InterruptedException, MalformedURLException, ResourceUnavailableException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("na", "2");
@@ -740,14 +688,11 @@ public class PlayCollectTest {
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback callback = mock(FutureCallback.class);
+        pc.execute(callback);
 
         Thread.sleep(1000);
         pc.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
@@ -765,16 +710,16 @@ public class PlayCollectTest {
         verify(detector, times(2)).activate();
         verify(player, times(2)).activate();
         verify(player, times(2)).setURL("dummy.wav");
-        verify(observer, timeout(50)).onEvent(eq(pc), eventCaptor.capture());
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, timeout(50)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
         assertEquals("1", eventCaptor.getValue().getParameter("dc"));
         assertEquals("2", eventCaptor.getValue().getParameter("na"));
     }
 
     @Test
-    public void testPlayCollectWithRestartKeyUntilMaxAttemptAreExceeded()
-            throws InterruptedException, MalformedURLException, ResourceUnavailableException {
+    public void testPlayCollectWithRestartKeyUntilMaxAttemptAreExceeded() throws InterruptedException, MalformedURLException, ResourceUnavailableException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("na", "2");
@@ -784,14 +729,11 @@ public class PlayCollectTest {
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback callback = mock(FutureCallback.class);
+        pc.execute(callback);
 
         Thread.sleep(1000);
         pc.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
@@ -809,14 +751,14 @@ public class PlayCollectTest {
         verify(detector, times(2)).activate();
         verify(player, times(2)).activate();
         verify(player, times(2)).setURL("dummy.wav");
-        verify(observer, timeout(50)).onEvent(eq(pc), eventCaptor.capture());
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, timeout(50)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.MAX_ATTEMPTS_EXCEEDED.code()), eventCaptor.getValue().getParameter("rc"));
     }
 
     @Test
-    public void testRepromptWhenTimeoutWithoutMinDigitsCollected()
-            throws InterruptedException, MalformedURLException, ResourceUnavailableException {
+    public void testRepromptWhenTimeoutWithoutMinDigitsCollected() throws InterruptedException, MalformedURLException, ResourceUnavailableException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("na", "3");
@@ -830,13 +772,12 @@ public class PlayCollectTest {
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback callback = mock(FutureCallback.class);
+        pc.execute(callback);
+
         // Play initial prompt
         pc.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
 
@@ -872,16 +813,16 @@ public class PlayCollectTest {
         verify(player, times(1)).setURL("prompt.wav");
         verify(player, times(2)).setURL("reprompt1.wav");
         verify(player, times(2)).setURL("reprompt2.wav");
-        verify(observer, timeout(50)).onEvent(eq(pc), eventCaptor.capture());
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, timeout(50)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
         assertEquals("25", eventCaptor.getValue().getParameter("dc"));
         assertEquals("3", eventCaptor.getValue().getParameter("na"));
     }
 
     @Test
-    public void testRepromptWhenTimeoutWithoutMatchingDigitsPattern()
-            throws InterruptedException, MalformedURLException, ResourceUnavailableException {
+    public void testRepromptWhenTimeoutWithoutMatchingDigitsPattern() throws InterruptedException, MalformedURLException, ResourceUnavailableException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("na", "2");
@@ -894,14 +835,11 @@ public class PlayCollectTest {
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback callback = mock(FutureCallback.class);
+        pc.execute(callback);
 
         // Play initial prompt
         Thread.sleep(20);
@@ -929,16 +867,16 @@ public class PlayCollectTest {
         verify(player, times(2)).activate();
         verify(player, times(1)).setURL("prompt.wav");
         verify(player, times(1)).setURL("reprompt.wav");
-        verify(observer, timeout(100)).onEvent(eq(pc), eventCaptor.capture());
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, timeout(50)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
         assertEquals("12A", eventCaptor.getValue().getParameter("dc"));
         assertEquals("2", eventCaptor.getValue().getParameter("na"));
     }
 
     @Test
-    public void testRepromptWhenEndingInputWithoutMinDigitsCollected()
-            throws InterruptedException, MalformedURLException, ResourceUnavailableException {
+    public void testRepromptWhenEndingInputWithoutMinDigitsCollected() throws InterruptedException, MalformedURLException, ResourceUnavailableException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("na", "2");
@@ -950,14 +888,11 @@ public class PlayCollectTest {
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback callback = mock(FutureCallback.class);
+        pc.execute(callback);
 
         // Play initial prompt
         Thread.sleep(20);
@@ -983,16 +918,16 @@ public class PlayCollectTest {
         verify(player, times(2)).activate();
         verify(player, times(1)).setURL("prompt.wav");
         verify(player, times(1)).setURL("reprompt.wav");
-        verify(observer, timeout(50)).onEvent(eq(pc), eventCaptor.capture());
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, timeout(50)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
         assertEquals("24", eventCaptor.getValue().getParameter("dc"));
         assertEquals("2", eventCaptor.getValue().getParameter("na"));
     }
 
     @Test
-    public void testRepromptWhenEndingInputWithoutMatchingDigitsPattern()
-            throws InterruptedException, MalformedURLException, ResourceUnavailableException {
+    public void testRepromptWhenEndingInputWithoutMatchingDigitsPattern() throws InterruptedException, MalformedURLException, ResourceUnavailableException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("na", "2");
@@ -1003,14 +938,11 @@ public class PlayCollectTest {
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback callback = mock(FutureCallback.class);
+        pc.execute(callback);
 
         // Play initial prompt
         Thread.sleep(20);
@@ -1039,16 +971,16 @@ public class PlayCollectTest {
         verify(player, times(2)).activate();
         verify(player, times(1)).setURL("prompt.wav");
         verify(player, times(1)).setURL("reprompt.wav");
-        verify(observer, timeout(50)).onEvent(eq(pc), eventCaptor.capture());
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, timeout(50)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
         assertEquals("12A", eventCaptor.getValue().getParameter("dc"));
         assertEquals("2", eventCaptor.getValue().getParameter("na"));
     }
 
     @Test
-    public void testNoDigitsRepromptWhenTimeoutWithoutMinDigitsCollected()
-            throws InterruptedException, MalformedURLException, ResourceUnavailableException {
+    public void testNoDigitsRepromptWhenTimeoutWithoutMinDigitsCollected() throws InterruptedException, MalformedURLException, ResourceUnavailableException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("na", "3");
@@ -1062,14 +994,11 @@ public class PlayCollectTest {
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback callback = mock(FutureCallback.class);
+        pc.execute(callback);
 
         // Play initial prompt
         Thread.sleep(20);
@@ -1104,16 +1033,16 @@ public class PlayCollectTest {
         verify(player, times(1)).setURL("prompt.wav");
         verify(player, times(2)).setURL("nodigits1.wav");
         verify(player, times(2)).setURL("nodigits2.wav");
-        verify(observer, timeout(50)).onEvent(eq(pc), eventCaptor.capture());
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, timeout(50)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
         assertEquals("25", eventCaptor.getValue().getParameter("dc"));
         assertEquals("3", eventCaptor.getValue().getParameter("na"));
     }
 
     @Test
-    public void testNoDigitsRepromptWhenTimeoutWithoutMatchingDigitsPattern()
-            throws InterruptedException, MalformedURLException, ResourceUnavailableException {
+    public void testNoDigitsRepromptWhenTimeoutWithoutMatchingDigitsPattern() throws InterruptedException, MalformedURLException, ResourceUnavailableException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("na", "2");
@@ -1126,14 +1055,12 @@ public class PlayCollectTest {
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback callback = mock(FutureCallback.class);
+        pc.execute(callback);
 
         // Play initial prompt
         Thread.sleep(20);
@@ -1157,16 +1084,16 @@ public class PlayCollectTest {
         verify(player, times(2)).activate();
         verify(player, times(1)).setURL("prompt.wav");
         verify(player, times(1)).setURL("nodigits.wav");
-        verify(observer, timeout(50)).onEvent(eq(pc), eventCaptor.capture());
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, timeout(50)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
         assertEquals("12A", eventCaptor.getValue().getParameter("dc"));
         assertEquals("2", eventCaptor.getValue().getParameter("na"));
     }
 
     @Test
-    public void testNoDigitsRepromptWhenEndingInputWithoutMinDigitsCollected()
-            throws InterruptedException, MalformedURLException, ResourceUnavailableException {
+    public void testNoDigitsRepromptWhenEndingInputWithoutMinDigitsCollected() throws InterruptedException, MalformedURLException, ResourceUnavailableException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("na", "2");
@@ -1178,14 +1105,11 @@ public class PlayCollectTest {
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback callback = mock(FutureCallback.class);
+        pc.execute(callback);
 
         // Play initial prompt
         Thread.sleep(20);
@@ -1210,16 +1134,16 @@ public class PlayCollectTest {
         verify(player, times(2)).activate();
         verify(player, times(1)).setURL("prompt.wav");
         verify(player, times(1)).setURL("nodigits.wav");
-        verify(observer, timeout(50)).onEvent(eq(pc), eventCaptor.capture());
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, timeout(50)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
         assertEquals("24", eventCaptor.getValue().getParameter("dc"));
         assertEquals("2", eventCaptor.getValue().getParameter("na"));
     }
 
     @Test
-    public void testNoDigitsRepromptWhenEndingInputWithoutMatchingDigitsPattern()
-            throws InterruptedException, MalformedURLException, ResourceUnavailableException {
+    public void testNoDigitsRepromptWhenEndingInputWithoutMatchingDigitsPattern() throws InterruptedException, MalformedURLException, ResourceUnavailableException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("na", "2");
@@ -1230,14 +1154,11 @@ public class PlayCollectTest {
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback callback = mock(FutureCallback.class);
+        pc.execute(callback);
 
         // Play initial prompt
         Thread.sleep(20);
@@ -1263,16 +1184,16 @@ public class PlayCollectTest {
         verify(player, times(2)).activate();
         verify(player, times(1)).setURL("prompt.wav");
         verify(player, times(1)).setURL("nodigits.wav");
-        verify(observer, timeout(50)).onEvent(eq(pc), eventCaptor.capture());
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, timeout(50)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
         assertEquals("12A", eventCaptor.getValue().getParameter("dc"));
         assertEquals("2", eventCaptor.getValue().getParameter("na"));
     }
 
     @Test
-    public void testPlaySuccessAnnouncementWhenEndInputDigit()
-            throws InterruptedException, MalformedURLException, ResourceUnavailableException {
+    public void testPlaySuccessAnnouncementWhenEndInputDigit() throws InterruptedException, MalformedURLException, ResourceUnavailableException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("mx", "100");
@@ -1282,14 +1203,11 @@ public class PlayCollectTest {
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback callback = mock(FutureCallback.class);
+        pc.execute(callback);
 
         pc.detectorListener.process(new DtmfEventImpl(detector, "1", -30));
         pc.detectorListener.process(new DtmfEventImpl(detector, "2", -30));
@@ -1306,16 +1224,16 @@ public class PlayCollectTest {
         verify(player, times(2)).activate();
         verify(player, times(1)).setURL("success1.wav");
         verify(player, times(1)).setURL("success2.wav");
-        verify(observer, timeout(100)).onEvent(eq(pc), eventCaptor.capture());
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, timeout(50)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
         assertEquals("123", eventCaptor.getValue().getParameter("dc"));
         assertEquals("1", eventCaptor.getValue().getParameter("na"));
     }
 
     @Test
-    public void testPlaySuccessAnnouncementWhenEndInputDigitAndDigitPatternMatches()
-            throws InterruptedException, MalformedURLException, ResourceUnavailableException {
+    public void testPlaySuccessAnnouncementWhenEndInputDigitAndDigitPatternMatches() throws InterruptedException, MalformedURLException, ResourceUnavailableException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("mx", "100");
@@ -1326,14 +1244,11 @@ public class PlayCollectTest {
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback callback = mock(FutureCallback.class);
+        pc.execute(callback);
 
         pc.detectorListener.process(new DtmfEventImpl(detector, "1", -30));
         pc.detectorListener.process(new DtmfEventImpl(detector, "2", -30));
@@ -1350,16 +1265,16 @@ public class PlayCollectTest {
         verify(player, times(2)).activate();
         verify(player, times(1)).setURL("success1.wav");
         verify(player, times(1)).setURL("success2.wav");
-        verify(observer, timeout(100)).onEvent(eq(pc), eventCaptor.capture());
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, timeout(50)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
         assertEquals("12A", eventCaptor.getValue().getParameter("dc"));
         assertEquals("1", eventCaptor.getValue().getParameter("na"));
     }
 
     @Test
-    public void testPlaySuccessAnnouncementWhenTimeout()
-            throws InterruptedException, MalformedURLException, ResourceUnavailableException {
+    public void testPlaySuccessAnnouncementWhenTimeout() throws InterruptedException, MalformedURLException, ResourceUnavailableException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("mx", "2");
@@ -1371,14 +1286,11 @@ public class PlayCollectTest {
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback callback = mock(FutureCallback.class);
+        pc.execute(callback);
 
         pc.detectorListener.process(new DtmfEventImpl(detector, "1", -30));
         pc.detectorListener.process(new DtmfEventImpl(detector, "2", -30));
@@ -1394,16 +1306,16 @@ public class PlayCollectTest {
         verify(player, times(2)).activate();
         verify(player, times(1)).setURL("success1.wav");
         verify(player, times(1)).setURL("success2.wav");
-        verify(observer, timeout(100)).onEvent(eq(pc), eventCaptor.capture());
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, timeout(50)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
         assertEquals("12", eventCaptor.getValue().getParameter("dc"));
         assertEquals("1", eventCaptor.getValue().getParameter("na"));
     }
 
     @Test
-    public void testPlayFailureAnnouncementWhenEndInputKey()
-            throws InterruptedException, MalformedURLException, ResourceUnavailableException {
+    public void testPlayFailureAnnouncementWhenEndInputKey() throws InterruptedException, MalformedURLException, ResourceUnavailableException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("mx", "100");
@@ -1415,14 +1327,11 @@ public class PlayCollectTest {
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback callback = mock(FutureCallback.class);
+        pc.execute(callback);
 
         pc.detectorListener.process(new DtmfEventImpl(detector, "1", -30));
         pc.detectorListener.process(new DtmfEventImpl(detector, "#", -30));
@@ -1437,14 +1346,14 @@ public class PlayCollectTest {
         verify(player, times(2)).activate();
         verify(player, times(1)).setURL("failure1.wav");
         verify(player, times(1)).setURL("failure2.wav");
-        verify(observer, timeout(100)).onEvent(eq(pc), eventCaptor.capture());
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, timeout(50)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.DIGIT_PATTERN_NOT_MATCHED.code()), eventCaptor.getValue().getParameter("rc"));
     }
 
     @Test
-    public void testPlayFailureAnnouncementWhenDigitPatternNotMatched()
-            throws InterruptedException, MalformedURLException, ResourceUnavailableException {
+    public void testPlayFailureAnnouncementWhenDigitPatternNotMatched() throws InterruptedException, MalformedURLException, ResourceUnavailableException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("mx", "100");
@@ -1457,14 +1366,11 @@ public class PlayCollectTest {
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback callback = mock(FutureCallback.class);
+        pc.execute(callback);
 
         pc.detectorListener.process(new DtmfEventImpl(detector, "1", -30));
         pc.detectorListener.process(new DtmfEventImpl(detector, "2", -30));
@@ -1481,14 +1387,14 @@ public class PlayCollectTest {
         verify(player, times(2)).activate();
         verify(player, times(1)).setURL("failure1.wav");
         verify(player, times(1)).setURL("failure2.wav");
-        verify(observer, timeout(100)).onEvent(eq(pc), eventCaptor.capture());
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, timeout(50)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.DIGIT_PATTERN_NOT_MATCHED.code()), eventCaptor.getValue().getParameter("rc"));
     }
 
     @Test
-    public void testPlayFailureAnnouncementWhenTimeout()
-            throws InterruptedException, MalformedURLException, ResourceUnavailableException {
+    public void testPlayFailureAnnouncementWhenTimeout() throws InterruptedException, MalformedURLException, ResourceUnavailableException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("mx", "100");
@@ -1502,14 +1408,11 @@ public class PlayCollectTest {
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback callback = mock(FutureCallback.class);
+        pc.execute(callback);
 
         pc.detectorListener.process(new DtmfEventImpl(detector, "1", -30));
         Thread.sleep(6 * 100);
@@ -1524,8 +1427,9 @@ public class PlayCollectTest {
         verify(player, times(2)).activate();
         verify(player, times(1)).setURL("failure1.wav");
         verify(player, times(1)).setURL("failure2.wav");
-        verify(observer, timeout(100)).onEvent(eq(pc), eventCaptor.capture());
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(callback, timeout(50)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.DIGIT_PATTERN_NOT_MATCHED.code()), eventCaptor.getValue().getParameter("rc"));
     }
 
@@ -1541,18 +1445,17 @@ public class PlayCollectTest {
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback executeCallback = mock(FutureCallback.class);
+        pc.execute(executeCallback);
 
         Thread.sleep(10);
         pc.playerListener.process(new AudioPlayerEvent(player, AudioPlayerEvent.STOP));
-        pc.cancel();
+
+        final FutureCallback cancelCallback = mock(FutureCallback.class);
+        pc.cancel(cancelCallback);
 
         // then
         verify(detector, times(1)).activate();
@@ -1562,14 +1465,15 @@ public class PlayCollectTest {
         verify(player, times(1)).setURL("prompt2.wav");
         verify(player, never()).setURL("failure.wav");
         verify(player, times(1)).deactivate();
-        verify(observer, timeout(100)).onEvent(eq(pc), eventCaptor.capture());
+        verify(executeCallback, never()).onSuccess(any(MgcpEvent.class));
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(cancelCallback, timeout(10)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.NO_DIGITS.code()), eventCaptor.getValue().getParameter("rc"));
     }
 
     @Test
-    public void testCancelWhenCollectingAndMinimumDigitsCollected()
-            throws InterruptedException, MalformedURLException, ResourceUnavailableException {
+    public void testCancelWhenCollectingAndMinimumDigitsCollected() throws InterruptedException, MalformedURLException, ResourceUnavailableException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("mx", "3");
@@ -1579,33 +1483,33 @@ public class PlayCollectTest {
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback executeCallback = mock(FutureCallback.class);
+        pc.execute(executeCallback);
 
         Thread.sleep(10);
         pc.detectorListener.process(new DtmfEventImpl(detector, "1", -30));
         pc.detectorListener.process(new DtmfEventImpl(detector, "2", -30));
-        pc.cancel();
+
+        final FutureCallback cancelCallback = mock(FutureCallback.class);
+        pc.cancel(cancelCallback);
 
         // then
         verify(detector, times(1)).activate();
         verify(player, never()).activate();
-        verify(observer, timeout(100)).onEvent(eq(pc), eventCaptor.capture());
+        verify(executeCallback, never()).onSuccess(any(MgcpEvent.class));
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(cancelCallback, timeout(10)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
         assertEquals("12", eventCaptor.getValue().getParameter("dc"));
         assertEquals("1", eventCaptor.getValue().getParameter("na"));
     }
 
     @Test
-    public void testCancelWhenCollectingAndNoDigitsCollected()
-            throws InterruptedException, MalformedURLException, ResourceUnavailableException {
+    public void testCancelWhenCollectingAndNoDigitsCollected() throws InterruptedException, MalformedURLException, ResourceUnavailableException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("mx", "3");
@@ -1615,27 +1519,27 @@ public class PlayCollectTest {
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        final FutureCallback executeCallback = mock(FutureCallback.class);
+        pc.execute(executeCallback);
 
-        pc.observe(observer);
-        pc.execute();
-        pc.cancel();
+        final FutureCallback cancelCallback = mock(FutureCallback.class);
+        pc.cancel(cancelCallback);
 
         // then
         verify(detector, times(1)).activate();
         verify(player, never()).activate();
-        verify(observer, timeout(100)).onEvent(eq(pc), eventCaptor.capture());
+        verify(executeCallback, never()).onSuccess(any(MgcpEvent.class));
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(cancelCallback, timeout(10)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.NO_DIGITS.code()), eventCaptor.getValue().getParameter("rc"));
     }
 
     @Test
-    public void testCancelWhenCollectingAndDigitPatternMatched()
-            throws InterruptedException, MalformedURLException, ResourceUnavailableException {
+    public void testCancelWhenCollectingAndDigitPatternMatched() throws InterruptedException, MalformedURLException, ResourceUnavailableException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("dp", "xABCx");
@@ -1644,14 +1548,12 @@ public class PlayCollectTest {
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback executeCallback = mock(FutureCallback.class);
+        pc.execute(executeCallback);
 
         Thread.sleep(10);
         pc.detectorListener.process(new DtmfEventImpl(detector, "1", -30));
@@ -1659,21 +1561,24 @@ public class PlayCollectTest {
         pc.detectorListener.process(new DtmfEventImpl(detector, "B", -30));
         pc.detectorListener.process(new DtmfEventImpl(detector, "C", -30));
         pc.detectorListener.process(new DtmfEventImpl(detector, "2", -30));
-        pc.cancel();
+
+        final FutureCallback cancelCallback = mock(FutureCallback.class);
+        pc.cancel(cancelCallback);
 
         // then
         verify(detector, times(1)).activate();
         verify(player, never()).activate();
-        verify(observer, timeout(100)).onEvent(eq(pc), eventCaptor.capture());
+        verify(executeCallback, never()).onSuccess(any(MgcpEvent.class));
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(cancelCallback, timeout(10)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
         assertEquals("1ABC2", eventCaptor.getValue().getParameter("dc"));
         assertEquals("1", eventCaptor.getValue().getParameter("na"));
     }
 
     @Test
-    public void testCancelWhenCollectingAndDigitPatternDidNotMatch()
-            throws InterruptedException, MalformedURLException, ResourceUnavailableException {
+    public void testCancelWhenCollectingAndDigitPatternDidNotMatch() throws InterruptedException, MalformedURLException, ResourceUnavailableException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("dp", "xABCx");
@@ -1682,14 +1587,11 @@ public class PlayCollectTest {
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback executeCallback = mock(FutureCallback.class);
+        pc.execute(executeCallback);
 
         Thread.sleep(10);
         pc.detectorListener.process(new DtmfEventImpl(detector, "1", -30));
@@ -1697,19 +1599,22 @@ public class PlayCollectTest {
         pc.detectorListener.process(new DtmfEventImpl(detector, "B", -30));
         pc.detectorListener.process(new DtmfEventImpl(detector, "C", -30));
         pc.detectorListener.process(new DtmfEventImpl(detector, "D", -30));
-        pc.cancel();
+
+        final FutureCallback cancelCallback = mock(FutureCallback.class);
+        pc.cancel(cancelCallback);
 
         // then
         verify(detector, times(1)).activate();
         verify(player, never()).activate();
-        verify(observer, timeout(100)).onEvent(eq(pc), eventCaptor.capture());
+        verify(executeCallback, never()).onSuccess(any(MgcpEvent.class));
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(cancelCallback, timeout(10)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.DIGIT_PATTERN_NOT_MATCHED.code()), eventCaptor.getValue().getParameter("rc"));
     }
 
     @Test
-    public void testCancelWhenPlayingSuccessAnnouncement()
-            throws InterruptedException, MalformedURLException, ResourceUnavailableException {
+    public void testCancelWhenPlayingSuccessAnnouncement() throws InterruptedException, MalformedURLException, ResourceUnavailableException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("sa", "success1.wav,success2.wav,success3.wav");
@@ -1717,36 +1622,36 @@ public class PlayCollectTest {
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback executeCallback = mock(FutureCallback.class);
+        pc.execute(executeCallback);
 
         Thread.sleep(10);
         pc.detectorListener.process(new DtmfEventImpl(detector, "1", -30));
         pc.detectorListener.process(new DtmfEventImpl(detector, "#", -30));
         Thread.sleep(10);
         pc.playerListener.process(new AudioPlayerEvent(player, AudioPlayerEvent.STOP));
-        pc.cancel();
+
+        final FutureCallback cancelCallback = mock(FutureCallback.class);
+        pc.cancel(cancelCallback);
 
         // then
         verify(detector, times(1)).activate();
         verify(detector, times(1)).deactivate();
         verify(player, times(2)).activate();
-        verify(observer, timeout(100)).onEvent(eq(pc), eventCaptor.capture());
+        verify(executeCallback, never()).onSuccess(any(MgcpEvent.class));
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(cancelCallback, timeout(10)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
         assertEquals("1", eventCaptor.getValue().getParameter("dc"));
         assertEquals("1", eventCaptor.getValue().getParameter("na"));
     }
 
     @Test
-    public void testCancelWhenPlayingFailureAnnouncement()
-            throws InterruptedException, MalformedURLException, ResourceUnavailableException {
+    public void testCancelWhenPlayingFailureAnnouncement() throws InterruptedException, MalformedURLException, ResourceUnavailableException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("mx", "3");
@@ -1756,27 +1661,28 @@ public class PlayCollectTest {
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback executeCallback = mock(FutureCallback.class);
+        pc.execute(executeCallback);
 
         Thread.sleep(10);
         pc.detectorListener.process(new DtmfEventImpl(detector, "1", -30));
         pc.detectorListener.process(new DtmfEventImpl(detector, "#", -30));
         Thread.sleep(10);
         pc.playerListener.process(new AudioPlayerEvent(player, AudioPlayerEvent.STOP));
-        pc.cancel();
+
+        final FutureCallback cancelCallback = mock(FutureCallback.class);
+        pc.cancel(cancelCallback);
 
         // then
         verify(detector, times(1)).activate();
         verify(player, times(2)).activate();
-        verify(observer, timeout(100)).onEvent(eq(pc), eventCaptor.capture());
+        verify(executeCallback, never()).onSuccess(any(MgcpEvent.class));
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(cancelCallback, timeout(10)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.DIGIT_PATTERN_NOT_MATCHED.code()), eventCaptor.getValue().getParameter("rc"));
     }
 
@@ -1795,14 +1701,11 @@ public class PlayCollectTest {
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback executeCallback = mock(FutureCallback.class);
+        pc.execute(executeCallback);
 
         // Play initial prompt
         Thread.sleep(5);
@@ -1815,7 +1718,9 @@ public class PlayCollectTest {
 
         // Play reprompt
         pc.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
-        pc.cancel();
+
+        final FutureCallback cancelCallback = mock(FutureCallback.class);
+        pc.cancel(cancelCallback);
 
         // then
         verify(detector, times(2)).activate();
@@ -1823,14 +1728,15 @@ public class PlayCollectTest {
         verify(player, times(1)).setURL("prompt.wav");
         verify(player, times(1)).setURL("reprompt1.wav");
         verify(player, times(1)).setURL("reprompt2.wav");
-        verify(observer, timeout(50)).onEvent(eq(pc), eventCaptor.capture());
+        verify(executeCallback, never()).onSuccess(any(MgcpEvent.class));
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(cancelCallback, timeout(10)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.NO_DIGITS.code()), eventCaptor.getValue().getParameter("rc"));
     }
 
     @Test
-    public void testCancelWhenNoDigitsReprompting()
-            throws InterruptedException, MalformedURLException, ResourceUnavailableException {
+    public void testCancelWhenNoDigitsReprompting() throws InterruptedException, MalformedURLException, ResourceUnavailableException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("na", "2");
@@ -1845,14 +1751,11 @@ public class PlayCollectTest {
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
-        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
-        final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
+        final PlayCollect pc = new PlayCollect(player, detector, "1", parameters, executor);
 
         // when
-        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
-        pc.observe(observer);
-        pc.execute();
+        final FutureCallback executeCallback = mock(FutureCallback.class);
+        pc.execute(executeCallback);
 
         // Play initial prompt
         pc.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
@@ -1862,7 +1765,9 @@ public class PlayCollectTest {
 
         // Play reprompt
         pc.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
-        pc.cancel();
+
+        final FutureCallback cancelCallback = mock(FutureCallback.class);
+        pc.cancel(cancelCallback);
 
         // then
         verify(detector, times(2)).activate();
@@ -1870,8 +1775,10 @@ public class PlayCollectTest {
         verify(player, times(1)).setURL("prompt.wav");
         verify(player, times(1)).setURL("nodigits1.wav");
         verify(player, times(1)).setURL("nodigits2.wav");
-        verify(observer, timeout(50)).onEvent(eq(pc), eventCaptor.capture());
+        verify(executeCallback, never()).onSuccess(any(MgcpEvent.class));
 
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        verify(cancelCallback, timeout(10)).onSuccess(eventCaptor.capture());
         assertEquals(String.valueOf(ReturnCode.NO_DIGITS.code()), eventCaptor.getValue().getParameter("rc"));
     }
 

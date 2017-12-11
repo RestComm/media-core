@@ -1,0 +1,40 @@
+@startuml
+actor MediaServer
+MediaServer-> AsrFsm: enterCollecting
+AsrFsm -> AsrEngine: configure
+AsrFsm -> AsrEngine: setListener(AsrEngineListener)
+AsrFsm -> AsrEngine: activate
+AsrEngine -> AsrDriver: configure
+AsrEngine -> AsrDriver: setListener(AsrDriverEventListener)
+AsrEngine -> AsrDriver: startRecognizing
+AsrDriver -> SpeechClient: create(ApiStreamObserver, ResponseApiStreamingObserver)
+MediaServer -> AsrEngine: onMediaTransfer (1)
+AsrEngine -> AsrDriver: write(1)
+AsrDriver -> ApiStreamObserver : onNext(1)
+MediaServer -> AsrEngine: onMediaTransfer (2)
+AsrEngine -> AsrDriver: write(2)
+AsrDriver -> ApiStreamObserver : onNext(2)
+actor AsrService
+AsrService-> ResponseApiStreamingObserver: onNext(1)
+ResponseApiStreamingObserver -> AsrDriverEventListener: onSpeechRecognized(1)
+AsrDriverEventListener -> AsrEngineListener: onSpeechRecognized(1)
+AsrEngineListener -> AsrFsm: fire(RECOGNIZED_TEXT)
+AsrService-> ResponseApiStreamingObserver: onNext(2)
+ResponseApiStreamingObserver -> AsrDriverEventListener: onSpeechRecognized(2)
+AsrDriverEventListener -> AsrEngineListener: onSpeechRecognized(2)
+AsrEngineListener -> AsrFsm: fire(RECOGNIZED_TEXT)
+MediaServer -> AsrEngine: onMediaTransfer (3)
+AsrEngine -> AsrDriver: write(3)
+AsrDriver -> ApiStreamObserver : onNext(3)
+AsrService -> ResponseApiStreamingObserver: onNext(3)
+ResponseApiStreamingObserver -> AsrDriverEventListener: onSpeechRecognized(3)
+AsrDriverEventListener -> AsrEngineListener: onSpeechRecognized(3)
+AsrEngineListener -> AsrFsm: fire(RECOGNIZED_TEXT)
+MediaServer -> AsrFsm: exitWaitingForResponse
+AsrFsm -> AsrEngine: setListener(null)
+AsrFsm -> AsrEngine: deactivate
+AsrEngine -> AsrDriver: finishRecognizing
+AsrDriver -> ApiStreamObserver: onCompleted
+AsrDriver -> SpeechClient: close
+AsrEngine -> AsrDriver: setListener(null)
+@enduml

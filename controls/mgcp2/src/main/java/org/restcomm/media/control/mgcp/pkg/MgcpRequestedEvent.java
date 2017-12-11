@@ -31,14 +31,14 @@ public class MgcpRequestedEvent {
 
     private static final String[] EMPTY_PARAMS = new String[0];
 
-    private final int requestId;
+    private final String requestId;
     private final String packageName;
     private final String eventType;
     private final MgcpActionType action;
     private final int connectionId;
     private final String[] parameters;
 
-    public MgcpRequestedEvent(int requestId, String packageName, String eventType, MgcpActionType action, int connectionId, String... parameters) {
+    public MgcpRequestedEvent(String requestId, String packageName, String eventType, MgcpActionType action, int connectionId, String... parameters) {
         this.requestId = requestId;
         this.packageName = packageName;
         this.eventType = eventType;
@@ -47,11 +47,11 @@ public class MgcpRequestedEvent {
         this.parameters = (parameters == null) ? EMPTY_PARAMS : parameters;
     }
 
-    public MgcpRequestedEvent(int requestId, String packageName, String eventType, MgcpActionType action) {
+    public MgcpRequestedEvent(String requestId, String packageName, String eventType, MgcpActionType action) {
         this(requestId, packageName, eventType, action, 0, EMPTY_PARAMS);
     }
 
-    public int getRequestId() {
+    public String getRequestId() {
         return requestId;
     }
 
