@@ -122,13 +122,13 @@ public class MgcpControllerTest {
                 Assert.assertEquals(MgcpResponseCode.TRANSACTION_BEING_EXECUTED.code(), obj.getCode());
                 return null;
             }
-        }).when(channel).send(any(MgcpResponse.class), eq(to), any(FutureCallback.class));
+        }).when(channel).send(any(MgcpResponse.class), eq(from), any(FutureCallback.class));
 
         controller.onMessage(from, to, request, direction);
 
         // then
         verify(transactions, times(1)).process(from, to, request, command, direction);
-        verify(channel, times(1)).send(any(MgcpResponse.class), eq(to), any(FutureCallback.class));
+        verify(channel, times(1)).send(any(MgcpResponse.class), eq(from), any(FutureCallback.class));
     }
 
     @Test

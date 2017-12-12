@@ -170,7 +170,7 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
                         + ". Sending provisional response with code " + provisional.code());
             }
 
-            sendResponse(to, request.getTransactionId(), provisional.code(), provisional.message());
+            sendResponse(from, request.getTransactionId(), provisional.code(), provisional.message());
         }
     }
 
