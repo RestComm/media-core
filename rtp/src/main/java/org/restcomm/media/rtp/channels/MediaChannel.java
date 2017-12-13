@@ -20,10 +20,6 @@
 
 package org.restcomm.media.rtp.channels;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-
 import org.apache.log4j.Logger;
 import org.restcomm.media.ice.IceAuthenticatorImpl;
 import org.restcomm.media.rtcp.RtcpChannel;
@@ -33,6 +29,7 @@ import org.restcomm.media.rtp.RtpClock;
 import org.restcomm.media.rtp.SsrcGenerator;
 import org.restcomm.media.rtp.statistics.RtpStatistics;
 import org.restcomm.media.scheduler.Clock;
+import org.restcomm.media.sdp.attributes.RtpMapAttribute;
 import org.restcomm.media.sdp.fields.MediaDescriptionField;
 import org.restcomm.media.sdp.format.AVProfile;
 import org.restcomm.media.sdp.format.RTPFormat;
@@ -44,6 +41,10 @@ import org.restcomm.media.spi.dsp.Processor;
 import org.restcomm.media.spi.format.AudioFormat;
 import org.restcomm.media.spi.format.FormatFactory;
 import org.restcomm.media.spi.format.Formats;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 /**
  * Abstract representation of a media channel with RTP and RTCP components.
@@ -533,7 +534,7 @@ public abstract class MediaChannel {
 	 * the remote peer.
 	 * </p>
 	 * 
-	 * @param address
+	 * @param remoteAddress
 	 *            The address of the remote peer
 	 */
 	public void connectRtcp(SocketAddress remoteAddress) {
@@ -567,8 +568,6 @@ public abstract class MediaChannel {
 	/**
 	 * Constructs RTP payloads for given channel.
 	 * 
-	 * @param channel
-	 *            the media channel
 	 * @param profile
 	 *            AVProfile part for media type of given channel
 	 * @return collection of RTP formats.
@@ -644,15 +643,38 @@ public abstract class MediaChannel {
 		
 		// Map payload types to RTP Format
         for (String payloadType : media.getPayloadTypes()) {
-            try {
-                int iPayloadType = Integer.valueOf(payloadType);
-                RTPFormat format = AVProfile.getFormat(iPayloadType, AVProfile.AUDIO);
-                if (format != null) {
-                    this.offeredFormats.add(format);
-                }
-            } catch (Exception e) {
-                logger.warn(this.mediaType + " channel " + this.ssrc + " dropped unsupported RTP payload type " + payloadType, e);
-            }
+        	RTPFormat format;
+        	try {
+				int payloadTypeInt = Integer.parseInt(payloadType);
+
+				if(payloadTypeInt < AVProfile.DYNAMIC_PT_MIN || payloadTypeInt > AVProfile.DYNAMIC_PT_MAX) {
+					// static payload type
+					format = AVProfile.getFormat(payloadTypeInt, AVProfile.AUDIO);
+				} else {
+					// dynamic payload type
+					final RtpMapAttribute codecSdp = media.getFormat(payloadTypeInt);
+					final String codecName = codecSdp.getCodec();
+					final RTPFormat staticFormat = AVProfile.getFormat(codecName);
+
+					// Check if code is supported
+					final boolean supported = staticFormat != null && staticFormat.getClockRate() == codecSdp.getClockRate();
+					if(supported) {
+						format = new RTPFormat(payloadTypeInt, staticFormat.getFormat(), staticFormat.getClockRate());
+					} else {
+						format = null;
+					}
+				}
+			} catch (NumberFormatException e) {
+        		format = null;
+			}
+
+			if(format != null) {
+        		this.offeredFormats.add(format);
+			} else {
+        		if (logger.isDebugEnabled()) {
+					logger.debug(this.mediaType + " channel " + this.ssrc + " dropped unsupported RTP payload type " + payloadType);
+				}
+			}
         }
 		
 		// Negotiate the formats and store intersection
