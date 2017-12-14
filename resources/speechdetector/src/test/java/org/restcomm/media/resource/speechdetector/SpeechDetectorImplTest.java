@@ -19,7 +19,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.asr;
+package org.restcomm.media.resource.speechdetector;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
