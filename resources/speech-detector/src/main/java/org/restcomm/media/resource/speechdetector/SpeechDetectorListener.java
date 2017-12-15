@@ -22,20 +22,16 @@
 package org.restcomm.media.resource.speechdetector;
 
 /**
- * Components that detects user speech from a stream of incoming audio.
+ * Listener that is notified about events raised by {@link SpeechDetector}.
  * 
  * @author Vladimir Morosev (vladimir.morosev@telestax.com)
  *
  */
-public interface SpeechDetector {
+public interface SpeechDetectorListener {
 
     /**
-     * Detects whether the speech signal is present in passed sample buffer.
-     * 
-     * @param data buffer with samples
-     * @param offset the position of first sample in buffer
-     * @param len the number of samples
-     * @return true if speech detected
+     * Event raised when user speech is detected.
      */
-     public boolean detect(byte[] data, int offset, int len);
+    void onSpeechDetected();
+
 }

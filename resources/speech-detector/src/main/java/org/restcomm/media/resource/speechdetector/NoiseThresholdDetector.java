@@ -21,21 +21,47 @@
 
 package org.restcomm.media.resource.speechdetector;
 
+import java.io.IOException;
+
 /**
- * Components that detects user speech from a stream of incoming audio.
+ * Component that detects user speech from a stream of incoming audio.
  * 
  * @author Vladimir Morosev (vladimir.morosev@telestax.com)
  *
  */
-public interface SpeechDetector {
+public class NoiseThresholdDetector implements SpeechDetector {
+
+    private final int silenceLevel;
+
+    public NoiseThresholdDetector(final int silenceLevel) {
+        this.silenceLevel = silenceLevel;
+    }
 
     /**
-     * Detects whether the speech signal is present in passed sample buffer.
-     * 
+     * Checks does the sample buffer contains sound or silence.
+     *
      * @param data buffer with samples
      * @param offset the position of first sample in buffer
      * @param len the number of samples
-     * @return true if speech detected
+     * @return true if silence detected
      */
-     public boolean detect(byte[] data, int offset, int len);
+    @Override
+    public boolean detect(byte[] data, int offset, int len) {
+        int[] correllation = new int[len];
+        for (int i = offset; i < len - 1; i += 2) {
+            correllation[i] = (data[i] & 0xff) | (data[i + 1] << 8);
+        }
+
+        double mean = mean(correllation);
+        return mean > silenceLevel;
+    }
+
+    private static double mean(int[] m) {
+        double sum = 0;
+        for (int i = 0; i < m.length; i++) {
+            sum += m[i];
+        }
+        return sum / m.length;
+    }
+
 }

@@ -1,7 +1,7 @@
 /*
  * TeleStax, Open Source Cloud Communications
  * Copyright 2011-2017, Telestax Inc and individual contributors
- * by the @authors tag. 
+ * by the @authors tag.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -21,21 +21,41 @@
 
 package org.restcomm.media.resource.speechdetector;
 
-/**
- * Components that detects user speech from a stream of incoming audio.
- * 
- * @author Vladimir Morosev (vladimir.morosev@telestax.com)
- *
- */
-public interface SpeechDetector {
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
-    /**
-     * Detects whether the speech signal is present in passed sample buffer.
-     * 
-     * @param data buffer with samples
-     * @param offset the position of first sample in buffer
-     * @param len the number of samples
-     * @return true if speech detected
-     */
-     public boolean detect(byte[] data, int offset, int len);
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+/**
+  * @author Vladimir Morosev (vladimir.morosev@telestax.com)
+  */
+public class NoiseThresholdDetectorTest {
+
+    private SpeechDetector testee;
+
+    @Before
+    public void setUp() {
+        testee = new NoiseThresholdDetector(10);
+    }
+
+    @After
+    public void cleanUp() {
+        testee = null;
+    }
+
+    @Test
+    public void testSilence() {
+    	final byte[] bytes = new byte[] { 0x00, 0x00, 0x00, 0x00 };
+        assertTrue(testee.detect(bytes, 0, bytes.length));
+    }
+
+    @Test
+    public void testSpeech() {
+    	final byte[] bytes = new byte[] { 0x00, 0x0f, 0x70, 0x7f };
+        assertFalse(testee.detect(bytes, 0, bytes.length));
+    }
+
 }
