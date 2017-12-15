@@ -17,6 +17,6 @@
         <module>dtmf</module>
         <module>mediaplayer</module>
 	<module>recorder</module>
-        <module>speechdetector</module>	
+        <module>speech-detector</module>	
     </modules>
 </project>

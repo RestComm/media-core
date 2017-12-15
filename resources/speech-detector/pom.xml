@@ -10,7 +10,7 @@
     </parent>
 
     <groupId>org.restcomm.media.resources</groupId>
-    <artifactId>speechdetector</artifactId>
+    <artifactId>speech-detector</artifactId>
     <name>Speech Detector</name>
 
     <build>
