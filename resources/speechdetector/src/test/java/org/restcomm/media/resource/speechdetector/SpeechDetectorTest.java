@@ -49,13 +49,13 @@ public class SpeechDetectorTest {
     @Test
     public void testSilence() {
     	final byte[] bytes = new byte[] { 0x00, 0x00, 0x00, 0x00 };
-        assertTrue(testee.detect(bytes, 0, bytes.size()));
+        assertTrue(testee.detect(bytes, 0, bytes.length));
     }
 
     @Test
     public void testSpeech() {
     	final byte[] bytes = new byte[] { 0x00, 0x0f, 0x70, 0x7f };
-        assertFalse(testee.detect(bytes, 0, bytes.size()));
+        assertFalse(testee.detect(bytes, 0, bytes.length));
     }
 
 }
