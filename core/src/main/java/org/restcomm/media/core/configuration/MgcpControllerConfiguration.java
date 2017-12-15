@@ -39,7 +39,7 @@ public class MgcpControllerConfiguration {
 
     private String address;
     private int port;
-    private int channelBuffer = CHANNEL_BUFFER;
+    private int channelBuffer;
     private final Map<String, MgcpEndpointConfiguration> endpoints;
 
     public MgcpControllerConfiguration() {

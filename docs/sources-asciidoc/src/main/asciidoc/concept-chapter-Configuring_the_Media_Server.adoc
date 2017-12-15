@@ -89,7 +89,7 @@ The *Port* parameter defines the port where the control channel will listen to f
 
 The *PoolSize* parameter defines the number of MGCP requests that Media Server can handle concurrently.
 
-The *channelBuffer* parameter definses the MGCP channel buffer size. By default it is set to 5000.
+The *channelBuffer* parameter defines the MGCP channel buffer size which limits the size of incoming MGCP messages that are received by the MGCP channel. By default it is set to 5000.
 
 ==== Endpoints
 
