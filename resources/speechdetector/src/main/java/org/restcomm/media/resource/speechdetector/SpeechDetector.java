@@ -21,26 +21,46 @@
 
 package org.restcomm.media.resource.speechdetector;
 
-import org.restcomm.media.MediaSink;
+import java.io.IOException;
 
 /**
- * Components that detects user speech from a stream of incoming audio.
+ * Component that detects user speech from a stream of incoming audio.
  * 
- * @author anikiforov
+ * @author Vladimir Morosev (vladimir.morosev@telestax.com)
  *
  */
-public interface SpeechDetector extends MediaSink {
+public class SpeechDetector {
+
+    private final int silenceLevel;
+
+    public SpeechDetector(final int silenceLevel) {
+        this.silenceLevel = silenceLevel;
+    }
 
     /**
-     * Starts speech detection process.
-     * 
-     * @param speechDetectorListener The listener who will be notified about speech detection events.
+     * Checks does the sample buffer contains sound or silence.
+     *
+     * @param data buffer with samples
+     * @param offset the position of first sample in buffer
+     * @param len the number if samples
+     * @return true if silence detected
      */
-    void startSpeechDetection(SpeechDetectorListener speechDetectorListener);
+    public boolean detect(byte[] data, int offset, int len) {
+        int[] correllation = new int[len];
+        for (int i = offset; i < len - 1; i += 2) {
+            correllation[i] = (data[i] & 0xff) | (data[i + 1] << 8);
+        }
 
-    /**
-     * Stops the speech detection process.
-     */
-    void stopSpeechDetection();
+        double mean = mean(correllation);
+        return mean <= silenceLevel;
+    }
+
+    private static double mean(int[] m) {
+        double sum = 0;
+        for (int i = 0; i < m.length; i++) {
+            sum += m[i];
+        }
+        return sum / m.length;
+    }
 
 }

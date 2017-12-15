@@ -1,7 +1,7 @@
 /*
  * TeleStax, Open Source Cloud Communications
  * Copyright 2011-2017, Telestax Inc and individual contributors
- * by the @authors tag. 
+ * by the @authors tag.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -21,17 +21,41 @@
 
 package org.restcomm.media.resource.speechdetector;
 
-/**
- * Listener that is notified about events raised by {@link SpeechDetector}.
- * 
- * @author anikiforov
- *
- */
-public interface SpeechDetectorListener {
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
-    /**
-     * Event raised when user speech is detected.
-     */
-    void onSpeechDetected();
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+/**
+  * @author Vladimir Morosev (vladimir.morosev@telestax.com)
+  */
+public class SpeechDetectorTest {
+
+    private SpeechDetector testee;
+
+    @Before
+    public void setUp() {
+        testee = new SpeechDetector(10);
+    }
+
+    @After
+    public void cleanUp() {
+        testee = null;
+    }
+
+    @Test
+    public void testSilence() {
+    	final byte[] bytes = new byte[] { 0x00, 0x00, 0x00, 0x00 };
+        assertTrue(testee.detect(bytes, 0, bytes.size()));
+    }
+
+    @Test
+    public void testSpeech() {
+    	final byte[] bytes = new byte[] { 0x00, 0x0f, 0x70, 0x7f };
+        assertFalse(testee.detect(bytes, 0, bytes.size()));
+    }
 
 }
