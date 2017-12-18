@@ -36,7 +36,7 @@ import io.netty.channel.FixedRecvByteBufAllocator;
  */
 public class MgcpChannelInitializer extends ChannelInitializer<Channel> {
 
-    private static int channelBuffer;
+    private int channelBuffer;
     private static final ChannelHandler[] NO_HANDLERS = new ChannelHandler[0];
 
     private final ChannelHandler[] handlers;

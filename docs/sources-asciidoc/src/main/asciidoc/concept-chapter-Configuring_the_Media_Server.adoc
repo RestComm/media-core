@@ -68,7 +68,6 @@ The default controller is based on MGCP protocol. Enabling MGCP is always requir
 <controller protocol="mgcp">
 	<address>127.0.0.1</address>
 	<port>2427</port>
-	<port>2427</port>
 	<channelBuffer>5000</channelBuffer>
 	<endpoints>
 		<endpoint name="mobicents/bridge/" class="org.mobicents.media.server.mgcp.endpoint.BridgeEndpoint" poolSize="50" />
