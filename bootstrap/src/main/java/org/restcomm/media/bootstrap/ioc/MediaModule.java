@@ -21,6 +21,7 @@
 
 package org.restcomm.media.bootstrap.ioc;
 
+import com.google.inject.name.Names;
 import org.restcomm.media.bootstrap.ioc.provider.DspProvider;
 import org.restcomm.media.bootstrap.ioc.provider.media.AudioPlayerProviderProvider;
 import org.restcomm.media.bootstrap.ioc.provider.media.AudioRecorderProviderProvider;
@@ -37,6 +38,8 @@ import org.restcomm.media.spi.recorder.RecorderProvider;
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
@@ -51,6 +54,7 @@ public class MediaModule extends AbstractModule {
         bind(PlayerProvider.class).toProvider(AudioPlayerProviderProvider.class).in(Singleton.class);
         bind(RecorderProvider.class).toProvider(AudioRecorderProviderProvider.class).in(Singleton.class);
         bind(DtmfDetectorProvider.class).toProvider(DtmfDetectorProviderProvider.class).in(Singleton.class);
+        bind(AtomicInteger.class).annotatedWith(Names.named("component-id-generator")).toInstance(new AtomicInteger(0));
     }
 
 }
