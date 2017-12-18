@@ -1,7 +1,7 @@
 /*
  * TeleStax, Open Source Cloud Communications
  * Copyright 2011-2017, Telestax Inc and individual contributors
- * by the @authors tag. 
+ * by the @authors tag.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -29,7 +29,6 @@ import com.google.inject.AbstractModule;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
  */
 public class RtpModule extends AbstractModule {
 
@@ -41,6 +40,7 @@ public class RtpModule extends AbstractModule {
         bind(RtpSessionFactory.class).toProvider(RtpSessionFactoryGuiceProvider.class).asEagerSingleton();
         bind(JitterBufferFactory.class).toProvider(FixedJitterBufferFactoryProvider.class).asEagerSingleton();
         bind(RtpInputFactory.class).toProvider(RtpInputFactoryProvider.class).asEagerSingleton();
+        bind(RtpOutputFactory.class).toProvider(RtpOutputFactoryProvider.class).asEagerSingleton();
     }
 
 }
