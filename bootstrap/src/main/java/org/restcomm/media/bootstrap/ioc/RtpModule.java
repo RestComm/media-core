@@ -41,6 +41,7 @@ public class RtpModule extends AbstractModule {
         bind(JitterBufferFactory.class).toProvider(FixedJitterBufferFactoryProvider.class).asEagerSingleton();
         bind(RtpInputFactory.class).toProvider(RtpInputFactoryProvider.class).asEagerSingleton();
         bind(RtpOutputFactory.class).toProvider(RtpOutputFactoryProvider.class).asEagerSingleton();
+        bind(DtmfInputFactory.class).toProvider(DtmfInputFactoryProvider.class).asEagerSingleton();
     }
 
 }
