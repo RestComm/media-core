@@ -1,7 +1,7 @@
 /*
  * TeleStax, Open Source Cloud Communications
  * Copyright 2011-2017, Telestax Inc and individual contributors
- * by the @authors tag. 
+ * by the @authors tag.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -19,34 +19,33 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.rtp.jitter;
+package org.restcomm.media.bootstrap.ioc.provider.rtp;
 
-import org.restcomm.media.rtp.JitterBuffer;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import org.restcomm.media.core.configuration.MediaServerConfiguration;
 import org.restcomm.media.rtp.JitterBufferFactory;
-import org.restcomm.media.rtp.RtpClock;
+import org.restcomm.media.rtp.jitter.FixedJitterBufferFactory;
 import org.restcomm.media.scheduler.Clock;
-import org.restcomm.media.scheduler.WallClock;
 
 /**
- * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
+ * @author Henrique Rosa (henrique.rosa@telestax.com) created on 18/12/2017
  */
-public class FixedJitterBufferFactory implements JitterBufferFactory {
+public class FixedJitterBufferFactoryProvider implements Provider<JitterBufferFactory> {
 
-    private final Clock wallClock;
-    private final int bufferSize;
+    private final Clock clock;
+    private final MediaServerConfiguration configuration;
 
-    public FixedJitterBufferFactory(Clock wallClock, int bufferSize) {
-        super();
-        this.wallClock = wallClock;
-        this.bufferSize = bufferSize;
+    @Inject
+    public FixedJitterBufferFactoryProvider(MediaServerConfiguration configuration, Clock clock) {
+        this.clock = clock;
+        this.configuration = configuration;
     }
 
     @Override
-    public JitterBuffer build() {
-        final RtpClock rtpClock = new RtpClock(this.wallClock);
-        final FixedJitterBuffer jitterBuffer = new FixedJitterBuffer(rtpClock, this.bufferSize);
-        return jitterBuffer;
+    public JitterBufferFactory get() {
+        final int bufferSize = this.configuration.getMediaConfiguration().getJitterBufferSize();
+        return new FixedJitterBufferFactory(this.clock, bufferSize);
     }
 
 }
