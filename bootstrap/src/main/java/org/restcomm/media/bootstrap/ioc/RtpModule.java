@@ -23,10 +23,7 @@ package org.restcomm.media.bootstrap.ioc;
 
 import org.restcomm.media.bootstrap.ioc.provider.rtp.*;
 import org.restcomm.media.network.deprecated.PortManager;
-import org.restcomm.media.rtp.CnameGenerator;
-import org.restcomm.media.rtp.JitterBufferFactory;
-import org.restcomm.media.rtp.RtpConnectionFactory;
-import org.restcomm.media.rtp.RtpSessionFactory;
+import org.restcomm.media.rtp.*;
 
 import com.google.inject.AbstractModule;
 
@@ -43,6 +40,7 @@ public class RtpModule extends AbstractModule {
         bind(RtpConnectionFactory.class).toProvider(RtpConnectionFactoryGuiceProvider.class).asEagerSingleton();
         bind(RtpSessionFactory.class).toProvider(RtpSessionFactoryGuiceProvider.class).asEagerSingleton();
         bind(JitterBufferFactory.class).toProvider(FixedJitterBufferFactoryProvider.class).asEagerSingleton();
+        bind(RtpInputFactory.class).toProvider(RtpInputFactoryProvider.class).asEagerSingleton();
     }
 
 }
