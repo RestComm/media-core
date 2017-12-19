@@ -41,65 +41,43 @@ public class NoiseThresholdDetectorTest {
 
     private static final Logger log = Logger.getLogger(NoiseThresholdDetectorTest.class);
 
-    private SpeechDetector testee;
-
-    @Before
-    public void setUp() {
-        testee = new NoiseThresholdDetector(10);
-    }
-
-    @After
-    public void cleanUp() {
-        testee = null;
-    }
-
     @Test
     public void testSilence() {
-
         // given
-        boolean testPassed = true;
-        URL inputFileUrl = this.getClass().getResource("/test_sound_mono_48_silence.pcm");
+        final URL inputFileUrl = this.getClass().getResource("/test_sound_mono_48_silence.pcm");
+        final int packetSize = 480;
+        final SpeechDetector detector = new NoiseThresholdDetector(10);
 
         // when
-        try {
-            final int packetSize = 480;
-            try (FileInputStream inputStream = new FileInputStream(inputFileUrl.getFile())) {
-                byte[] input = new byte[2 * packetSize];
-                while (inputStream.read(input) == 2 * packetSize) {
-                    if (testee.detect(input, 0, input.length)) {
-                        testPassed = false;
-                        break;
-                    }
-                }
-            } finally {
+        boolean detected = false;
+        try (FileInputStream inputStream = new FileInputStream(inputFileUrl.getFile())) {
+            byte[] input = new byte[2 * packetSize];
+            while (inputStream.read(input) == 2 * packetSize) {
+                detected = detected || detector.detect(input, 0, input.length);
             }
-        } catch (IOException exc) {
-            log.error("IOException: " + exc.getMessage());
+        } catch (IOException e) {
+            log.error("Could not read file", e);
             fail("Speech Detector test file access error");
         }
 
         // then
-        assertTrue(testPassed);
+        assertFalse(detected);
     }
 
     @Test
-    public void testSpeech() {
-
+    public void testNoiseOverSilenceThreshold() {
         // given
-        boolean testPassed = false;
-        URL inputFileUrl = this.getClass().getResource("/test_sound_mono_48_speech.pcm");
+        final URL inputFileUrl = this.getClass().getResource("/test_sound_mono_48_speech.pcm");
+        final int silenceLevel = 327;
+        final SpeechDetector detector = new NoiseThresholdDetector(silenceLevel);
 
         // when
-        try {
-            final int packetSize = 480;
-            try (FileInputStream inputStream = new FileInputStream(inputFileUrl.getFile())) {
-                byte[] input = new byte[2 * packetSize];
-                while (inputStream.read(input) == 2 * packetSize) {
-                    if (testee.detect(input, 0, input.length)) {
-                        testPassed = true;
-                    }
-                }
-            } finally {
+        boolean detected = false;
+        final int packetSize = 480;
+        try (FileInputStream inputStream = new FileInputStream(inputFileUrl.getFile())) {
+            byte[] input = new byte[2 * packetSize];
+            while (inputStream.read(input) == 2 * packetSize) {
+                detected = detected || detector.detect(input, 0, input.length);
             }
         } catch (IOException exc) {
             log.error("IOException: " + exc.getMessage());
@@ -107,7 +85,31 @@ public class NoiseThresholdDetectorTest {
         }
 
         // then
-        assertTrue(testPassed);
+        assertTrue(detected);
+    }
+
+    @Test
+    public void testNoiseUnderSilenceThreshold() {
+        // given
+        final URL inputFileUrl = this.getClass().getResource("/test_sound_mono_48_speech.pcm");
+        final int silenceLevel = 328;
+        final SpeechDetector detector = new NoiseThresholdDetector(silenceLevel);
+
+        // when
+        boolean detected = false;
+        final int packetSize = 480;
+        try (FileInputStream inputStream = new FileInputStream(inputFileUrl.getFile())) {
+            byte[] input = new byte[2 * packetSize];
+            while (inputStream.read(input) == 2 * packetSize) {
+                detected = detected || detector.detect(input, 0, input.length);
+            }
+        } catch (IOException exc) {
+            log.error("IOException: " + exc.getMessage());
+            fail("Speech Detector test file access error");
+        }
+
+        // then
+        assertFalse(detected);
     }
 
 }
