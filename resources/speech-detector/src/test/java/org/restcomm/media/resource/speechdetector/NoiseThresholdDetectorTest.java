@@ -21,18 +21,25 @@
 
 package org.restcomm.media.resource.speechdetector;
 
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.apache.log4j.Logger;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URL;
+
 /**
   * @author Vladimir Morosev (vladimir.morosev@telestax.com)
   */
 public class NoiseThresholdDetectorTest {
+
+    private static final Logger log = Logger.getLogger(NoiseThresholdDetectorTest.class);
 
     private SpeechDetector testee;
 
@@ -48,14 +55,59 @@ public class NoiseThresholdDetectorTest {
 
     @Test
     public void testSilence() {
-    	final byte[] bytes = new byte[] { 0x00, 0x00, 0x00, 0x00 };
-        assertTrue(testee.detect(bytes, 0, bytes.length));
+
+        // given
+        boolean testPassed = true;
+        URL inputFileUrl = this.getClass().getResource("/test_sound_mono_48_silence.pcm");
+
+        // when
+        try {
+            final int packetSize = 480;
+            try (FileInputStream inputStream = new FileInputStream(inputFileUrl.getFile())) {
+                byte[] input = new byte[2 * packetSize];
+                while (inputStream.read(input) == 2 * packetSize) {
+                    if (testee.detect(input, 0, input.length)) {
+                        testPassed = false;
+                        break;
+                    }
+                }
+            } finally {
+            }
+        } catch (IOException exc) {
+            log.error("IOException: " + exc.getMessage());
+            fail("Speech Detector test file access error");
+        }
+
+        // then
+        assertTrue(testPassed);
     }
 
     @Test
     public void testSpeech() {
-    	final byte[] bytes = new byte[] { 0x00, 0x0f, 0x70, 0x7f };
-        assertFalse(testee.detect(bytes, 0, bytes.length));
+
+        // given
+        boolean testPassed = false;
+        URL inputFileUrl = this.getClass().getResource("/test_sound_mono_48_speech.pcm");
+
+        // when
+        try {
+            final int packetSize = 480;
+            try (FileInputStream inputStream = new FileInputStream(inputFileUrl.getFile())) {
+                byte[] input = new byte[2 * packetSize];
+                while (inputStream.read(input) == 2 * packetSize) {
+                    if (testee.detect(input, 0, input.length)) {
+                        testPassed = true;
+                    }
+                }
+            } finally {
+            }
+        } catch (IOException exc) {
+            log.error("IOException: " + exc.getMessage());
+            fail("Speech Detector test file access error");
+        }
+
+        // then
+        assertTrue(testPassed);
     }
 
 }
