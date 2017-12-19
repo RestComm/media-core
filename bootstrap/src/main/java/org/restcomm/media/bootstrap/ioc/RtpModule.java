@@ -34,7 +34,7 @@ public class RtpModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        bind(CnameGenerator.class).toProvider(CnameGeneratorGuiceProvider.class).asEagerSingleton();
+        bind(UniqueCnameGenerator.class).toProvider(CnameGeneratorGuiceProvider.class).asEagerSingleton();
         bind(PortManager.class).toProvider(PortManagerGuiceProvider.class).asEagerSingleton();
         bind(RtpConnectionFactory.class).toProvider(RtpConnectionFactoryGuiceProvider.class).asEagerSingleton();
         bind(RtpSessionFactory.class).toProvider(RtpSessionFactoryGuiceProvider.class).asEagerSingleton();
@@ -42,6 +42,8 @@ public class RtpModule extends AbstractModule {
         bind(RtpInputFactory.class).toProvider(RtpInputFactoryProvider.class).asEagerSingleton();
         bind(RtpOutputFactory.class).toProvider(RtpOutputFactoryProvider.class).asEagerSingleton();
         bind(DtmfInputFactory.class).toProvider(DtmfInputFactoryProvider.class).asEagerSingleton();
+        bind(RtpNetworkManager.class).toProvider(RtpNetworkManagerProvider.class).asEagerSingleton();
+        bind(RtpChannelFactory.class).toProvider(RtpChannelFactoryProvider.class).asEagerSingleton();
     }
 
 }

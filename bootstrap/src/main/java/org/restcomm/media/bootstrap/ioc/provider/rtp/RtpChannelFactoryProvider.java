@@ -1,7 +1,7 @@
 /*
  * TeleStax, Open Source Cloud Communications
  * Copyright 2011-2017, Telestax Inc and individual contributors
- * by the @authors tag. 
+ * by the @authors tag.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -18,22 +18,29 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
+
 package org.restcomm.media.bootstrap.ioc.provider.rtp;
 
-import org.restcomm.media.rtp.UniqueCnameGenerator;
-
+import com.google.inject.Inject;
 import com.google.inject.Provider;
+import org.restcomm.media.rtp.RtpChannelFactory;
+import org.restcomm.media.rtp.RtpNetworkManager;
 
 /**
- * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
+ * @author Henrique Rosa (henrique.rosa@telestax.com) created on 18/12/2017
  */
-public class CnameGeneratorGuiceProvider implements Provider<UniqueCnameGenerator> {
+public class RtpChannelFactoryProvider implements Provider<RtpChannelFactory> {
+
+    private final RtpNetworkManager networkManager;
+
+    @Inject
+    public RtpChannelFactoryProvider(RtpNetworkManager networkManager) {
+        this.networkManager = networkManager;
+    }
 
     @Override
-    public UniqueCnameGenerator get() {
-        return new UniqueCnameGenerator();
+    public RtpChannelFactory get() {
+        return new RtpChannelFactory(this.networkManager);
     }
 
 }

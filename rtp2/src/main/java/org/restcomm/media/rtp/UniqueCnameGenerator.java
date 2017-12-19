@@ -40,7 +40,7 @@ import javax.xml.bind.DatatypeConverter;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  * 
  */
-public class CnameGenerator {
+public class UniqueCnameGenerator {
 
     /**
      * For every new RTP session, a new RTCP CNAME is created by generating a cryptographically pseudorandom value as described
