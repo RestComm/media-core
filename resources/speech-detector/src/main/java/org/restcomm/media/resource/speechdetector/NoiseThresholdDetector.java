@@ -56,7 +56,7 @@ public class NoiseThresholdDetector implements SpeechDetector {
         return mean > silenceLevel;
     }
 
-    private static double mean(int[] m) {
+    private double mean(int[] m) {
         double sum = 0;
         for (int i = 0; i < m.length; i++) {
             sum += m[i];
