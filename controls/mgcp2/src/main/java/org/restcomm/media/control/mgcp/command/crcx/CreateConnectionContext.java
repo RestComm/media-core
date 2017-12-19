@@ -190,7 +190,7 @@ public class CreateConnectionContext {
     }
     
     protected void setLocalDescription(String localDescription) {
-        this.localDescription = localDescription;
+        this.localDescription = localDescription == null? "" : localDescription;
     }
 
     protected LocalConnectionOptions getLocalConnectionOptions() {

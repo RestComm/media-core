@@ -24,7 +24,7 @@ package org.restcomm.media.bootstrap.ioc.provider.rtp;
 import org.restcomm.media.core.configuration.MediaServerConfiguration;
 import org.restcomm.media.core.configuration.NetworkConfiguration;
 import org.restcomm.media.network.deprecated.PortManager;
-import org.restcomm.media.rtp.CnameGenerator;
+import org.restcomm.media.rtp.UniqueCnameGenerator;
 import org.restcomm.media.rtp.RtpConnectionFactory;
 import org.restcomm.media.rtp.RtpSessionFactory;
 import org.restcomm.media.rtp.connection.RtpConnectionFsmBuilder;
@@ -45,13 +45,13 @@ public class RtpConnectionFactoryGuiceProvider implements Provider<RtpConnection
     private final SdpBuilder sdpBuilder;
     private final SessionDescriptionParser sdpParser;
     private final PortManager portManager;
-    private final CnameGenerator cnameGenerator;
+    private final UniqueCnameGenerator cnameGenerator;
     private final RtpSessionFactory rtpSessionFactory;
     private final RtpConnectionFsmBuilder fsmBuilder;
 
     @Inject
     public RtpConnectionFactoryGuiceProvider(MediaServerConfiguration configuration, SdpBuilder sdpBuilder,
-            SessionDescriptionParser sdpParser, PortManager portManager, CnameGenerator cnameGenerator,
+            SessionDescriptionParser sdpParser, PortManager portManager, UniqueCnameGenerator cnameGenerator,
             RtpSessionFactory rtpSessionFactory, RtpConnectionFsmBuilder fsmBuilder) {
         super();
         this.configuration = configuration;

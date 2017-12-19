@@ -22,7 +22,7 @@
 package org.restcomm.media.rtp.connection;
 
 import org.restcomm.media.network.deprecated.PortManager;
-import org.restcomm.media.rtp.CnameGenerator;
+import org.restcomm.media.rtp.UniqueCnameGenerator;
 import org.restcomm.media.rtp.RtpConnection;
 import org.restcomm.media.rtp.RtpConnectionFactory;
 import org.restcomm.media.rtp.RtpSessionFactory;
@@ -37,14 +37,14 @@ public class RtpConnectionImplFactory implements RtpConnectionFactory {
 
     private final String externalAddress;
     private final String localAddress;
-    private final CnameGenerator cnameGenerator;
+    private final UniqueCnameGenerator cnameGenerator;
     private final SdpBuilder sdpBuilder;
     private final SessionDescriptionParser sdpParser;
     private final PortManager portManager;
     private final RtpSessionFactory sessionFactory;
     private final RtpConnectionFsmBuilder fsmBuilder;
 
-    public RtpConnectionImplFactory(String externalAddress, String localAddress, CnameGenerator cnameGenerator,
+    public RtpConnectionImplFactory(String externalAddress, String localAddress, UniqueCnameGenerator cnameGenerator,
             SdpBuilder sdpBuilder, SessionDescriptionParser sdpParser, PortManager portManager,
             RtpSessionFactory sessionFactory, RtpConnectionFsmBuilder fsmBuilder) {
         super();
