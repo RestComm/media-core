@@ -100,6 +100,7 @@ public class XmlConfigurationLoader implements ConfigurationLoader {
         // Basic Controller configuration
         dst.setAddress(src.getString("address", MgcpControllerConfiguration.ADDRESS));
         dst.setPort(src.getInt("port", MgcpControllerConfiguration.PORT));
+        dst.setChannelBuffer(src.getInt("channelBuffer", MgcpControllerConfiguration.CHANNEL_BUFFER));
 
         // Iterate over endpoint configuration
         List<HierarchicalConfiguration<ImmutableNode>> endpoints = src.childConfigurationsAt("endpoints");

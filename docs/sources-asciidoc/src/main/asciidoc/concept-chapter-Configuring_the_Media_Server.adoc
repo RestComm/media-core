@@ -68,6 +68,7 @@ The default controller is based on MGCP protocol. Enabling MGCP is always requir
 <controller protocol="mgcp">
 	<address>127.0.0.1</address>
 	<port>2427</port>
+	<channelBuffer>5000</channelBuffer>
 	<endpoints>
 		<endpoint name="mobicents/bridge/" class="org.mobicents.media.server.mgcp.endpoint.BridgeEndpoint" poolSize="50" />
 		<endpoint name="mobicents/ivr/" class="org.mobicents.media.server.mgcp.endpoint.IvrEndpoint" poolSize="50" />
@@ -86,6 +87,8 @@ The *Address* parameter defines the address of the network interface to which th
 The *Port* parameter defines the port where the control channel will listen to for incoming requests. By default, it is set to 2427.
 
 The *PoolSize* parameter defines the number of MGCP requests that Media Server can handle concurrently.
+
+The *channelBuffer* parameter defines the MGCP channel buffer size which limits the size of incoming MGCP messages that are received by the MGCP channel. By default it is set to 5000.
 
 ==== Endpoints
 
