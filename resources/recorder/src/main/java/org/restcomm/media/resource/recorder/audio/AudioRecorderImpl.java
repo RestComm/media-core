@@ -33,6 +33,8 @@ import org.restcomm.media.ComponentType;
 import org.restcomm.media.component.AbstractSink;
 import org.restcomm.media.component.audio.AudioOutput;
 import org.restcomm.media.component.oob.OOBOutput;
+import org.restcomm.media.resource.speechdetector.NoiseThresholdDetector;
+import org.restcomm.media.resource.speechdetector.SpeechDetector;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.Task;
 import org.restcomm.media.spi.dtmf.DtmfTonesData;
@@ -103,6 +105,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
     private int qualifier;
 
     private boolean speechDetected = false;
+    private SpeechDetector speechDetector = new NoiseThresholdDetector(SILENCE_LEVEL);
 
     private AudioOutput output;
     private OOBOutput oobOutput;
@@ -234,9 +237,9 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
         if (snk != null) snk.write(byteBuffer);
 
         if (this.postSpeechTimer > 0 || this.preSpeechTimer > 0) {
-            // detecting silence
-            if (!this.checkForSilence(data, offset, len)) {
-                this.lastPacketData = scheduler.getClock().getTime();
+            // detecting speech
+            if (speechDetector.detect(data, offset, len)) {
+                 this.lastPacketData = scheduler.getClock().getTime();
                 if(!this.speechDetected) {
                     fireEvent(new RecorderEventImpl(RecorderEvent.SPEECH_DETECTED, this));
                 }
@@ -262,35 +265,6 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
         if (snk != null) {
             logger.error("Sink for the recording is not cleaned properly, found " + snk);
         }
-    }
-
-    /**
-     * Checks does the frame contains sound or silence.
-     * 
-     * @param data buffer with samples
-     * @param offset the position of first sample in buffer
-     * @param len the number if samples
-     * @return true if silence detected
-     */
-    private boolean checkForSilence(byte[] data, int offset, int len) {
-        int[] correllation = new int[len];
-        for (int i = offset; i < len - 1; i += 2) {
-            correllation[i] = (data[i] & 0xff) | (data[i + 1] << 8);
-        }
-
-        double mean = mean(correllation);
-        if(mean > SILENCE_LEVEL) {
-            return false;
-        }
-        return true;
-    }
-    
-    public double mean(int[] m) {
-        double sum = 0;
-        for (int i = 0; i < m.length; i++) {
-            sum += m[i];
-        }
-        return sum / m.length;
     }
 
     @Override
