@@ -4,21 +4,19 @@
  */
 package org.restcomm.media.resource.recorder.audio;
 
-import java.io.IOException;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.restcomm.media.component.audio.AudioComponent;
-import org.restcomm.media.component.audio.AudioInput;
 import org.restcomm.media.component.audio.AudioMixer;
-import org.restcomm.media.component.audio.AudioOutput;
 import org.restcomm.media.component.audio.Sine;
-import org.restcomm.media.resource.recorder.audio.AudioRecorderImpl;
+import org.restcomm.media.resource.speechdetector.NoiseThresholdDetectorProvider;
+import org.restcomm.media.resource.speechdetector.SpeechDetectorProvider;
 import org.restcomm.media.scheduler.Clock;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.WallClock;
+
+import java.io.IOException;
 
 /**
  *
@@ -29,6 +27,8 @@ public class AudioRecorderImplTest {
     private Clock clock;
     private PriorityQueueScheduler scheduler;
 
+    private SpeechDetectorProvider speechDetectorProvider;
+
     private Sine sine;
     private AudioRecorderImpl recorder;
     
@@ -36,17 +36,6 @@ public class AudioRecorderImplTest {
     private AudioComponent recorderComponent;
     
     private AudioMixer mixer;
-    
-    public AudioRecorderImplTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
     
     @Before
     public void setUp() throws IOException {
@@ -58,8 +47,10 @@ public class AudioRecorderImplTest {
 
         sine = new Sine(scheduler); 
         sine.setFrequency(250);
+
+        speechDetectorProvider = new NoiseThresholdDetectorProvider(10);
         
-        recorder = new AudioRecorderImpl(scheduler);
+        recorder = new AudioRecorderImpl(scheduler, speechDetectorProvider.provide());
         
         sineComponent=new AudioComponent(1);
         recorderComponent=new AudioComponent(2);

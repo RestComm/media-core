@@ -22,18 +22,11 @@
 
 package org.restcomm.media.resource.recorder.audio;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.concurrent.atomic.AtomicReference;
-
 import org.apache.log4j.Logger;
 import org.restcomm.media.ComponentType;
 import org.restcomm.media.component.AbstractSink;
 import org.restcomm.media.component.audio.AudioOutput;
 import org.restcomm.media.component.oob.OOBOutput;
-import org.restcomm.media.resource.speechdetector.NoiseThresholdDetector;
 import org.restcomm.media.resource.speechdetector.SpeechDetector;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.Task;
@@ -48,6 +41,12 @@ import org.restcomm.media.spi.pooling.PooledObject;
 import org.restcomm.media.spi.recorder.Recorder;
 import org.restcomm.media.spi.recorder.RecorderEvent;
 import org.restcomm.media.spi.recorder.RecorderListener;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author yulian oifa
@@ -87,7 +86,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
 
     private PriorityQueueScheduler scheduler;
 
-    // maximum recrding time. -1 means until stopped.
+    // maximum recording time. -1 means until stopped.
     private long maxRecordTime = -1;
 
     // listener
@@ -105,7 +104,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
     private int qualifier;
 
     private boolean speechDetected = false;
-    private SpeechDetector speechDetector = new NoiseThresholdDetector(SILENCE_LEVEL);
+    private final SpeechDetector speechDetector;
 
     private AudioOutput output;
     private OOBOutput oobOutput;
@@ -113,9 +112,10 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
 
     private static final Logger logger = Logger.getLogger(AudioRecorderImpl.class);
 
-    public AudioRecorderImpl(PriorityQueueScheduler scheduler) {
+    public AudioRecorderImpl(PriorityQueueScheduler scheduler, SpeechDetector speechDetector) {
         super("recorder");
         this.scheduler = scheduler;
+        this.speechDetector = speechDetector;
 
         killRecording = new KillRecording();
 

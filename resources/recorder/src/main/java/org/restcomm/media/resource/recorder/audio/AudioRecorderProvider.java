@@ -21,6 +21,7 @@
 
 package org.restcomm.media.resource.recorder.audio;
 
+import org.restcomm.media.resource.speechdetector.SpeechDetectorProvider;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.spi.recorder.Recorder;
 import org.restcomm.media.spi.recorder.RecorderProvider;
@@ -32,14 +33,16 @@ import org.restcomm.media.spi.recorder.RecorderProvider;
 public class AudioRecorderProvider implements RecorderProvider {
 
     private final PriorityQueueScheduler scheduler;
+    private final SpeechDetectorProvider speechDetectorProvider;
     
-    public AudioRecorderProvider(PriorityQueueScheduler scheduler) {
+    public AudioRecorderProvider(PriorityQueueScheduler scheduler, SpeechDetectorProvider speechDetectorProvider) {
         this.scheduler = scheduler;
+        this.speechDetectorProvider = speechDetectorProvider;
     }
 
     @Override
     public Recorder provide() {
-        return new AudioRecorderImpl(this.scheduler);
+        return new AudioRecorderImpl(this.scheduler, this.speechDetectorProvider.provide());
     }
 
 }

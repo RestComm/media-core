@@ -22,11 +22,8 @@
 package org.restcomm.media.bootstrap.ioc;
 
 import org.restcomm.media.bootstrap.ioc.provider.DspProvider;
-import org.restcomm.media.bootstrap.ioc.provider.media.AudioPlayerProviderProvider;
-import org.restcomm.media.bootstrap.ioc.provider.media.AudioRecorderProviderProvider;
-import org.restcomm.media.bootstrap.ioc.provider.media.ChannelsManagerProvider;
-import org.restcomm.media.bootstrap.ioc.provider.media.DtmfDetectorProviderProvider;
-import org.restcomm.media.bootstrap.ioc.provider.media.MediaChannelProviderProvider;
+import org.restcomm.media.bootstrap.ioc.provider.media.*;
+import org.restcomm.media.resource.speechdetector.SpeechDetectorProvider;
 import org.restcomm.media.rtp.ChannelsManager;
 import org.restcomm.media.rtp.channels.MediaChannelProvider;
 import org.restcomm.media.spi.dsp.DspFactory;
@@ -51,6 +48,7 @@ public class MediaModule extends AbstractModule {
         bind(PlayerProvider.class).toProvider(AudioPlayerProviderProvider.class).in(Singleton.class);
         bind(RecorderProvider.class).toProvider(AudioRecorderProviderProvider.class).in(Singleton.class);
         bind(DtmfDetectorProvider.class).toProvider(DtmfDetectorProviderProvider.class).in(Singleton.class);
+        bind(SpeechDetectorProvider.class).toProvider(GuiceNoiseThresholdDetectorProvider.class).asEagerSingleton();
     }
 
 }
