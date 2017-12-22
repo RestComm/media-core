@@ -34,7 +34,6 @@ import org.restcomm.media.drivers.asr.AsrDriverEventListener;
 import org.restcomm.media.drivers.asr.AsrDriverException;
 import org.restcomm.media.drivers.asr.AsrDriverManager;
 import org.restcomm.media.drivers.asr.UnknownAsrDriverException;
-import org.restcomm.media.resource.speechdetector.NoiseThresholdDetector;
 import org.restcomm.media.resource.speechdetector.SpeechDetector;
 import org.restcomm.media.resource.speechdetector.SpeechDetectorListener;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
@@ -68,15 +67,14 @@ public class AsrEngineImpl extends AbstractSink implements AsrEngine {
     private boolean speechDetectionOn = false;
 
     public AsrEngineImpl(final String name, final PriorityQueueScheduler scheduler, final AsrDriverManager driverManager,
-            final int silenceLevel) {
+            SpeechDetector speechDetector) {
         super(name);
         this.driverManager = driverManager;
         this.scheduler = scheduler;
+        this.speechDetector = speechDetector;
 
         output = new AudioOutput(scheduler, ComponentType.ASR_ENGINE.getType());
         output.join(this);
-
-        speechDetector = new NoiseThresholdDetector(silenceLevel);
     }
 
     /*
