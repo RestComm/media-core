@@ -25,12 +25,14 @@ import java.util.List;
 
 import org.restcomm.media.drivers.asr.AsrDriverConfigurationException;
 import org.restcomm.media.drivers.asr.UnknownAsrDriverException;
+import org.restcomm.media.MediaSink;
+import org.restcomm.media.resource.speechdetector.SpeechDetectorListener;
 
 /**
  * @author gdubina
  *
  */
-public interface AsrEngine extends SpeechDetector {
+public interface AsrEngine extends MediaSink {
 
     /**
      * Configures the ASR Engine.
@@ -56,5 +58,17 @@ public interface AsrEngine extends SpeechDetector {
      * @return The waiting time, in milliseconds.
      */
     int getResponseTimeoutInMilliseconds();
+
+    /**
+     * Starts speech detection process.
+     * 
+     * @param speechDetectorListener The listener who will be notified about speech detection events.
+     */
+    void startSpeechDetection(SpeechDetectorListener speechDetectorListener);
+
+    /**
+     * Stops the speech detection process.
+     */
+    void stopSpeechDetection();
 
 }

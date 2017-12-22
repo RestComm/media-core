@@ -36,6 +36,11 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>org.restcomm.media.resources</groupId>
+			<artifactId>speech-detector</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.restcomm.media.client.mgcp</groupId>
 			<artifactId>mgcp-driver</artifactId>
 			<version>${project.version}</version>

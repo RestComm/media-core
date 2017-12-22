@@ -30,6 +30,11 @@
 			<artifactId>scheduler</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.restcomm.media.resources</groupId>
+			<artifactId>speech-detector</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 	</dependencies>
 
 	<build>
