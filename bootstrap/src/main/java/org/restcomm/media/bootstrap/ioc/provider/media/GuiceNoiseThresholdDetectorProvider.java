@@ -1,7 +1,7 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
- * by the @authors tag. 
+ * Copyright 2011-2017, Telestax Inc and individual contributors
+ * by the @authors tag.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -23,30 +23,26 @@ package org.restcomm.media.bootstrap.ioc.provider.media;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import org.restcomm.media.resource.recorder.audio.AudioRecorderProvider;
-import org.restcomm.media.resource.speechdetector.SpeechDetectorProvider;
-import org.restcomm.media.scheduler.PriorityQueueScheduler;
-import org.restcomm.media.spi.recorder.RecorderProvider;
+import org.restcomm.media.core.configuration.MediaServerConfiguration;
+import org.restcomm.media.resource.speechdetector.NoiseThresholdDetector;
+import org.restcomm.media.resource.speechdetector.NoiseThresholdDetectorProvider;
 
 /**
- * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
+ * @author Henrique Rosa (henrique.rosa@telestax.com) created on 22/12/2017
  */
-public class AudioRecorderProviderProvider implements Provider<RecorderProvider> {
+public class GuiceNoiseThresholdDetectorProvider implements Provider<NoiseThresholdDetectorProvider> {
 
-    private final PriorityQueueScheduler scheduler;
-    private final SpeechDetectorProvider speechDetectorProvider;
+    private final MediaServerConfiguration configuration;
 
     @Inject
-    public AudioRecorderProviderProvider(PriorityQueueScheduler scheduler, SpeechDetectorProvider speechDetectorProvider) {
-        super();
-        this.scheduler = scheduler;
-        this.speechDetectorProvider = speechDetectorProvider;
+    public GuiceNoiseThresholdDetectorProvider(MediaServerConfiguration configuration) {
+        this.configuration = configuration;
     }
 
     @Override
-    public RecorderProvider get() {
-        return new AudioRecorderProvider(this.scheduler, this.speechDetectorProvider);
+    public NoiseThresholdDetectorProvider get() {
+        final int silenceLevel = this.configuration.getResourcesConfiguration().getSpeechDetectorSilenceLevel();
+        return new NoiseThresholdDetectorProvider(silenceLevel);
     }
 
 }
