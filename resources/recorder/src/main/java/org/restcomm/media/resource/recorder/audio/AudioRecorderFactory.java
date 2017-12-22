@@ -21,6 +21,7 @@
 
 package org.restcomm.media.resource.recorder.audio;
 
+import org.restcomm.media.resource.speechdetector.SpeechDetectorProvider;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.spi.pooling.PooledObjectFactory;
 
@@ -30,17 +31,20 @@ import org.restcomm.media.spi.pooling.PooledObjectFactory;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
+@Deprecated
 public class AudioRecorderFactory implements PooledObjectFactory<AudioRecorderImpl> {
     
     private final PriorityQueueScheduler mediaScheduler;
+    private final SpeechDetectorProvider speechDetectorProvider;
 
-    public AudioRecorderFactory(PriorityQueueScheduler mediaScheduler) {
+    public AudioRecorderFactory(PriorityQueueScheduler mediaScheduler, SpeechDetectorProvider speechDetectorProvider) {
         this.mediaScheduler = mediaScheduler;
+        this.speechDetectorProvider = speechDetectorProvider;
     }
     
     @Override
     public AudioRecorderImpl produce() {
-        return new AudioRecorderImpl(this.mediaScheduler);
+        return new AudioRecorderImpl(this.mediaScheduler, this.speechDetectorProvider.provide());
     }
 
 }

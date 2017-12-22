@@ -52,6 +52,7 @@ import org.restcomm.media.resource.player.audio.AudioPlayerPool;
 import org.restcomm.media.resource.player.audio.CachedRemoteStreamProvider;
 import org.restcomm.media.resource.recorder.audio.AudioRecorderFactory;
 import org.restcomm.media.resource.recorder.audio.AudioRecorderPool;
+import org.restcomm.media.resource.speechdetector.NoiseThresholdDetectorProvider;
 import org.restcomm.media.spi.Connection;
 import org.restcomm.media.spi.ConnectionMode;
 import org.restcomm.media.spi.ConnectionType;
@@ -100,7 +101,7 @@ public class BridgeTest extends RTPEnvironment {
         this.localConnectionPool = new LocalConnectionPool(0, localConnectionFactory);
         this.playerFactory = new AudioPlayerFactory(mediaScheduler, dspFactory, new CachedRemoteStreamProvider(100));
         this.playerPool = new AudioPlayerPool(0, playerFactory);
-        this.recorderFactory = new AudioRecorderFactory(mediaScheduler);
+        this.recorderFactory = new AudioRecorderFactory(mediaScheduler, new NoiseThresholdDetectorProvider(10));
         this.recorderPool = new AudioRecorderPool(0, recorderFactory);
         this.dtmfDetectorFactory = new DtmfDetectorFactory(mediaScheduler);
         this.dtmfDetectorPool = new DtmfDetectorPool(0, dtmfDetectorFactory);
