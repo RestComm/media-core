@@ -74,7 +74,7 @@ public class AsrEngineProviderGuiceProvider implements Provider<AsrEngineProvide
             }
         }
         final int silenceLevel = configuration.getResourcesConfiguration().getSpeechDetectorSilenceLevel();
-        return new AsrEngineProviderImpl(scheduler, mng, speechDetectorProvider.provide());
+        return new AsrEngineProviderImpl(scheduler, mng, speechDetectorProvider);
     }
     
 }

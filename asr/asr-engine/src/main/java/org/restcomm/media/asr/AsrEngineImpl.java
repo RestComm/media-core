@@ -62,7 +62,7 @@ public class AsrEngineImpl extends AbstractSink implements AsrEngine {
 
     private boolean isDriverStarted = false;
 
-    private SpeechDetector speechDetector;
+    private final SpeechDetector speechDetector;
     private SpeechDetectorListener speechDetectorListener;
     private boolean speechDetectionOn = false;
 
