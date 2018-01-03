@@ -31,6 +31,7 @@ import org.restcomm.media.core.configuration.DriverConfiguration;
 import org.restcomm.media.core.configuration.MediaServerConfiguration;
 import org.restcomm.media.core.configuration.SubsystemsConfiguration;
 import org.restcomm.media.drivers.asr.AsrDriverManager;
+import org.restcomm.media.resource.speechdetector.SpeechDetectorProvider;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 
 import com.google.inject.Inject;
@@ -46,12 +47,15 @@ public class AsrEngineProviderGuiceProvider implements Provider<AsrEngineProvide
 
     private final PriorityQueueScheduler scheduler;
     private final MediaServerConfiguration configuration;
+    private final SpeechDetectorProvider speechDetectorProvider;
 
     @Inject
-    public AsrEngineProviderGuiceProvider(PriorityQueueScheduler scheduler, MediaServerConfiguration configuration) {
+    public AsrEngineProviderGuiceProvider(PriorityQueueScheduler scheduler, MediaServerConfiguration configuration,
+            SpeechDetectorProvider speechDetectorProvider) {
         super();
         this.scheduler = scheduler;
         this.configuration = configuration;
+        this.speechDetectorProvider = speechDetectorProvider;
     }
 
     @Override
@@ -70,7 +74,7 @@ public class AsrEngineProviderGuiceProvider implements Provider<AsrEngineProvide
             }
         }
         final int silenceLevel = configuration.getResourcesConfiguration().getSpeechDetectorSilenceLevel();
-        return new AsrEngineProviderImpl(scheduler, mng, silenceLevel);
+        return new AsrEngineProviderImpl(scheduler, mng, speechDetectorProvider);
     }
     
 }

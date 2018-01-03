@@ -35,7 +35,7 @@ import com.google.common.util.concurrent.ListeningScheduledExecutorService;
  */
 public class InputTimeoutDetector {
 
-    private final static Logger logger = Logger.getLogger(SpeechDetectorImpl.class);
+    private final static Logger logger = Logger.getLogger(InputTimeoutDetector.class);
 
     private final static long INVALID_TIME = -1L;
 

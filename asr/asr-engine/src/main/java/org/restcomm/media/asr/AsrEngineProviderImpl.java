@@ -24,6 +24,7 @@ package org.restcomm.media.asr;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.restcomm.media.drivers.asr.AsrDriverManager;
+import org.restcomm.media.resource.speechdetector.SpeechDetectorProvider;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 
 /**
@@ -34,18 +35,19 @@ public class AsrEngineProviderImpl implements AsrEngineProvider {
     private final AtomicInteger id;
     private final PriorityQueueScheduler mediaScheduler;
     private final AsrDriverManager driverManager;
-    private final int silenceLevel;
+    private SpeechDetectorProvider speechDetectorProvider;
 
-    public AsrEngineProviderImpl(final PriorityQueueScheduler mediaScheduler, final AsrDriverManager driverManager, final int silenceLevel) {
+    public AsrEngineProviderImpl(final PriorityQueueScheduler mediaScheduler, final AsrDriverManager driverManager,
+    		SpeechDetectorProvider speechDetectorProvider) {
         this.mediaScheduler = mediaScheduler;
         this.driverManager = driverManager;
         this.id = new AtomicInteger(0);
-        this.silenceLevel = silenceLevel;
+        this.speechDetectorProvider = speechDetectorProvider;
     }
 
     @Override
     public AsrEngine provide() {
-        return new AsrEngineImpl(nextId(), this.mediaScheduler, this.driverManager, this.silenceLevel);
+        return new AsrEngineImpl(nextId(), this.mediaScheduler, this.driverManager, this.speechDetectorProvider.provide());
     }
 
     private String nextId() {
