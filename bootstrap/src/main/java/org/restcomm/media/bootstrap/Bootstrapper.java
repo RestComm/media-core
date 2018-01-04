@@ -1,7 +1,7 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
- * by the @authors tag. 
+ * Copyright 2011-2018, Telestax Inc and individual contributors
+ * by the @authors tag.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -21,53 +21,21 @@
 
 package org.restcomm.media.bootstrap;
 
-import org.apache.log4j.Logger;
-import org.restcomm.media.bootstrap.configuration.ConfigurationLoader;
-import org.restcomm.media.bootstrap.configuration.XmlConfigurationLoader;
-import org.restcomm.media.bootstrap.ioc.AsrModule;
-import org.restcomm.media.bootstrap.ioc.CoreModule;
-import org.restcomm.media.bootstrap.ioc.MediaModule;
-import org.restcomm.media.bootstrap.ioc.MgcpModule;
-import org.restcomm.media.bootstrap.main.RestCommMediaServer;
-import org.restcomm.media.core.configuration.MediaServerConfiguration;
-import org.restcomm.media.spi.MediaServer;
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-
 /**
- * Bootstrapper that reads from a configuration file and initializes the Media Server.
- * 
- * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
+ * @author Henrique Rosa (henrique.rosa@telestax.com) created on 04/01/2018
  */
-public class Bootstrapper {
+public interface Bootstrapper {
 
-    private static final Logger log = Logger.getLogger(Bootstrapper.class);
-    private final String filepath;
-    private final ConfigurationLoader configurationLoader;
-    private MediaServer mediaServer;
+    /**
+     * Configures and starts the Media Server.
+     *
+     * @throws Exception
+     */
+    void deploy() throws Exception;
 
-    public Bootstrapper(String filepath) {
-        this.filepath = filepath;
-        this.configurationLoader = new XmlConfigurationLoader();
-    }
-
-    public void start() {
-        try {
-            MediaServerConfiguration conf = configurationLoader.load(this.filepath);
-            Injector injector = Guice.createInjector(new CoreModule(conf), new MediaModule(), new MgcpModule(), new AsrModule());
-            this.mediaServer = injector.getInstance(RestCommMediaServer.class);
-            this.mediaServer.start();
-        } catch (Exception e) {
-            log.error("Bootstrap aborted. Reason: " + e.getMessage());
-        }
-    }
-
-    public void stop() {
-        if (mediaServer != null) {
-            this.mediaServer.stop();
-        }
-    }
+    /**
+     * Stops the Media Server and cleans pending resources.
+     */
+    void undeploy();
 
 }
