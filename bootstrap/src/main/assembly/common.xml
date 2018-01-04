@@ -1,152 +1,119 @@
 <component>
-	<files>
-		<file>
-			<source>target/run.jar</source>
-			<destName>bin/run.jar</destName>
-		</file>
+    <files>
+        <file>
+            <source>target/run.jar</source>
+            <destName>bin/run.jar</destName>
+        </file>
 
-		<!-- Conf -->
-		<file>
-			<source>src/main/config/bootstrap-beans.xml</source>
-			<destName>conf/bootstrap-beans.xml</destName>
-		</file>
+        <!-- Conf -->
+        <file>
+            <source>src/main/config/log4j.xml</source>
+            <destName>conf/log4j.xml</destName>
+        </file>
 
-		<file>
-			<source>src/main/config/log4j.xml</source>
-			<destName>conf/log4j.xml</destName>
-		</file>
+        <file>
+            <source>src/main/config/mediaserver.xml</source>
+            <destName>conf/mediaserver.xml</destName>
+        </file>
 
-		<file>
-			<source>src/main/config/mediaserver.xml</source>
-			<destName>conf/mediaserver.xml</destName>
-		</file>
+        <!-- Auto-configuration -->
+        <file>
+            <source>src/main/config/autoconfig/start-mediaserver.sh</source>
+            <destName>start-mediaserver.sh</destName>
+        </file>
+        <file>
+            <source>src/main/config/autoconfig/stop-mediaserver.sh</source>
+            <destName>stop-mediaserver.sh</destName>
+        </file>
+        <file>
+            <source>src/main/config/autoconfig/mediaserver.conf</source>
+            <destName>mediaserver.conf</destName>
+        </file>
+        <file>
+            <source>src/main/config/autoconfig/logger.conf</source>
+            <destName>logger.conf</destName>
+        </file>
+        <file>
+            <source>src/main/config/autoconfig/ssl.conf</source>
+            <destName>ssl.conf</destName>
+        </file>
+        <file>
+            <source>src/main/config/autoconfig/verify-dependencies.sh</source>
+            <destName>.autoconfig/verify-dependencies.sh</destName>
+        </file>
+        <file>
+            <source>src/main/config/autoconfig/autoconfigure.sh</source>
+            <destName>.autoconfig/autoconfigure.sh</destName>
+        </file>
+        <file>
+            <source>src/main/config/autoconfig/config-network.sh</source>
+            <destName>.autoconfig/autoconfig.d/config-network.sh</destName>
+        </file>
+        <file>
+            <source>src/main/config/autoconfig/config-controller-mgcp.sh</source>
+            <destName>.autoconfig/autoconfig.d/config-controller-mgcp.sh</destName>
+        </file>
+        <file>
+            <source>src/main/config/autoconfig/config-media.sh</source>
+            <destName>.autoconfig/autoconfig.d/config-media.sh</destName>
+        </file>
+        <file>
+            <source>src/main/config/autoconfig/config-resources.sh</source>
+            <destName>.autoconfig/autoconfig.d/config-resources.sh</destName>
+        </file>
+        <file>
+            <source>src/main/config/autoconfig/config-dtls.sh</source>
+            <destName>.autoconfig/autoconfig.d/config-dtls.sh</destName>
+        </file>
+        <file>
+            <source>src/main/config/autoconfig/config-logger.sh</source>
+            <destName>.autoconfig/autoconfig.d/config-logger.sh</destName>
+        </file>
+        <file>
+            <source>src/main/config/autoconfig/config-java-opts.sh</source>
+            <destName>.autoconfig/autoconfig.d/config-java-opts.sh</destName>
+        </file>
+        <file>
+            <source>src/main/config/autoconfig/config-ssl.sh</source>
+            <destName>.autoconfig/autoconfig.d/config-ssl.sh</destName>
+        </file>
+        <file>
+            <source>src/main/config/autoconfig/config-asr-drivers.sh</source>
+            <destName>.autoconfig/autoconfig.d/config-asr-drivers.sh</destName>
+        </file>
 
-		<file>
-			<source>src/main/config/mgcp-conf.properties</source>
-			<destName>conf/mgcp-conf.properties</destName>
-		</file>
-
-		<!-- Auto-configuration -->
-		<file>
-			<source>src/main/config/autoconfig/start-mediaserver.sh</source>
-			<destName>start-mediaserver.sh</destName>
-		</file>
-		<file>
-			<source>src/main/config/autoconfig/stop-mediaserver.sh</source>
-			<destName>stop-mediaserver.sh</destName>
-		</file>
-		<file>
-			<source>src/main/config/autoconfig/mediaserver.conf</source>
-			<destName>mediaserver.conf</destName>
-		</file>
-		<file>
-			<source>src/main/config/autoconfig/logger.conf</source>
-			<destName>logger.conf</destName>
-		</file>
-		<file>
-			<source>src/main/config/autoconfig/ssl.conf</source>
-			<destName>ssl.conf</destName>
-		</file>
-		<file>
-			<source>src/main/config/autoconfig/verify-dependencies.sh</source>
-			<destName>.autoconfig/verify-dependencies.sh</destName>
-		</file>
-		<file>
-			<source>src/main/config/autoconfig/autoconfigure.sh</source>
-			<destName>.autoconfig/autoconfigure.sh</destName>
-		</file>
-		<file>
-			<source>src/main/config/autoconfig/config-network.sh</source>
-			<destName>.autoconfig/autoconfig.d/config-network.sh</destName>
-		</file>
-		<file>
-			<source>src/main/config/autoconfig/config-controller-mgcp.sh</source>
-			<destName>.autoconfig/autoconfig.d/config-controller-mgcp.sh</destName>
-		</file>
-		<file>
-			<source>src/main/config/autoconfig/config-media.sh</source>
-			<destName>.autoconfig/autoconfig.d/config-media.sh</destName>
-		</file>
-		<file>
-			<source>src/main/config/autoconfig/config-resources.sh</source>
-			<destName>.autoconfig/autoconfig.d/config-resources.sh</destName>
-		</file>
-		<file>
-			<source>src/main/config/autoconfig/config-dtls.sh</source>
-			<destName>.autoconfig/autoconfig.d/config-dtls.sh</destName>
-		</file>
-		<file>
-			<source>src/main/config/autoconfig/config-logger.sh</source>
-			<destName>.autoconfig/autoconfig.d/config-logger.sh</destName>
-		</file>
-		<file>
-			<source>src/main/config/autoconfig/config-java-opts.sh</source>
-			<destName>.autoconfig/autoconfig.d/config-java-opts.sh</destName>
-		</file>
-		<file>
-			<source>src/main/config/autoconfig/config-ssl.sh</source>
-			<destName>.autoconfig/autoconfig.d/config-ssl.sh</destName>
-		</file>
-		<file>
-			<source>src/main/config/autoconfig/config-asr-drivers.sh</source>
-			<destName>.autoconfig/autoconfig.d/config-asr-drivers.sh</destName>
-		</file>
-
-		<!-- Deploy -->
-		<!-- file> <source>src/main/config/avprofile-beans.xml</source> <destName>deploy/avprofile-beans.xml</destName> 
-			</file> <file> <source>src/main/config/components-beans.xml</source> <destName>deploy/comp-beans.xml</destName> 
-			</file> <file> <source>src/main/config/connection-beans.xml</source> <destName>deploy/connection-beans.xml</destName> 
-			</file> <file> <source>src/main/config/connection-states-beans.xml</source> 
-			<destName>deploy/connection-states-beans.xml</destName> </file> <file> <source>src/main/config/rtp-beans.xml</source> 
-			<destName>deploy/rtp-beans.xml</destName> </file -->
-		<file>
-			<source>src/main/config/server-beans.xml</source>
-			<destName>deploy/server-beans.xml</destName>
-		</file>
-
-		<!-- Endpoints -->
-		<!-- file> <source>src/main/config/ann-beans.xml</source> <destName>deploy/endpoints/ann-beans.xml</destName> 
-			</file> <file> <source>src/main/config/cnf-beans.xml</source> <destName>deploy/endpoints/cnf-beans.xml</destName> 
-			</file> <file> <source>src/main/config/ivr-beans.xml</source> <destName>deploy/endpoints/ivr-beans.xml</destName> 
-			</file> <file> <source>src/main/config/packetrelay-beans.xml</source> <destName>deploy/endpoints/packetrelay-beans.xml</destName> 
-			</file -->
-		<!-- control -->
-		<file>
-			<source>src/main/config/mgcp-conf.xml</source>
-			<destName>conf/mgcp-conf.xml</destName>
-		</file>
-		<!-- dtls -->
-		<file>
-			<source>src/main/config/dtls/x509-ca.pem</source>
-			<destName>conf/dtls/x509-ca.pem</destName>
-		</file>
-		<file>
-			<source>src/main/config/dtls/x509-ca-key.pem</source>
-			<destName>conf/dtls/x509-ca-key.pem</destName>
-		</file>
-		<file>
-			<source>src/main/config/dtls/x509-server.pem</source>
-			<destName>conf/dtls/x509-server.pem</destName>
-		</file>
-		<file>
-			<source>src/main/config/dtls/x509-server-key.pem</source>
-			<destName>conf/dtls/x509-server-key.pem</destName>
-		</file>
-		<file>
-			<source>src/main/config/dtls/x509-client-ecdsa.pem</source>
-			<destName>conf/dtls/x509-client-ecdsa.pem</destName>
-		</file>
-		<file>
-			<source>src/main/config/dtls/x509-client-key-ecdsa.pem</source>
-			<destName>conf/dtls/x509-client-key-ecdsa.pem</destName>
-		</file>
-		<file>
-			<source>src/main/config/dtls/x509-server-ecdsa.pem</source>
-			<destName>conf/dtls/x509-server-ecdsa.pem</destName>
-		</file>
-		<file>
-			<source>src/main/config/dtls/x509-server-key-ecdsa.pem</source>
-			<destName>conf/dtls/x509-server-key-ecdsa.pem</destName>
-		</file>
-	</files>
+        <!-- dtls -->
+        <file>
+            <source>src/main/config/dtls/x509-ca.pem</source>
+            <destName>conf/dtls/x509-ca.pem</destName>
+        </file>
+        <file>
+            <source>src/main/config/dtls/x509-ca-key.pem</source>
+            <destName>conf/dtls/x509-ca-key.pem</destName>
+        </file>
+        <file>
+            <source>src/main/config/dtls/x509-server.pem</source>
+            <destName>conf/dtls/x509-server.pem</destName>
+        </file>
+        <file>
+            <source>src/main/config/dtls/x509-server-key.pem</source>
+            <destName>conf/dtls/x509-server-key.pem</destName>
+        </file>
+        <file>
+            <source>src/main/config/dtls/x509-client-ecdsa.pem</source>
+            <destName>conf/dtls/x509-client-ecdsa.pem</destName>
+        </file>
+        <file>
+            <source>src/main/config/dtls/x509-client-key-ecdsa.pem</source>
+            <destName>conf/dtls/x509-client-key-ecdsa.pem</destName>
+        </file>
+        <file>
+            <source>src/main/config/dtls/x509-server-ecdsa.pem</source>
+            <destName>conf/dtls/x509-server-ecdsa.pem</destName>
+        </file>
+        <file>
+            <source>src/main/config/dtls/x509-server-key-ecdsa.pem</source>
+            <destName>conf/dtls/x509-server-key-ecdsa.pem</destName>
+        </file>
+    </files>
 </component>
