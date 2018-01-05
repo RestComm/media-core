@@ -7,8 +7,8 @@
 
         <!-- Conf -->
         <file>
-            <source>src/main/config/log4j.xml</source>
-            <destName>conf/log4j.xml</destName>
+            <source>src/main/config/log4j2.xml</source>
+            <destName>conf/log4j2.xml</destName>
         </file>
 
         <file>

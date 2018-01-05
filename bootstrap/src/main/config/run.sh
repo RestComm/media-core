@@ -196,7 +196,7 @@ echo "==========================================================================
 echo ""
 
       "$JAVA" $JAVA_OPTS \
-         -Dlog4j.configurationFile="$MMS_HOME/conf/log4j.xml" \
+         -Dlog4j.configurationFile="$MMS_HOME/conf/log4j2.xml" \
          -Djava.ext.dirs="$MMS_ENDORSED_DIRS" \
          -Dmbrola.base="$MMS_HOME/mbrola" \
          -classpath "$MMS_CLASSPATH" \
