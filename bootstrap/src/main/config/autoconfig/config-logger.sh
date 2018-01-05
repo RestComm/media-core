@@ -16,27 +16,16 @@ configLogPath() {
     echo "Setting LOG FILE PATH to $(patchPath $log_path)"
 
     xmlstarlet ed --inplace --pf \
-        -u "/log4j:configuration/appender[@name='FILE']/param[@name='File']/@value" -v "$(patchPath $log_path)" \
-        $MS_HOME/conf/log4j.xml
+        -u "/Configuration/Appenders/RollingFile[@name='FILE']/@fileName" -v "$(patchPath $log_path)" \
+        $MS_HOME/conf/log4j2.xml
 }
 
-getAppenders() {
-    ( set -o posix ; set ) | grep LOG_APPENDER_ | sed -e 's|LOG_APPENDER_\(.*\)=.*|\1|'
-}
+configRoot() {
+    local threshold=${1-INFO}
 
-configAppenders() {
-    local appenders=$(getAppenders)
-    if [ -n "$appenders" ]; then
-        while read -r appender; do
-            local appender_var="LOG_APPENDER_$appender"
-            local log_threshold=$(eval echo '$'"$appender_var")
-            echo "Setting $appender_var to $log_threshold"
-
-        xmlstarlet ed --inplace --pf \
-            -u "/log4j:configuration/appender[@name='$appender']/param[@name='Threshold']/@value" -v "$log_threshold" \
-            $MS_HOME/conf/log4j.xml
-        done <<< "$appenders"
-    fi
+    xmlstarlet ed --inplace --pf \
+        -u "/Configuration/Loggers/Root/@level" -v "$threshold" \
+        $MS_HOME/conf/log4j2.xml
 }
 
 getCategories() {
@@ -45,7 +34,7 @@ getCategories() {
 
 configCategories() {
     # Delete all categories
-    xmlstarlet ed --inplace --pf -d "/log4j:configuration/category" $MS_HOME/conf/log4j.xml
+    xmlstarlet ed --inplace --pf -d "/Configuration/Loggers/Logger" $MS_HOME/conf/log4j2.xml
 
     # Add loaded categories
     local categories=$(getCategories)
@@ -59,22 +48,21 @@ configCategories() {
             echo "Setting LOG_CATEGORY $category_name to $category_threshold"
 
             xmlstarlet ed --inplace --pf \
-                -s "/log4j:configuration" -t elem -n "category" -v "" \
-                -s "/log4j:configuration/category[last()]" -t attr -n "name" -v "$category_name" \
-                -s "/log4j:configuration/category[last()]" -t elem -n "priority" -v "" \
-                -s "/log4j:configuration/category[last()]/priority" -t attr -n "value" -v "$category_threshold" \
-                $MS_HOME/conf/log4j.xml
+                -s "/Configuration/Loggers" -t elem -n "Logger" -v "" \
+                -s "/Configuration/Loggers/Logger[last()]" -t attr -n "name" -v "$category_name" \
+                -s "/Configuration/Loggers/Logger[last()]" -t attr -n "level" -v "$category_threshold" \
+                $MS_HOME/conf/log4j2.xml
         done <<< "$categories"
     fi
 }
 
 formatFile() {
-    local log_file=$MS_HOME/conf/log4j.xml
+    local log_file=$MS_HOME/conf/log4j2.xml
     xmlstarlet fo --indent-spaces 4 $log_file > $log_file.bak
     mv -f $log_file.bak $log_file
 }
 
-configAppenders
+configRoot $LOG_ROOT
 configCategories
 configLogPath $LOG_FILE_URL
 formatFile
