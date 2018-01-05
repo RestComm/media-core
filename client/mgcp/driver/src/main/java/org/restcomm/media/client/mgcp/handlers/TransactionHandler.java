@@ -54,7 +54,8 @@ import java.util.TimerTask;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.client.mgcp.parser.SplitDetails;
 import org.restcomm.media.client.mgcp.parser.StringFunctions;
 import org.restcomm.media.client.mgcp.stack.JainMgcpStackImpl;
@@ -94,7 +95,7 @@ import org.restcomm.media.client.mgcp.utils.PacketRepresentation;
 
 public abstract class TransactionHandler {
 	/** Logger instance */
-	private static final Logger logger = Logger.getLogger(TransactionHandler.class);
+	private static final Logger logger = LogManager.getLogger(TransactionHandler.class);
 
 	private static long MAX_TRANSACTION_HANDLE_ID = 999999999L;
 	private static AtomicInteger GENERATOR = new AtomicInteger(1);			

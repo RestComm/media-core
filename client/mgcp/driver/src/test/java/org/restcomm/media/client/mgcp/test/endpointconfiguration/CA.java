@@ -31,14 +31,15 @@ import jain.protocol.ip.mgcp.message.parms.BearerInformation;
 import jain.protocol.ip.mgcp.message.parms.CallIdentifier;
 import jain.protocol.ip.mgcp.message.parms.EndpointIdentifier;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.client.mgcp.stack.JainMgcpExtendedListener;
 import org.restcomm.media.client.mgcp.stack.JainMgcpStackProviderImpl;
 import org.restcomm.media.client.mgcp.test.createconnection.CreateConnectionTest;
 
 public class CA implements JainMgcpExtendedListener {
 
-	private static Logger logger = Logger.getLogger(CA.class);
+	private static Logger logger = LogManager.getLogger(CA.class);
 
 	private JainMgcpStackProviderImpl caProvider;
 	private int mgStack = 0;

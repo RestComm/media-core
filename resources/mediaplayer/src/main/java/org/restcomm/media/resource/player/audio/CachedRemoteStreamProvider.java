@@ -8,7 +8,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
@@ -22,7 +23,7 @@ import org.ehcache.sizeof.annotations.IgnoreSizeOf;
  */
 public class CachedRemoteStreamProvider implements RemoteStreamProvider {
 
-    private final static Logger log = Logger.getLogger(CachedRemoteStreamProvider.class);
+    private final static Logger log = LogManager.getLogger(CachedRemoteStreamProvider.class);
 
     private CacheManager cacheManager;
 

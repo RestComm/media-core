@@ -28,7 +28,8 @@ import java.net.URL;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.resource.player.Track;
 import org.restcomm.media.resource.player.audio.RemoteStreamProvider;
 import org.restcomm.media.spi.format.AudioFormat;
@@ -55,7 +56,7 @@ public class WavTrackImpl implements Track {
 
     private boolean first = true;
 
-    private static final Logger logger = Logger.getLogger(WavTrackImpl.class);
+    private static final Logger logger = LogManager.getLogger(WavTrackImpl.class);
 
     // Padding for different stream types.
     private final static byte PCM_PADDING_BYTE = 0;

@@ -21,21 +21,17 @@
 
 package org.restcomm.media.bootstrap;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.xml.DOMConfigurator;
-
-import java.io.File;
-import java.io.FileNotFoundException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com) created on 04/01/2018
  */
 public class Main {
 
-    private static final Logger log = Logger.getLogger(Main.class);
+    private static final Logger log = LogManager.getLogger(Main.class);
 
     private final static String HOME_DIR = "MMS_HOME";
-    private static final String LOGGER_CONF = "/conf/log4j.xml";
     private static final String MS_CONF = "/conf/mediaserver.xml";
 
     private static Bootstrapper bootstrapper;
@@ -45,16 +41,6 @@ public class Main {
         final String home = loadHomeDir();
         if (log.isInfoEnabled()) {
             log.info("Home directory: " + home);
-        }
-
-        // Load Logger configuration
-        try {
-            initLogger(home + LOGGER_CONF);
-            if (log.isInfoEnabled()) {
-                log.info("Loaded logger configuration from " + home + LOGGER_CONF);
-            }
-        } catch (Exception e) {
-            log.warn("Could not load configuration file for Logger. Defaults will be used.");
         }
 
         // Bootstrap the Media Server and add shutdown hook
@@ -82,20 +68,6 @@ public class Main {
             }
         }
         return mmsHomeDir;
-    }
-
-    /**
-     * Loads configuration for Logger.
-     *
-     * @param filepath The path of the configuration file.
-     */
-    private static void initLogger(String filepath) throws Exception {
-        final File file = new File(filepath);
-        if (file.exists()) {
-            DOMConfigurator.configure(file.toURI().toURL());
-        } else {
-            throw new FileNotFoundException("No such logger configuration file " + filepath);
-        }
     }
 
     /**

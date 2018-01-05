@@ -23,7 +23,8 @@ package org.restcomm.media.control.mgcp.controller.naming;
 
 import java.util.ArrayList;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.concurrent.ConcurrentCyclicFIFO;
 import org.restcomm.media.control.mgcp.controller.MgcpEndpoint;
 import org.restcomm.media.control.mgcp.controller.MgcpEndpointStateListener;
@@ -56,7 +57,7 @@ public class EndpointQueue implements MgcpEndpointStateListener {
     
     private EndpointInstaller installer;
     
-    public  Logger logger = Logger.getLogger(EndpointQueue.class);
+    public  Logger logger = LogManager.getLogger(EndpointQueue.class);
     
     public void setInstaller(EndpointInstaller installer)
     {

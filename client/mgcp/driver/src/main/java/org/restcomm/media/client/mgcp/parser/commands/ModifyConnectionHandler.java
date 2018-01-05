@@ -55,7 +55,8 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.text.ParseException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.client.mgcp.handlers.MgcpContentHandler;
 import org.restcomm.media.client.mgcp.handlers.TransactionHandler;
 import org.restcomm.media.client.mgcp.parser.SplitDetails;
@@ -88,7 +89,7 @@ public class ModifyConnectionHandler extends TransactionHandler
 	private ModifyConnection command = null;
 	private ModifyConnectionResponse response = null;
 
-	private static final Logger logger = Logger.getLogger(ModifyConnectionHandler.class);
+	private static final Logger logger = LogManager.getLogger(ModifyConnectionHandler.class);
 
 	/** Creates a new instance of ModifyConnectionHandler */
 	public ModifyConnectionHandler(JainMgcpStackImpl stack) {

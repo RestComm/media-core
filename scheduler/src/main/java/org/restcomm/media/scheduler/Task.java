@@ -22,9 +22,11 @@
 
 package org.restcomm.media.scheduler;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.apache.log4j.Logger;
 
 /**
  * Scheduling task.
@@ -44,7 +46,7 @@ public abstract class Task implements Runnable {
     private AtomicBoolean inQueue0=new AtomicBoolean(false);
     private AtomicBoolean inQueue1=new AtomicBoolean(false);
     
-    private Logger logger = Logger.getLogger(Task.class);
+    private Logger logger = LogManager.getLogger(Task.class);
     
     protected int taskId;
     

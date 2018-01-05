@@ -24,7 +24,8 @@ package org.restcomm.media.network.deprecated.channel;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * {@link NetworkGuard} implementation that accepts first packet from any source. From that moment on, the channel connects to
@@ -35,7 +36,7 @@ import org.apache.log4j.Logger;
  */
 public class SbcNetworkGuard implements NetworkGuard {
 
-    private static final Logger log = Logger.getLogger(SbcNetworkGuard.class);
+    private static final Logger log = LogManager.getLogger(SbcNetworkGuard.class);
 
     @Override
     public boolean isSecure(NetworkChannel channel, InetSocketAddress source) {

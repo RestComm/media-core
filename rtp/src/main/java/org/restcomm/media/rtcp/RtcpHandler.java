@@ -28,7 +28,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.network.deprecated.channel.PacketHandler;
 import org.restcomm.media.network.deprecated.channel.PacketHandlerException;
 import org.restcomm.media.rtp.RtpPacket;
@@ -43,7 +44,7 @@ import org.restcomm.media.scheduler.Scheduler;
  */
 public class RtcpHandler implements PacketHandler {
 
-    private static final Logger logger = Logger.getLogger(RtcpHandler.class);
+    private static final Logger logger = LogManager.getLogger(RtcpHandler.class);
 
     /** Time (in ms) between SSRC Task executions */
     private static final long SSRC_TASK_DELAY = 7000;

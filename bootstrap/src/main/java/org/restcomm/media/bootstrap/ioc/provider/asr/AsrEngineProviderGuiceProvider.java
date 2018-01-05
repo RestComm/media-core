@@ -23,7 +23,8 @@ package org.restcomm.media.bootstrap.ioc.provider.asr;
 
 import java.util.Collection;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.asr.AsrEngineProvider;
 import org.restcomm.media.asr.AsrEngineProviderImpl;
 import org.restcomm.media.asr.driver.AsrDriverManagerImpl;
@@ -42,7 +43,7 @@ import com.google.inject.Provider;
  */
 public class AsrEngineProviderGuiceProvider implements Provider<AsrEngineProvider> {
 
-    private static final Logger logger = Logger.getLogger(AsrEngineProviderGuiceProvider.class);
+    private static final Logger logger = LogManager.getLogger(AsrEngineProviderGuiceProvider.class);
 
     private final PriorityQueueScheduler scheduler;
     private final MediaServerConfiguration configuration;

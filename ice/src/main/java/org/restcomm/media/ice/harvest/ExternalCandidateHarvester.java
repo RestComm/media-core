@@ -24,7 +24,8 @@ import java.net.InetAddress;
 import java.nio.channels.Selector;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.ice.CandidateType;
 import org.restcomm.media.ice.FoundationsRegistry;
 import org.restcomm.media.ice.HostCandidate;
@@ -42,7 +43,7 @@ import org.restcomm.media.network.deprecated.RtpPortManager;
  */
 public class ExternalCandidateHarvester implements CandidateHarvester {
 	
-	Logger logger = Logger.getLogger(ExternalCandidateHarvester.class);
+	Logger logger = LogManager.getLogger(ExternalCandidateHarvester.class);
 
 	private final FoundationsRegistry foundations;
 

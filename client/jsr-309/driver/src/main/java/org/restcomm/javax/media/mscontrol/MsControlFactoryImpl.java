@@ -39,7 +39,8 @@ import javax.media.mscontrol.mixer.MediaMixer;
 import javax.media.mscontrol.networkconnection.NetworkConnection;
 import javax.media.mscontrol.resource.video.VideoLayout;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.javax.media.mscontrol.mediagroup.MediaGroupImpl;
 import org.restcomm.javax.media.mscontrol.mixer.MediaMixerImpl;
 import org.restcomm.javax.media.mscontrol.networkconnection.NetworkConnectionImpl;
@@ -57,7 +58,7 @@ public class MsControlFactoryImpl implements MsControlFactory {
     private List<MediaSession> sessions = new ArrayList<MediaSession>();
     private XMLParser parser = new XMLParser();
 
-    private final Logger logger = Logger.getLogger(MsControlFactoryImpl.class);
+    private final Logger logger = LogManager.getLogger(MsControlFactoryImpl.class);
     
     private ReentrantLock lock = new ReentrantLock();
     

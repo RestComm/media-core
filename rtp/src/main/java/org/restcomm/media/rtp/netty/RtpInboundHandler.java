@@ -21,7 +21,8 @@
 
 package org.restcomm.media.rtp.netty;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.rtp.RTPInput;
 import org.restcomm.media.rtp.RtpPacket;
 import org.restcomm.media.rtp.rfc2833.DtmfInput;
@@ -39,7 +40,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
  */
 public class RtpInboundHandler extends SimpleChannelInboundHandler<RtpPacket> {
 
-    private static final Logger log = Logger.getLogger(RtpInboundHandler.class);
+    private static final Logger log = LogManager.getLogger(RtpInboundHandler.class);
 
     private final RtpInboundHandlerGlobalContext context;
     private final RtpInboundHandlerFsm fsm;

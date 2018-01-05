@@ -21,7 +21,8 @@
 package org.restcomm.media.rtp.statistics;
 
 import org.apache.commons.net.ntp.TimeStamp;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.rtcp.RtcpSenderReport;
 import org.restcomm.media.rtcp.ntp.NtpUtils;
 import org.restcomm.media.rtp.RtpClock;
@@ -36,7 +37,7 @@ import org.restcomm.media.scheduler.Clock;
  */
 public class RtpMember {
 
-	private static final Logger logger = Logger.getLogger(RtpMember.class);
+	private static final Logger logger = LogManager.getLogger(RtpMember.class);
 
 	public static final int RTP_SEQ_MOD = 65536;
 	public static final int MAX_DROPOUT = 100;

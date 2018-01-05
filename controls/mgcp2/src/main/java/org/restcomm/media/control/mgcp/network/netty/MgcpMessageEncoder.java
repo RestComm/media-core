@@ -25,7 +25,8 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.control.mgcp.message.MgcpMessage;
 
 import io.netty.buffer.ByteBuf;
@@ -43,7 +44,7 @@ import io.netty.handler.codec.MessageToMessageEncoder;
  */
 public class MgcpMessageEncoder extends MessageToMessageEncoder<DefaultAddressedEnvelope<MgcpMessage, SocketAddress>> {
 
-    private static final Logger log = Logger.getLogger(MgcpMessageEncoder.class);
+    private static final Logger log = LogManager.getLogger(MgcpMessageEncoder.class);
 
     public static final String PIPELINE_KEY = "mgcp-encoder";
 

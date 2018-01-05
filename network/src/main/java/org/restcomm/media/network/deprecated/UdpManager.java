@@ -36,7 +36,8 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.network.deprecated.channel.Channel;
 import org.restcomm.media.network.deprecated.channel.NetworkChannel;
 import org.restcomm.media.scheduler.Scheduler;
@@ -52,7 +53,7 @@ import org.restcomm.media.scheduler.ServiceScheduler;
  */
 public class UdpManager {
 
-    private final static Logger logger = Logger.getLogger(UdpManager.class);
+    private final static Logger logger = LogManager.getLogger(UdpManager.class);
 
     // Core elements
     private final Scheduler scheduler;

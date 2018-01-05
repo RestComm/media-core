@@ -23,7 +23,8 @@ package org.restcomm.media.control.mgcp.controller;
 
 import java.net.InetSocketAddress;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.control.mgcp.command.MgcpCommand;
 import org.restcomm.media.control.mgcp.command.MgcpCommandProvider;
 import org.restcomm.media.control.mgcp.controller.fsm.MgcpControllerEvent;
@@ -56,7 +57,7 @@ import com.google.common.util.concurrent.FutureCallback;
  */
 public class MgcpController implements ServerManager, MgcpMessageObserver {
 
-    private static final Logger log = Logger.getLogger(MgcpController.class);
+    private static final Logger log = LogManager.getLogger(MgcpController.class);
 
     // MGCP Components
     private final MgcpTransactionManager transactions;

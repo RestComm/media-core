@@ -29,8 +29,9 @@ import java.util.Set;
 import java.util.TooManyListenersException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.client.mgcp.handlers.TransactionHandler;
 import org.restcomm.media.client.mgcp.parser.commands.AuditConnectionHandler;
 import org.restcomm.media.client.mgcp.parser.commands.AuditEndpointHandler;
@@ -67,7 +68,7 @@ import jain.protocol.ip.mgcp.message.parms.ReturnCode;
 
 public class JainMgcpStackProviderImpl implements ExtendedJainMgcpProvider {
 
-	private static Logger logger = Logger.getLogger(JainMgcpStackProviderImpl.class);
+	private static Logger logger = LogManager.getLogger(JainMgcpStackProviderImpl.class);
 	private final JainMgcpStackImpl runningStack;
 
 	// a tx handle id must be between 1 and 999999999
@@ -440,7 +441,7 @@ public class JainMgcpStackProviderImpl implements ExtendedJainMgcpProvider {
     			catch(Exception e)
     			{
     				//catch everything, so worker wont die.
-    				if(logger.isEnabledFor(Level.ERROR))
+    				if(logger.isErrorEnabled())
     					logger.error("Unexpected exception occured:", e);    				    		
     			}
     		}

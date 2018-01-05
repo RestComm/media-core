@@ -24,7 +24,8 @@ package org.restcomm.media.asr.driver;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.drivers.asr.AsrDriver;
 import org.restcomm.media.drivers.asr.AsrDriverConfigurationException;
 import org.restcomm.media.drivers.asr.AsrDriverManager;
@@ -35,7 +36,7 @@ import org.restcomm.media.drivers.asr.UnknownAsrDriverException;
  */
 public class AsrDriverManagerImpl implements AsrDriverManager {
 
-    private static final Logger logger = Logger.getLogger(AsrDriverManager.class);
+    private static final Logger logger = LogManager.getLogger(AsrDriverManager.class);
 
     private final Map<String, DriverInfo> providers;
 

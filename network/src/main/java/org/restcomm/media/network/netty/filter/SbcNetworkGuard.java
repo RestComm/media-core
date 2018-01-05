@@ -23,7 +23,8 @@ package org.restcomm.media.network.netty.filter;
 
 import java.net.InetSocketAddress;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -37,7 +38,7 @@ import io.netty.channel.ChannelFuture;
  */
 public class SbcNetworkGuard implements NetworkGuard {
 
-    private static final Logger log = Logger.getLogger(SbcNetworkGuard.class);
+    private static final Logger log = LogManager.getLogger(SbcNetworkGuard.class);
 
     @Override
     public boolean isSecure(Channel channel, InetSocketAddress source) {

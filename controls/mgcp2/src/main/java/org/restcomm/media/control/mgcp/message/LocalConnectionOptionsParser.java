@@ -21,7 +21,8 @@
 
 package org.restcomm.media.control.mgcp.message;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.control.mgcp.exception.MgcpParseException;
 
 /**
@@ -34,7 +35,7 @@ public class LocalConnectionOptionsParser {
     
     public static final LocalConnectionOptionsParser INSTANCE = new LocalConnectionOptionsParser();
 
-    private static final Logger log = Logger.getLogger(LocalConnectionOptionsParser.class);
+    private static final Logger log = LogManager.getLogger(LocalConnectionOptionsParser.class);
 
     public LocalConnectionOptions parse(String options) throws MgcpParseException {
         // Create new object to persist options to

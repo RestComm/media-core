@@ -25,7 +25,8 @@ package org.restcomm.media.control.mgcp.connection;
 import java.io.IOException;
 import java.net.SocketException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.component.audio.AudioComponent;
 import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.rtp.ChannelsManager;
@@ -59,7 +60,7 @@ import org.restcomm.media.spi.utils.Text;
  */
 public class RtpConnectionImpl extends BaseConnection implements RtpListener, PooledObject {
 
-	private static final Logger logger = Logger.getLogger(RtpConnectionImpl.class);
+	private static final Logger logger = LogManager.getLogger(RtpConnectionImpl.class);
 
 	// Core elements
 	private final ChannelsManager channelsManager;

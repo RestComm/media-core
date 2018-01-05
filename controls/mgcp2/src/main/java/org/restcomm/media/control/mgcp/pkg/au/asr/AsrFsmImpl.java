@@ -27,7 +27,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.asr.AsrEngine;
 import org.restcomm.media.asr.AsrEngineListener;
 import org.restcomm.media.asr.InputTimeoutDetector;
@@ -59,7 +60,7 @@ import com.google.common.util.concurrent.ListeningScheduledExecutorService;
  */
 public class AsrFsmImpl extends AbstractStateMachine<AsrFsm, AsrState, AsrEvent, AsrContext> implements AsrFsm {
 
-    private static final Logger log = Logger.getLogger(AsrFsmImpl.class);
+    private static final Logger log = LogManager.getLogger(AsrFsmImpl.class);
 
     // Media Components
     private final DtmfDetector detector;

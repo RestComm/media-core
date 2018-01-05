@@ -23,7 +23,8 @@ package org.restcomm.media.control.mgcp.pkg.au;
 
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.control.mgcp.command.param.NotifiedEntity;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.restcomm.media.control.mgcp.pkg.AbstractMgcpSignal;
@@ -45,7 +46,7 @@ import com.google.common.base.Optional;
  */
 public class EndSignal extends AbstractMgcpSignal {
 
-    private static final Logger log = Logger.getLogger(EndSignal.class);
+    private static final Logger log = LogManager.getLogger(EndSignal.class);
 
     private final MgcpEndpoint endpoint;
 

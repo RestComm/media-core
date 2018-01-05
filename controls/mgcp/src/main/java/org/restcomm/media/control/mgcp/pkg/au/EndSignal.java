@@ -22,7 +22,8 @@
 
 package org.restcomm.media.control.mgcp.pkg.au;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.ComponentType;
 import org.restcomm.media.control.mgcp.controller.signal.Signal;
 import org.restcomm.media.spi.Endpoint;
@@ -41,7 +42,7 @@ public class EndSignal extends Signal {
     private volatile Options options;
     
     private DtmfDetector dtmfDetector;
-    private final static Logger logger = Logger.getLogger(EndSignal.class);
+    private final static Logger logger = LogManager.getLogger(EndSignal.class);
     
     public EndSignal(String name) {
         super(name);

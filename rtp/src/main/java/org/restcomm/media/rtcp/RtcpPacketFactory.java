@@ -24,7 +24,8 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.net.ntp.TimeStamp;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.rtp.statistics.RtpMember;
 import org.restcomm.media.rtp.statistics.RtpStatistics;
 
@@ -36,7 +37,7 @@ import org.restcomm.media.rtp.statistics.RtpStatistics;
  */
 public class RtcpPacketFactory {
 	
-	public static final Logger logger = Logger.getLogger(RtcpPacketFactory.class);
+	public static final Logger logger = LogManager.getLogger(RtcpPacketFactory.class);
 
 	/**
 	 * Builds a packet containing an RTCP Sender Report.

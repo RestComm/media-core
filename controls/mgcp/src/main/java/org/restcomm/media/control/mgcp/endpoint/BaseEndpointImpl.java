@@ -24,7 +24,8 @@ package org.restcomm.media.control.mgcp.endpoint;
 
 import java.util.Iterator;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.Component;
 import org.restcomm.media.ComponentType;
 import org.restcomm.media.concurrent.ConcurrentMap;
@@ -47,7 +48,7 @@ import org.restcomm.media.spi.ResourceUnavailableException;
  */
 public abstract class BaseEndpointImpl implements Endpoint {
 
-    private static final Logger logger = Logger.getLogger(BaseEndpointImpl.class);
+    private static final Logger logger = LogManager.getLogger(BaseEndpointImpl.class);
 
     // Core Components
     private PriorityQueueScheduler scheduler;

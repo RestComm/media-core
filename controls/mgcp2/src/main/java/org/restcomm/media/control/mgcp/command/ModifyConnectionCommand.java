@@ -21,7 +21,8 @@
 
 package org.restcomm.media.control.mgcp.command;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.control.mgcp.connection.MgcpConnection;
 import org.restcomm.media.control.mgcp.connection.MgcpConnectionState;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpoint;
@@ -43,7 +44,7 @@ import com.google.common.base.Optional;
  */
 public class ModifyConnectionCommand extends AbstractMgcpCommand {
 
-    private static final Logger log = Logger.getLogger(ModifyConnectionCommand.class);
+    private static final Logger log = LogManager.getLogger(ModifyConnectionCommand.class);
 
     public ModifyConnectionCommand(int transactionId, Parameters<MgcpParameterType> parameters, MgcpEndpointManager endpointManager) {
         super(transactionId, parameters, endpointManager);

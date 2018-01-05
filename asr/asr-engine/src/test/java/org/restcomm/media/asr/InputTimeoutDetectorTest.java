@@ -34,7 +34,8 @@ import static org.mockito.Mockito.verify;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,7 +51,7 @@ import com.google.common.util.concurrent.MoreExecutors;
  */
 public class InputTimeoutDetectorTest {
 
-    private final static Logger logger = Logger.getLogger(InputTimeoutDetectorTest.class);
+    private final static Logger logger = LogManager.getLogger(InputTimeoutDetectorTest.class);
 
     private ListeningScheduledExecutorService realExecutor;
     private ListeningScheduledExecutorService executor;

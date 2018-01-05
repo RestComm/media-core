@@ -24,7 +24,8 @@ package org.restcomm.media.control.mgcp.pkg;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.control.mgcp.exception.MalformedMgcpEventRequestException;
 import org.restcomm.media.control.mgcp.exception.MgcpEventNotFoundException;
 import org.restcomm.media.control.mgcp.exception.MgcpPackageNotFoundException;
@@ -35,7 +36,7 @@ import org.restcomm.media.control.mgcp.exception.MgcpPackageNotFoundException;
  */
 public class GlobalMgcpEventProvider implements MgcpEventProvider {
 
-    private static final Logger log = Logger.getLogger(GlobalMgcpEventProvider.class);
+    private static final Logger log = LogManager.getLogger(GlobalMgcpEventProvider.class);
 
     private Map<String, MgcpEventProvider> eventProviders;
 

@@ -28,7 +28,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.ComponentType;
 import org.restcomm.media.component.AbstractSink;
 import org.restcomm.media.component.audio.AudioOutput;
@@ -108,7 +109,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
     private OOBOutput oobOutput;
     private OOBRecorder oobRecorder;
 
-    private static final Logger logger = Logger.getLogger(AudioRecorderImpl.class);
+    private static final Logger logger = LogManager.getLogger(AudioRecorderImpl.class);
 
     public AudioRecorderImpl(PriorityQueueScheduler scheduler) {
         super("recorder");

@@ -29,7 +29,8 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.Iterator;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.network.deprecated.channel.PacketHandler;
 import org.restcomm.media.network.deprecated.channel.PacketHandlerException;
 import org.restcomm.media.network.deprecated.channel.PacketHandlerPipeline;
@@ -43,7 +44,7 @@ import org.restcomm.media.network.deprecated.channel.PacketHandlerPipeline;
  */
 public class NioServer {
 	
-	private static final Logger logger = Logger.getLogger(NioServer.class);
+	private static final Logger logger = LogManager.getLogger(NioServer.class);
 	
 	private static final int MAX_BUFFER_SIZE = 8192;
 	

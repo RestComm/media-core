@@ -24,7 +24,8 @@ package org.restcomm.media.control.mgcp.pkg.ann;
 
 import java.net.MalformedURLException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.ComponentType;
 import org.restcomm.media.control.mgcp.controller.signal.Signal;
 import org.restcomm.media.spi.MediaType;
@@ -48,7 +49,7 @@ public class Play extends Signal implements PlayerListener {
 	private Player player;
 	private String uri;
 
-	private final static Logger logger = Logger.getLogger(Play.class);
+	private final static Logger logger = LogManager.getLogger(Play.class);
 
 	public Play(String name) {
 		super(name);

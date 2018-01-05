@@ -43,7 +43,8 @@ import jain.protocol.ip.mgcp.message.parms.ReturnCode;
 import java.net.InetAddress;
 import java.util.TooManyListenersException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.client.mgcp.stack.JainMgcpExtendedListener;
 import org.restcomm.media.client.mgcp.stack.JainMgcpStackProviderImpl;
 
@@ -51,7 +52,7 @@ import org.restcomm.media.client.mgcp.stack.JainMgcpStackProviderImpl;
 public class MGW implements JainMgcpExtendedListener {
 
 	
-	private static Logger logger = Logger.getLogger(MGW.class);
+	private static Logger logger = LogManager.getLogger(MGW.class);
 	private boolean responseSent = false;
 
 	JainMgcpStackProviderImpl mgwProvider;

@@ -22,12 +22,13 @@
 
 package org.restcomm.media.client.mgcp.utils;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.concurrent.ConcurrentCyclicFIFO;
 
 public class PacketRepresentationFactory {
 
-	private static final Logger logger = Logger.getLogger(PacketRepresentationFactory.class);
+	private static final Logger logger = LogManager.getLogger(PacketRepresentationFactory.class);
 
 	private ConcurrentCyclicFIFO<PacketRepresentation> list = new ConcurrentCyclicFIFO<PacketRepresentation>();
 	private int size = 0;
