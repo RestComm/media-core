@@ -13,6 +13,8 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -46,7 +48,9 @@ public class WavTrackCacheTest {
         when(mockConnection.getInputStream()).thenAnswer(new Answer<InputStream>() {
             @Override
             public InputStream answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new FileInputStream(new File("src/test/resources/demo-prompt.wav"));
+                final ClassLoader loader = WavTrackCacheTest.class.getClassLoader();
+                final URL resource = loader.getResource("demo-prompt.wav");
+                return new FileInputStream(Paths.get(resource.toURI()).toFile());
             }
         });
 
