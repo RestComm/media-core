@@ -89,14 +89,14 @@ public class TestHarness extends TestCase {
 			// JvB: init log4j
 			// PropertyConfigurator.configure("log4j.properties");
 
-			InputStream inStreamLog4j = getClass().getResourceAsStream("/log4j.properties");
-			Properties propertiesLog4j = new Properties();
-			try {
-				propertiesLog4j.load(inStreamLog4j);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			logger.debug("log4j configured");
+//			InputStream inStreamLog4j = getClass().getResourceAsStream("/log4j2.properties");
+//			Properties propertiesLog4j = new Properties();
+//			try {
+//				propertiesLog4j.load(inStreamLog4j);
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//			logger.debug("log4j configured");
 		} catch (Exception ex) {
 			throw new RuntimeException(ex);
 		}
