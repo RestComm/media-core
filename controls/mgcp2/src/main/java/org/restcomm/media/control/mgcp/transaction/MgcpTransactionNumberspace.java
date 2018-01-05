@@ -23,7 +23,8 @@ package org.restcomm.media.control.mgcp.transaction;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Transaction identifiers are integer numbers in the range from 1 to 999,999,999 (both included).
@@ -43,7 +44,7 @@ import org.apache.log4j.Logger;
  */
 public class MgcpTransactionNumberspace {
 
-    private static final Logger log = Logger.getLogger(MgcpTransactionNumberspace.class);
+    private static final Logger log = LogManager.getLogger(MgcpTransactionNumberspace.class);
 
     private static final int MINIMUM_ID = 1;
     private static final int MAXIMUM_ID = 999999999;

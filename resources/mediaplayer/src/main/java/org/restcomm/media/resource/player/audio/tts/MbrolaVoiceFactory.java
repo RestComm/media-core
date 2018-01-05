@@ -26,7 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.sun.speech.freetts.Age;
 import com.sun.speech.freetts.Gender;
@@ -44,7 +45,7 @@ import de.dfki.lt.freetts.en.us.MbrolaVoiceValidator;
  */
 public class MbrolaVoiceFactory extends VoiceFactory {
 
-	private static final Logger logger = Logger.getLogger(MbrolaVoiceFactory.class);
+	private static final Logger logger = LogManager.getLogger(MbrolaVoiceFactory.class);
 
 	public static final String MBROLA_US1_VOICE = "mbrola_us1";
 	public static final String MBROLA_US2_VOICE = "mbrola_us2";

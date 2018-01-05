@@ -23,7 +23,8 @@
 package org.restcomm.media.control.mgcp.pkg.au;
 
 import java.util.Collection;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.concurrent.ConcurrentCyclicFIFO;
 import org.restcomm.media.spi.dtmf.DtmfDetectorListener;
 import org.restcomm.media.spi.dtmf.DtmfEvent;
@@ -49,7 +50,7 @@ public class EventBuffer implements DtmfDetectorListener {
     private volatile boolean isActive = false;
     private ConcurrentCyclicFIFO<DtmfEvent> queue = new ConcurrentCyclicFIFO<DtmfEvent>();
     
-    private Logger logger = Logger.getLogger(EventBuffer.class);
+    private Logger logger = LogManager.getLogger(EventBuffer.class);
     
     public void activate() {
     	this.isActive = true;

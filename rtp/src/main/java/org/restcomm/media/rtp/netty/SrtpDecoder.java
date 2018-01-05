@@ -23,7 +23,8 @@ package org.restcomm.media.rtp.netty;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.rtp.RtpPacket;
 import org.restcomm.media.rtp.crypto.PacketTransformer;
 import org.restcomm.media.rtp.secure.SrtpPacket;
@@ -37,7 +38,7 @@ import io.netty.handler.codec.MessageToMessageDecoder;
  */
 public class SrtpDecoder extends MessageToMessageDecoder<SrtpPacket> {
     
-    private static final Logger log = Logger.getLogger(SrtpDecoder.class);
+    private static final Logger log = LogManager.getLogger(SrtpDecoder.class);
 
     private final PacketTransformer decoder;
 

@@ -23,7 +23,8 @@ package org.restcomm.media.control.mgcp.command;
 
 import java.text.ParseException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.control.mgcp.command.param.NotifiedEntity;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointManager;
@@ -55,7 +56,7 @@ import com.google.common.base.Optional;
  */
 public class RequestNotificationCommand extends AbstractMgcpCommand {
 
-    private static final Logger log = Logger.getLogger(RequestNotificationCommand.class);
+    private static final Logger log = LogManager.getLogger(RequestNotificationCommand.class);
 
     // MGCP Components
     private final MgcpSignalProvider signalProvider;

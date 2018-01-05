@@ -57,7 +57,8 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.text.ParseException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.client.mgcp.handlers.MgcpContentHandler;
 import org.restcomm.media.client.mgcp.handlers.TransactionHandler;
 import org.restcomm.media.client.mgcp.parser.SplitDetails;
@@ -87,7 +88,7 @@ public class CreateConnectionHandler extends TransactionHandler {
 		StringFunctions.HIGH_C_BYTE,StringFunctions.HIGH_X_BYTE
 	};
 	
-	private static final Logger logger = Logger.getLogger(CreateConnectionHandler.class);
+	private static final Logger logger = LogManager.getLogger(CreateConnectionHandler.class);
 
 	private CreateConnection command;
 	private CreateConnectionResponse response;

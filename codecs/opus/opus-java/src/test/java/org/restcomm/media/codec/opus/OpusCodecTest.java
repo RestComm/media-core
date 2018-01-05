@@ -21,7 +21,8 @@
 
 package org.restcomm.media.codec.opus;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -57,7 +58,7 @@ import org.restcomm.media.spi.memory.Memory;
  */
 public class OpusCodecTest {
 
-    private static final Logger log = Logger.getLogger(OpusCodecTest.class);
+    private static final Logger log = LogManager.getLogger(OpusCodecTest.class);
 
     private Frame buffer = Memory.allocate(512);
     

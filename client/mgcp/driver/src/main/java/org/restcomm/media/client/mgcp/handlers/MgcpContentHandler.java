@@ -41,7 +41,8 @@ package org.restcomm.media.client.mgcp.handlers;
 import java.text.ParseException;
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.client.mgcp.parser.SplitDetails;
 import org.restcomm.media.client.mgcp.parser.StringFunctions;
 
@@ -54,7 +55,7 @@ import org.restcomm.media.client.mgcp.parser.StringFunctions;
  */
 public abstract class MgcpContentHandler 
 {
-	private static final Logger logger = Logger.getLogger(MgcpContentHandler.class);
+	private static final Logger logger = LogManager.getLogger(MgcpContentHandler.class);
     
 	/**
      * Receive notification of the parameter of a message.

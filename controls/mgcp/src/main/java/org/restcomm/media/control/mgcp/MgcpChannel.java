@@ -21,7 +21,8 @@
 
 package org.restcomm.media.control.mgcp;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.network.deprecated.channel.MultiplexedNetworkChannel;
 import org.restcomm.media.network.deprecated.channel.RestrictedNetworkGuard;
 
@@ -31,7 +32,7 @@ import org.restcomm.media.network.deprecated.channel.RestrictedNetworkGuard;
  */
 public class MgcpChannel extends MultiplexedNetworkChannel {
 
-    private static final Logger log = Logger.getLogger(MgcpChannel.class);
+    private static final Logger log = LogManager.getLogger(MgcpChannel.class);
 
     public MgcpChannel(RestrictedNetworkGuard guard, MgcpPacketHandler handler) {
         super(guard, handler);

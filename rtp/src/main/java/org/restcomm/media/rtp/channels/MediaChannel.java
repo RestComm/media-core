@@ -20,7 +20,8 @@
 
 package org.restcomm.media.rtp.channels;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.ice.IceAuthenticatorImpl;
 import org.restcomm.media.rtcp.RtcpChannel;
 import org.restcomm.media.rtp.ChannelsManager;
@@ -54,7 +55,7 @@ import java.net.SocketAddress;
  */
 public abstract class MediaChannel {
 
-	private static final Logger logger = Logger.getLogger(MediaChannel.class);
+	private static final Logger logger = LogManager.getLogger(MediaChannel.class);
 	
 	// Media Formats
 	private final static AudioFormat DTMF_FORMAT = FormatFactory.createAudioFormat("telephone-event", 8000);

@@ -26,7 +26,8 @@ import java.lang.InterruptedException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.LockSupport;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.concurrent.ConcurrentCyclicFIFO;
 
 /**
@@ -77,7 +78,7 @@ public class PriorityQueueScheduler  {
     //flag indicating state of the scheduler
     private boolean isActive;
 
-    private Logger logger = Logger.getLogger(PriorityQueueScheduler.class) ;
+    private Logger logger = LogManager.getLogger(PriorityQueueScheduler.class) ;
     
     private ConcurrentCyclicFIFO<Task> waitingTasks=new ConcurrentCyclicFIFO<Task>();
     private ConcurrentCyclicFIFO<Task> criticalTasks=new ConcurrentCyclicFIFO<Task>();
@@ -163,7 +164,7 @@ public class PriorityQueueScheduler  {
     /**
      * Queues chain of the tasks for execution.
      * 
-     * @param taskChanin the chain of the tasks
+     * @param taskChain the chain of the tasks
      */
     public void submit(TaskChain taskChain) {    	
         taskChain.start();

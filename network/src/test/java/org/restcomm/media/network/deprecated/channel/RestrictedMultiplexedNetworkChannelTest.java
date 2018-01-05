@@ -27,7 +27,8 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.After;
 import static org.junit.Assert.*;
 import org.junit.Before;
@@ -44,7 +45,7 @@ import static org.mockito.Mockito.*;
  */
 public class RestrictedMultiplexedNetworkChannelTest {
 
-    private static final Logger log = Logger.getLogger(RestrictedMultiplexedNetworkChannelTest.class);
+    private static final Logger log = LogManager.getLogger(RestrictedMultiplexedNetworkChannelTest.class);
 
     private static final byte[] ping = "ping".getBytes();
     private static final byte[] pong = "pong".getBytes();

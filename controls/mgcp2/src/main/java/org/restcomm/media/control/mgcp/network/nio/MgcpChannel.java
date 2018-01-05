@@ -26,7 +26,8 @@ import java.net.InetSocketAddress;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.control.mgcp.message.MessageDirection;
 import org.restcomm.media.control.mgcp.message.MgcpMessage;
 import org.restcomm.media.control.mgcp.message.MgcpMessageObserver;
@@ -46,7 +47,7 @@ import com.google.common.collect.Sets;
 @Deprecated
 public class MgcpChannel extends MultiplexedNetworkChannel implements MgcpMessageSubject, MgcpMessageObserver {
 
-    private static final Logger log = Logger.getLogger(MgcpChannel.class);
+    private static final Logger log = LogManager.getLogger(MgcpChannel.class);
 
     // Packet Handlers
     private final MgcpPacketHandler mgcpHandler;

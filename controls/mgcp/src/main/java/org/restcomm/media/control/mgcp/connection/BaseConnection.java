@@ -24,7 +24,8 @@ package org.restcomm.media.control.mgcp.connection;
 
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.component.audio.AudioComponent;
 import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
@@ -74,7 +75,7 @@ public abstract class BaseConnection implements Connection {
 	private Endpoint activeEndpoint;
 
 	private ConnectionMode connectionMode = ConnectionMode.INACTIVE;
-	private static final Logger logger = Logger.getLogger(BaseConnection.class);
+	private static final Logger logger = LogManager.getLogger(BaseConnection.class);
 
 	/**
 	 * Creates basic connection implementation.

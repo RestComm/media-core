@@ -23,7 +23,8 @@ package org.restcomm.media.control.mgcp.connection;
 
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.component.audio.AudioComponent;
 import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.control.mgcp.exception.MgcpConnectionException;
@@ -57,7 +58,7 @@ import com.google.common.util.concurrent.ListeningScheduledExecutorService;
  */
 public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpListener {
 
-    private static final Logger log = Logger.getLogger(MgcpRemoteConnection.class);
+    private static final Logger log = LogManager.getLogger(MgcpRemoteConnection.class);
 
     // Connection Properties
     private final String localAddress;

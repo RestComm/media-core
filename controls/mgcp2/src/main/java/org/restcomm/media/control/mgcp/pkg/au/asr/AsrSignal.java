@@ -28,7 +28,8 @@ import java.util.Map;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.asr.AsrEngine;
 import org.restcomm.media.asr.InputTimeoutListener;
 import org.restcomm.media.control.mgcp.command.param.NotifiedEntity;
@@ -48,7 +49,7 @@ import com.google.common.util.concurrent.ListeningScheduledExecutorService;
  */
 public class AsrSignal extends AbstractMgcpSignal {
 
-    private static final Logger log = Logger.getLogger(AsrSignal.class);
+    private static final Logger log = LogManager.getLogger(AsrSignal.class);
 
     static final String SYMBOL = AudioSignalType.ASR_COLLECT.symbol();
 

@@ -23,7 +23,8 @@ package org.restcomm.media.control.mgcp;
 
 import java.net.InetSocketAddress;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.network.deprecated.channel.PacketHandler;
 import org.restcomm.media.network.deprecated.channel.PacketHandlerException;
 
@@ -33,7 +34,7 @@ import org.restcomm.media.network.deprecated.channel.PacketHandlerException;
  */
 public class MgcpPacketHandler implements PacketHandler {
 
-    private static final Logger log = Logger.getLogger(MgcpPacketHandler.class);
+    private static final Logger log = LogManager.getLogger(MgcpPacketHandler.class);
     
     private final MgcpProvider provider;
     

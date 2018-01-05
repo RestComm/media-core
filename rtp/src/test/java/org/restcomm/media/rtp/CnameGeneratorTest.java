@@ -34,7 +34,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bouncycastle.util.encoders.Base64;
 import org.junit.Test;
 import org.restcomm.media.rtp.CnameGenerator;
@@ -47,7 +48,7 @@ import org.restcomm.media.rtp.CnameGenerator;
  */
 public class CnameGeneratorTest {
 
-    private final static Logger log = Logger.getLogger(CnameGeneratorTest.class);
+    private final static Logger log = LogManager.getLogger(CnameGeneratorTest.class);
 
     private final ExecutorService executor = Executors.newFixedThreadPool(3);
 

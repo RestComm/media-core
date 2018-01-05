@@ -29,7 +29,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Manages a group of calls throughout the system. Assumes the call-id is global.
@@ -39,7 +40,7 @@ import org.apache.log4j.Logger;
  */
 public class GlobalMgcpCallManager implements MgcpCallManager {
 
-    private static final Logger log = Logger.getLogger(GlobalMgcpCallManager.class);
+    private static final Logger log = LogManager.getLogger(GlobalMgcpCallManager.class);
 
     private final ConcurrentMap<Integer, MgcpCall> calls;
 

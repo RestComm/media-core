@@ -29,7 +29,8 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.restcomm.media.asr.AsrEngine;
@@ -51,7 +52,7 @@ import com.google.common.util.concurrent.MoreExecutors;
  */
 public abstract class AsrSignalBaseTest {
 
-    private static final Logger logger = Logger.getLogger(AsrSignalBaseTest.class);
+    private static final Logger logger = LogManager.getLogger(AsrSignalBaseTest.class);
 
     private static final int WIT_IN_MILLISECONDS = 10000;
     private static final String WIT_PARAM = Integer.toString(WIT_IN_MILLISECONDS / 100);

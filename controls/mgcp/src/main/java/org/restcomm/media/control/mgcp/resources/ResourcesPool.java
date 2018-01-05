@@ -22,7 +22,8 @@
 
 package org.restcomm.media.control.mgcp.resources;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.Component;
 import org.restcomm.media.ComponentFactory;
 import org.restcomm.media.ComponentType;
@@ -43,7 +44,7 @@ import org.restcomm.media.spi.pooling.ResourcePool;
  */
 public class ResourcesPool implements ComponentFactory {
 	
-	private static final Logger logger = Logger.getLogger(ResourcesPool.class);
+	private static final Logger logger = LogManager.getLogger(ResourcesPool.class);
 
 	// Media resources
 	private final ResourcePool<AudioPlayerImpl> players;

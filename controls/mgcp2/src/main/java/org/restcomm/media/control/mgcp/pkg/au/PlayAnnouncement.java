@@ -24,7 +24,8 @@ package org.restcomm.media.control.mgcp.pkg.au;
 import java.net.MalformedURLException;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.control.mgcp.command.param.NotifiedEntity;
 import org.restcomm.media.control.mgcp.pkg.AbstractMgcpSignal;
 import org.restcomm.media.control.mgcp.pkg.SignalType;
@@ -50,7 +51,7 @@ import com.google.common.base.Optional;
  */
 public class PlayAnnouncement extends AbstractMgcpSignal implements PlayerListener {
 
-    private static final Logger log = Logger.getLogger(PlayAnnouncement.class);
+    private static final Logger log = LogManager.getLogger(PlayAnnouncement.class);
 
     // Play Parameters (default values)
     private static final String SIGNAL = "pa";

@@ -29,7 +29,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.rtp.BufferListener;
 import org.restcomm.media.rtp.RtpClock;
 import org.restcomm.media.rtp.RtpPacket;
@@ -104,7 +105,7 @@ public class FixedJitterBuffer implements JitterBuffer, Serializable {
 
     private Boolean useBuffer = true;
 
-    private final static Logger logger = Logger.getLogger(FixedJitterBuffer.class);
+    private final static Logger logger = LogManager.getLogger(FixedJitterBuffer.class);
 
     private final Lock lock = new ReentrantLock();
 

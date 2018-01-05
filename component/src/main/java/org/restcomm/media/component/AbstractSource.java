@@ -23,7 +23,8 @@
 package org.restcomm.media.component;
 
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.MediaSource;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.Task;
@@ -75,7 +76,7 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
     //media transmission pipe
     protected AbstractSink mediaSink;        
 
-    private static final Logger logger = Logger.getLogger(AbstractSource.class);
+    private static final Logger logger = LogManager.getLogger(AbstractSource.class);
     /**
      * Creates new instance of source with specified name.
      * 

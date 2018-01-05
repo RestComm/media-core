@@ -36,7 +36,8 @@ import org.restcomm.media.spi.format.Format;
 import org.restcomm.media.spi.format.FormatFactory;
 import org.restcomm.media.spi.memory.Frame;
 import org.restcomm.media.spi.memory.Memory;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 /**
  *
  * @author Oifa Yulian
@@ -57,7 +58,7 @@ public class GsmTrackImpl implements Track {
     private long duration;
     private long timestamp;
     
-    private static final Logger logger = Logger.getLogger(GsmTrackImpl.class);
+    private static final Logger logger = LogManager.getLogger(GsmTrackImpl.class);
     
     public GsmTrackImpl(URL url) throws UnsupportedAudioFileException, IOException {
     	inStream=url.openStream();

@@ -26,7 +26,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.component.audio.AudioComponent;
 import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.network.deprecated.ProtocolHandler;
@@ -60,7 +61,7 @@ import org.restcomm.media.spi.utils.Text;
 @Deprecated
 public class RTPDataChannel {
 	
-	private Logger logger = Logger.getLogger(RTPDataChannel.class);
+	private Logger logger = LogManager.getLogger(RTPDataChannel.class);
 	
 	private final static int PORT_ANY = -1;
 

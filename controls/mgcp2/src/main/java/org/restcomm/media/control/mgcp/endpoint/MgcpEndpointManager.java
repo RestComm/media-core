@@ -26,7 +26,8 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.control.mgcp.endpoint.provider.MgcpEndpointProvider;
 import org.restcomm.media.control.mgcp.exception.MgcpEndpointNotFoundException;
 import org.restcomm.media.control.mgcp.exception.UnrecognizedMgcpNamespaceException;
@@ -45,7 +46,7 @@ import com.google.common.collect.Sets;
  */
 public class MgcpEndpointManager implements MgcpEndpointObserver, MgcpMessageObserver, MgcpMessageSubject {
     
-    private static final Logger log = Logger.getLogger(MgcpEndpointManager.class);
+    private static final Logger log = LogManager.getLogger(MgcpEndpointManager.class);
 
     // Endpoint Management
     private final ConcurrentHashMap<String, MgcpEndpointProvider<?>> providers;

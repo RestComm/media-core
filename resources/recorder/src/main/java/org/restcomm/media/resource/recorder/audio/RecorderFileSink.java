@@ -21,7 +21,8 @@
 
 package org.restcomm.media.resource.recorder.audio;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -41,7 +42,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class RecorderFileSink {
 
-    private static final Logger logger = Logger.getLogger(RecorderFileSink.class);
+    private static final Logger logger = LogManager.getLogger(RecorderFileSink.class);
 
     private static final int HDR_SIZE = 44;
     private static final ByteBuffer EMPTY_HEADER = ByteBuffer.wrap(new byte[HDR_SIZE]).asReadOnlyBuffer();

@@ -30,7 +30,8 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.control.mgcp.MgcpEvent;
 import org.restcomm.media.control.mgcp.MgcpListener;
 import org.restcomm.media.control.mgcp.MgcpProvider;
@@ -60,7 +61,7 @@ public class Controller implements MgcpListener, ServerManager {
 
 	private final static String HOME_DIR = "MMS_HOME";
 	
-    private static final Logger logger = Logger.getLogger(Controller.class);
+    private static final Logger logger = LogManager.getLogger(Controller.class);
     
     // Core elements
     private UdpManager udpInterface;

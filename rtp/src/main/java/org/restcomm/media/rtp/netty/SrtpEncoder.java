@@ -21,7 +21,8 @@
 
 package org.restcomm.media.rtp.netty;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.rtp.RtpPacket;
 import org.restcomm.media.rtp.crypto.PacketTransformer;
 
@@ -35,7 +36,7 @@ import io.netty.handler.codec.MessageToByteEncoder;
  */
 public class SrtpEncoder extends MessageToByteEncoder<RtpPacket> {
 
-    private static final Logger log = Logger.getLogger(SrtpEncoder.class);
+    private static final Logger log = LogManager.getLogger(SrtpEncoder.class);
 
     private final PacketTransformer encoder;
 

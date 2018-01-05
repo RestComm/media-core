@@ -25,7 +25,8 @@ package org.restcomm.media.control.mgcp.endpoint.factory;
 import java.lang.reflect.Constructor;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.control.mgcp.controller.Controller;
 import org.restcomm.media.control.mgcp.endpoint.naming.EndpointNameGenerator;
 import org.restcomm.media.core.Server;
@@ -42,7 +43,7 @@ import org.restcomm.media.spi.EndpointInstaller;
  */
 public class VirtualEndpointInstaller implements EndpointInstaller {
     
-    private static final Logger logger = Logger.getLogger(VirtualEndpointInstaller.class);
+    private static final Logger logger = LogManager.getLogger(VirtualEndpointInstaller.class);
 
 	private String namePattern;
 	private String endpointClass;

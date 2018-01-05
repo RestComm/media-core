@@ -24,7 +24,8 @@ package org.restcomm.media.control.mgcp.network.netty;
 import java.net.InetSocketAddress;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.control.mgcp.exception.MgcpParseException;
 import org.restcomm.media.control.mgcp.message.MgcpMessage;
 import org.restcomm.media.control.mgcp.message.MgcpMessageParser;
@@ -42,7 +43,7 @@ import io.netty.handler.codec.MessageToMessageDecoder;
  */
 public class MgcpMessageDecoder extends MessageToMessageDecoder<DatagramPacket> {
 
-    private static final Logger log = Logger.getLogger(MgcpMessageDecoder.class);
+    private static final Logger log = LogManager.getLogger(MgcpMessageDecoder.class);
     
     public static final String PIPELINE_KEY = "mgcp-decoder";
 

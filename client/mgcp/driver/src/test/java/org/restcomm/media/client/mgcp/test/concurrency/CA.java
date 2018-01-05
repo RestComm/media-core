@@ -50,7 +50,8 @@ import java.util.TimerTask;
 import java.util.TooManyListenersException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.client.mgcp.stack.JainMgcpExtendedListener;
 import org.restcomm.media.client.mgcp.stack.JainMgcpStackImpl;
 import org.restcomm.media.client.mgcp.stack.JainMgcpStackProviderImpl;
@@ -58,7 +59,7 @@ import org.restcomm.media.client.mgcp.test.TestHarness;
 
 public class CA extends TestHarness implements JainMgcpExtendedListener {
 
-	private static Logger logger = Logger.getLogger(CA.class);
+	private static Logger logger = LogManager.getLogger(CA.class);
 
 	protected static final String CLIENT_ADDRESS = "127.0.0.1";
 

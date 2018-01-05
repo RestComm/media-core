@@ -21,7 +21,8 @@
 
 package org.restcomm.media.bootstrap;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.bootstrap.configuration.ConfigurationLoader;
 import org.restcomm.media.bootstrap.configuration.XmlConfigurationLoader;
 import org.restcomm.media.bootstrap.ioc.AsrModule;
@@ -41,7 +42,7 @@ import org.restcomm.media.spi.MediaServer;
  */
 public class GuiceBootstrapper implements Bootstrapper {
 
-    private static final Logger log = Logger.getLogger(GuiceBootstrapper.class);
+    private static final Logger log = LogManager.getLogger(GuiceBootstrapper.class);
     private final String filepath;
     private final ConfigurationLoader configurationLoader;
     private MediaServer mediaServer;

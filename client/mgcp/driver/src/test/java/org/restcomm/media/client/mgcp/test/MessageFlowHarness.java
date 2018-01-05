@@ -24,13 +24,14 @@ package org.restcomm.media.client.mgcp.test;
 
 import java.net.InetAddress;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.client.mgcp.stack.JainMgcpStackImpl;
 import org.restcomm.media.client.mgcp.stack.JainMgcpStackProviderImpl;
 
 public abstract class MessageFlowHarness extends TestHarness {
 
-	private static Logger logger = Logger.getLogger("mgcp.test");
+	private static Logger logger = LogManager.getLogger("mgcp.test");
 
 	protected static long TRANSACTION_TIMES_OUT_FOR = 31000;
 

@@ -24,7 +24,8 @@ package org.restcomm.media.rtp;
 
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.component.AbstractSink;
 import org.restcomm.media.component.audio.AudioOutput;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
@@ -44,7 +45,7 @@ public class RTPOutput extends AbstractSink {
 
 	private static final long serialVersionUID = 3227885808614338323L;
 
-	private static final Logger logger = Logger.getLogger(RTPOutput.class);
+	private static final Logger logger = LogManager.getLogger(RTPOutput.class);
 
 	private AudioFormat format = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
 

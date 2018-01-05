@@ -25,7 +25,8 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.ice.events.IceEventListener;
 import org.restcomm.media.ice.events.SelectedCandidatesEvent;
 import org.restcomm.media.network.deprecated.TransportAddress;
@@ -49,7 +50,7 @@ import org.restcomm.media.stun.messages.attributes.general.UsernameAttribute;
  */
 public class IceHandler implements PacketHandler {
     
-    private static final Logger logger = Logger.getLogger(IceHandler.class);
+    private static final Logger logger = LogManager.getLogger(IceHandler.class);
 
     // Packet Handler properties
     private int pipelinePriority;

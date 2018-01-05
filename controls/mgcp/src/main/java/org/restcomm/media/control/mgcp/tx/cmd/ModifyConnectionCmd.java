@@ -38,7 +38,8 @@ import org.restcomm.media.scheduler.Task;
 import org.restcomm.media.scheduler.TaskChain;
 import org.restcomm.media.spi.ModeNotSupportedException;
 import org.restcomm.media.spi.utils.Text;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 /**
  * Modify connection command.
  * 
@@ -66,7 +67,7 @@ public class ModifyConnectionCmd extends Action {
     //local connection options
     private LocalConnectionOptions lcOptions = new LocalConnectionOptions();
     
-    private final static Logger logger = Logger.getLogger(ModifyConnectionCmd.class);    
+    private final static Logger logger = LogManager.getLogger(ModifyConnectionCmd.class);
     
     public ModifyConnectionCmd(Scheduler scheduler) {
     	handler = new TaskChain(1,scheduler);

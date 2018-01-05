@@ -33,7 +33,8 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.ice.CandidateType;
 import org.restcomm.media.ice.FoundationsRegistry;
 import org.restcomm.media.ice.HostCandidate;
@@ -51,7 +52,7 @@ import org.restcomm.media.network.deprecated.RtpPortManager;
  */
 public class HostCandidateHarvester implements CandidateHarvester {
 	
-	Logger logger = Logger.getLogger(HostCandidateHarvester.class);
+	Logger logger = LogManager.getLogger(HostCandidateHarvester.class);
 
 	private final FoundationsRegistry foundations;
 

@@ -31,9 +31,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Test;
-import org.restcomm.media.spi.pooling.ResourcePool;
 
 import junit.framework.Assert;
 
@@ -43,7 +43,7 @@ import junit.framework.Assert;
  */
 public class TestConcurrentResourcePool {
 
-    private static final Logger logger = Logger.getLogger(TestConcurrentResourcePool.class);
+    private static final Logger logger = LogManager.getLogger(TestConcurrentResourcePool.class);
 
     @Test
     public void testPoolPrePopulates() {

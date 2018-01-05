@@ -23,7 +23,8 @@ package org.restcomm.media.control.mgcp.connection;
 
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.component.audio.AudioComponent;
 import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.control.mgcp.exception.MgcpConnectionException;
@@ -47,7 +48,7 @@ import com.google.common.util.concurrent.ListeningScheduledExecutorService;
  */
 public class MgcpLocalConnection extends AbstractMgcpConnection {
 
-    private static final Logger log = Logger.getLogger(MgcpLocalConnection.class);
+    private static final Logger log = LogManager.getLogger(MgcpLocalConnection.class);
 
     private final LocalDataChannel audioChannel;
 

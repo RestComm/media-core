@@ -31,7 +31,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.control.mgcp.command.NotificationRequest;
 import org.restcomm.media.control.mgcp.command.param.NotifiedEntity;
 import org.restcomm.media.control.mgcp.connection.MgcpConnection;
@@ -66,7 +67,7 @@ import com.google.common.collect.Sets;
  */
 public class GenericMgcpEndpoint implements MgcpEndpoint {
 
-    private static final Logger log = Logger.getLogger(GenericMgcpEndpoint.class);
+    private static final Logger log = LogManager.getLogger(GenericMgcpEndpoint.class);
     
     private static final MgcpRequestedEvent[] EMPTY_ENDPOINT_EVENTS = new MgcpRequestedEvent[0];
     

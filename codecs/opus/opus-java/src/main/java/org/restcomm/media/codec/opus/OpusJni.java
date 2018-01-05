@@ -21,7 +21,8 @@
 
 package org.restcomm.media.codec.opus;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Implements access to JNI layer for native Opus library.
@@ -31,7 +32,7 @@ import org.apache.log4j.Logger;
  */
 public class OpusJni {
 
-    private static final Logger log = Logger.getLogger(OpusJni.class);
+    private static final Logger log = LogManager.getLogger(OpusJni.class);
     
     public final static int OPUS_APPLICATION_VOIP                   = 2048;
     public final static int OPUS_APPLICATION_AUDIO                  = 2049;

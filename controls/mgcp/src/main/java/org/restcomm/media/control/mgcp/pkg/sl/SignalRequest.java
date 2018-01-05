@@ -21,7 +21,8 @@
  */
 package org.restcomm.media.control.mgcp.pkg.sl;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.ComponentType;
 import org.restcomm.media.control.mgcp.controller.signal.Event;
 import org.restcomm.media.control.mgcp.controller.signal.NotifyImmediately;
@@ -44,7 +45,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class SignalRequest extends Signal implements DtmfGeneratorListener 
 {
-        private static final Logger logger = Logger.getLogger(SignalRequest.class);
+        private static final Logger logger = LogManager.getLogger(SignalRequest.class);
         
         private DtmfGenerator generator;
         

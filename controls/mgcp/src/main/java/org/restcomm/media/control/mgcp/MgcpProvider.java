@@ -29,7 +29,8 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.control.mgcp.message.MgcpMessage;
 import org.restcomm.media.control.mgcp.message.MgcpMessageParser;
 import org.restcomm.media.control.mgcp.message.MgcpRequest;
@@ -48,7 +49,7 @@ import org.restcomm.media.spi.listener.TooManyListenersException;
  */
 public class MgcpProvider {
 
-    private final static Logger log = Logger.getLogger(MgcpProvider.class);
+    private final static Logger log = LogManager.getLogger(MgcpProvider.class);
 
     private final UdpManager transport;
     private final MgcpChannel dataChannel;

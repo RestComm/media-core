@@ -35,14 +35,15 @@ import jain.protocol.ip.mgcp.message.parms.ReturnCode;
 
 import java.util.TooManyListenersException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.client.mgcp.stack.JainMgcpExtendedListener;
 import org.restcomm.media.client.mgcp.stack.JainMgcpStackProviderImpl;
 import org.restcomm.media.client.mgcp.test.auditendpoint.AuditEndpointTest;
 
 public class CA implements JainMgcpExtendedListener {
 
-	private static Logger logger = Logger.getLogger(CA.class);
+	private static Logger logger = LogManager.getLogger(CA.class);
 
 	private JainMgcpStackProviderImpl caProvider;
 

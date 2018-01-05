@@ -23,7 +23,8 @@ package org.restcomm.media.asr;
 
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 
@@ -35,7 +36,7 @@ import com.google.common.util.concurrent.ListeningScheduledExecutorService;
  */
 public class InputTimeoutDetector {
 
-    private final static Logger logger = Logger.getLogger(SpeechDetectorImpl.class);
+    private final static Logger logger = LogManager.getLogger(SpeechDetectorImpl.class);
 
     private final static long INVALID_TIME = -1L;
 

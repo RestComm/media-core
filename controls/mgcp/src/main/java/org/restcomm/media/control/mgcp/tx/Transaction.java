@@ -22,7 +22,8 @@
 
 package org.restcomm.media.control.mgcp.tx;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.control.mgcp.MgcpEvent;
 import org.restcomm.media.control.mgcp.MgcpProvider;
 import org.restcomm.media.control.mgcp.controller.MgcpCall;
@@ -57,7 +58,7 @@ public class Transaction implements ActionListener {
     private Exception lastError;
         
     //Logger instance
-    private final static Logger logger = Logger.getLogger(Transaction.class);
+    private final static Logger logger = LogManager.getLogger(Transaction.class);
     
     /**
      * Create new transaction executor.

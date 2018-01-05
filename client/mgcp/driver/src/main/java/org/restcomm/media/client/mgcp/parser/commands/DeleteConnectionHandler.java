@@ -52,7 +52,8 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.text.ParseException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.client.mgcp.handlers.MgcpContentHandler;
 import org.restcomm.media.client.mgcp.handlers.TransactionHandler;
 import org.restcomm.media.client.mgcp.parser.SplitDetails;
@@ -83,7 +84,7 @@ public class DeleteConnectionHandler extends TransactionHandler
 	private DeleteConnection command;
 	private DeleteConnectionResponse response;
 
-	private static final Logger logger = Logger.getLogger(DeleteConnectionHandler.class);
+	private static final Logger logger = LogManager.getLogger(DeleteConnectionHandler.class);
 
 	/** Creates a new instance of CreateConnectionHandle */
 	public DeleteConnectionHandler(JainMgcpStackImpl stack) 

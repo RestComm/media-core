@@ -21,6 +21,9 @@
 
 package org.restcomm.media.scheduler;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
@@ -30,8 +33,6 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import org.apache.log4j.Logger;
 
 /**
  * Scheduler implementation that relies on a {@link ScheduledExecutorService} to manage the thread pool as well as the scheduled
@@ -45,7 +46,7 @@ import org.apache.log4j.Logger;
  */
 public class ServiceScheduler implements Scheduler {
     
-    private static final Logger LOGGER = Logger.getLogger(ServiceScheduler.class);
+    private static final Logger LOGGER = LogManager.getLogger(ServiceScheduler.class);
 
     public static final int POOL_SIZE = Runtime.getRuntime().availableProcessors();
 
