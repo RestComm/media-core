@@ -111,6 +111,14 @@ public class MGW implements JainMgcpExtendedListener {
 							"")
 							+ "test-1", wildcard.getDomainName());
 					response.setSpecificEndpointIdentifier(specific);
+					if(cc.getSecondEndpointIdentifier()!=null)
+					{
+						ConnectionIdentifier connectionIdentifier2 = new ConnectionIdentifier(((CallIdentifier) mgwProvider.getUniqueCallIdentifier()).toString());
+						EndpointIdentifier specificEndpoint2 = new EndpointIdentifier(cc.getSecondEndpointIdentifier().getLocalEndpointName().replace("$","") 
+								+ "test-1", wildcard.getDomainName());
+						response.setSecondEndpointIdentifier(specificEndpoint2);
+						response.setSecondConnectionIdentifier(connectionIdentifier2);
+					}
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

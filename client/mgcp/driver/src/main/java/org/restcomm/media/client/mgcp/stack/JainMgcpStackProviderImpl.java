@@ -22,6 +22,7 @@
 
 package org.restcomm.media.client.mgcp.stack;
 
+import java.net.InetAddress;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Random;
@@ -142,6 +143,44 @@ public class JainMgcpStackProviderImpl implements ExtendedJainMgcpProvider {
 		}
 	}
 
+	public void sendMgcpEvents(JainMgcpEvent[] events, InetAddress address, int port) throws IllegalArgumentException {
+		for (JainMgcpEvent event : events) {
+
+			// For any onther than CRCX wildcard does not count?
+			if (event instanceof JainMgcpCommandEvent) {
+				// SENDING REQUEST
+				JainMgcpCommandEvent commandEvent = (JainMgcpCommandEvent) event;
+
+				// This is for TCK
+				if (commandEvent.getTransactionHandle() < 1) {
+					commandEvent.setTransactionHandle(this.getUniqueTransactionHandler());
+				}
+
+				TransactionHandler handle = getHandler(commandEvent, address, port);
+				handle.setCommand(true);
+				handle.setCommandEvent(commandEvent);
+				handle.send();				
+			} else {
+
+				// SENDING RESPONSE
+				int tid = event.getTransactionHandle();
+				TransactionHandler handle = (TransactionHandler) runningStack.getLocalTransactions().get(
+						Integer.valueOf(tid));
+
+				if (handle != null) {
+					handle.setCommand(false);
+					handle.setResponseEvent((JainMgcpResponseEvent) event);
+					handle.send();					
+				} else {
+					logger.error("The TransactionHandler not found for TransactionHandle " + tid
+							+ " May be the Tx timed out. Event = " + (JainMgcpResponseEvent) event);
+				}
+
+			}
+		}
+
+	}
+
 	public void sendMgcpEvents(JainMgcpEvent[] events) throws IllegalArgumentException {
 		for (JainMgcpEvent event : events) {
 
@@ -155,83 +194,7 @@ public class JainMgcpStackProviderImpl implements ExtendedJainMgcpProvider {
 					commandEvent.setTransactionHandle(this.getUniqueTransactionHandler());
 				}
 
-				TransactionHandler handle = null;
-				switch (commandEvent.getObjectIdentifier()) {
-
-				case Constants.CMD_AUDIT_CONNECTION:
-					if (logger.isDebugEnabled()) {
-						logger.debug("Sending EndpointConfiguration object to " + commandEvent.getEndpointIdentifier());
-					}
-					handle = new AuditConnectionHandler(this.runningStack);
-					break;
-
-				case Constants.CMD_AUDIT_ENDPOINT:
-					if (logger.isDebugEnabled()) {
-						logger.debug("Sending EndpointConfiguration object to " + commandEvent.getEndpointIdentifier());
-					}
-					handle = new AuditEndpointHandler(this.runningStack);
-					break;
-
-				case Constants.CMD_CREATE_CONNECTION:
-					if (logger.isDebugEnabled()) {
-						logger.debug("Sending CreateConnection object to " + commandEvent.getEndpointIdentifier());
-					}
-					handle = new CreateConnectionHandler(this.runningStack);
-					break;
-
-				case Constants.CMD_DELETE_CONNECTION:
-					if (logger.isDebugEnabled()) {
-						logger.debug("Sending DeleteConnection object to " + commandEvent.getEndpointIdentifier());
-					}
-					handle = new DeleteConnectionHandler(this.runningStack);
-					break;
-
-				case Constants.CMD_ENDPOINT_CONFIGURATION:
-					if (logger.isDebugEnabled()) {
-						logger.debug("Sending EndpointConfiguration object to " + commandEvent.getEndpointIdentifier());
-					}
-					handle = new EndpointConfigurationHandler(this.runningStack);
-					break;
-
-				case Constants.CMD_MODIFY_CONNECTION:
-					if (logger.isDebugEnabled()) {
-						logger.debug("Sending ModifyConnection object to " + commandEvent.getEndpointIdentifier());
-					}
-					handle = new ModifyConnectionHandler(this.runningStack);
-					break;
-
-				case Constants.CMD_NOTIFICATION_REQUEST:
-					if (logger.isDebugEnabled()) {
-						logger.debug("Sending NotificationRequest object to " + commandEvent.getEndpointIdentifier());
-					}
-					handle = new NotificationRequestHandler(this.runningStack);
-					break;
-
-				case Constants.CMD_NOTIFY:
-					if (logger.isDebugEnabled()) {
-						logger.debug("Sending Notify object to NotifiedEntity"
-								+ ((Notify) commandEvent).getNotifiedEntity());
-					}
-					handle = new NotifyHandler(this.runningStack);
-					break;
-
-				case Constants.CMD_RESP_UNKNOWN:
-					if (logger.isDebugEnabled()) {
-						logger.debug("Sending ResponseUnknown object to " + commandEvent.getEndpointIdentifier());
-					}
-					handle = new RespUnknownHandler(this.runningStack);
-					break;
-
-				case Constants.CMD_RESTART_IN_PROGRESS:
-					if (logger.isDebugEnabled()) {
-						logger.debug("Sending RestartInProgress object to " + commandEvent.getEndpointIdentifier());
-					}
-					handle = new RestartInProgressHandler(this.runningStack);
-					break;
-
-				default:
-					throw new IllegalArgumentException("Could not send type of the message yet");
-				}
+				TransactionHandler handle = getHandler(commandEvent,null,-1);
 				handle.setCommand(true);
 				handle.setCommandEvent(commandEvent);
 				handle.send();				
@@ -463,4 +426,93 @@ public class JainMgcpStackProviderImpl implements ExtendedJainMgcpProvider {
             this.interrupt();
         }
 	}	
+	
+	private TransactionHandler getHandler(JainMgcpCommandEvent commandEvent, InetAddress address, int port)
+	{
+		TransactionHandler handle = null;
+		switch (commandEvent.getObjectIdentifier()) {
+
+		case Constants.CMD_AUDIT_CONNECTION:
+			if (logger.isDebugEnabled()) {
+				logger.debug("Sending EndpointConfiguration object to " + commandEvent.getEndpointIdentifier());
+			}
+				handle = new AuditConnectionHandler(this.runningStack);
+			break;
+
+		case Constants.CMD_AUDIT_ENDPOINT:
+			if (logger.isDebugEnabled()) {
+				logger.debug("Sending EndpointConfiguration object to " + commandEvent.getEndpointIdentifier());
+			}
+				handle = new AuditEndpointHandler(this.runningStack);
+			break;
+
+		case Constants.CMD_CREATE_CONNECTION:
+			if (logger.isDebugEnabled()) {
+				logger.debug("Sending CreateConnection object to " + commandEvent.getEndpointIdentifier());
+			}
+				handle = new CreateConnectionHandler(this.runningStack);
+			break;
+
+		case Constants.CMD_DELETE_CONNECTION:
+			if (logger.isDebugEnabled()) {
+				logger.debug("Sending DeleteConnection object to " + commandEvent.getEndpointIdentifier());
+			}
+			if(address==null)
+				handle = new DeleteConnectionHandler(this.runningStack);
+			else
+				handle = new DeleteConnectionHandler(this.runningStack, address, port);
+			break;
+
+		case Constants.CMD_ENDPOINT_CONFIGURATION:
+			if (logger.isDebugEnabled()) {
+				logger.debug("Sending EndpointConfiguration object to " + commandEvent.getEndpointIdentifier());
+			}
+			handle = new EndpointConfigurationHandler(this.runningStack);
+			break;
+
+		case Constants.CMD_MODIFY_CONNECTION:
+			if (logger.isDebugEnabled()) {
+				logger.debug("Sending ModifyConnection object to " + commandEvent.getEndpointIdentifier());
+			}
+			handle = new ModifyConnectionHandler(this.runningStack);
+			break;
+
+		case Constants.CMD_NOTIFICATION_REQUEST:
+			if (logger.isDebugEnabled()) {
+				logger.debug("Sending NotificationRequest object to " + commandEvent.getEndpointIdentifier());
+			}
+			handle = new NotificationRequestHandler(this.runningStack);
+			break;
+
+		case Constants.CMD_NOTIFY:
+			if (logger.isDebugEnabled()) {
+				logger.debug("Sending Notify object to NotifiedEntity"
+						+ ((Notify) commandEvent).getNotifiedEntity());
+			}
+			handle = new NotifyHandler(this.runningStack);
+			break;
+
+		case Constants.CMD_RESP_UNKNOWN:
+			if (logger.isDebugEnabled()) {
+				logger.debug("Sending ResponseUnknown object to " + commandEvent.getEndpointIdentifier());
+			}
+			handle = new RespUnknownHandler(this.runningStack);
+			break;
+
+		case Constants.CMD_RESTART_IN_PROGRESS:
+			if (logger.isDebugEnabled()) {
+				logger.debug("Sending RestartInProgress object to " + commandEvent.getEndpointIdentifier());
+			}
+			if(address==null)
+				handle = new RestartInProgressHandler(this.runningStack);
+			else
+				handle = new RestartInProgressHandler(this.runningStack, address, port);
+			break;
+
+		default:
+			throw new IllegalArgumentException("Could not send type of the message yet");
+		}
+		return handle;
+	}
 }
+
