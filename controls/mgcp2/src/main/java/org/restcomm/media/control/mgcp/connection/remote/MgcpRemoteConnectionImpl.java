@@ -21,7 +21,8 @@
 
 package org.restcomm.media.control.mgcp.connection.remote;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.component.audio.AudioComponent;
 import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.control.mgcp.connection.AbstractMgcpConnection;
@@ -46,7 +47,7 @@ import com.google.common.util.concurrent.ListeningScheduledExecutorService;
  */
 public class MgcpRemoteConnectionImpl extends AbstractMgcpConnection implements MgcpRemoteConnection {
     
-    private static final Logger log = Logger.getLogger(MgcpRemoteConnectionImpl.class);
+    private static final Logger log = LogManager.getLogger(MgcpRemoteConnectionImpl.class);
 
     public MgcpRemoteConnectionImpl(MgcpRemoteConnectionContext context, MgcpEventProvider eventProvider, ListeningScheduledExecutorService executor) {
         super(context, eventProvider, executor);

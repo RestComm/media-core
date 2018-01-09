@@ -21,7 +21,8 @@
 
 package org.restcomm.media.control.mgcp.connection.local;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.component.audio.AudioComponent;
 import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.control.mgcp.connection.AbstractMgcpConnection;
@@ -42,7 +43,7 @@ import com.google.common.util.concurrent.ListeningScheduledExecutorService;
  */
 public class MgcpLocalConnectionImpl extends AbstractMgcpConnection implements MgcpLocalConnection {
 
-    private static final Logger log = Logger.getLogger(MgcpLocalConnectionImpl.class);
+    private static final Logger log = LogManager.getLogger(MgcpLocalConnectionImpl.class);
 
     private final MgcpLocalConnectionFsm fsm;
 
