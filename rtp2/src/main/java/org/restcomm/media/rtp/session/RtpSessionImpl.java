@@ -21,20 +21,13 @@
 
 package org.restcomm.media.rtp.session;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-
+import com.google.common.util.concurrent.FutureCallback;
 import org.restcomm.media.component.audio.AudioComponent;
 import org.restcomm.media.component.oob.OOBComponent;
-import org.restcomm.media.rtp.JitterBuffer;
-import org.restcomm.media.rtp.MediaType;
-import org.restcomm.media.rtp.RtpChannel;
-import org.restcomm.media.rtp.RtpInput;
-import org.restcomm.media.rtp.RtpOutput;
-import org.restcomm.media.rtp.RtpPacket;
-import org.restcomm.media.rtp.RtpSession;
+import org.restcomm.media.rtp.*;
 import org.restcomm.media.rtp.rfc2833.DtmfInput;
 import org.restcomm.media.sdp.attributes.RtpMapAttribute;
+import org.restcomm.media.sdp.attributes.SsrcAttribute;
 import org.restcomm.media.sdp.fields.MediaDescriptionField;
 import org.restcomm.media.sdp.format.RTPFormat;
 import org.restcomm.media.sdp.format.RTPFormats;
@@ -42,7 +35,8 @@ import org.restcomm.media.spi.ConnectionMode;
 import org.restcomm.media.spi.format.EncodingName;
 import org.restcomm.media.spi.format.Format;
 
-import com.google.common.util.concurrent.FutureCallback;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -115,8 +109,8 @@ public class RtpSessionImpl implements RtpSession {
         // Gather remote session information
         RtpMapAttribute[] formats = sdp.getFormats();
         SocketAddress address = new InetSocketAddress(sdp.getConnection().getAddress(), sdp.getPort());
-        String ssrcId = sdp.getSsrc().getSsrcId();
-        long ssrc = ssrcId.isEmpty() ? 0 : Long.parseLong(ssrcId);
+        final SsrcAttribute ssrcAttribute = sdp.getSsrc();
+        long ssrc = (ssrcAttribute == null || ssrcAttribute.getSsrcId().isEmpty()) ? 0 : Long.parseLong(ssrcAttribute.getSsrcId());
 
         // Register FSM listener for operation feedback
         RtpSessionNegotiateListener listener = new RtpSessionNegotiateListener(this.fsm, callback);
