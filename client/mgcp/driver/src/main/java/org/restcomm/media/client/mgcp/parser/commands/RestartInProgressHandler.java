@@ -35,7 +35,8 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.text.ParseException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.client.mgcp.handlers.MgcpContentHandler;
 import org.restcomm.media.client.mgcp.handlers.TransactionHandler;
 import org.restcomm.media.client.mgcp.parser.SplitDetails;
@@ -61,7 +62,7 @@ public class RestartInProgressHandler extends TransactionHandler {
 		StringFunctions.HIGH_I_BYTE,StringFunctions.HIGH_P_BYTE
 	};
 	
-	private static final Logger logger = Logger.getLogger(RestartInProgressHandler.class);
+	private static final Logger logger = LogManager.getLogger(RestartInProgressHandler.class);
 
 	private RestartInProgress command;
 	private RestartInProgressResponse response;

@@ -25,7 +25,8 @@ import java.net.InetSocketAddress;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.control.mgcp.exception.MgcpParseException;
 import org.restcomm.media.control.mgcp.message.MessageDirection;
 import org.restcomm.media.control.mgcp.message.MgcpMessage;
@@ -49,7 +50,7 @@ import com.google.common.collect.Sets;
 @Deprecated
 public class MgcpPacketHandler implements PacketHandler, MgcpMessageSubject {
     
-    private static final Logger log = Logger.getLogger(MgcpPacketHandler.class);
+    private static final Logger log = LogManager.getLogger(MgcpPacketHandler.class);
 
     private final MgcpMessageParser parser;
     private final Set<MgcpMessageObserver> observers;

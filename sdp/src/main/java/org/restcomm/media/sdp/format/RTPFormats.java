@@ -107,6 +107,17 @@ public class RTPFormats {
         return null;
     }
 
+    public RTPFormat getRTPFormat(String name) {
+        final int size = rtpFormats.size();
+        for (int i = 0; i < size; i++) {
+            final RTPFormat rtpFormat = rtpFormats.get(i);
+            if(rtpFormat.getFormat().getName().toString().equalsIgnoreCase(name)) {
+                return rtpFormat;
+            }
+        }
+        return null;
+    }
+
     public RTPFormat getRTPFormat(Format format) {
         for (int i = 0; i < rtpFormats.size(); i++) {
             if (rtpFormats.get(i).getFormat().matches(format)) return rtpFormats.get(i);

@@ -38,7 +38,8 @@ import org.restcomm.media.scheduler.Scheduler;
 import org.restcomm.media.scheduler.Task;
 import org.restcomm.media.scheduler.TaskChain;
 import org.restcomm.media.spi.utils.Text;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Modify connection command.
@@ -77,7 +78,7 @@ public class DeleteConnectionCmd extends Action {
 
 	private int tx, rx;
 
-	private final static Logger logger = Logger.getLogger(DeleteConnectionCmd.class);
+	private final static Logger logger = LogManager.getLogger(DeleteConnectionCmd.class);
 
 	public DeleteConnectionCmd(Scheduler scheduler) {
 		handler = new TaskChain(2, scheduler);

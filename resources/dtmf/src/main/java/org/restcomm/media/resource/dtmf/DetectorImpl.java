@@ -28,7 +28,8 @@ import java.util.Iterator;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.ComponentType;
 import org.restcomm.media.component.AbstractSink;
 import org.restcomm.media.component.audio.AudioOutput;
@@ -111,7 +112,7 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector, PooledOb
     private final OOBOutput oobOutput;
     private final OOBDetector oobDetector;
 
-    private static final Logger logger = Logger.getLogger(DetectorImpl.class);
+    private static final Logger logger = LogManager.getLogger(DetectorImpl.class);
 
     public DetectorImpl(String name, int toneVolume, int toneDuration, int toneInterval, PriorityQueueScheduler scheduler) {
         super(name);

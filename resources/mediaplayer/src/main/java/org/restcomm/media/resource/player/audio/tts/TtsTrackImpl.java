@@ -39,7 +39,8 @@ import org.restcomm.media.spi.format.Format;
 import org.restcomm.media.spi.format.FormatFactory;
 import org.restcomm.media.spi.memory.Frame;
 import org.restcomm.media.spi.memory.Memory;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * 
@@ -63,7 +64,7 @@ public class TtsTrackImpl implements Track {
     private long timestamp;
     private VoicesCache voiceCache;
     
-    private static final Logger logger = Logger.getLogger(TtsTrackImpl.class);
+    private static final Logger logger = LogManager.getLogger(TtsTrackImpl.class);
     
     public TtsTrackImpl(URL url, String voiceName,VoicesCache vc) throws IOException {
     	this.voiceCache = vc;

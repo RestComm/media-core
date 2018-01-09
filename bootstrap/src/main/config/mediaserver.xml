@@ -21,6 +21,7 @@
 	<controller protocol="mgcp">
 		<address>127.0.0.1</address>
 		<port>2427</port>
+		<channelBuffer>5000</channelBuffer>
 		<endpoints>
 			<endpoint name="mobicents/bridge/" relay="splitter" />
 			<endpoint name="mobicents/ivr/" relay="mixer" />

@@ -22,7 +22,8 @@
 package org.restcomm.media.control.mgcp.pkg.au.pc;
 
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.control.mgcp.pkg.MgcpEventObserver;
 import org.restcomm.media.control.mgcp.pkg.au.OperationComplete;
 import org.restcomm.media.control.mgcp.pkg.au.OperationFailed;
@@ -46,7 +47,7 @@ import java.util.concurrent.TimeUnit;
 public class PlayCollectFsmImpl extends
         AbstractStateMachine<PlayCollectFsm, PlayCollectState, PlayCollectEvent, PlayCollectContext> implements PlayCollectFsm {
 
-    private static final Logger log = Logger.getLogger(PlayCollectFsmImpl.class);
+    private static final Logger log = LogManager.getLogger(PlayCollectFsmImpl.class);
 
     // Scheduler
     private final ListeningScheduledExecutorService executor;

@@ -24,7 +24,8 @@ package org.restcomm.media.resource.player.audio.tts;
 
 import java.util.HashMap;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.sun.speech.freetts.Voice;
 
@@ -36,7 +37,7 @@ import com.sun.speech.freetts.Voice;
  */
 public class VoiceManager {
 
-	private static final Logger logger = Logger.getLogger(VoiceManager.class);
+	private static final Logger logger = LogManager.getLogger(VoiceManager.class);
 
 	private static final VoiceManager INSTANCE = new VoiceManager();
 

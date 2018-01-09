@@ -26,7 +26,8 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.control.mgcp.command.MgcpCommand;
 import org.restcomm.media.control.mgcp.exception.DuplicateMgcpTransactionException;
 import org.restcomm.media.control.mgcp.exception.MgcpTransactionNotFoundException;
@@ -44,7 +45,7 @@ import com.google.common.collect.Sets;
  */
 public class GlobalMgcpTransactionManager implements MgcpTransactionManager, MgcpMessageObserver {
     
-    private static final Logger log = Logger.getLogger(GlobalMgcpTransactionManager.class);
+    private static final Logger log = LogManager.getLogger(GlobalMgcpTransactionManager.class);
 
     private final MgcpTransactionManagerProvider provider;
     private final ConcurrentHashMap<String, MgcpTransactionManager> managers;

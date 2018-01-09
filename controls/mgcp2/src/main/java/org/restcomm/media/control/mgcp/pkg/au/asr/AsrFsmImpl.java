@@ -24,7 +24,8 @@ package org.restcomm.media.control.mgcp.pkg.au.asr;
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.asr.*;
 import org.restcomm.media.control.mgcp.pkg.au.*;
 import org.restcomm.media.drivers.asr.AsrDriverConfigurationException;
@@ -49,7 +50,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class AsrFsmImpl extends AbstractStateMachine<AsrFsm, AsrState, AsrEvent, AsrContext> implements AsrFsm {
 
-    private static final Logger log = Logger.getLogger(AsrFsmImpl.class);
+    private static final Logger log = LogManager.getLogger(AsrFsmImpl.class);
 
     // Media Components
     private final DtmfDetector detector;

@@ -28,6 +28,8 @@ import org.restcomm.media.control.mgcp.network.netty.MgcpMessageDecoder;
 import org.restcomm.media.control.mgcp.network.netty.MgcpMessageEncoder;
 import org.restcomm.media.network.netty.filter.NetworkGuard;
 import org.restcomm.media.network.netty.handler.NetworkFilter;
+import org.restcomm.media.core.configuration.MediaServerConfiguration;
+import org.restcomm.media.core.configuration.MgcpControllerConfiguration;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -43,18 +45,22 @@ public class MgcpChannelInitializerProvider implements Provider<MgcpChannelIniti
     private final MgcpMessageDecoder decoder;
     private final MgcpMessageEncoder encoder;
     private final MgcpChannelInboundHandler inboundHandler;
+    private final MgcpControllerConfiguration controller;
+    private final int channelBuffer;
 
     @Inject
-    public MgcpChannelInitializerProvider(@Named("mgcpNetworkGuard") NetworkGuard networkGuard, MgcpMessageParser parser, MgcpChannelInboundHandler inboundHandler) {
+    public MgcpChannelInitializerProvider(MediaServerConfiguration config, @Named("mgcpNetworkGuard") NetworkGuard networkGuard, MgcpMessageParser parser, MgcpChannelInboundHandler inboundHandler) {
         this.filter = new NetworkFilter(networkGuard);
         this.decoder = new MgcpMessageDecoder(parser);
         this.encoder = new MgcpMessageEncoder();
         this.inboundHandler = inboundHandler;
+        this.controller = config.getControllerConfiguration();
+        this.channelBuffer = this.controller.getChannelBuffer();
     }
 
     @Override
     public MgcpChannelInitializer get() {
-        return new MgcpChannelInitializer(this.filter, this.decoder, this.inboundHandler, this.encoder);
+        return new MgcpChannelInitializer(this.channelBuffer, this.filter, this.decoder, this.inboundHandler, this.encoder);
     }
 
 }

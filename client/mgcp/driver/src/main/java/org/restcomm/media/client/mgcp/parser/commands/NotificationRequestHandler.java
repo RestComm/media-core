@@ -36,7 +36,8 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.text.ParseException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.client.mgcp.handlers.MgcpContentHandler;
 import org.restcomm.media.client.mgcp.handlers.TransactionHandler;
 import org.restcomm.media.client.mgcp.parser.SplitDetails;
@@ -63,7 +64,7 @@ public class NotificationRequestHandler extends TransactionHandler
 		StringFunctions.HIGH_N_BYTE,StringFunctions.HIGH_T_BYTE
 	};
 	
-	private static final Logger logger = Logger.getLogger(NotificationRequestHandler.class);
+	private static final Logger logger = LogManager.getLogger(NotificationRequestHandler.class);
 
 	private NotificationRequest command;
 	private NotificationRequestResponse response;

@@ -29,7 +29,8 @@ import org.apache.commons.configuration2.builder.fluent.Configurations;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.configuration2.ex.ConfigurationRuntimeException;
 import org.apache.commons.configuration2.tree.ImmutableNode;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.core.configuration.DriverConfiguration;
 import org.restcomm.media.core.configuration.DtlsConfiguration;
 import org.restcomm.media.core.configuration.MediaConfiguration;
@@ -49,7 +50,7 @@ import org.restcomm.media.core.configuration.SubsystemsConfiguration;
  */
 public class XmlConfigurationLoader implements ConfigurationLoader {
     
-    private static final Logger log = Logger.getLogger(XmlConfigurationLoader.class);
+    private static final Logger log = LogManager.getLogger(XmlConfigurationLoader.class);
     private static final String MMS_HOME = "mms.home.dir";
     private static final String DEFAULT_PATH = "/conf/mediaserver.xml";
 
@@ -100,6 +101,7 @@ public class XmlConfigurationLoader implements ConfigurationLoader {
         // Basic Controller configuration
         dst.setAddress(src.getString("address", MgcpControllerConfiguration.ADDRESS));
         dst.setPort(src.getInt("port", MgcpControllerConfiguration.PORT));
+        dst.setChannelBuffer(src.getInt("channelBuffer", MgcpControllerConfiguration.CHANNEL_BUFFER));
 
         // Iterate over endpoint configuration
         List<HierarchicalConfiguration<ImmutableNode>> endpoints = src.childConfigurationsAt("endpoints");

@@ -16,6 +16,7 @@
 	<controller protocol="mgcp">
 		<address>198.162.1.175</address>
 		<port>3437</port>
+		<channelBuffer>4000</channelBuffer>
 		<endpoints>
 			<endpoint name="mobicents/bridge" />
 			<endpoint name="mobicents/ivr" />

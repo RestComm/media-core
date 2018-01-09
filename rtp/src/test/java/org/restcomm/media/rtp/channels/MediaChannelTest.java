@@ -19,11 +19,6 @@
  */
 package org.restcomm.media.rtp.channels;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
-import java.io.IOException;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,19 +28,20 @@ import org.restcomm.media.rtcp.RtcpChannel;
 import org.restcomm.media.rtp.ChannelsManager;
 import org.restcomm.media.rtp.RtpChannel;
 import org.restcomm.media.rtp.RtpClock;
-import org.restcomm.media.rtp.channels.AudioChannel;
 import org.restcomm.media.rtp.crypto.DtlsSrtpServer;
 import org.restcomm.media.rtp.crypto.DtlsSrtpServerProvider;
 import org.restcomm.media.rtp.sdp.SdpFactory;
 import org.restcomm.media.rtp.statistics.RtpStatistics;
-import org.restcomm.media.scheduler.Clock;
-import org.restcomm.media.scheduler.PriorityQueueScheduler;
-import org.restcomm.media.scheduler.Scheduler;
-import org.restcomm.media.scheduler.ServiceScheduler;
-import org.restcomm.media.scheduler.WallClock;
+import org.restcomm.media.scheduler.*;
+import org.restcomm.media.sdp.attributes.RtpMapAttribute;
 import org.restcomm.media.sdp.fields.MediaDescriptionField;
 import org.restcomm.media.sdp.format.AVProfile;
 import org.restcomm.media.sdp.format.RTPFormats;
+
+import java.io.IOException;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 /**
  * 
@@ -252,6 +248,33 @@ public class MediaChannelTest {
         // then
         assertEquals(codecs, supportedCodecs);
     }
+
+    @Test
+	public void testNegotiateDynamicCodecs() {
+		// given
+		final RtpMapAttribute dtmf101 = new RtpMapAttribute(101, "telephone-event", 8000, 0);
+		final RtpMapAttribute dtmf102 = new RtpMapAttribute(102, "telephone-event", 16000, 0);
+		final RtpMapAttribute opus111 = new RtpMapAttribute(111, "opus", 48000, 0);
+		final RtpMapAttribute pcmu0 = new RtpMapAttribute(0, "pcmu", 8000, 0);
+
+		final Clock clock = mock(Clock.class);
+		final ChannelsManager channelsManager = mock(ChannelsManager.class);
+		final MediaChannel channel = this.factory.buildAudioChannel();
+
+		// when
+		MediaDescriptionField sdp = new MediaDescriptionField();
+		sdp.setPayloadTypes(String.valueOf(dtmf101.getPayloadType()), String.valueOf(dtmf102.getPayloadType()), String.valueOf(opus111.getPayloadType()), String.valueOf(pcmu0.getPayloadType()));
+		sdp.addFormats(dtmf101, dtmf102, opus111, pcmu0);
+
+		channel.negotiateFormats(sdp);
+
+		// then
+		final RTPFormats negotiated = channel.getNegotiatedFormats();
+		assertEquals(3, negotiated.size());
+		assertTrue(negotiated.contains(dtmf101.getPayloadType()));
+		assertTrue(negotiated.contains(opus111.getPayloadType()));
+		assertTrue(negotiated.contains(pcmu0.getPayloadType()));
+	}
 	
 	/**
 	 * Produces Media Channels

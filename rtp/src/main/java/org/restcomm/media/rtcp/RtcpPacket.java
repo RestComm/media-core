@@ -24,7 +24,8 @@ package org.restcomm.media.rtcp;
 
 import java.io.Serializable;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * 
@@ -35,7 +36,7 @@ public class RtcpPacket implements Serializable {
 	
 	private static final long serialVersionUID = -7175947723683038337L;
 
-	private static final Logger logger = Logger.getLogger(RtcpPacket.class);
+	private static final Logger logger = LogManager.getLogger(RtcpPacket.class);
 
 	/**
 	 * Maximum number of reporting sources

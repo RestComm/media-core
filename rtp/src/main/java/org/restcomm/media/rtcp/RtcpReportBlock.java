@@ -114,7 +114,7 @@ public class RtcpReportBlock {
 		this.ssrc <<= 8;
 		this.ssrc |= rawData[offSet++] & 0xFF;
 
-		this.fraction = rawData[offSet++];
+		this.fraction = rawData[offSet++] & 0xFF;
 
 		this.lost |= rawData[offSet++] & 0xFF;
 		this.lost <<= 8;

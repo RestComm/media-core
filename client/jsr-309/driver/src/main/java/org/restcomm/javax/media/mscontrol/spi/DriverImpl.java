@@ -33,7 +33,8 @@ import javax.media.mscontrol.spi.Driver;
 import javax.media.mscontrol.spi.DriverManager;
 import javax.media.mscontrol.spi.PropertyInfo;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.javax.media.mscontrol.MsControlFactoryImpl;
 import org.restcomm.media.client.mgcp.stack.JainMgcpStackImpl;
 
@@ -74,7 +75,7 @@ public class DriverImpl implements Driver, JainMgcpListener {
     private ScheduledExecutorService scheduler;
     
     private MsControlFactoryImpl factory;
-    private Logger logger = Logger.getLogger(DriverImpl.class);
+    private Logger logger = LogManager.getLogger(DriverImpl.class);
     
     private int txID;
     

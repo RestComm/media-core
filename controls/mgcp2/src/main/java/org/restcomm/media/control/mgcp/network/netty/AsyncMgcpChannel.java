@@ -25,7 +25,8 @@ import java.net.InetSocketAddress;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.control.mgcp.message.MessageDirection;
 import org.restcomm.media.control.mgcp.message.MgcpMessage;
 import org.restcomm.media.control.mgcp.message.MgcpMessageObserver;
@@ -41,7 +42,7 @@ import com.google.common.collect.Sets;
  */
 public class AsyncMgcpChannel extends AsyncNettyNetworkChannel<MgcpMessage> implements MgcpMessageObserver, MgcpMessageSubject {
 
-    private static final Logger log = Logger.getLogger(AsyncMgcpChannel.class);
+    private static final Logger log = LogManager.getLogger(AsyncMgcpChannel.class);
 
     private final Set<MgcpMessageObserver> observers;
 

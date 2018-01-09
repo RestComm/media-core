@@ -24,7 +24,8 @@ package org.restcomm.media.control.mgcp.pkg.au;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.control.mgcp.pkg.MgcpEvent;
 import org.restcomm.media.control.mgcp.signal.AbstractSignal;
 import org.restcomm.media.control.mgcp.signal.TimeoutSignal;
@@ -51,14 +52,13 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class PlayAnnouncement extends AbstractSignal<MgcpEvent> implements TimeoutSignal, PlayerListener {
 
-    private static final Logger log = Logger.getLogger(PlayAnnouncement.class);
+    private static final Logger log = LogManager.getLogger(PlayAnnouncement.class);
 
     // Play Parameters (default values)
     private static final String SIGNAL = "pa";
 
     /**
      * The maximum number of times an announcement is to be played.
-     * <p>
      * <p>
      * A value of minus one (-1) indicates the announcement is to be repeated forever. Defaults to one (1).
      * </p>

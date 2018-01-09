@@ -27,7 +27,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -46,7 +47,7 @@ import net.ripe.hadoop.pcap.packet.Packet;
  */
 public class PcapPlayer {
 
-    private static final Logger log = Logger.getLogger(PcapPlayer.class);
+    private static final Logger log = LogManager.getLogger(PcapPlayer.class);
 
     // Core Components
     private final ListeningScheduledExecutorService scheduler;

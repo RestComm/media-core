@@ -21,7 +21,8 @@
 
 package org.restcomm.media.control.mgcp.pkg.au.pr;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.control.mgcp.pkg.MgcpEventObserver;
 import org.restcomm.media.control.mgcp.pkg.au.OperationComplete;
 import org.restcomm.media.control.mgcp.pkg.au.OperationFailed;
@@ -50,7 +51,7 @@ import java.nio.file.Paths;
 public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayRecordState, PlayRecordEvent, PlayRecordContext>
         implements PlayRecordFsm {
 
-    private static final Logger log = Logger.getLogger(PlayRecordFsmImpl.class);
+    private static final Logger log = LogManager.getLogger(PlayRecordFsmImpl.class);
 
     // Event Listener
     private final MgcpEventObserver mgcpEventObserver;

@@ -26,7 +26,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 
 import org.apache.commons.net.ntp.TimeStamp;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -61,7 +62,7 @@ import org.restcomm.media.scheduler.WallClock;
  */
 public class RtcpHandlerTest {
 	
-	private static final Logger logger = Logger.getLogger(RtcpHandlerTest.class);
+	private static final Logger logger = LogManager.getLogger(RtcpHandlerTest.class);
 	
 	private static final byte[] RTCP_BYE_PACKET = new byte[] { 
 		(byte) 0x81, (byte) 0xc8, 0x00, 0x0c, (byte) 0xf1, (byte) 0xcf, (byte) 0xb8, (byte) 0xf9, (byte) 0xd7, (byte) 0xc3, 0x17, (byte) 0xd1, (byte) 0xdd, (byte) 0xb2, 0x2d, 0x0e,

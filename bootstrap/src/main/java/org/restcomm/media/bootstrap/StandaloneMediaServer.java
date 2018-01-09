@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
+ * Copyright 2011-2018, Telestax Inc and individual contributors
  * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
@@ -19,12 +19,13 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.bootstrap.main;
+package org.restcomm.media.bootstrap;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.network.deprecated.UdpManager;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.Scheduler;
@@ -39,9 +40,9 @@ import com.google.inject.Inject;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RestCommMediaServer implements MediaServer {
+public class StandaloneMediaServer implements MediaServer {
 
-    private static final Logger log = Logger.getLogger(RestCommMediaServer.class);
+    private static final Logger log = LogManager.getLogger(StandaloneMediaServer.class);
 
     // Media Server State
     private boolean started;
@@ -58,7 +59,7 @@ public class RestCommMediaServer implements MediaServer {
     private volatile long ttl;
 
     @Inject
-    public RestCommMediaServer(PriorityQueueScheduler mediaScheduler, Scheduler taskScheduler, UdpManager udpManager, ServerManager controller) {
+    public StandaloneMediaServer(PriorityQueueScheduler mediaScheduler, Scheduler taskScheduler, UdpManager udpManager, ServerManager controller) {
         // Core Components
         this.mediaScheduler = mediaScheduler;
         this.taskScheduler = taskScheduler;
@@ -108,6 +109,7 @@ public class RestCommMediaServer implements MediaServer {
             controller.activate();
         }
 
+        // TODO Specify Media Server version
         if (log.isInfoEnabled()) {
             log.info("Media Server started");
         }

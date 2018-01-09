@@ -49,7 +49,8 @@ import jain.protocol.ip.mgcp.message.parms.ReturnCode;
 import java.net.InetAddress;
 import java.text.ParseException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.client.mgcp.handlers.MgcpContentHandler;
 import org.restcomm.media.client.mgcp.handlers.TransactionHandler;
 import org.restcomm.media.client.mgcp.parser.SplitDetails;
@@ -74,7 +75,7 @@ public class EndpointConfigurationHandler extends TransactionHandler {
 	private EndpointConfiguration command;
 	private EndpointConfigurationResponse response;
 
-	private static final Logger logger = Logger.getLogger(EndpointConfigurationHandler.class);
+	private static final Logger logger = LogManager.getLogger(EndpointConfigurationHandler.class);
 
 	/** Creates a new instance of EndpointConfigurationHandle */
 	public EndpointConfigurationHandler(JainMgcpStackImpl stack) {

@@ -68,6 +68,7 @@ The default controller is based on MGCP protocol. Enabling MGCP is always requir
 <controller protocol="mgcp">
 	<address>127.0.0.1</address>
 	<port>2427</port>
+	<channelBuffer>5000</channelBuffer>
 	<endpoints>
 		<endpoint name="mobicents/bridge/" class="org.mobicents.media.server.mgcp.endpoint.BridgeEndpoint" poolSize="50" />
 		<endpoint name="mobicents/ivr/" class="org.mobicents.media.server.mgcp.endpoint.IvrEndpoint" poolSize="50" />
@@ -86,6 +87,8 @@ The *Address* parameter defines the address of the network interface to which th
 The *Port* parameter defines the port where the control channel will listen to for incoming requests. By default, it is set to 2427.
 
 The *PoolSize* parameter defines the number of MGCP requests that Media Server can handle concurrently.
+
+The *channelBuffer* parameter defines the MGCP channel buffer size which limits the size of incoming MGCP messages that are received by the MGCP channel. By default it is set to 5000.
 
 ==== Endpoints
 
@@ -617,7 +620,7 @@ In the following example, the Logger will output RTP-related traces with DEBUG l
 
 [NOTE]
 ====
-Note that even though DEBUG traces are enabled for RTP stack, the Console and File appenders still impose a threshold of INFO for any other traces.
+Note that even though DEBUG traces are enabled for RTP stack, the Console and File appenders still impose a root threshold of INFO for any other traces.
 ====
 
 .Configuration for Logger
@@ -625,14 +628,13 @@ Note that even though DEBUG traces are enabled for RTP stack, the Console and Fi
 [source,shell]
 ----
 # Valid logging thresholds: TRACE, DEBUG, INFO, WARN, ERROR, FATAL
-# Appenders
-LOG_APPENDER_CONSOLE=INFO
-LOG_APPENDER_FILE=INFO
+# Root Threshold
+LOG_ROOT=INFO
 
 LOG_FILE_URL=log/server.log
 
 # Categories
-LOG_CATEGORY_RTP='org.mobicents.media.server.impl.rtp:DEBUG'
+LOG_CATEGORY_RTP='org.restcomm.media.rtp:DEBUG'
 ----
 ====
 
@@ -640,7 +642,7 @@ If the user wished to, for example, define a logging threshold for the MGCP stac
 
 [source,shell]
 ----
-LOG_CATEGORY_MGCP='org.mobicents.media.server.mgcp:DEBUG'
+LOG_CATEGORY_MGCP='org.restcomm.media.control.mgcp:DEBUG'
 ----
 
 The user can also edit the *LOG_FILE_URL* parameter to define the location of the Media Server's log file.

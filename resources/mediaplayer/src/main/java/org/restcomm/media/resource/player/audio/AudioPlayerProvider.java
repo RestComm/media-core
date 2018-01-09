@@ -23,7 +23,8 @@ package org.restcomm.media.resource.player.audio;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.spi.dsp.DspFactory;
 import org.restcomm.media.spi.player.Player;
@@ -37,7 +38,7 @@ import org.restcomm.media.spi.player.PlayerProvider;
  */
 public class AudioPlayerProvider implements PlayerProvider {
 
-    private static final Logger log = Logger.getLogger(AudioPlayerProvider.class);
+    private static final Logger log = LogManager.getLogger(AudioPlayerProvider.class);
 
     private final PriorityQueueScheduler scheduler;
     private final RemoteStreamProvider remoteStreamProvider;

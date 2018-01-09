@@ -1,145 +1,123 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<packaging>jar</packaging>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <packaging>jar</packaging>
 
-	<parent>
-		<groupId>org.restcomm</groupId>
-		<artifactId>media</artifactId>
-		<version>7.0.0-SNAPSHOT</version>
-	</parent>
+    <parent>
+        <groupId>org.restcomm</groupId>
+        <artifactId>media</artifactId>
+        <version>7.0.0-SNAPSHOT</version>
+    </parent>
 
-	<groupId>org.restcomm.media</groupId>
-	<artifactId>bootstrap</artifactId>
-	<name>Bootstrap</name>
+    <groupId>org.restcomm.media</groupId>
+    <artifactId>bootstrap</artifactId>
+    <name>Bootstrap</name>
 
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>commons-beanutils</groupId>
-				<artifactId>commons-beanutils</artifactId>
-				<version>1.9.1</version>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>commons-beanutils</groupId>
+                <artifactId>commons-beanutils</artifactId>
+                <version>1.9.1</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
-	<dependencies>
-		<!-- Modules -->
-		<dependency>
-			<groupId>org.restcomm.media</groupId>
-			<artifactId>spi</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.restcomm.media</groupId>
-			<artifactId>core</artifactId>
-			<version>${project.parent.version}</version>
-			<type>jar</type>
-		</dependency>
-		<dependency>
-			<groupId>org.restcomm.media</groupId>
-			<artifactId>rtp</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.restcomm.media.resources</groupId>
-			<artifactId>dtmf</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.restcomm.media.resources</groupId>
-			<artifactId>player</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.restcomm.media.resources</groupId>
-			<artifactId>recorder</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.restcomm.media.asr</groupId>
-			<artifactId>asr-engine</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
+    <dependencies>
+        <!-- Modules -->
+        <dependency>
+            <groupId>org.restcomm.media</groupId>
+            <artifactId>spi</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.restcomm.media</groupId>
+            <artifactId>core</artifactId>
+            <version>${project.parent.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.restcomm.media</groupId>
+            <artifactId>rtp</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.restcomm.media.resources</groupId>
+            <artifactId>dtmf</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.restcomm.media.resources</groupId>
+            <artifactId>player</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.restcomm.media.resources</groupId>
+            <artifactId>recorder</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.restcomm.media.asr</groupId>
+            <artifactId>asr-engine</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
 
-		<!-- codecs -->
-		<dependency>
-			<groupId>org.restcomm.media.codecs</groupId>
-			<artifactId>l16</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.restcomm.media.codecs</groupId>
-			<artifactId>g711</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.restcomm.media.codecs</groupId>
-			<artifactId>gsm</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.restcomm.media.codecs</groupId>
-			<artifactId>g729</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.restcomm.media.codecs</groupId>
-			<artifactId>ilbc</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.restcomm.media.codecs.opus</groupId>
-			<artifactId>opus-java</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+        <!-- codecs -->
+        <dependency>
+            <groupId>org.restcomm.media.codecs</groupId>
+            <artifactId>l16</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.restcomm.media.codecs</groupId>
+            <artifactId>g711</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.restcomm.media.codecs</groupId>
+            <artifactId>gsm</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.restcomm.media.codecs</groupId>
+            <artifactId>g729</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.restcomm.media.codecs</groupId>
+            <artifactId>ilbc</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.restcomm.media.codecs.opus</groupId>
+            <artifactId>opus-java</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
-		<!-- External Dependencies -->
-		<dependency>
-			<groupId>urbanophile</groupId>
-			<artifactId>java-getopt</artifactId>
-			<version>1.0.9</version>
-		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>${log4j.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.jboss.microcontainer</groupId>
-			<artifactId>jboss-dependency</artifactId>
-			<version>2.0.6.GA</version>
-		</dependency>
-		<dependency>
-			<groupId>org.jboss.microcontainer</groupId>
-			<artifactId>jboss-kernel</artifactId>
-			<version>${version.jboss.microcontainer}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.jboss.aop</groupId>
-			<artifactId>jboss-aop</artifactId>
-			<version>2.2.2.GA</version>
-		</dependency>
-		<dependency>
-			<groupId>org.jboss.microcontainer</groupId>
-			<artifactId>jboss-aop-mc-int</artifactId>
-			<version>${version.jboss.microcontainer}</version>
-		</dependency>
-		
-		<!-- Apache Commons Configuration -->
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-configuration2</artifactId>
-			<version>2.0</version>
-		</dependency>
-		<dependency>
-			<groupId>commons-beanutils</groupId>
-			<artifactId>commons-beanutils</artifactId>
-			<scope>runtime</scope>
-		</dependency>
-	</dependencies>
-	<!--  -->
+        <!-- Logging -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+        </dependency>
+
+        <!-- Apache Commons Configuration -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-configuration2</artifactId>
+            <version>2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+    </dependencies>
+    <!--  -->
     <build>
         <finalName>run</finalName>
         <plugins>
@@ -147,8 +125,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -168,7 +146,7 @@
                     </execution>
                 </executions>
             </plugin>
-	</plugins>
+        </plugins>
     </build>
 
 </project>

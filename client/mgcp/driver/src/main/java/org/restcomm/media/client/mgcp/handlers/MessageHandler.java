@@ -41,7 +41,8 @@ import java.net.InetAddress;
 import java.text.ParseException;
 import java.util.ArrayList;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.client.mgcp.parser.SplitDetails;
 import org.restcomm.media.client.mgcp.parser.StringFunctions;
 import org.restcomm.media.client.mgcp.parser.commands.AuditConnectionHandler;
@@ -70,7 +71,7 @@ public class MessageHandler
 {
 
 	private JainMgcpStackImpl stack;
-	private static Logger logger = Logger.getLogger(MessageHandler.class);
+	private static Logger logger = LogManager.getLogger(MessageHandler.class);
 
 	public MessageHandler(JainMgcpStackImpl jainMgcpStackImpl) 
 	{

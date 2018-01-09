@@ -33,9 +33,11 @@ import org.restcomm.media.spi.utils.Text;
 public class AVProfile {
 	public final static Text AUDIO = new Text("audio");
 	public final static Text VIDEO = new Text("video");
-	
+
+	public static final int DYNAMIC_PT_MIN = 96;
+	public static final int DYNAMIC_PT_MAX = 127;
+
 	public final static int telephoneEventsID=101;
-	public final static int telephoneEvent126=126;
     public final static AudioFormat telephoneEvent = FormatFactory.createAudioFormat("telephone-event", 8000);
     static {
         telephoneEvent.setOptions(new Text("0-15"));
@@ -50,7 +52,6 @@ public class AVProfile {
     private final static RTPFormat g729 = new RTPFormat(18, FormatFactory.createAudioFormat("g729", 8000), 8000);
     private final static RTPFormat l16 = new RTPFormat(97, FormatFactory.createAudioFormat("l16", 8000, 16, 1), 8000);    
     private final static RTPFormat dtmf = new RTPFormat(telephoneEventsID, telephoneEvent, 8000);
-    private final static RTPFormat dtmf126 = new RTPFormat(telephoneEvent126, telephoneEvent, 8000);
     private final static RTPFormat ilbc = new RTPFormat(102, FormatFactory.createAudioFormat("ilbc", 8000, 16, 1), 8000);
     private final static RTPFormat opus = new RTPFormat(111, FormatFactory.createAudioFormat("opus", 48000, 16, 2), 48000);
     private final static RTPFormat linear = new RTPFormat(150, FormatFactory.createAudioFormat("linear", 8000, 16, 1), 8000);
@@ -68,7 +69,6 @@ public class AVProfile {
         audio.add(ilbc);
         audio.add(opus);
         audio.add(dtmf);
-        audio.add(dtmf126);
     }
 
     static {
@@ -80,7 +80,12 @@ public class AVProfile {
     public static RTPFormat getFormat(int p) {    	
         RTPFormat res = audio.find(p);
         return res == null ? video.find(p) : res;
-    }    
+    }
+
+    public static RTPFormat getFormat(String name) {
+        RTPFormat res = audio.getRTPFormat(name);
+        return (res == null) ? video.getRTPFormat(name) : res;
+    }
     
     public static RTPFormat getFormat(int p,Text mediaType) {
     	RTPFormat res=null;
@@ -93,16 +98,10 @@ public class AVProfile {
     }
     
     public static boolean isDtmf(RTPFormat format) {
-        if(format == null) {
-            return false;
-        }
-        return dtmf.getID() == format.getID() || dtmf126.getID() == format.getID();
+        return (format != null) && dtmf.getFormat().getName().equals(format.getFormat().getName());
     }
 
     public static boolean isDefaultDtmf(RTPFormat format) {
-        if(format == null) {
-            return false;
-        }
-        return dtmf.getID() == format.getID();
+        return (format != null) && (dtmf.getID() == format.getID());
     }
 }

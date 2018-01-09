@@ -34,7 +34,8 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bouncycastle.crypto.tls.DTLSServerProtocol;
 import org.bouncycastle.crypto.tls.DatagramTransport;
 import org.restcomm.media.network.deprecated.channel.PacketHandler;
@@ -55,7 +56,7 @@ public class DtlsHandler implements PacketHandler, DatagramTransport {
 
     private static final AtomicLong THREAD_COUNTER = new AtomicLong(0);
 
-    private static final Logger logger = Logger.getLogger(DtlsHandler.class);
+    private static final Logger logger = LogManager.getLogger(DtlsHandler.class);
 
     public static final int DEFAULT_MTU = 1500;
 

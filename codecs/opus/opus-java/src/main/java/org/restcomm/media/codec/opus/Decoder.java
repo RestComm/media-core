@@ -24,7 +24,8 @@ package org.restcomm.media.codec.opus;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.spi.dsp.Codec;
 import org.restcomm.media.spi.format.Format;
 import org.restcomm.media.spi.format.FormatFactory;
@@ -39,7 +40,7 @@ import org.restcomm.media.spi.memory.Memory;
  */
 public class Decoder implements Codec {
 
-    private final static Logger log = Logger.getLogger(Encoder.class);
+    private final static Logger log = LogManager.getLogger(Encoder.class);
 
     private final static Format opus = FormatFactory.createAudioFormat("opus", 48000, 8, 2);
     private final static Format linear = FormatFactory.createAudioFormat("linear", 8000, 16, 1);

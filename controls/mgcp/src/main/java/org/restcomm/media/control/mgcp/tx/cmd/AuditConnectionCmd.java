@@ -23,7 +23,8 @@ package org.restcomm.media.control.mgcp.tx.cmd;
 import java.io.IOException;
 import java.util.Collection;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.control.mgcp.MgcpEvent;
 import org.restcomm.media.control.mgcp.controller.MgcpConnection;
 import org.restcomm.media.control.mgcp.controller.MgcpEndpoint;
@@ -49,7 +50,7 @@ import org.restcomm.media.spi.utils.Text;
  * @see <a href="http://tools.ietf.org/html/rfc3435#section-2.3.11">RFC3435</a>
  */
 public class AuditConnectionCmd extends Action {
-	private final static Logger logger = Logger.getLogger(AuditConnectionCmd.class);
+	private final static Logger logger = LogManager.getLogger(AuditConnectionCmd.class);
 	
 	// Response messages
     private final static Text ENDPOINT_ID_MISSING = new Text("Missing endpoint identifier");

@@ -26,7 +26,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.ComponentType;
 import org.restcomm.media.component.AbstractSource;
 import org.restcomm.media.component.audio.AudioInput;
@@ -57,7 +58,7 @@ public class AudioPlayerImpl extends AbstractSource implements Player, TTSEngine
 
     private static final long serialVersionUID = 8321615909592642344L;
 
-    private final static Logger log = Logger.getLogger(AudioPlayerImpl.class);
+    private final static Logger log = LogManager.getLogger(AudioPlayerImpl.class);
 
     // define natively supported formats
     private final static AudioFormat LINEAR = FormatFactory.createAudioFormat("linear", 8000, 16, 1);

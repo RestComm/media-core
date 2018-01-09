@@ -27,7 +27,8 @@ import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.ComponentType;
 import org.restcomm.media.control.mgcp.controller.signal.Event;
 import org.restcomm.media.control.mgcp.controller.signal.NotifyImmediately;
@@ -48,7 +49,7 @@ import org.restcomm.media.spi.utils.Text;
  */
 public class Play extends Signal implements PlayerListener {
 
-    private final static Logger log = Logger.getLogger(Play.class);
+    private final static Logger log = LogManager.getLogger(Play.class);
 
     // Response Messages
     private static final Text MSG_NO_PLAYER = new Text("Endpoint has no player");

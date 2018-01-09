@@ -25,7 +25,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.rtcp.RtcpIntervalCalculator;
 import org.restcomm.media.rtcp.RtcpPacket;
 import org.restcomm.media.rtcp.RtcpPacketType;
@@ -47,7 +48,7 @@ import org.restcomm.media.scheduler.Clock;
  */
 public class RtpStatistics {
 	
-	private static final Logger logger = Logger.getLogger(RtpStatistics.class);
+	private static final Logger logger = LogManager.getLogger(RtpStatistics.class);
 
 	/** Default session bandwidth (in octets per second). Matches g.711: 64kbps */
 	public static final int RTP_DEFAULT_BW = 8000;

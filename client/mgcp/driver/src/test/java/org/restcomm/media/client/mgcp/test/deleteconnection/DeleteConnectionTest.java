@@ -22,13 +22,14 @@
 
 package org.restcomm.media.client.mgcp.test.deleteconnection;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.client.mgcp.test.MessageFlowHarness;
 
 
 public class DeleteConnectionTest extends MessageFlowHarness {
 
-	private static Logger logger = Logger.getLogger("mgcp.test");
+	private static Logger logger = LogManager.getLogger("mgcp.test");
 
 	private CA ca;
 	private MGW mgw;

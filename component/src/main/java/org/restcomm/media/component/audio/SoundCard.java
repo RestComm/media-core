@@ -28,7 +28,8 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.SourceDataLine;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.ComponentType;
 import org.restcomm.media.component.AbstractSink;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
@@ -59,7 +60,7 @@ public class SoundCard extends AbstractSink {
     private SourceDataLine sourceDataLine = null;
     private javax.sound.sampled.AudioFormat audioFormat = null;
     
-    private static final Logger logger = Logger.getLogger(SoundCard.class);
+    private static final Logger logger = LogManager.getLogger(SoundCard.class);
     
     public SoundCard(PriorityQueueScheduler scheduler) {
         super("soundcard");

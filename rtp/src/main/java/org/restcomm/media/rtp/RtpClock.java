@@ -24,7 +24,8 @@ package org.restcomm.media.rtp;
 
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.scheduler.Clock;
 
 /**
@@ -34,7 +35,7 @@ import org.restcomm.media.scheduler.Clock;
  */
 public class RtpClock {
 	
-	public static final Logger logger = Logger.getLogger(RtpClock.class);
+	public static final Logger logger = LogManager.getLogger(RtpClock.class);
 	
     //absolute time clock
     private Clock wallClock;

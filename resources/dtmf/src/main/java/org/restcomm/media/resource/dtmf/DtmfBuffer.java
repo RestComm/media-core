@@ -23,7 +23,8 @@
 package org.restcomm.media.resource.dtmf;
 
 import java.io.Serializable;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.concurrent.ConcurrentCyclicFIFO;
 
 /**
@@ -52,7 +53,7 @@ public class DtmfBuffer implements Serializable {
 
     //Owner of this buffer
     private DetectorImpl detector;
-    private final static Logger logger = Logger.getLogger(DtmfBuffer.class);
+    private final static Logger logger = LogManager.getLogger(DtmfBuffer.class);
     
     
     /**

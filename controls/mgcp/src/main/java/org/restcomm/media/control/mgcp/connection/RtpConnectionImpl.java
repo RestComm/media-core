@@ -22,7 +22,11 @@
 
 package org.restcomm.media.control.mgcp.connection;
 
-import org.apache.log4j.Logger;
+import java.io.IOException;
+import java.net.SocketException;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.component.audio.AudioComponent;
 import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.rtp.ChannelsManager;
@@ -36,13 +40,15 @@ import org.restcomm.media.sdp.SessionDescriptionParser;
 import org.restcomm.media.sdp.dtls.attributes.FingerprintAttribute;
 import org.restcomm.media.sdp.fields.MediaDescriptionField;
 import org.restcomm.media.sdp.rtcp.attributes.RtcpAttribute;
-import org.restcomm.media.spi.*;
+import org.restcomm.media.spi.Connection;
+import org.restcomm.media.spi.ConnectionFailureListener;
+import org.restcomm.media.spi.ConnectionMode;
+import org.restcomm.media.spi.ConnectionState;
+import org.restcomm.media.spi.ConnectionType;
+import org.restcomm.media.spi.ModeNotSupportedException;
 import org.restcomm.media.spi.dsp.DspFactory;
 import org.restcomm.media.spi.pooling.PooledObject;
 import org.restcomm.media.spi.utils.Text;
-
-import java.io.IOException;
-import java.net.SocketException;
 
 /**
  * 
@@ -54,7 +60,7 @@ import java.net.SocketException;
  */
 public class RtpConnectionImpl extends BaseConnection implements RtpListener, PooledObject {
 
-	private static final Logger logger = Logger.getLogger(RtpConnectionImpl.class);
+	private static final Logger logger = LogManager.getLogger(RtpConnectionImpl.class);
 
 	// Core elements
 	private final ChannelsManager channelsManager;

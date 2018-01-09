@@ -70,6 +70,7 @@ public class XmlConfigurationLoaderTest {
         MgcpControllerConfiguration controller = config.getControllerConfiguration();
         Assert.assertEquals("198.162.1.175", controller.getAddress());
         Assert.assertEquals(3437, controller.getPort());
+        Assert.assertEquals(4000, controller.getChannelBuffer());
         MgcpEndpointConfiguration bridgeEndpoint = controller.getEndpoint("mobicents/bridge/");
         Assert.assertNotNull(bridgeEndpoint);
         Assert.assertEquals(RelayType.SPLITTER, bridgeEndpoint.getRelayType());

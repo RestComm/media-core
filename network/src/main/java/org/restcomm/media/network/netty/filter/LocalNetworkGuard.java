@@ -23,7 +23,8 @@ package org.restcomm.media.network.netty.filter;
 
 import java.net.InetSocketAddress;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.network.deprecated.IPAddressCompare;
 import org.restcomm.media.network.deprecated.channel.RestrictedNetworkGuard;
 
@@ -35,7 +36,7 @@ import io.netty.channel.Channel;
  */
 public class LocalNetworkGuard implements NetworkGuard {
 
-    private static final Logger log = Logger.getLogger(RestrictedNetworkGuard.class);
+    private static final Logger log = LogManager.getLogger(RestrictedNetworkGuard.class);
 
     private final String network;
     private final String subnet;

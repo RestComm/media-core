@@ -24,8 +24,9 @@ import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bouncycastle.asn1.x509.Certificate;
 import org.bouncycastle.crypto.tls.AlertDescription;
 import org.bouncycastle.crypto.tls.AlertLevel;
@@ -59,7 +60,7 @@ import org.bouncycastle.util.Arrays;
  */
 public class DtlsSrtpServer extends DefaultTlsServer {
 	
-    private static final Logger LOGGER = Logger.getLogger(DtlsSrtpServer.class);
+    private static final Logger LOGGER = LogManager.getLogger(DtlsSrtpServer.class);
 
     // Certificate resources
     private final String[] certificateResources;
@@ -102,7 +103,7 @@ public class DtlsSrtpServer extends DefaultTlsServer {
     }
 
     public void notifyAlertReceived(short alertLevel, short alertDescription) {
-    	Level logLevel = (alertLevel == AlertLevel.fatal) ? Level.ERROR : Level.WARN; 
+    	Level logLevel = (alertLevel == AlertLevel.fatal) ? Level.ERROR : Level.WARN;
         LOGGER.log(logLevel, String.format("DTLS server received alert (AlertLevel.%d, AlertDescription.%d)", alertLevel, alertDescription));
     }
     

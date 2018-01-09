@@ -67,7 +67,6 @@
 
 	<properties>
 		<!--  maven.test.skip>false</maven.test.skip -->
-		<log4j.version>1.2.9</log4j.version>
 		<release.name>
 			${release.name.prefix}${parent.version}${release.name.suffix}
 		</release.name>
@@ -89,9 +88,16 @@
 			<artifactId>jain-mgcp-ri</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>${log4j.version}</version>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-1.2-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
@@ -179,8 +185,8 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
+					<source>1.8</source>
+					<target>1.8</target>
 				</configuration>
 			</plugin>
 			<plugin>

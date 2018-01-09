@@ -33,7 +33,8 @@ import javax.media.mscontrol.join.Joinable;
 import javax.media.mscontrol.vxml.VxmlDialog;
 import javax.media.mscontrol.vxml.VxmlDialogEvent;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.javax.media.mscontrol.MediaSessionImpl;
 import org.restcomm.javax.media.mscontrol.container.ContainerImpl;
 
@@ -43,7 +44,7 @@ import org.restcomm.javax.media.mscontrol.container.ContainerImpl;
  * 
  */
 public class VxmlDialogImpl extends ContainerImpl implements VxmlDialog {
-	public static Logger logger = Logger.getLogger(VxmlDialogImpl.class);
+	public static Logger logger = LogManager.getLogger(VxmlDialogImpl.class);
 
 	private URI uri = null;
 	private Parameters parameters = null;

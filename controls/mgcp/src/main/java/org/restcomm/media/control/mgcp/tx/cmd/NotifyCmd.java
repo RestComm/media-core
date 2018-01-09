@@ -28,7 +28,8 @@ import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.Scheduler;
 import org.restcomm.media.scheduler.Task;
 import org.restcomm.media.scheduler.TaskChain;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -38,7 +39,7 @@ public class NotifyCmd extends Action {
     
     private TaskChain handler;
     
-    private final static Logger logger = Logger.getLogger(NotifyCmd.class);    
+    private final static Logger logger = LogManager.getLogger(NotifyCmd.class);
     
     public NotifyCmd(Scheduler scheduler) {
         handler = new TaskChain(1,scheduler);

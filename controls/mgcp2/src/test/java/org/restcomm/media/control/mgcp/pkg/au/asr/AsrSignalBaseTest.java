@@ -23,7 +23,8 @@ package org.restcomm.media.control.mgcp.pkg.au.asr;
 
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.restcomm.media.asr.AsrEngine;
@@ -49,7 +50,7 @@ import static org.mockito.Mockito.*;
  */
 public abstract class AsrSignalBaseTest {
 
-    private static final Logger logger = Logger.getLogger(AsrSignalBaseTest.class);
+    private static final Logger logger = LogManager.getLogger(AsrSignalBaseTest.class);
 
     private static final int WIT_IN_MILLISECONDS = 10000;
     private static final String WIT_PARAM = Integer.toString(WIT_IN_MILLISECONDS / 100);

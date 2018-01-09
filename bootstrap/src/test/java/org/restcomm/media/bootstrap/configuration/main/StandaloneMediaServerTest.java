@@ -29,7 +29,7 @@ import static org.mockito.Mockito.verify;
 
 import org.junit.After;
 import org.junit.Test;
-import org.restcomm.media.bootstrap.main.RestCommMediaServer;
+import org.restcomm.media.bootstrap.StandaloneMediaServer;
 import org.restcomm.media.control.mgcp.controller.MgcpController;
 import org.restcomm.media.network.deprecated.UdpManager;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
@@ -42,7 +42,7 @@ import org.restcomm.media.spi.ServerManager;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RestCommMediaServerTest {
+public class StandaloneMediaServerTest {
 
     private MediaServer mediaServer;
 
@@ -60,7 +60,7 @@ public class RestCommMediaServerTest {
         Scheduler taskScheduler = mock(ServiceScheduler.class);
         UdpManager udpManager = mock(UdpManager.class);
         ServerManager controller = mock(MgcpController.class);
-        mediaServer = new RestCommMediaServer(mediaScheduler, taskScheduler, udpManager, controller);
+        mediaServer = new StandaloneMediaServer(mediaScheduler, taskScheduler, udpManager, controller);
 
         // when
         mediaServer.start();

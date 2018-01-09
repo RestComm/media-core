@@ -26,7 +26,8 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 import java.nio.channels.DatagramChannel;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.ice.IceAuthenticator;
 import org.restcomm.media.ice.IceComponent;
 import org.restcomm.media.ice.IceHandler;
@@ -49,7 +50,7 @@ import org.restcomm.media.spi.utils.Text;
  */
 public class RtcpChannel extends MultiplexedChannel implements DtlsListener, IceEventListener {
 
-	private static final Logger logger = Logger.getLogger(RtcpChannel.class);
+	private static final Logger logger = LogManager.getLogger(RtcpChannel.class);
 
 	// Core elements
 	private final UdpManager udpManager;

@@ -21,7 +21,8 @@
 
 package org.restcomm.media.rtp.netty;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.rtcp.RtcpHeader;
 import org.restcomm.media.rtcp.RtcpPacket;
 import org.restcomm.media.rtp.RtpPacket;
@@ -45,7 +46,7 @@ import io.netty.util.ReferenceCountUtil;
  */
 public class RtpDemultiplexer extends SimpleChannelInboundHandler<ByteBuf> {
 
-    private static final Logger log = Logger.getLogger(RtpDemultiplexer.class);
+    private static final Logger log = LogManager.getLogger(RtpDemultiplexer.class);
     
     public RtpDemultiplexer() {
         super(false);
