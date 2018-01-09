@@ -37,7 +37,7 @@ class RequestNotificationAction extends AnonymousAction<MgcpEndpointFsm, MgcpEnd
     @SuppressWarnings("unchecked")
     public void execute(MgcpEndpointState from, MgcpEndpointState to, MgcpEndpointEvent event, MgcpEndpointTransitionContext context, MgcpEndpointFsm stateMachine) {
         final NotificationCenter notificationCenter = stateMachine.getContext().getNotificationCenter();
-        final FutureCallback<Void> callback = context.get(MgcpEndpointParameter.CALL_ID, FutureCallback.class);
+        final FutureCallback<Void> callback = context.get(MgcpEndpointParameter.CALLBACK, FutureCallback.class);
         final NotificationRequest notificationRequest = context.get(MgcpEndpointParameter.REQUESTED_NOTIFICATION, NotificationRequest.class);
 
         notificationCenter.requestNotification(notificationRequest, callback);
