@@ -25,10 +25,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.restcomm.media.bootstrap.configuration.ConfigurationLoader;
 import org.restcomm.media.bootstrap.configuration.XmlConfigurationLoader;
-import org.restcomm.media.bootstrap.ioc.AsrModule;
-import org.restcomm.media.bootstrap.ioc.CoreModule;
-import org.restcomm.media.bootstrap.ioc.MediaModule;
-import org.restcomm.media.bootstrap.ioc.MgcpModule;
+import org.restcomm.media.bootstrap.ioc.*;
 import org.restcomm.media.core.configuration.MediaServerConfiguration;
 
 import com.google.inject.Guice;
@@ -54,7 +51,7 @@ public class GuiceBootstrapper implements Bootstrapper {
 
     public void deploy() throws Exception {
         MediaServerConfiguration conf = configurationLoader.load(this.filepath);
-        Injector injector = Guice.createInjector(new CoreModule(conf), new MediaModule(), new MgcpModule(), new AsrModule());
+        Injector injector = Guice.createInjector(new CoreModule(conf), new RtpModule(), new SdpModule(), new MediaModule(), new MgcpModule(), new AsrModule());
         this.mediaServer = injector.getInstance(StandaloneMediaServer.class);
         this.mediaServer.start();
     }

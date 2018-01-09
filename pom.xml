@@ -50,7 +50,6 @@
         <module>network</module>
         <module>ice</module>
         <module>stun</module>
-        <module>rtp</module>
         <module>rtp2</module>
         <module>pcap</module>
         <module>sdp</module>
@@ -220,7 +219,6 @@
                 <module>network</module>
                 <module>ice</module>
                 <module>stun</module>
-                <module>rtp</module>
                 <module>rtp2</module>
                 <module>pcap</module>
                 <module>sdp</module>
