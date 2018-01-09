@@ -21,42 +21,26 @@
 
 package org.restcomm.media.bootstrap.ioc;
 
-import org.restcomm.media.bootstrap.ioc.provider.AudioPlayerFactoryProvider;
+import com.google.inject.AbstractModule;
+import com.google.inject.Provider;
+import com.google.inject.Singleton;
+import org.restcomm.media.bootstrap.ioc.provider.*;
 import org.restcomm.media.bootstrap.ioc.provider.AudioPlayerFactoryProvider.AudioPlayerFactoryType;
-import org.restcomm.media.bootstrap.ioc.provider.AudioPlayerPoolProvider;
 import org.restcomm.media.bootstrap.ioc.provider.AudioPlayerPoolProvider.AudioPlayerPoolType;
-import org.restcomm.media.bootstrap.ioc.provider.AudioRecorderFactoryProvider;
 import org.restcomm.media.bootstrap.ioc.provider.AudioRecorderFactoryProvider.AudioRecorderFactoryType;
-import org.restcomm.media.bootstrap.ioc.provider.AudioRecorderPoolProvider;
 import org.restcomm.media.bootstrap.ioc.provider.AudioRecorderPoolProvider.AudioRecorderPoolType;
-import org.restcomm.media.bootstrap.ioc.provider.CachedRemoteStreamProvider;
-import org.restcomm.media.bootstrap.ioc.provider.DirectRemoteStreamProvider;
-import org.restcomm.media.bootstrap.ioc.provider.DtlsSrtpServerProviderProvider;
-import org.restcomm.media.bootstrap.ioc.provider.DtmfDetectorFactoryProvider;
 import org.restcomm.media.bootstrap.ioc.provider.DtmfDetectorFactoryProvider.DtmfDetectorFactoryType;
-import org.restcomm.media.bootstrap.ioc.provider.DtmfDetectorPoolProvider;
 import org.restcomm.media.bootstrap.ioc.provider.DtmfDetectorPoolProvider.DtmfDetectorPoolType;
-import org.restcomm.media.bootstrap.ioc.provider.DtmfGeneratorFactoryProvider;
 import org.restcomm.media.bootstrap.ioc.provider.DtmfGeneratorFactoryProvider.DtmfGeneratorFactoryType;
-import org.restcomm.media.bootstrap.ioc.provider.DtmfGeneratorPoolProvider;
 import org.restcomm.media.bootstrap.ioc.provider.DtmfGeneratorPoolProvider.DtmfGeneratorPoolType;
-import org.restcomm.media.bootstrap.ioc.provider.MediaSchedulerProvider;
-import org.restcomm.media.bootstrap.ioc.provider.TaskSchedulerProvider;
-import org.restcomm.media.bootstrap.ioc.provider.UdpManagerProvider;
-import org.restcomm.media.bootstrap.ioc.provider.WallClockProvider;
 import org.restcomm.media.bootstrap.ioc.provider.mgcp.Mgcp2ControllerProvider;
 import org.restcomm.media.core.configuration.MediaServerConfiguration;
 import org.restcomm.media.network.deprecated.UdpManager;
 import org.restcomm.media.resource.player.audio.RemoteStreamProvider;
-import org.restcomm.media.rtp.crypto.DtlsSrtpServerProvider;
 import org.restcomm.media.scheduler.Clock;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.Scheduler;
 import org.restcomm.media.spi.ServerManager;
-
-import com.google.inject.AbstractModule;
-import com.google.inject.Provider;
-import com.google.inject.Singleton;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -86,7 +70,6 @@ public class CoreModule extends AbstractModule {
         bind(DtmfGeneratorFactoryType.INSTANCE).toProvider(DtmfGeneratorFactoryProvider.class).in(Singleton.class);
         bind(DtmfGeneratorPoolType.INSTANCE).toProvider(DtmfGeneratorPoolProvider.class).in(Singleton.class);
         bind(ServerManager.class).toProvider(Mgcp2ControllerProvider.class).in(Singleton.class);
-        bind(DtlsSrtpServerProvider.class).toProvider(DtlsSrtpServerProviderProvider.class).in(Singleton.class);
         Class<? extends Provider<? extends RemoteStreamProvider>> remoteStreamProvider;
         if (this.config.getResourcesConfiguration().getPlayerCacheEnabled()) {
             remoteStreamProvider = CachedRemoteStreamProvider.class;

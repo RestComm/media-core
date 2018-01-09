@@ -21,11 +21,10 @@
 
 package org.restcomm.media.bootstrap.ioc;
 
+import com.google.inject.AbstractModule;
 import org.restcomm.media.bootstrap.ioc.provider.rtp.*;
 import org.restcomm.media.network.deprecated.PortManager;
 import org.restcomm.media.rtp.*;
-
-import com.google.inject.AbstractModule;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)

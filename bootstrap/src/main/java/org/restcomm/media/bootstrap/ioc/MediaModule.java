@@ -21,22 +21,17 @@
 
 package org.restcomm.media.bootstrap.ioc;
 
+import com.google.inject.AbstractModule;
+import com.google.inject.Singleton;
 import com.google.inject.name.Names;
 import org.restcomm.media.bootstrap.ioc.provider.DspProvider;
 import org.restcomm.media.bootstrap.ioc.provider.media.AudioPlayerProviderProvider;
 import org.restcomm.media.bootstrap.ioc.provider.media.AudioRecorderProviderProvider;
-import org.restcomm.media.bootstrap.ioc.provider.media.ChannelsManagerProvider;
 import org.restcomm.media.bootstrap.ioc.provider.media.DtmfDetectorProviderProvider;
-import org.restcomm.media.bootstrap.ioc.provider.media.MediaChannelProviderProvider;
-import org.restcomm.media.rtp.ChannelsManager;
-import org.restcomm.media.rtp.channels.MediaChannelProvider;
 import org.restcomm.media.spi.dsp.DspFactory;
 import org.restcomm.media.spi.dtmf.DtmfDetectorProvider;
 import org.restcomm.media.spi.player.PlayerProvider;
 import org.restcomm.media.spi.recorder.RecorderProvider;
-
-import com.google.inject.AbstractModule;
-import com.google.inject.Singleton;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -49,8 +44,6 @@ public class MediaModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(DspFactory.class).toProvider(DspProvider.class).in(Singleton.class);
-        bind(ChannelsManager.class).toProvider(ChannelsManagerProvider.class).in(Singleton.class);
-        bind(MediaChannelProvider.class).toProvider(MediaChannelProviderProvider.class).in(Singleton.class);
         bind(PlayerProvider.class).toProvider(AudioPlayerProviderProvider.class).in(Singleton.class);
         bind(RecorderProvider.class).toProvider(AudioRecorderProviderProvider.class).in(Singleton.class);
         bind(DtmfDetectorProvider.class).toProvider(DtmfDetectorProviderProvider.class).in(Singleton.class);
