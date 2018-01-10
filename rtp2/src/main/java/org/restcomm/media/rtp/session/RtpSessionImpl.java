@@ -1,7 +1,7 @@
 /*
  * TeleStax, Open Source Cloud Communications
  * Copyright 2011-2017, Telestax Inc and individual contributors
- * by the @authors tag. 
+ * by the @authors tag.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -22,6 +22,8 @@
 package org.restcomm.media.rtp.session;
 
 import com.google.common.util.concurrent.FutureCallback;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.restcomm.media.component.audio.AudioComponent;
 import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.rtp.*;
@@ -29,20 +31,20 @@ import org.restcomm.media.rtp.rfc2833.DtmfInput;
 import org.restcomm.media.sdp.attributes.RtpMapAttribute;
 import org.restcomm.media.sdp.attributes.SsrcAttribute;
 import org.restcomm.media.sdp.fields.MediaDescriptionField;
+import org.restcomm.media.sdp.format.AVProfile;
 import org.restcomm.media.sdp.format.RTPFormat;
 import org.restcomm.media.sdp.format.RTPFormats;
 import org.restcomm.media.spi.ConnectionMode;
-import org.restcomm.media.spi.format.EncodingName;
-import org.restcomm.media.spi.format.Format;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
  */
 public class RtpSessionImpl implements RtpSession {
+
+    private static final Logger log = LogManager.getLogger(RtpSessionImpl.class);
 
     // RTP Session
     private final RtpSessionContext context;
@@ -59,7 +61,7 @@ public class RtpSessionImpl implements RtpSession {
         // RTP Session
         this.context = context;
         this.fsm = RtpSessionFsmBuilder.INSTANCE.build(this.context);
-        
+
         // RTP Components
         this.channel = channel;
         this.jitterBuffer = jitterBuffer;
@@ -77,17 +79,17 @@ public class RtpSessionImpl implements RtpSession {
     public MediaType getMediaType() {
         return this.context.getMediaType();
     }
-    
+
     @Override
     public SocketAddress getRtpAddress() {
         return this.context.getLocalAddress();
     }
-    
+
     @Override
-    public RTPFormats getSupportedFormats() {
-        return this.context.getSupportedFormats();
+    public RTPFormats getFormats() {
+        return (this.context.getRemoteAddress() == null) ? this.context.getSupportedFormats() : this.context.getNegotiatedFormats();
     }
-    
+
     @Override
     public ConnectionMode getMode() {
         return this.context.getMode();
@@ -107,7 +109,44 @@ public class RtpSessionImpl implements RtpSession {
     @Override
     public void negotiate(MediaDescriptionField sdp, FutureCallback<Void> callback) {
         // Gather remote session information
-        RtpMapAttribute[] formats = sdp.getFormats();
+        final String[] payloadTypes = sdp.getPayloadTypes();
+        final RTPFormats offeredFormats = new RTPFormats();
+
+        for (String payloadType : payloadTypes) {
+            RTPFormat format;
+            try {
+                final int payloadTypeInt = Integer.parseInt(payloadType);
+
+                if(payloadTypeInt < AVProfile.DYNAMIC_PT_MIN || payloadTypeInt > AVProfile.DYNAMIC_PT_MAX) {
+                    // static payload type
+                    format = AVProfile.getFormat(payloadTypeInt, AVProfile.AUDIO);
+                } else {
+                    // dynamic payload type
+                    final RtpMapAttribute codecSdp = sdp.getFormat(payloadTypeInt);
+                    final String codecName = codecSdp.getCodec();
+                    final RTPFormat staticFormat = AVProfile.getFormat(codecName);
+
+                    // Check if code is supported
+                    final boolean supported = staticFormat != null && staticFormat.getClockRate() == codecSdp.getClockRate();
+                    if(supported) {
+                        format = new RTPFormat(payloadTypeInt, staticFormat.getFormat(), staticFormat.getClockRate());
+                    } else {
+                        format = null;
+                    }
+                }
+            } catch (NumberFormatException e) {
+                format = null;
+            }
+
+            if(format != null) {
+                offeredFormats.add(format);
+            } else {
+                if (log.isDebugEnabled()) {
+                    log.debug(this.context.getMediaType() + " channel " + this.context.getSsrc() + " dropped unsupported RTP payload type " + payloadType);
+                }
+            }
+        }
+
         SocketAddress address = new InetSocketAddress(sdp.getConnection().getAddress(), sdp.getPort());
         final SsrcAttribute ssrcAttribute = sdp.getSsrc();
         long ssrc = (ssrcAttribute == null || ssrcAttribute.getSsrcId().isEmpty()) ? 0 : Long.parseLong(ssrcAttribute.getSsrcId());
@@ -117,20 +156,8 @@ public class RtpSessionImpl implements RtpSession {
         this.fsm.addDeclarativeListener(listener);
 
         // Fire event
-        RtpSessionNegotiateContext txContext = new RtpSessionNegotiateContext(this.channel, getFormats(formats), address, ssrc, callback);
+        RtpSessionNegotiateContext txContext = new RtpSessionNegotiateContext(this.channel, offeredFormats, address, ssrc, callback);
         this.fsm.fire(RtpSessionEvent.NEGOTIATE, txContext);
-    }
-
-    private RTPFormats getFormats(RtpMapAttribute[] map) {
-        RTPFormats offeredFormats = new RTPFormats(map.length);
-        for (RtpMapAttribute format : map) {
-            String codec = format.getCodec();
-            int clockRate = format.getClockRate();
-            int payloadType = format.getPayloadType();
-            RTPFormat rtpFormat = new RTPFormat(payloadType, new Format(new EncodingName(codec)), clockRate);
-            offeredFormats.add(rtpFormat);
-        }
-        return offeredFormats;
     }
 
     @Override
@@ -138,7 +165,7 @@ public class RtpSessionImpl implements RtpSession {
         // Register FSM listener for operation feedback
         RtpSessionCloseListener listener = new RtpSessionCloseListener(this.fsm, callback);
         this.fsm.addDeclarativeListener(listener);
-        
+
         // Fire event
         RtpSessionCloseContext txContext = new RtpSessionCloseContext(this.channel, this.jitterBuffer, this.dtmfInput, this.rtpInput, this.rtpOutput, callback);
         this.fsm.fire(RtpSessionEvent.CLOSE, txContext);
@@ -186,13 +213,13 @@ public class RtpSessionImpl implements RtpSession {
                 return false;
         }
     }
-    
+
     @Override
     public AudioComponent getAudioComponent() {
         // TODO RtpSession.getAudioComponent
         return null;
     }
-    
+
     @Override
     public OOBComponent getOOBComponent() {
         // TODO RtpSession.getOOBComponent
