@@ -108,7 +108,7 @@ public class RtpConnectionImplTest {
         when(session.getMode()).thenReturn(ConnectionMode.SEND_RECV);
         when(session.getRtpAddress()).thenReturn(new InetSocketAddress(localAddress, 65000));
         when(session.getSsrc()).thenReturn(12345L);
-        when(session.getSupportedFormats()).thenReturn(AVProfile.audio);
+        when(session.getFormats()).thenReturn(AVProfile.audio);
         when(session.isActive()).thenReturn(true);
 
         doAnswer(new Answer<Void>() {
@@ -271,7 +271,7 @@ public class RtpConnectionImplTest {
         when(session.getMode()).thenReturn(ConnectionMode.SEND_RECV);
         when(session.getRtpAddress()).thenReturn(new InetSocketAddress(localAddress, 65000));
         when(session.getSsrc()).thenReturn(12345L);
-        when(session.getSupportedFormats()).thenReturn(AVProfile.audio);
+        when(session.getFormats()).thenReturn(AVProfile.audio);
         when(session.isActive()).thenReturn(false);
 
         doAnswer(new Answer<Void>() {
@@ -342,7 +342,7 @@ public class RtpConnectionImplTest {
         when(session.getMode()).thenReturn(ConnectionMode.SEND_RECV);
         when(session.getRtpAddress()).thenReturn(new InetSocketAddress(localAddress, 65000));
         when(session.getSsrc()).thenReturn(12345L);
-        when(session.getSupportedFormats()).thenReturn(AVProfile.audio);
+        when(session.getFormats()).thenReturn(AVProfile.audio);
         when(session.isActive()).thenReturn(true);
 
         doAnswer(new Answer<Void>() {
@@ -434,7 +434,7 @@ public class RtpConnectionImplTest {
         when(session.getMode()).thenReturn(ConnectionMode.SEND_RECV);
         when(session.getRtpAddress()).thenReturn(new InetSocketAddress(localAddress, 65000));
         when(session.getSsrc()).thenReturn(12345L);
-        when(session.getSupportedFormats()).thenReturn(AVProfile.audio);
+        when(session.getFormats()).thenReturn(AVProfile.audio);
         when(session.isActive()).thenReturn(true);
         
         doAnswer(new Answer<Void>() {
@@ -526,7 +526,7 @@ public class RtpConnectionImplTest {
         when(session.getMode()).thenReturn(ConnectionMode.SEND_RECV);
         when(session.getRtpAddress()).thenReturn(new InetSocketAddress(localAddress, 65000));
         when(session.getSsrc()).thenReturn(12345L);
-        when(session.getSupportedFormats()).thenReturn(AVProfile.audio);
+        when(session.getFormats()).thenReturn(AVProfile.audio);
         when(session.isActive()).thenReturn(true);
 
         doAnswer(new Answer<Void>() {
@@ -636,7 +636,7 @@ public class RtpConnectionImplTest {
         when(session.getMode()).thenReturn(ConnectionMode.SEND_RECV);
         when(session.getRtpAddress()).thenReturn(new InetSocketAddress(localAddress, 65000));
         when(session.getSsrc()).thenReturn(12345L);
-        when(session.getSupportedFormats()).thenReturn(AVProfile.audio);
+        when(session.getFormats()).thenReturn(AVProfile.audio);
         when(session.isActive()).thenReturn(true);
 
         doAnswer(new Answer<Void>() {
@@ -760,7 +760,7 @@ public class RtpConnectionImplTest {
         when(session.getMode()).thenReturn(ConnectionMode.SEND_RECV);
         when(session.getRtpAddress()).thenReturn(new InetSocketAddress(localAddress, 65000));
         when(session.getSsrc()).thenReturn(12345L);
-        when(session.getSupportedFormats()).thenReturn(AVProfile.audio);
+        when(session.getFormats()).thenReturn(AVProfile.audio);
         when(session.isActive()).thenReturn(true);
 
         doAnswer(new Answer<Void>() {

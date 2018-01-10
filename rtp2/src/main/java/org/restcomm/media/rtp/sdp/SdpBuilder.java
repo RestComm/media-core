@@ -111,7 +111,7 @@ public class SdpBuilder {
         // TODO set ICE details
 
         // Media Formats
-        final RTPFormat[] formats = session.getSupportedFormats().toArray();
+        final RTPFormat[] formats = session.getFormats().toArray();
         for (RTPFormat format : formats) {
             // Fixes #61 - SDP offer should offer only 101 telephone-event
             if (offer && AVProfile.isDtmf(format) && !AVProfile.isDefaultDtmf(format)) {

@@ -43,7 +43,7 @@ public interface RtpSession {
     
     SocketAddress getRtpAddress();
     
-    RTPFormats getSupportedFormats();
+    RTPFormats getFormats();
     
     ConnectionMode getMode();
     

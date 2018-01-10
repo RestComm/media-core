@@ -87,7 +87,7 @@ public class SdpBuilderTest {
         when(audioSession.getMode()).thenReturn(mode);
         when(audioSession.getRtpAddress()).thenReturn(rtpAddress);
         when(audioSession.getSsrc()).thenReturn(ssrc);
-        when(audioSession.getSupportedFormats()).thenReturn(supportedFormats);
+        when(audioSession.getFormats()).thenReturn(supportedFormats);
 
         final SdpBuilder sdpBuilder = new SdpBuilder();
 
@@ -117,7 +117,7 @@ public class SdpBuilderTest {
         when(audioSession.getMode()).thenReturn(mode);
         when(audioSession.getRtpAddress()).thenReturn(rtpAddress);
         when(audioSession.getSsrc()).thenReturn(ssrc);
-        when(audioSession.getSupportedFormats()).thenReturn(supportedFormats);
+        when(audioSession.getFormats()).thenReturn(supportedFormats);
 
         final SdpBuilder sdpBuilder = new SdpBuilder();
 
@@ -147,7 +147,7 @@ public class SdpBuilderTest {
         when(audioSession.getMode()).thenReturn(mode);
         when(audioSession.getRtpAddress()).thenReturn(rtpAddress);
         when(audioSession.getSsrc()).thenReturn(ssrc);
-        when(audioSession.getSupportedFormats()).thenReturn(supportedFormats);
+        when(audioSession.getFormats()).thenReturn(supportedFormats);
 
         final SdpBuilder sdpBuilder = new SdpBuilder();
 

@@ -98,8 +98,7 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
     }
 
     @Override
-    public void enterNegotiatingFormats(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
-            RtpSessionTransactionContext context) {
+    public void enterNegotiatingFormats(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context) {
         final RtpSessionNegotiateContext txContext = (RtpSessionNegotiateContext) context;
         final RTPFormats supported = this.globalContext.getSupportedFormats();
         final RTPFormats offered = txContext.getFormats();

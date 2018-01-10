@@ -21,28 +21,11 @@
 
 package org.restcomm.media.rtp.session;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-
+import com.google.common.util.concurrent.FutureCallback;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.restcomm.media.rtp.JitterBuffer;
-import org.restcomm.media.rtp.MediaType;
-import org.restcomm.media.rtp.RtpChannel;
-import org.restcomm.media.rtp.RtpInput;
-import org.restcomm.media.rtp.RtpOutput;
-import org.restcomm.media.rtp.RtpPacket;
+import org.restcomm.media.rtp.*;
 import org.restcomm.media.rtp.rfc2833.DtmfInput;
 import org.restcomm.media.rtp.session.exception.RtpSessionConnectException;
 import org.restcomm.media.rtp.session.exception.RtpSessionException;
@@ -57,7 +40,13 @@ import org.restcomm.media.sdp.format.RTPFormat;
 import org.restcomm.media.sdp.format.RTPFormats;
 import org.restcomm.media.spi.ConnectionMode;
 
-import com.google.common.util.concurrent.FutureCallback;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -221,23 +210,20 @@ public class RtpSessionImplTest {
         final RtpSessionImpl session = new RtpSessionImpl(channel, context, jitterBuffer, rtpInput, dtmfInput, rtpOutput);
 
         InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
-        MediaDescriptionField remoteSdp = mock(MediaDescriptionField.class);
         ConnectionField remoteConnection = mock(ConnectionField.class);
         SsrcAttribute ssrcAttribute = new SsrcAttribute("54321");
-        RtpMapAttribute pcmu = new RtpMapAttribute();
-        pcmu.setClockRate(8000);
-        pcmu.setCodec("pcmu");
-        pcmu.setPayloadType(0);
-        RtpMapAttribute telephoneEvent = new RtpMapAttribute();
-        telephoneEvent.setCodec("telephone-event");
-        telephoneEvent.setPayloadType(101);
+        RtpMapAttribute pcmu = new RtpMapAttribute(0, "pcmu", 8000, 1);
+        RtpMapAttribute telephoneEvent = new RtpMapAttribute(101, "telephone-event", 8000, 1);
         RtpMapAttribute[] offeredFormats = new RtpMapAttribute[] { pcmu, telephoneEvent };
 
-        when(remoteSdp.getSsrc()).thenReturn(ssrcAttribute);
-        when(remoteSdp.getPort()).thenReturn(remoteAddress.getPort());
-        when(remoteSdp.getConnection()).thenReturn(remoteConnection);
+        MediaDescriptionField remoteSdp = new MediaDescriptionField();
+        remoteSdp.setPayloadTypes(String.valueOf(pcmu.getPayloadType()), String.valueOf(telephoneEvent.getPayloadType()));
+        remoteSdp.addFormats(offeredFormats);
+        remoteSdp.setSsrc(ssrcAttribute);
+        remoteSdp.setPort(remoteAddress.getPort());
+        remoteSdp.setConnection(remoteConnection);
+
         when(remoteConnection.getAddress()).thenReturn(remoteAddress.getHostString());
-        when(remoteSdp.getFormats()).thenReturn(offeredFormats);
 
         doAnswer(new Answer<Void>() {
 
@@ -307,23 +293,20 @@ public class RtpSessionImplTest {
         final RtpSessionImpl session = new RtpSessionImpl(channel, context, jitterBuffer, rtpInput, dtmfInput, rtpOutput);
 
         InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
-        MediaDescriptionField remoteSdp = mock(MediaDescriptionField.class);
         ConnectionField remoteConnection = mock(ConnectionField.class);
         SsrcAttribute ssrcAttribute = new SsrcAttribute("54321");
-        RtpMapAttribute pcmu = new RtpMapAttribute();
-        pcmu.setClockRate(8000);
-        pcmu.setCodec("pcmu");
-        pcmu.setPayloadType(0);
-        RtpMapAttribute telephoneEvent = new RtpMapAttribute();
-        telephoneEvent.setCodec("telephone-event");
-        telephoneEvent.setPayloadType(101);
+        RtpMapAttribute pcmu = new RtpMapAttribute(0, "pcmu", 8000, 1);
+        RtpMapAttribute telephoneEvent = new RtpMapAttribute(101, "telephone-event", 8000, 1);
         RtpMapAttribute[] offeredFormats = new RtpMapAttribute[] { pcmu, telephoneEvent };
 
-        when(remoteSdp.getSsrc()).thenReturn(ssrcAttribute);
-        when(remoteSdp.getPort()).thenReturn(remoteAddress.getPort());
-        when(remoteSdp.getConnection()).thenReturn(remoteConnection);
+        MediaDescriptionField remoteSdp = new MediaDescriptionField();
+        remoteSdp.setPayloadTypes(String.valueOf(pcmu.getPayloadType()), String.valueOf(telephoneEvent.getPayloadType()));
+        remoteSdp.addFormats(offeredFormats);
+        remoteSdp.setSsrc(ssrcAttribute);
+        remoteSdp.setPort(remoteAddress.getPort());
+        remoteSdp.setConnection(remoteConnection);
+
         when(remoteConnection.getAddress()).thenReturn(remoteAddress.getHostString());
-        when(remoteSdp.getFormats()).thenReturn(offeredFormats);
 
         // when
         FutureCallback<Void> callback = mock(FutureCallback.class);
@@ -355,20 +338,19 @@ public class RtpSessionImplTest {
         final RtpSessionImpl session = new RtpSessionImpl(channel, context, jitterBuffer, rtpInput, dtmfInput, rtpOutput);
 
         InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
-        MediaDescriptionField remoteSdp = mock(MediaDescriptionField.class);
         ConnectionField remoteConnection = mock(ConnectionField.class);
         SsrcAttribute ssrcAttribute = new SsrcAttribute("54321");
-        RtpMapAttribute unknownFormat = new RtpMapAttribute();
-        unknownFormat.setClockRate(8000);
-        unknownFormat.setCodec("xyz");
-        unknownFormat.setPayloadType(999);
+        RtpMapAttribute unknownFormat = new RtpMapAttribute(999, "xyz", 8000, 1);
         RtpMapAttribute[] offeredFormats = new RtpMapAttribute[] { unknownFormat };
 
-        when(remoteSdp.getSsrc()).thenReturn(ssrcAttribute);
-        when(remoteSdp.getPort()).thenReturn(remoteAddress.getPort());
-        when(remoteSdp.getConnection()).thenReturn(remoteConnection);
+        MediaDescriptionField remoteSdp = new MediaDescriptionField();
+        remoteSdp.setPayloadTypes(String.valueOf(unknownFormat.getPayloadType()));
+        remoteSdp.addFormats(offeredFormats);
+        remoteSdp.setSsrc(ssrcAttribute);
+        remoteSdp.setPort(remoteAddress.getPort());
+        remoteSdp.setConnection(remoteConnection);
+
         when(remoteConnection.getAddress()).thenReturn(remoteAddress.getHostString());
-        when(remoteSdp.getFormats()).thenReturn(offeredFormats);
 
         doAnswer(new Answer<Void>() {
 
@@ -420,6 +402,91 @@ public class RtpSessionImplTest {
 
     @SuppressWarnings("unchecked")
     @Test
+    public void testNegotiateSessionWithDynamicPayloadType() {
+        // given
+        final long ssrc = 12345L;
+        final MediaType mediaType = MediaType.AUDIO;
+        final WallClock clock = new WallClock();
+        final RtpSessionStatistics statistics = new RtpSessionStatistics(clock, ssrc);
+        final RTPFormats formats = AVProfile.audio;
+        final RtpChannel channel = mock(RtpChannel.class);
+        final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
+        final DtmfInput dtmfInput = mock(DtmfInput.class);
+        final RtpInput rtpInput = mock(RtpInput.class);
+        final RtpOutput rtpOutput = mock(RtpOutput.class);
+        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
+        final RtpSessionImpl session = new RtpSessionImpl(channel, context, jitterBuffer, rtpInput, dtmfInput, rtpOutput);
+
+        InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
+        ConnectionField remoteConnection = mock(ConnectionField.class);
+        SsrcAttribute ssrcAttribute = new SsrcAttribute("54321");
+
+        final RtpMapAttribute dtmf101 = new RtpMapAttribute(101, "telephone-event", 8000, 0);
+        final RtpMapAttribute dtmf102 = new RtpMapAttribute(102, "telephone-event", 16000, 0);
+        final RtpMapAttribute opus111 = new RtpMapAttribute(111, "opus", 48000, 0);
+        final RtpMapAttribute pcmu0 = new RtpMapAttribute(0, "pcmu", 8000, 0);
+
+        MediaDescriptionField remoteSdp = new MediaDescriptionField();
+        remoteSdp.setPayloadTypes(String.valueOf(dtmf101.getPayloadType()), String.valueOf(dtmf102.getPayloadType()), String.valueOf(opus111.getPayloadType()), String.valueOf(pcmu0.getPayloadType()));
+        remoteSdp.addFormats(dtmf101, dtmf102, opus111, pcmu0);
+        remoteSdp.setSsrc(ssrcAttribute);
+        remoteSdp.setPort(remoteAddress.getPort());
+        remoteSdp.setConnection(remoteConnection);
+
+        when(remoteConnection.getAddress()).thenReturn(remoteAddress.getHostString());
+
+        doAnswer(new Answer<Void>() {
+
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                FutureCallback<Void> callback = invocation.getArgumentAt(0, FutureCallback.class);
+                callback.onSuccess(null);
+                return null;
+            }
+
+        }).when(channel).open(any(FutureCallback.class));
+
+        doAnswer(new Answer<Void>() {
+
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                FutureCallback<Void> callback = invocation.getArgumentAt(1, FutureCallback.class);
+                callback.onSuccess(null);
+                return null;
+            }
+
+        }).when(channel).bind(any(SocketAddress.class), any(FutureCallback.class));
+
+        doAnswer(new Answer<Void>() {
+
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                FutureCallback<Void> callback = invocation.getArgumentAt(1, FutureCallback.class);
+                callback.onSuccess(null);
+                return null;
+            }
+
+        }).when(channel).connect(any(SocketAddress.class), any(FutureCallback.class));
+
+        // when
+        session.open(new InetSocketAddress("127.0.0.1", 6000), mock(FutureCallback.class));
+        session.updateMode(ConnectionMode.SEND_RECV, mock(FutureCallback.class));
+
+        FutureCallback<Void> callback = mock(FutureCallback.class);
+        session.negotiate(remoteSdp, callback);
+
+        // then
+        verify(callback, timeout(10)).onSuccess(null);
+        verify(channel).connect(eq(remoteAddress), any(FutureCallback.class));
+        assertEquals(remoteAddress, context.getRemoteAddress());
+        RTPFormats negotiated = context.getNegotiatedFormats();
+        assertTrue(negotiated.contains(dtmf101.getPayloadType()));
+        assertTrue(negotiated.contains(opus111.getPayloadType()));
+        assertTrue(negotiated.contains(pcmu0.getPayloadType()));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
     public void testConnectFailure() {
         // given
         final long ssrc = 12345L;
@@ -436,20 +503,19 @@ public class RtpSessionImplTest {
         final RtpSessionImpl session = new RtpSessionImpl(channel, context, jitterBuffer, rtpInput, dtmfInput, rtpOutput);
 
         InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
-        MediaDescriptionField remoteSdp = mock(MediaDescriptionField.class);
         ConnectionField remoteConnection = mock(ConnectionField.class);
         SsrcAttribute ssrcAttribute = new SsrcAttribute("54321");
-        RtpMapAttribute pcmu = new RtpMapAttribute();
-        pcmu.setClockRate(8000);
-        pcmu.setCodec("pcmu");
-        pcmu.setPayloadType(0);
+        RtpMapAttribute pcmu = new RtpMapAttribute(0, "pcmu", 8000, 1);
         RtpMapAttribute[] offeredFormats = new RtpMapAttribute[] { pcmu };
 
-        when(remoteSdp.getSsrc()).thenReturn(ssrcAttribute);
-        when(remoteSdp.getPort()).thenReturn(remoteAddress.getPort());
-        when(remoteSdp.getConnection()).thenReturn(remoteConnection);
+        MediaDescriptionField remoteSdp = new MediaDescriptionField();
+        remoteSdp.setPayloadTypes(String.valueOf(pcmu.getPayloadType()));
+        remoteSdp.addFormats(offeredFormats);
+        remoteSdp.setSsrc(ssrcAttribute);
+        remoteSdp.setPort(remoteAddress.getPort());
+        remoteSdp.setConnection(remoteConnection);
+
         when(remoteConnection.getAddress()).thenReturn(remoteAddress.getHostString());
-        when(remoteSdp.getFormats()).thenReturn(offeredFormats);
 
         doAnswer(new Answer<Void>() {
 
@@ -514,23 +580,20 @@ public class RtpSessionImplTest {
         final RtpSessionImpl session = new RtpSessionImpl(channel, context, jitterBuffer, rtpInput, dtmfInput, rtpOutput);
 
         InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
-        MediaDescriptionField remoteSdp = mock(MediaDescriptionField.class);
         ConnectionField remoteConnection = mock(ConnectionField.class);
         SsrcAttribute ssrcAttribute = new SsrcAttribute("54321");
-        RtpMapAttribute pcmu = new RtpMapAttribute();
-        pcmu.setClockRate(8000);
-        pcmu.setCodec("pcmu");
-        pcmu.setPayloadType(0);
-        RtpMapAttribute telephoneEvent = new RtpMapAttribute();
-        telephoneEvent.setCodec("telephone-event");
-        telephoneEvent.setPayloadType(101);
+        RtpMapAttribute pcmu = new RtpMapAttribute(0, "pcmu", 8000, 1);
+        RtpMapAttribute telephoneEvent = new RtpMapAttribute(101, "telephone-event", 8000, 0);
         RtpMapAttribute[] offeredFormats = new RtpMapAttribute[] { pcmu, telephoneEvent };
 
-        when(remoteSdp.getSsrc()).thenReturn(ssrcAttribute);
-        when(remoteSdp.getPort()).thenReturn(remoteAddress.getPort());
-        when(remoteSdp.getConnection()).thenReturn(remoteConnection);
+        MediaDescriptionField remoteSdp = new MediaDescriptionField();
+        remoteSdp.setPayloadTypes(String.valueOf(pcmu.getPayloadType()), String.valueOf(telephoneEvent.getPayloadType()));
+        remoteSdp.addFormats(offeredFormats);
+        remoteSdp.setSsrc(ssrcAttribute);
+        remoteSdp.setPort(remoteAddress.getPort());
+        remoteSdp.setConnection(remoteConnection);
+
         when(remoteConnection.getAddress()).thenReturn(remoteAddress.getHostString());
-        when(remoteSdp.getFormats()).thenReturn(offeredFormats);
 
         doAnswer(new Answer<Void>() {
 
@@ -596,23 +659,20 @@ public class RtpSessionImplTest {
         final RtpSessionImpl session = new RtpSessionImpl(channel, context, jitterBuffer, rtpInput, dtmfInput, rtpOutput);
 
         InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
-        MediaDescriptionField remoteSdp = mock(MediaDescriptionField.class);
         ConnectionField remoteConnection = mock(ConnectionField.class);
         SsrcAttribute ssrcAttribute = new SsrcAttribute("54321");
-        RtpMapAttribute pcmu = new RtpMapAttribute();
-        pcmu.setClockRate(8000);
-        pcmu.setCodec("pcmu");
-        pcmu.setPayloadType(0);
-        RtpMapAttribute telephoneEvent = new RtpMapAttribute();
-        telephoneEvent.setCodec("telephone-event");
-        telephoneEvent.setPayloadType(101);
+        RtpMapAttribute pcmu = new RtpMapAttribute(0, "pcmu", 8000, 1);
+        RtpMapAttribute telephoneEvent = new RtpMapAttribute(101, "telephone-event", 8000, 0);
         RtpMapAttribute[] offeredFormats = new RtpMapAttribute[] { pcmu, telephoneEvent };
 
-        when(remoteSdp.getSsrc()).thenReturn(ssrcAttribute);
-        when(remoteSdp.getPort()).thenReturn(remoteAddress.getPort());
-        when(remoteSdp.getConnection()).thenReturn(remoteConnection);
+        MediaDescriptionField remoteSdp = new MediaDescriptionField();
+        remoteSdp.setPayloadTypes(String.valueOf(pcmu.getPayloadType()), String.valueOf(telephoneEvent.getPayloadType()));
+        remoteSdp.addFormats(offeredFormats);
+        remoteSdp.setSsrc(ssrcAttribute);
+        remoteSdp.setPort(remoteAddress.getPort());
+        remoteSdp.setConnection(remoteConnection);
+
         when(remoteConnection.getAddress()).thenReturn(remoteAddress.getHostString());
-        when(remoteSdp.getFormats()).thenReturn(offeredFormats);
 
         doAnswer(new Answer<Void>() {
 
@@ -749,23 +809,20 @@ public class RtpSessionImplTest {
         final RtpSessionImpl session = new RtpSessionImpl(channel, context, jitterBuffer, rtpInput, dtmfInput, rtpOutput);
 
         InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
-        MediaDescriptionField remoteSdp = mock(MediaDescriptionField.class);
         ConnectionField remoteConnection = mock(ConnectionField.class);
         SsrcAttribute ssrcAttribute = new SsrcAttribute("54321");
-        RtpMapAttribute pcmu = new RtpMapAttribute();
-        pcmu.setClockRate(8000);
-        pcmu.setCodec("pcmu");
-        pcmu.setPayloadType(0);
-        RtpMapAttribute telephoneEvent = new RtpMapAttribute();
-        telephoneEvent.setCodec("telephone-event");
-        telephoneEvent.setPayloadType(101);
+        RtpMapAttribute pcmu = new RtpMapAttribute(0, "pcmu", 8000, 1);
+        RtpMapAttribute telephoneEvent = new RtpMapAttribute(101, "telephone-event", 8000, 0);
         RtpMapAttribute[] offeredFormats = new RtpMapAttribute[] { pcmu, telephoneEvent };
 
-        when(remoteSdp.getSsrc()).thenReturn(ssrcAttribute);
-        when(remoteSdp.getPort()).thenReturn(remoteAddress.getPort());
-        when(remoteSdp.getConnection()).thenReturn(remoteConnection);
+        MediaDescriptionField remoteSdp = new MediaDescriptionField();
+        remoteSdp.setPayloadTypes(String.valueOf(pcmu.getPayloadType()), String.valueOf(telephoneEvent.getPayloadType()));
+        remoteSdp.addFormats(offeredFormats);
+        remoteSdp.setSsrc(ssrcAttribute);
+        remoteSdp.setPort(remoteAddress.getPort());
+        remoteSdp.setConnection(remoteConnection);
+
         when(remoteConnection.getAddress()).thenReturn(remoteAddress.getHostString());
-        when(remoteSdp.getFormats()).thenReturn(offeredFormats);
 
         doAnswer(new Answer<Void>() {
 
@@ -832,23 +889,20 @@ public class RtpSessionImplTest {
         final RtpSessionImpl session = new RtpSessionImpl(channel, context, jitterBuffer, rtpInput, dtmfInput, rtpOutput);
 
         InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
-        MediaDescriptionField remoteSdp = mock(MediaDescriptionField.class);
         ConnectionField remoteConnection = mock(ConnectionField.class);
         SsrcAttribute ssrcAttribute = new SsrcAttribute("54321");
-        RtpMapAttribute pcmu = new RtpMapAttribute();
-        pcmu.setClockRate(8000);
-        pcmu.setCodec("pcmu");
-        pcmu.setPayloadType(0);
-        RtpMapAttribute telephoneEvent = new RtpMapAttribute();
-        telephoneEvent.setCodec("telephone-event");
-        telephoneEvent.setPayloadType(101);
+        RtpMapAttribute pcmu = new RtpMapAttribute(0, "pcmu", 8000, 1);
+        RtpMapAttribute telephoneEvent = new RtpMapAttribute(101, "telephone-event", 8000, 0);
         RtpMapAttribute[] offeredFormats = new RtpMapAttribute[] { pcmu, telephoneEvent };
 
-        when(remoteSdp.getSsrc()).thenReturn(ssrcAttribute);
-        when(remoteSdp.getPort()).thenReturn(remoteAddress.getPort());
-        when(remoteSdp.getConnection()).thenReturn(remoteConnection);
+        MediaDescriptionField remoteSdp = new MediaDescriptionField();
+        remoteSdp.setPayloadTypes(String.valueOf(pcmu.getPayloadType()), String.valueOf(telephoneEvent.getPayloadType()));
+        remoteSdp.addFormats(offeredFormats);
+        remoteSdp.setSsrc(ssrcAttribute);
+        remoteSdp.setPort(remoteAddress.getPort());
+        remoteSdp.setConnection(remoteConnection);
+
         when(remoteConnection.getAddress()).thenReturn(remoteAddress.getHostString());
-        when(remoteSdp.getFormats()).thenReturn(offeredFormats);
 
         doAnswer(new Answer<Void>() {
 
@@ -993,23 +1047,20 @@ public class RtpSessionImplTest {
         final RtpSessionImpl session = new RtpSessionImpl(channel, context, jitterBuffer, rtpInput, dtmfInput, rtpOutput);
 
         InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
-        MediaDescriptionField remoteSdp = mock(MediaDescriptionField.class);
         ConnectionField remoteConnection = mock(ConnectionField.class);
         SsrcAttribute ssrcAttribute = new SsrcAttribute("54321");
-        RtpMapAttribute pcmu = new RtpMapAttribute();
-        pcmu.setClockRate(8000);
-        pcmu.setCodec("pcmu");
-        pcmu.setPayloadType(0);
-        RtpMapAttribute telephoneEvent = new RtpMapAttribute();
-        telephoneEvent.setCodec("telephone-event");
-        telephoneEvent.setPayloadType(101);
+        RtpMapAttribute pcmu = new RtpMapAttribute(0, "pcmu", 8000, 1);
+        RtpMapAttribute telephoneEvent = new RtpMapAttribute(101, "telephone-event", 8000, 1);
         RtpMapAttribute[] offeredFormats = new RtpMapAttribute[] { pcmu, telephoneEvent };
 
-        when(remoteSdp.getSsrc()).thenReturn(ssrcAttribute);
-        when(remoteSdp.getPort()).thenReturn(remoteAddress.getPort());
-        when(remoteSdp.getConnection()).thenReturn(remoteConnection);
+        MediaDescriptionField remoteSdp = new MediaDescriptionField();
+        remoteSdp.setPayloadTypes(String.valueOf(pcmu.getPayloadType()), String.valueOf(telephoneEvent.getPayloadType()));
+        remoteSdp.addFormats(offeredFormats);
+        remoteSdp.setSsrc(ssrcAttribute);
+        remoteSdp.setPort(remoteAddress.getPort());
+        remoteSdp.setConnection(remoteConnection);
+
         when(remoteConnection.getAddress()).thenReturn(remoteAddress.getHostString());
-        when(remoteSdp.getFormats()).thenReturn(offeredFormats);
 
         doAnswer(new Answer<Void>() {
 
@@ -1086,23 +1137,20 @@ public class RtpSessionImplTest {
         final RtpSessionImpl session = new RtpSessionImpl(channel, context, jitterBuffer, rtpInput, dtmfInput, rtpOutput);
 
         InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
-        MediaDescriptionField remoteSdp = mock(MediaDescriptionField.class);
         ConnectionField remoteConnection = mock(ConnectionField.class);
         SsrcAttribute ssrcAttribute = new SsrcAttribute("54321");
-        RtpMapAttribute pcmu = new RtpMapAttribute();
-        pcmu.setClockRate(8000);
-        pcmu.setCodec("pcmu");
-        pcmu.setPayloadType(0);
-        RtpMapAttribute telephoneEvent = new RtpMapAttribute();
-        telephoneEvent.setCodec("telephone-event");
-        telephoneEvent.setPayloadType(101);
+        RtpMapAttribute pcmu = new RtpMapAttribute(0, "pcmu", 8000, 1);
+        RtpMapAttribute telephoneEvent = new RtpMapAttribute(101, "telephone-event", 8000, 0);
         RtpMapAttribute[] offeredFormats = new RtpMapAttribute[] { pcmu, telephoneEvent };
 
-        when(remoteSdp.getSsrc()).thenReturn(ssrcAttribute);
-        when(remoteSdp.getPort()).thenReturn(remoteAddress.getPort());
-        when(remoteSdp.getConnection()).thenReturn(remoteConnection);
+        MediaDescriptionField remoteSdp = new MediaDescriptionField();
+        remoteSdp.setPayloadTypes(String.valueOf(pcmu.getPayloadType()), String.valueOf(telephoneEvent.getPayloadType()));
+        remoteSdp.addFormats(offeredFormats);
+        remoteSdp.setSsrc(ssrcAttribute);
+        remoteSdp.setPort(remoteAddress.getPort());
+        remoteSdp.setConnection(remoteConnection);
+
         when(remoteConnection.getAddress()).thenReturn(remoteAddress.getHostString());
-        when(remoteSdp.getFormats()).thenReturn(offeredFormats);
 
         doAnswer(new Answer<Void>() {
 
