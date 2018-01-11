@@ -37,23 +37,26 @@ import java.net.URL;
 /**
   * @author Vladimir Morosev (vladimir.morosev@telestax.com)
   */
-public class NoiseThresholdDetectorTest {
+public class MovingThresholdDetectorTest {
 
-    private static final Logger log = Logger.getLogger(NoiseThresholdDetectorTest.class);
+    private static final Logger log = Logger.getLogger(MovingThresholdDetectorTest.class);
 
     @Test
     public void testSilence() {
         // given
         final URL inputFileUrl = this.getClass().getResource("/test_sound_mono_48_silence.pcm");
         final int packetSize = 480;
-        final SpeechDetector detector = new NoiseThresholdDetector(10);
+        final SpeechDetector detector = new MovingThresholdDetector(1);
 
         // when
-        boolean detected = false;
+        int framesDetected = 0;
+        int framesCount = 0;
         try (FileInputStream inputStream = new FileInputStream(inputFileUrl.getFile())) {
             byte[] input = new byte[2 * packetSize];
             while (inputStream.read(input) == 2 * packetSize) {
-                detected = detected || detector.detect(input, 0, input.length);
+                framesCount++;
+                if (detector.detect(input, 0, input.length))
+                    framesDetected++;
             }
         } catch (IOException e) {
             log.error("Could not read file", e);
@@ -61,23 +64,25 @@ public class NoiseThresholdDetectorTest {
         }
 
         // then
-        assertFalse(detected);
+        assertTrue(framesDetected / framesCount < 0.05);
     }
 
     @Test
     public void testNoiseOverSilenceThreshold() {
         // given
         final URL inputFileUrl = this.getClass().getResource("/test_sound_mono_48_speech.pcm");
-        final int silenceLevel = 327;
-        final SpeechDetector detector = new NoiseThresholdDetector(silenceLevel);
+        final SpeechDetector detector = new MovingThresholdDetector(1);
 
         // when
-        boolean detected = false;
+        int framesDetected = 0;
+        int framesCount = 0;
         final int packetSize = 480;
         try (FileInputStream inputStream = new FileInputStream(inputFileUrl.getFile())) {
             byte[] input = new byte[2 * packetSize];
             while (inputStream.read(input) == 2 * packetSize) {
-                detected = detected || detector.detect(input, 0, input.length);
+                framesCount++;
+                if (detector.detect(input, 0, input.length))
+                    framesDetected++;
             }
         } catch (IOException exc) {
             log.error("IOException: " + exc.getMessage());
@@ -85,23 +90,25 @@ public class NoiseThresholdDetectorTest {
         }
 
         // then
-        assertTrue(detected);
+        assertTrue((double)framesDetected / (double)framesCount >= 0.84);
     }
 
     @Test
     public void testNoiseUnderSilenceThreshold() {
         // given
         final URL inputFileUrl = this.getClass().getResource("/test_sound_mono_48_speech.pcm");
-        final int silenceLevel = 328;
-        final SpeechDetector detector = new NoiseThresholdDetector(silenceLevel);
+        final SpeechDetector detector = new MovingThresholdDetector(1);
 
         // when
-        boolean detected = false;
+        int framesDetected = 0;
+        int framesCount = 0;
         final int packetSize = 480;
         try (FileInputStream inputStream = new FileInputStream(inputFileUrl.getFile())) {
             byte[] input = new byte[2 * packetSize];
             while (inputStream.read(input) == 2 * packetSize) {
-                detected = detected || detector.detect(input, 0, input.length);
+                framesCount++;
+                if (detector.detect(input, 0, input.length))
+                    framesDetected++;
             }
         } catch (IOException exc) {
             log.error("IOException: " + exc.getMessage());
@@ -109,7 +116,7 @@ public class NoiseThresholdDetectorTest {
         }
 
         // then
-        assertFalse(detected);
+        assertFalse((double)framesDetected / (double)framesCount < 0.84);
     }
 
 }

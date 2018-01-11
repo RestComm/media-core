@@ -22,9 +22,6 @@
 package org.restcomm.media.resource.speechdetector;
 
 import java.io.IOException;
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.Iterator;
 
 /**
  * Component that detects user speech from a stream of incoming audio.
@@ -34,11 +31,10 @@ import java.util.Iterator;
  */
 public class NoiseThresholdDetector implements SpeechDetector {
 
-    Deque<Double> logEnergyThresholdHistory = new ArrayDeque<Double>();
-    final int logEnergyThresholdHistoryLength = 10;
+    private final int silenceLevel;
 
     public NoiseThresholdDetector(final int silenceLevel) {
-        logEnergyThresholdHistory.addLast((double)silenceLevel);
+        this.silenceLevel = silenceLevel;
     }
 
     /**
@@ -51,53 +47,21 @@ public class NoiseThresholdDetector implements SpeechDetector {
      */
     @Override
     public boolean detect(byte[] data, int offset, int len) {
-        short[] shortData = new short[len];
-        for (int i = offset; i < len - 1; i += 2)
-            shortData[i/2] = (short)(data[i] | (data[i + 1] << 8));
+        int[] correllation = new int[len];
+        for (int i = offset; i < len - 1; i += 2) {
+            correllation[i] = (data[i] & 0xff) | (data[i + 1] << 8);
+        }
 
-        final double logEnergy = logEnergy(shortData);
-        final double zeroCrossing = zeroCrossing(shortData);
-        final double logEnergyThreshold = getMeanLogEnergyThreshold();
-        final double zeroCrossingThreshold = 0.3;
-        final double logEnergyPonder = 0.9;
-        final double zeroCrossingPonder = 0.1;
-
-        boolean speechDetected = (logEnergyPonder * (logEnergy - logEnergyThreshold) -
-                10 * zeroCrossingPonder * (zeroCrossing - zeroCrossingThreshold)) >= 0;
-
-        if (speechDetected)
-            addLogEnergyThreshold(0.2 * logEnergy);
-
-        return speechDetected;
+        double mean = mean(correllation);
+        return mean > silenceLevel;
     }
 
-    private double logEnergy(short[] data) {
+    private double mean(int[] m) {
         double sum = 0;
-        for (int i = 0; i < data.length; i++)
-            sum += Math.pow(data[i], 2);
-
-        return Math.log10(sum / data.length);
+        for (int i = 0; i < m.length; i++) {
+            sum += m[i];
+        }
+        return sum / m.length;
     }
 
-    private double zeroCrossing(short[] data) {
-        double sum = 0;
-        for (int i = 1; i < data.length; i++)
-            sum += Math.abs(Math.signum(data[i]) - Math.signum(data[i-1]));
-
-        return sum / (2 * data.length);
-    }
-
-    private void addLogEnergyThreshold(double logEnergyThreshold) {
-        logEnergyThresholdHistory.addLast(logEnergyThreshold);
-        if (logEnergyThresholdHistory.size() > logEnergyThresholdHistoryLength)
-            logEnergyThresholdHistory.removeFirst();
-    }
-
-    private double getMeanLogEnergyThreshold() {
-        double sum = 0;
-        Iterator<Double> iter = logEnergyThresholdHistory.iterator();
-        while (iter.hasNext())
-            sum += iter.next();
-        return sum / logEnergyThresholdHistory.size();
-    }
 }
