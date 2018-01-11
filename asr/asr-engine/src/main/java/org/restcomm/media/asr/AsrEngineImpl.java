@@ -26,6 +26,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.restcomm.media.ComponentType;
+import org.restcomm.media.component.AbstractSink;
 import org.restcomm.media.component.audio.AudioOutput;
 import org.restcomm.media.drivers.asr.AsrDriver;
 import org.restcomm.media.drivers.asr.AsrDriverConfigurationException;
@@ -33,6 +34,8 @@ import org.restcomm.media.drivers.asr.AsrDriverEventListener;
 import org.restcomm.media.drivers.asr.AsrDriverException;
 import org.restcomm.media.drivers.asr.AsrDriverManager;
 import org.restcomm.media.drivers.asr.UnknownAsrDriverException;
+import org.restcomm.media.resource.speechdetector.SpeechDetector;
+import org.restcomm.media.resource.speechdetector.SpeechDetectorListener;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.Task;
 import org.restcomm.media.spi.memory.Frame;
@@ -41,7 +44,7 @@ import org.restcomm.media.spi.memory.Frame;
  * @author gdubina
  *
  */
-public class AsrEngineImpl extends SpeechDetectorImpl implements AsrEngine {
+public class AsrEngineImpl extends AbstractSink implements AsrEngine {
 
     private static final long serialVersionUID = -4340167932532917193L;
 
@@ -59,28 +62,44 @@ public class AsrEngineImpl extends SpeechDetectorImpl implements AsrEngine {
 
     private boolean isDriverStarted = false;
 
+    private final SpeechDetector speechDetector;
+    private SpeechDetectorListener speechDetectorListener;
+    private boolean speechDetectionOn = false;
+
     public AsrEngineImpl(final String name, final PriorityQueueScheduler scheduler, final AsrDriverManager driverManager,
-            final int silenceLevel) {
-        super(name, silenceLevel);
+            SpeechDetector speechDetector) {
+        super(name);
         this.driverManager = driverManager;
         this.scheduler = scheduler;
+        this.speechDetector = speechDetector;
 
         output = new AudioOutput(scheduler, ComponentType.ASR_ENGINE.getType());
         output.join(this);
     }
 
     /*
-     * Overridden SpeechDetectorImpl methods
+     * Overridden AsrEngine methods
      */
 
     @Override
+    public void startSpeechDetection(final SpeechDetectorListener listener) {
+        this.speechDetectorListener = listener;
+        speechDetectionOn = true;
+    }
+
+    @Override
     public void stopSpeechDetection() {
-        super.stopSpeechDetection();
+        speechDetectorListener = null;
+        speechDetectionOn = false;
         try {
             output.stop();
         } catch (Exception e) {
             logger.error(e);
         }
+    }
+
+    protected boolean isSpeechDetectionOn() {
+        return speechDetectionOn;
     }
 
     /*
@@ -109,6 +128,10 @@ public class AsrEngineImpl extends SpeechDetectorImpl implements AsrEngine {
         return result;
     }
 
+    /*
+     * Implementation of AbstractSink class abstract methods
+     */
+
     @Override
     public void onMediaTransfer(Frame frame) throws IOException {
         if (isSpeechDetectionOn()) {
@@ -116,8 +139,11 @@ public class AsrEngineImpl extends SpeechDetectorImpl implements AsrEngine {
             if (logger.isTraceEnabled()) {
                 logger.trace("We have called AsrDriver.write(<...>, " + frame.getOffset() + ", " + frame.getLength() + ")");
             }
+            // detecting speech
+            if ((speechDetectorListener != null) && speechDetector.detect(frame.getData(), frame.getOffset(), frame.getLength())) {
+                speechDetectorListener.onSpeechDetected();
+            }
         }
-        super.onMediaTransfer(frame);
     }
 
     @Override
@@ -149,12 +175,10 @@ public class AsrEngineImpl extends SpeechDetectorImpl implements AsrEngine {
                 logger.trace("We have called AsrDriver.startRecognizing('" + lang + "', " + hintsString.toString() + ")");
             }
         }
-        super.activate();
     }
 
     @Override
     public void deactivate() {
-        super.deactivate();
         if (!isDriverStarted) {
             return;
         }
