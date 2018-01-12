@@ -21,14 +21,9 @@
 
 package org.restcomm.media.rtp.session;
 
-import java.net.SocketAddress;
-
+import com.google.common.util.concurrent.FutureCallback;
 import org.apache.log4j.Logger;
-import org.restcomm.media.rtp.JitterBuffer;
-import org.restcomm.media.rtp.RtpChannel;
-import org.restcomm.media.rtp.RtpInput;
-import org.restcomm.media.rtp.RtpOutput;
-import org.restcomm.media.rtp.RtpPacket;
+import org.restcomm.media.rtp.*;
 import org.restcomm.media.rtp.format.DtmfFormat;
 import org.restcomm.media.rtp.rfc2833.DtmfInput;
 import org.restcomm.media.rtp.session.exception.RtpSessionUnwritableException;
@@ -36,7 +31,7 @@ import org.restcomm.media.sdp.format.RTPFormat;
 import org.restcomm.media.sdp.format.RTPFormats;
 import org.restcomm.media.spi.ConnectionMode;
 
-import com.google.common.util.concurrent.FutureCallback;
+import java.net.SocketAddress;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -60,10 +55,11 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
             RtpSessionTransactionContext context) {
         final RtpSessionOpenContext txContext = (RtpSessionOpenContext) context;
         final RtpChannel channel = txContext.getChannel();
+        final RtpChannelInitializer channelInitializer = txContext.getChannelInitializer();
 
         // Open channel
         RtpSessionAllocateCallback callback = new RtpSessionAllocateCallback(this, txContext);
-        channel.open(callback);
+        channel.open(callback, channelInitializer);
     }
 
     @Override

@@ -1,7 +1,7 @@
 /*
  * TeleStax, Open Source Cloud Communications
  * Copyright 2011-2017, Telestax Inc and individual contributors
- * by the @authors tag. 
+ * by the @authors tag.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -22,14 +22,16 @@
 package org.restcomm.media.network.netty.channel;
 
 import com.google.common.util.concurrent.FutureCallback;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelInitializer;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
  */
 public class NettyNetworkChannelTransitionContext {
 
     private FutureCallback<Void> callback;
+    private ChannelInitializer<Channel> channelInitializer;
 
     NettyNetworkChannelTransitionContext() {
         super();
@@ -38,10 +40,17 @@ public class NettyNetworkChannelTransitionContext {
     FutureCallback<Void> getCallback() {
         return callback;
     }
-    
+
     public NettyNetworkChannelTransitionContext setCallback(FutureCallback<Void> callback) {
         this.callback = callback;
         return this;
     }
-    
+
+    public ChannelInitializer<Channel> getChannelInitializer() {
+        return channelInitializer;
+    }
+
+    public void setChannelInitializer(ChannelInitializer<Channel> channelInitializer) {
+        this.channelInitializer = channelInitializer;
+    }
 }

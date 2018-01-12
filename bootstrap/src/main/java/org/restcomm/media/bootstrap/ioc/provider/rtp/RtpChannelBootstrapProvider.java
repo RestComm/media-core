@@ -1,6 +1,6 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2017, Telestax Inc and individual contributors
+ * Copyright 2011-2018, Telestax Inc and individual contributors
  * by the @authors tag.
  *
  * This is free software; you can redistribute it and/or modify it
@@ -25,23 +25,23 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import io.netty.bootstrap.Bootstrap;
-import org.restcomm.media.rtp.RtpNetworkManager;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.socket.nio.NioDatagramChannel;
 
 /**
- * @author Henrique Rosa (henrique.rosa@telestax.com) created on 18/12/2017
+ * @author Henrique Rosa (henrique.rosa@telestax.com) created on 11/01/2018
  */
-public class RtpNetworkManagerProvider implements Provider<RtpNetworkManager> {
+public class RtpChannelBootstrapProvider implements Provider<Bootstrap> {
 
     private final Bootstrap bootstrap;
 
     @Inject
-    public RtpNetworkManagerProvider(@Named("rtp-channel-bootstrap") Bootstrap bootstrap) {
-        this.bootstrap = bootstrap;
+    public RtpChannelBootstrapProvider(@Named("rtp-event-loop-group") EventLoopGroup eventLoopGroup) {
+        this.bootstrap = new Bootstrap().channel(NioDatagramChannel.class).group(eventLoopGroup);
     }
 
     @Override
-    public RtpNetworkManager get() {
-        return new RtpNetworkManager(this.bootstrap);
+    public Bootstrap get() {
+        return this.bootstrap;
     }
-
 }

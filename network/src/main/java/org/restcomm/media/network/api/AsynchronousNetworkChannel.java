@@ -24,6 +24,8 @@ package org.restcomm.media.network.api;
 import java.net.SocketAddress;
 
 import com.google.common.util.concurrent.FutureCallback;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelInitializer;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -34,6 +36,8 @@ public interface AsynchronousNetworkChannel<M> {
     boolean isOpen();
 
     void open(FutureCallback<Void> callback);
+
+    void open(FutureCallback<Void> callback, ChannelInitializer<Channel> channelInitializer);
 
     void close(FutureCallback<Void> callback);
 

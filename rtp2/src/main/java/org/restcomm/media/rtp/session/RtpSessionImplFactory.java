@@ -82,7 +82,6 @@ public class RtpSessionImplFactory implements RtpSessionFactory {
         RtpSessionStatistics statistics = new RtpSessionStatistics(wallClock, ssrc);
         RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, this.formats);
         RtpSession rtpSession = new RtpSessionImpl(channel, context, jitterBuffer, rtpInput, dtmfInput, rtpOutput);
-
         return rtpSession;
     }
 

@@ -69,6 +69,8 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 import com.google.inject.name.Names;
 
+import java.util.concurrent.Executor;
+
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
@@ -97,6 +99,7 @@ public class MgcpModule extends AbstractModule {
         bind(MediaGroupProvider.class).toProvider(MediaGroupProviderProvider.class).in(Singleton.class);
         bind(ListeningScheduledExecutorService.class).toProvider(ListeningScheduledExecutorServiceProvider.class).in(Singleton.class);
         bind(ListeningExecutorService.class).to(ListeningScheduledExecutorService.class);
+        bind(Executor.class).to(ListeningScheduledExecutorService.class);
         bind(NetworkGuard.class).annotatedWith(Names.named("mgcpNetworkGuard")).toProvider(LocalNetworkGuardProvider.class).in(Singleton.class);
         bind(LocalDataChannelProvider.class).toProvider(LocalDataChannelProviderGuiceProvider.class).asEagerSingleton();
     }

@@ -21,16 +21,12 @@
 
 package org.restcomm.media.network.netty.channel;
 
-import java.net.SocketAddress;
-
+import com.google.common.util.concurrent.FutureCallback;
+import io.netty.channel.*;
 import org.restcomm.media.network.api.AsynchronousNetworkChannel;
 import org.restcomm.media.network.netty.NettyNetworkManager;
 
-import com.google.common.util.concurrent.FutureCallback;
-
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.DefaultAddressedEnvelope;
+import java.net.SocketAddress;
 
 /**
  * Asynchronous network channel powered by Netty.
@@ -39,8 +35,6 @@ import io.netty.channel.DefaultAddressedEnvelope;
  *
  */
 public class AsyncNettyNetworkChannel<M> implements AsynchronousNetworkChannel<M> {
-
-    public static final int N_THREADS = 1;
 
     private final NettyNetworkChannelGlobalContext context;
     private final NettyNetworkChannelFsm fsm;
@@ -106,6 +100,19 @@ public class AsyncNettyNetworkChannel<M> implements AsynchronousNetworkChannel<M
             callback.onFailure(new IllegalStateException("Channel is already open."));
         } else {
             NettyNetworkChannelTransitionContext transitionContext = new NettyNetworkChannelTransitionContext().setCallback(callback);
+            this.fsm.fire(NettyNetworkChannelEvent.OPEN, transitionContext);
+        }
+    }
+
+    @Override
+    public void open(FutureCallback<Void> callback, ChannelInitializer<Channel> channelInitializer) {
+        if (isOpen()) {
+            // TODO handle inside FSM Listener
+            callback.onFailure(new IllegalStateException("Channel is already open."));
+        } else {
+            NettyNetworkChannelTransitionContext transitionContext = new NettyNetworkChannelTransitionContext();
+            transitionContext.setCallback(callback);
+            transitionContext.setChannelInitializer(channelInitializer);
             this.fsm.fire(NettyNetworkChannelEvent.OPEN, transitionContext);
         }
     }

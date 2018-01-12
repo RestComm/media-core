@@ -21,9 +21,8 @@
 
 package org.restcomm.media.rtp;
 
-import org.restcomm.media.network.netty.NettyNetworkManager;
-
 import io.netty.bootstrap.Bootstrap;
+import org.restcomm.media.network.netty.NettyNetworkManager;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -31,9 +30,8 @@ import io.netty.bootstrap.Bootstrap;
  */
 public class RtpNetworkManager extends NettyNetworkManager {
 
-    public RtpNetworkManager(Bootstrap bootstrap, RtpChannelInitializer initializer) {
+    public RtpNetworkManager(Bootstrap bootstrap) {
         super(bootstrap);
-        super.bootstrap.handler(initializer);
     }
 
 }

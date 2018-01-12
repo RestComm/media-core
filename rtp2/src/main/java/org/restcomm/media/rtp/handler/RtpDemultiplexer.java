@@ -21,6 +21,7 @@
 
 package org.restcomm.media.rtp.handler;
 
+import io.netty.channel.socket.DatagramPacket;
 import org.apache.log4j.Logger;
 import org.restcomm.media.rtp.RtpPacket;
 
@@ -38,7 +39,7 @@ import io.netty.util.ReferenceCountUtil;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpDemultiplexer extends SimpleChannelInboundHandler<ByteBuf> {
+public class RtpDemultiplexer extends SimpleChannelInboundHandler<DatagramPacket> {
 
     private static final Logger log = Logger.getLogger(RtpDemultiplexer.class);
 
@@ -47,11 +48,11 @@ public class RtpDemultiplexer extends SimpleChannelInboundHandler<ByteBuf> {
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket msg) throws Exception {
         // Differentiate between RTP, STUN and DTLS packets in the pipeline
         // https://tools.ietf.org/html/rfc5764#section-5.1.2
-        final int offset = msg.arrayOffset();
-        final byte b0 = msg.getByte(offset);
+        final ByteBuf content = msg.content();
+        final byte b0 = content.getByte(content.readerIndex());
         final int b0Int = b0 & 0xff;
 
         if (b0Int < 2) {
@@ -59,10 +60,10 @@ public class RtpDemultiplexer extends SimpleChannelInboundHandler<ByteBuf> {
         } else if (b0Int > 19 && b0Int < 64) {
             // TODO handleDtlsPacket(ctx, msg);
         } else if (b0Int > 127 && b0Int < 192) {
-            handleRtpPacket(ctx, msg);
+            handleRtpPacket(ctx, content);
         } else {
             // Unsupported packet type. Drop it.
-            ReferenceCountUtil.release(msg);
+            ReferenceCountUtil.release(content);
             if (log.isDebugEnabled()) {
                 log.debug("Channel " + ctx.channel().localAddress() + " dropped unsupported packet type " + b0Int);
             }
