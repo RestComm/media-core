@@ -22,9 +22,14 @@
 package org.restcomm.media.bootstrap.ioc;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.name.Names;
+import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.EventLoopGroup;
 import org.restcomm.media.bootstrap.ioc.provider.rtp.*;
 import org.restcomm.media.network.deprecated.PortManager;
 import org.restcomm.media.rtp.*;
+
+import java.util.concurrent.Executor;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -41,6 +46,8 @@ public class RtpModule extends AbstractModule {
         bind(RtpInputFactory.class).toProvider(RtpInputFactoryProvider.class).asEagerSingleton();
         bind(RtpOutputFactory.class).toProvider(RtpOutputFactoryProvider.class).asEagerSingleton();
         bind(DtmfInputFactory.class).toProvider(DtmfInputFactoryProvider.class).asEagerSingleton();
+        bind(Bootstrap.class).annotatedWith(Names.named("rtp-channel-bootstrap")).toProvider(RtpChannelBootstrapProvider.class).asEagerSingleton();
+        bind(EventLoopGroup.class).annotatedWith(Names.named("rtp-event-loop-group")).toProvider(RtpEventLoopGroupProvider.class).asEagerSingleton();
         bind(RtpNetworkManager.class).toProvider(RtpNetworkManagerProvider.class).asEagerSingleton();
         bind(RtpChannelFactory.class).toProvider(RtpChannelFactoryProvider.class).asEagerSingleton();
     }

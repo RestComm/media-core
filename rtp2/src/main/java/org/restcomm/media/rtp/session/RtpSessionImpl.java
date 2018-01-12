@@ -27,6 +27,9 @@ import org.apache.logging.log4j.Logger;
 import org.restcomm.media.component.audio.AudioComponent;
 import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.rtp.*;
+import org.restcomm.media.rtp.handler.RtpDemultiplexer;
+import org.restcomm.media.rtp.handler.RtpInboundHandler;
+import org.restcomm.media.rtp.handler.RtpPacketFilter;
 import org.restcomm.media.rtp.rfc2833.DtmfInput;
 import org.restcomm.media.sdp.attributes.RtpMapAttribute;
 import org.restcomm.media.sdp.attributes.SsrcAttribute;
@@ -49,6 +52,7 @@ public class RtpSessionImpl implements RtpSession {
     // RTP Session
     private final RtpSessionContext context;
     private final RtpSessionFsm fsm;
+    private final RtpChannelInitializer channelInitializer;
 
     // RTP Components
     private final RtpChannel channel;
@@ -61,6 +65,7 @@ public class RtpSessionImpl implements RtpSession {
         // RTP Session
         this.context = context;
         this.fsm = RtpSessionFsmBuilder.INSTANCE.build(this.context);
+        this.channelInitializer = new RtpChannelInitializer(new RtpDemultiplexer(), new RtpPacketFilter(), new RtpInboundHandler(this));
 
         // RTP Components
         this.channel = channel;
@@ -102,7 +107,7 @@ public class RtpSessionImpl implements RtpSession {
         this.fsm.addDeclarativeListener(openListener);
 
         // Fire event
-        RtpSessionOpenContext txContext = new RtpSessionOpenContext(this.channel, address, callback);
+        RtpSessionOpenContext txContext = new RtpSessionOpenContext(this.channel, this.channelInitializer, address, callback);
         this.fsm.fire(RtpSessionEvent.OPEN, txContext);
     }
 
@@ -185,6 +190,7 @@ public class RtpSessionImpl implements RtpSession {
     @Override
     public void incomingRtp(RtpPacket packet) {
         // Fire event
+        log.info("INCOMING RTP PACKET!!!!");
         RtpSessionIncomingRtpContext txContext = new RtpSessionIncomingRtpContext(packet, this.jitterBuffer, this.dtmfInput);
         this.fsm.fire(RtpSessionEvent.INCOMING_RTP, txContext);
     }

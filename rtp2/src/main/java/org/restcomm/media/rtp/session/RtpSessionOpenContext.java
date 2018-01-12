@@ -21,14 +21,14 @@
 
 package org.restcomm.media.rtp.session;
 
+import com.google.common.util.concurrent.FutureCallback;
+import org.restcomm.media.rtp.RtpChannel;
+import org.restcomm.media.rtp.RtpChannelInitializer;
+
 import java.net.SocketAddress;
 
-import org.restcomm.media.rtp.RtpChannel;
-
-import com.google.common.util.concurrent.FutureCallback;
-
 /**
- * Transaction context for {@link RtpSessionBindAction}.
+ * Transaction context for RTP Session Open Action.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
@@ -36,18 +36,24 @@ import com.google.common.util.concurrent.FutureCallback;
 public class RtpSessionOpenContext implements RtpSessionTransactionContext {
 
     private final RtpChannel channel;
+    private final RtpChannelInitializer channelInitializer;
     private final SocketAddress address;
     private final FutureCallback<Void> callback;
     
 
-    public RtpSessionOpenContext(RtpChannel channel, SocketAddress address, FutureCallback<Void> callback) {
+    public RtpSessionOpenContext(RtpChannel channel, RtpChannelInitializer channelInitializer, SocketAddress address, FutureCallback<Void> callback) {
         this.channel = channel;
+        this.channelInitializer = channelInitializer;
         this.address = address;
         this.callback = callback;
     }
 
     public RtpChannel getChannel() {
         return channel;
+    }
+
+    public RtpChannelInitializer getChannelInitializer() {
+        return channelInitializer;
     }
 
     public SocketAddress getAddress() {

@@ -21,23 +21,22 @@
 
 package org.restcomm.media.network.netty;
 
-import java.io.IOException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.restcomm.media.network.api.AsynchronousNetworkManager;
-import org.restcomm.media.network.api.SynchronousNetworkManager;
-
 import com.google.common.util.concurrent.FutureCallback;
-
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
+import org.restcomm.media.network.api.AsynchronousNetworkManager;
+import org.restcomm.media.network.api.SynchronousNetworkManager;
+
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Netty-based Network Manager that features both synchronous and asynchronous API.
@@ -93,9 +92,19 @@ public class NettyNetworkManager implements SynchronousNetworkManager<Channel>, 
      */
     @Override
     public void openChannel(FutureCallback<Channel> callback) throws IllegalStateException {
+        openChannel(callback, null);
+    }
+
+    @Override
+    public void openChannel(FutureCallback<Channel> callback, ChannelInitializer<Channel> channelInitializer) {
         assertOpen();
 
-        ChannelFuture future = this.bootstrap.clone().register();
+        final Bootstrap bootstrapClone = this.bootstrap.clone();
+        if(channelInitializer != null) {
+            bootstrapClone.handler(channelInitializer);
+        }
+
+        final ChannelFuture future = bootstrapClone.register();
         future.addListener(new NetworkManagerChannelFutureCallback(callback));
     }
 

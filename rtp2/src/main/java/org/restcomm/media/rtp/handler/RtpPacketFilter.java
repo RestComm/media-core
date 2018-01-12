@@ -53,6 +53,9 @@ public class RtpPacketFilter extends SimpleChannelInboundHandler<RtpPacket> {
             return;
         }
 
+        // Pass packet down the pipeline
+        ctx.fireChannelRead(msg);
+
     }
 
 }

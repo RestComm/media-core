@@ -52,7 +52,7 @@ public class AsyncNettyNetworkChannelFsm extends AbstractNettyNetworkChannelFsm 
     public void enterOpening(NettyNetworkChannelState from, NettyNetworkChannelState to, NettyNetworkChannelEvent event, NettyNetworkChannelTransitionContext context) {
         // Try opening the channel
         // A listener will get the response asynchronously
-        this.globalContext.getNetworkManager().openChannel(new OpenCallback(context));
+        this.globalContext.getNetworkManager().openChannel(new OpenCallback(context), context.getChannelInitializer());
     }
 
     @Override

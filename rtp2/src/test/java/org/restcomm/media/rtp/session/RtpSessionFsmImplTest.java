@@ -21,41 +21,27 @@
 
 package org.restcomm.media.rtp.session;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
-
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-
+import com.google.common.util.concurrent.FutureCallback;
 import org.junit.After;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.restcomm.media.rtp.JitterBuffer;
-import org.restcomm.media.rtp.MediaType;
-import org.restcomm.media.rtp.RtpChannel;
-import org.restcomm.media.rtp.RtpInput;
-import org.restcomm.media.rtp.RtpOutput;
-import org.restcomm.media.rtp.RtpPacket;
+import org.restcomm.media.rtp.*;
 import org.restcomm.media.rtp.rfc2833.DtmfInput;
-import org.restcomm.media.rtp.session.RtpSessionCloseContext;
-import org.restcomm.media.rtp.session.RtpSessionContext;
-import org.restcomm.media.rtp.session.RtpSessionEvent;
-import org.restcomm.media.rtp.session.RtpSessionFsm;
-import org.restcomm.media.rtp.session.RtpSessionFsmBuilder;
-import org.restcomm.media.rtp.session.RtpSessionFsmImpl;
-import org.restcomm.media.rtp.session.RtpSessionNegotiateContext;
-import org.restcomm.media.rtp.session.RtpSessionOpenContext;
-import org.restcomm.media.rtp.session.RtpSessionState;
-import org.restcomm.media.rtp.session.RtpSessionTransactionContext;
 import org.restcomm.media.scheduler.WallClock;
 import org.restcomm.media.sdp.format.AVProfile;
 import org.restcomm.media.sdp.format.RTPFormat;
 import org.restcomm.media.sdp.format.RTPFormats;
 import org.restcomm.media.spi.ConnectionMode;
 
-import com.google.common.util.concurrent.FutureCallback;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -83,6 +69,7 @@ public class RtpSessionFsmImplTest {
         final MediaType mediaType = MediaType.AUDIO;
         final WallClock clock = new WallClock();
         final RtpChannel channel = mock(RtpChannel.class);
+        final RtpChannelInitializer channelInitializer = mock(RtpChannelInitializer.class);
         final RtpSessionStatistics statistics = new RtpSessionStatistics(clock, ssrc);
         final RTPFormats formats = AVProfile.audio;
         final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
@@ -90,7 +77,7 @@ public class RtpSessionFsmImplTest {
 
         // when
         SocketAddress address = new InetSocketAddress("127.0.0.1", 6000);
-        RtpSessionOpenContext bindContext = new RtpSessionOpenContext(channel, address, null);
+        RtpSessionOpenContext bindContext = new RtpSessionOpenContext(channel, channelInitializer, address, null);
         fsm.enterBinding(RtpSessionState.OPENING, RtpSessionState.ALLOCATING, RtpSessionEvent.OPEN, bindContext);
 
         // then
@@ -105,6 +92,7 @@ public class RtpSessionFsmImplTest {
         final MediaType mediaType = MediaType.AUDIO;
         final WallClock clock = new WallClock();
         final RtpChannel channel = mock(RtpChannel.class);
+        final RtpChannelInitializer channelInitializer = mock(RtpChannelInitializer.class);
         final RtpSessionStatistics statistics = new RtpSessionStatistics(clock, ssrc);
         final RTPFormats formats = AVProfile.audio;
         final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
@@ -112,7 +100,7 @@ public class RtpSessionFsmImplTest {
 
         // when
         SocketAddress address = new InetSocketAddress("127.0.0.1", 6000);
-        RtpSessionOpenContext bindContext = new RtpSessionOpenContext(channel, address, null);
+        RtpSessionOpenContext bindContext = new RtpSessionOpenContext(channel, channelInitializer, address, null);
         fsm.enterBinding(RtpSessionState.ALLOCATING, RtpSessionState.BINDING, RtpSessionEvent.ALLOCATED, bindContext);
 
         // then
@@ -577,6 +565,7 @@ public class RtpSessionFsmImplTest {
         final MediaType mediaType = MediaType.AUDIO;
         final WallClock clock = new WallClock();
         final RtpChannel channel = mock(RtpChannel.class);
+        final RtpChannelInitializer channelInitializer = mock(RtpChannelInitializer.class);
         final RtpSessionStatistics statistics = new RtpSessionStatistics(clock, ssrc);
         final RTPFormats formats = AVProfile.audio;
         final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
@@ -607,7 +596,7 @@ public class RtpSessionFsmImplTest {
 
         // when
         fsm.start();
-        RtpSessionOpenContext openContext = new RtpSessionOpenContext(channel, localAddress, mock(FutureCallback.class));
+        RtpSessionOpenContext openContext = new RtpSessionOpenContext(channel, channelInitializer, localAddress, mock(FutureCallback.class));
         fsm.fire(RtpSessionEvent.OPEN, openContext);
 
         // then
@@ -689,6 +678,7 @@ public class RtpSessionFsmImplTest {
         final MediaType mediaType = MediaType.AUDIO;
         final WallClock clock = new WallClock();
         final RtpChannel channel = mock(RtpChannel.class);
+        final RtpChannelInitializer channelInitializer = mock(RtpChannelInitializer.class);
         final RtpSessionStatistics statistics = new RtpSessionStatistics(clock, ssrc);
         final RTPFormats formats = AVProfile.audio;
         final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
@@ -725,7 +715,7 @@ public class RtpSessionFsmImplTest {
 
         // when
         fsm.start();
-        RtpSessionOpenContext openContext = new RtpSessionOpenContext(channel, localAddress, mock(FutureCallback.class));
+        RtpSessionOpenContext openContext = new RtpSessionOpenContext(channel, channelInitializer, localAddress, mock(FutureCallback.class));
         fsm.fire(RtpSessionEvent.OPEN, openContext);
 
         RtpSessionUpdateModeContext modeContext = new RtpSessionUpdateModeContext(mode, jitterBuffer, dtmfInput, rtpInput,
