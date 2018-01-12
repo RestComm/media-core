@@ -36,7 +36,6 @@ import org.squirrelframework.foundation.fsm.AnonymousAction;
  * Input parameters:
  * <ul>
  * <li>CNAME</li>
- * <li>INBOUND</li>
  * <li>BIND_ADDRESS</li>
  * <li>EXTERNAL_ADDRESS</li>
  * <li>RTP_SESSION</li>

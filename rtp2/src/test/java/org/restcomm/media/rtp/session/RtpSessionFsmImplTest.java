@@ -36,6 +36,7 @@ import org.restcomm.media.spi.ConnectionMode;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.concurrent.Future;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -600,7 +601,7 @@ public class RtpSessionFsmImplTest {
         fsm.fire(RtpSessionEvent.OPEN, openContext);
 
         // then
-        verify(channel).open(any(FutureCallback.class));
+        verify(channel).open(any(FutureCallback.class), eq(channelInitializer));
         verify(channel).bind(eq(localAddress), any(FutureCallback.class));
         assertEquals(localAddress, context.getLocalAddress());
         assertEquals(RtpSessionState.OPEN, fsm.getCurrentState());
@@ -700,7 +701,7 @@ public class RtpSessionFsmImplTest {
                 return null;
             }
 
-        }).when(channel).open(any(FutureCallback.class));
+        }).when(channel).open(any(FutureCallback.class), any(RtpChannelInitializer.class));
 
         doAnswer(new Answer<Void>() {
 
@@ -715,12 +716,17 @@ public class RtpSessionFsmImplTest {
 
         // when
         fsm.start();
-        RtpSessionOpenContext openContext = new RtpSessionOpenContext(channel, channelInitializer, localAddress, mock(FutureCallback.class));
+        final FutureCallback<Void> openCallback = mock(FutureCallback.class);
+        RtpSessionOpenContext openContext = new RtpSessionOpenContext(channel, channelInitializer, localAddress, openCallback);
         fsm.fire(RtpSessionEvent.OPEN, openContext);
 
-        RtpSessionUpdateModeContext modeContext = new RtpSessionUpdateModeContext(mode, jitterBuffer, dtmfInput, rtpInput,
-                rtpOutput, mock(FutureCallback.class));
+        verify(openCallback, timeout(100)).onSuccess(null);
+
+        final FutureCallback<Void> updateCallback = mock(FutureCallback.class);
+        RtpSessionUpdateModeContext modeContext = new RtpSessionUpdateModeContext(mode, jitterBuffer, dtmfInput, rtpInput, rtpOutput, updateCallback);
         fsm.fire(RtpSessionEvent.UPDATE_MODE, modeContext);
+
+        verify(updateCallback, timeout(100)).onSuccess(null);
 
         // then
         verify(jitterBuffer, never()).restart();

@@ -21,13 +21,7 @@
 
 package org.restcomm.media.rtp.connection;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
-
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-
+import com.google.common.util.concurrent.FutureCallback;
 import org.junit.After;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -45,7 +39,12 @@ import org.restcomm.media.sdp.fields.MediaDescriptionField;
 import org.restcomm.media.sdp.format.AVProfile;
 import org.restcomm.media.spi.ConnectionMode;
 
-import com.google.common.util.concurrent.FutureCallback;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -166,7 +165,7 @@ public class RtpConnectionImplTest {
         
         // when
         final ConnectionMode mode = ConnectionMode.SEND_ONLY;
-        final FutureCallback<Void> updateModeCallback = mock(FutureCallback.class);
+        final FutureCallback<String> updateModeCallback = mock(FutureCallback.class);
         this.connection.updateMode(mode, updateModeCallback);
         
         // then
@@ -584,7 +583,7 @@ public class RtpConnectionImplTest {
         
         // when
         final ConnectionMode mode = ConnectionMode.SEND_ONLY;
-        final FutureCallback<Void> updateModeCallback = mock(FutureCallback.class);
+        final FutureCallback<String> updateModeCallback = mock(FutureCallback.class);
         this.connection.updateMode(mode, updateModeCallback);
         
         // then

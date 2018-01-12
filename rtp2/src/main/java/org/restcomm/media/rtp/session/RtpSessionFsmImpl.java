@@ -75,8 +75,7 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
     }
 
     @Override
-    public void enterOpened(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
-            RtpSessionTransactionContext context) {
+    public void enterOpened(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context) {
         // RTP channel was bound successfully
         final RtpSessionOpenContext txContext = (RtpSessionOpenContext) context;
         final SocketAddress localAddress = txContext.getAddress();
@@ -181,8 +180,7 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
     }
 
     @Override
-    public void onUpdateMode(RtpSessionState from, RtpSessionState to, RtpSessionEvent event,
-            RtpSessionTransactionContext context) {
+    public void onUpdateMode(RtpSessionState from, RtpSessionState to, RtpSessionEvent event, RtpSessionTransactionContext context) {
         RtpSessionUpdateModeContext txContext = (RtpSessionUpdateModeContext) context;
 
         ConnectionMode currentMode = this.globalContext.getMode();

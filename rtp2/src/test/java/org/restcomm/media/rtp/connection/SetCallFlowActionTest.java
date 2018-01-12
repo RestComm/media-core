@@ -48,7 +48,6 @@ public class SetCallFlowActionTest {
 
         // then
         verify(globalContext).setInbound(true);
-        assertTrue(context.get(RtpConnectionTransitionParameter.INBOUND, Boolean.class));
     }
 
     @Test
@@ -66,7 +65,6 @@ public class SetCallFlowActionTest {
         
         // then
         verify(globalContext).setInbound(false);
-        assertFalse(context.get(RtpConnectionTransitionParameter.INBOUND, Boolean.class));
     }
 
 }

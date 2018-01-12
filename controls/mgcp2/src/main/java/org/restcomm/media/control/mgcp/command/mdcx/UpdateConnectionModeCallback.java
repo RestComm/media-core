@@ -27,7 +27,7 @@ import com.google.common.util.concurrent.FutureCallback;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class UpdateConnectionModeCallback implements FutureCallback<Void> {
+public class UpdateConnectionModeCallback implements FutureCallback<String> {
 
     private final ModifyConnectionFsm fsm;
     private final ModifyConnectionContext context;
@@ -38,7 +38,7 @@ public class UpdateConnectionModeCallback implements FutureCallback<Void> {
     }
 
     @Override
-    public void onSuccess(Void result) {
+    public void onSuccess(String result) {
         this.fsm.fire(ModifyConnectionEvent.UPDATED_CONNECTION_MODE, this.context);
     }
 

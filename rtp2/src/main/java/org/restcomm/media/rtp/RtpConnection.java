@@ -64,9 +64,9 @@ public interface RtpConnection {
      * Updates the connection mode.
      * 
      * @param mode The new connection mode.
-     * @param callback Invoked when operation completes or fails.
+     * @param callback Invoked when operation completes or fails. Holds the local session description.
      */
-    void updateMode(ConnectionMode mode, FutureCallback<Void> callback);
+    void updateMode(ConnectionMode mode, FutureCallback<String> callback);
 
     /**
      * Closes the connection.

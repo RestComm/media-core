@@ -80,7 +80,7 @@ public class RtpSessionImplTest {
                 return null;
             }
 
-        }).when(channel).open(any(FutureCallback.class));
+        }).when(channel).open(any(FutureCallback.class), any(RtpChannelInitializer.class));
 
         doAnswer(new Answer<Void>() {
 
@@ -100,7 +100,7 @@ public class RtpSessionImplTest {
 
         // then
         verify(callback, timeout(10)).onSuccess(null);
-        verify(channel).open(any(FutureCallback.class));
+        verify(channel).open(any(FutureCallback.class), any(RtpChannelInitializer.class));
         verify(channel).bind(eq(address), any(FutureCallback.class));
         assertEquals(ConnectionMode.INACTIVE, context.getMode());
         assertEquals(address, context.getLocalAddress());
@@ -133,7 +133,7 @@ public class RtpSessionImplTest {
                 return null;
             }
 
-        }).when(channel).open(any(FutureCallback.class));
+        }).when(channel).open(any(FutureCallback.class), any(RtpChannelInitializer.class));
 
         doAnswer(new Answer<Void>() {
 
@@ -234,7 +234,7 @@ public class RtpSessionImplTest {
                 return null;
             }
 
-        }).when(channel).open(any(FutureCallback.class));
+        }).when(channel).open(any(FutureCallback.class), any(RtpChannelInitializer.class));
 
         doAnswer(new Answer<Void>() {
 
@@ -444,7 +444,7 @@ public class RtpSessionImplTest {
                 return null;
             }
 
-        }).when(channel).open(any(FutureCallback.class));
+        }).when(channel).open(any(FutureCallback.class), any(RtpChannelInitializer.class));
 
         doAnswer(new Answer<Void>() {
 
@@ -526,7 +526,7 @@ public class RtpSessionImplTest {
                 return null;
             }
 
-        }).when(channel).open(any(FutureCallback.class));
+        }).when(channel).open(any(FutureCallback.class), any(RtpChannelInitializer.class));
 
         doAnswer(new Answer<Void>() {
 
@@ -604,7 +604,7 @@ public class RtpSessionImplTest {
                 return null;
             }
 
-        }).when(channel).open(any(FutureCallback.class));
+        }).when(channel).open(any(FutureCallback.class), any(RtpChannelInitializer.class));
 
         doAnswer(new Answer<Void>() {
 
@@ -683,7 +683,7 @@ public class RtpSessionImplTest {
                 return null;
             }
 
-        }).when(channel).open(any(FutureCallback.class));
+        }).when(channel).open(any(FutureCallback.class), any(RtpChannelInitializer.class));
 
         doAnswer(new Answer<Void>() {
 
@@ -913,7 +913,7 @@ public class RtpSessionImplTest {
                 return null;
             }
 
-        }).when(channel).open(any(FutureCallback.class));
+        }).when(channel).open(any(FutureCallback.class), any(RtpChannelInitializer.class));
 
         doAnswer(new Answer<Void>() {
 

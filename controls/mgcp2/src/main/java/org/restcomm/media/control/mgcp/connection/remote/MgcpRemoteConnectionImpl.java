@@ -64,7 +64,7 @@ public class MgcpRemoteConnectionImpl extends AbstractMgcpConnection implements 
     }
 
     @Override
-    public void updateMode(ConnectionMode mode, FutureCallback<Void> callback) {
+    public void updateMode(ConnectionMode mode, FutureCallback<String> callback) {
         getContext().getRtpConnection().updateMode(mode, callback);
     }
 

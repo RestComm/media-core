@@ -179,7 +179,7 @@ public class MgcpLocalConnectionImplTest {
         verify(connection).join(joinee, joinCallback);
         
         // when
-        FutureCallback<Void> updateModeCallback = mock(FutureCallback.class);
+        FutureCallback<String> updateModeCallback = mock(FutureCallback.class);
         ConnectionMode mode = ConnectionMode.SEND_RECV;
         connection.updateMode(mode, updateModeCallback);
         

@@ -103,7 +103,7 @@ public class MgcpLocalConnectionImpl extends AbstractMgcpConnection implements M
     }
     
     @Override
-    public void updateMode(ConnectionMode mode, FutureCallback<Void> callback) {
+    public void updateMode(ConnectionMode mode, FutureCallback<String> callback) {
         MgcpLocalConnectionEvent event = MgcpLocalConnectionEvent.UPDATE_MODE;
         if (this.fsm.canAccept(event)) {
             // Build transition context

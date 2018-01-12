@@ -21,6 +21,7 @@
 
 package org.restcomm.media.control.mgcp.connection;
 
+import com.google.common.util.concurrent.FutureCallback;
 import org.restcomm.media.component.audio.AudioComponent;
 import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.control.mgcp.exception.UnsupportedMgcpEventException;
@@ -28,8 +29,6 @@ import org.restcomm.media.control.mgcp.message.LocalConnectionOptions;
 import org.restcomm.media.control.mgcp.pkg.MgcpEventSubject;
 import org.restcomm.media.control.mgcp.pkg.MgcpRequestedEvent;
 import org.restcomm.media.spi.ConnectionMode;
-
-import com.google.common.util.concurrent.FutureCallback;
 
 /**
  * Connections are created on each endpoint that will be involved in the call.
@@ -90,9 +89,9 @@ public interface MgcpConnection extends MgcpEventSubject {
      * Sets the mode of the connection.
      * 
      * @param mode The new mode of the connection
-     * @param callback Invoked when operation completes or fails.
+     * @param callback Invoked when operation completes or fails. Holds the local session description.
      */
-    void updateMode(ConnectionMode mode, FutureCallback<Void> callback);
+    void updateMode(ConnectionMode mode, FutureCallback<String> callback);
 
     /**
      * The connection allocates resources and becomes half-open, sending an SDP offer to the remote peer.
