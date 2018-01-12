@@ -29,7 +29,7 @@ import java.io.IOException;
  * @author Vladimir Morosev (vladimir.morosev@telestax.com)
  *
  */
-public class NoiseThresholdDetector implements SpeechDetector {
+public class NoiseThresholdDetector extends SpeechDetector {
 
     private final int silenceLevel;
 

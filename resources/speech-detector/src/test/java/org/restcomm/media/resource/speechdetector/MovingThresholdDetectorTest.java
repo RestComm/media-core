@@ -29,10 +29,13 @@ import org.junit.Test;
 
 import org.apache.log4j.Logger;
 
+import java.lang.String;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
+import java.util.Set;
 
 /**
   * @author Vladimir Morosev (vladimir.morosev@telestax.com)
@@ -41,12 +44,20 @@ public class MovingThresholdDetectorTest {
 
     private static final Logger log = Logger.getLogger(MovingThresholdDetectorTest.class);
 
+    private SpeechDetector getSpeechDetector() {
+        List<SpeechDetector> detectors = SpeechDetector.getPluginManager().getExtensions(SpeechDetector.class);
+        for (SpeechDetector detector : detectors) {
+            return detector;
+        }
+	return null;
+    }
+
     @Test
     public void testSilence() {
         // given
         final URL inputFileUrl = this.getClass().getResource("/test_sound_mono_48_silence.pcm");
         final int packetSize = 480;
-        final SpeechDetector detector = new MovingThresholdDetector(1);
+        SpeechDetector detector = getSpeechDetector();
 
         // when
         int framesDetected = 0;
@@ -71,7 +82,7 @@ public class MovingThresholdDetectorTest {
     public void testNoiseOverSilenceThreshold() {
         // given
         final URL inputFileUrl = this.getClass().getResource("/test_sound_mono_48_speech.pcm");
-        final SpeechDetector detector = new MovingThresholdDetector(1);
+        final SpeechDetector detector = getSpeechDetector();
 
         // when
         int framesDetected = 0;
@@ -97,7 +108,7 @@ public class MovingThresholdDetectorTest {
     public void testNoiseUnderSilenceThreshold() {
         // given
         final URL inputFileUrl = this.getClass().getResource("/test_sound_mono_48_speech.pcm");
-        final SpeechDetector detector = new MovingThresholdDetector(1);
+        final SpeechDetector detector = getSpeechDetector();
 
         // when
         int framesDetected = 0;

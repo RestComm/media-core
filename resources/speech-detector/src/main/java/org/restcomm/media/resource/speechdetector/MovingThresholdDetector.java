@@ -26,16 +26,24 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Iterator;
 
+import org.pf4j.Extension;
+
 /**
  * Component that detects user speech from a stream of incoming audio.
  * 
  * @author Vladimir Morosev (vladimir.morosev@telestax.com)
  *
  */
-public class MovingThresholdDetector implements SpeechDetector {
+@Extension
+public class MovingThresholdDetector extends SpeechDetector {
 
     Deque<Double> logEnergyThresholdHistory = new ArrayDeque<Double>();
     final int logEnergyThresholdHistoryLength = 10;
+
+
+    public MovingThresholdDetector() {
+        logEnergyThresholdHistory.addLast((double)1);
+    }
 
     public MovingThresholdDetector(final int silenceLevel) {
         logEnergyThresholdHistory.addLast((double)silenceLevel);

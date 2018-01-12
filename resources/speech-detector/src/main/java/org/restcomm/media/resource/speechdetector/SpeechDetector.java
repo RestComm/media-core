@@ -21,13 +21,25 @@
 
 package org.restcomm.media.resource.speechdetector;
 
+import org.pf4j.DefaultPluginManager;
+import org.pf4j.ExtensionPoint;
+import org.pf4j.PluginManager;
+import org.pf4j.PluginWrapper;
+
 /**
  * Components that detects user speech from a stream of incoming audio.
  * 
  * @author Vladimir Morosev (vladimir.morosev@telestax.com)
  *
  */
-public interface SpeechDetector {
+public abstract class SpeechDetector implements ExtensionPoint {
+
+    private static final PluginManager pluginManager = new DefaultPluginManager();
+    
+    static {
+        pluginManager.loadPlugins();
+        pluginManager.startPlugins();
+    }
 
     /**
      * Detects whether the speech signal is present in passed sample buffer.
@@ -37,5 +49,15 @@ public interface SpeechDetector {
      * @param len the number of samples
      * @return true if speech detected
      */
-     public boolean detect(byte[] data, int offset, int len);
+     public abstract boolean detect(byte[] data, int offset, int len);
+
+    /**
+     * Returns static Plugin Manager object.
+     *
+     * @return Plugin Manager
+     */
+      
+     public static PluginManager getPluginManager() {
+         return pluginManager;
+     }
 }
