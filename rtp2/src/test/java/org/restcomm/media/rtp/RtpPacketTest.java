@@ -63,9 +63,8 @@ public class RtpPacketTest {
     @Test
     public void testWrapRawData() throws Exception {
         // given
-        final File file = new File("src/test/resources/pcap/rtp-packet.pcap");
-        final URL pcapUrl = file.toURI().toURL();
-        this.pcapFile = new PcapFile(pcapUrl);
+        final URL resource = getClass().getClassLoader().getResource("pcap/rtp-packet.pcap");
+        this.pcapFile = new PcapFile(resource);
 
         // when
         pcapFile.open();

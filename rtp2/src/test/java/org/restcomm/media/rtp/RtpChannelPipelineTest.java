@@ -28,9 +28,13 @@ import static org.mockito.Mockito.verify;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
+import io.netty.channel.socket.DatagramPacket;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Test;
@@ -39,6 +43,7 @@ import org.restcomm.media.pcap.PcapFile;
 import org.restcomm.media.rtp.handler.RtpDemultiplexer;
 import org.restcomm.media.rtp.handler.RtpInboundHandler;
 import org.restcomm.media.rtp.handler.RtpPacketEncoder;
+import org.restcomm.media.rtp.handler.RtpPacketFilter;
 import org.restcomm.media.rtp.session.RtpSessionStatistics;
 
 import io.netty.buffer.ByteBuf;
@@ -77,9 +82,10 @@ public class RtpChannelPipelineTest {
         final RtpSession rtpSession = mock(RtpSession.class);
         final RtpInboundHandler inboundHandler = new RtpInboundHandler(rtpSession);
         final RtpDemultiplexer rtpDemultiplexer = new RtpDemultiplexer();
+        final RtpPacketFilter rtpFilter = new RtpPacketFilter();
         final RtpPacketEncoder rtpPacketEncoder = new RtpPacketEncoder(statistics);
-        final EmbeddedChannel channel = new EmbeddedChannel(rtpDemultiplexer, rtpPacketEncoder, inboundHandler);
-        final PcapFile pcapFile = loadPcap("src/test/resources/pcap/rtp-packet.pcap");
+        final EmbeddedChannel channel = new EmbeddedChannel(rtpDemultiplexer, rtpFilter, inboundHandler, rtpPacketEncoder);
+        final PcapFile pcapFile = loadPcap("pcap/rtp-packet.pcap");
 
         // when
         pcapFile.open();
@@ -87,7 +93,7 @@ public class RtpChannelPipelineTest {
         final byte[] data = (byte[]) pcapPacket.get(GenericPcapReader.PAYLOAD);
         final ByteBuf buffer = Unpooled.wrappedBuffer(data);
 
-        channel.writeInbound(buffer);
+        channel.writeInbound(new DatagramPacket(buffer, new InetSocketAddress("127.0.0.1", 2427)));
         pcapFile.close();
 
         // then
@@ -102,9 +108,10 @@ public class RtpChannelPipelineTest {
         final RtpSession rtpSession = mock(RtpSession.class);
         final RtpInboundHandler inboundHandler = new RtpInboundHandler(rtpSession);
         final RtpDemultiplexer rtpDemultiplexer = new RtpDemultiplexer();
+        final RtpPacketFilter rtpFilter = new RtpPacketFilter();
         final RtpPacketEncoder rtpPacketEncoder = new RtpPacketEncoder(statistics);
-        final EmbeddedChannel channel = new EmbeddedChannel(rtpDemultiplexer, rtpPacketEncoder, inboundHandler);
-        final PcapFile pcapFile = loadPcap("src/test/resources/pcap/rtp-packet.pcap");
+        final EmbeddedChannel channel = new EmbeddedChannel(rtpDemultiplexer, rtpFilter, inboundHandler, rtpPacketEncoder);
+        final PcapFile pcapFile = loadPcap("pcap/rtp-packet.pcap");
 
         // when
         pcapFile.open();
@@ -121,9 +128,8 @@ public class RtpChannelPipelineTest {
     }
 
     private PcapFile loadPcap(String path) throws MalformedURLException {
-        final File file = new File(path);
-        final URL pcapUrl = file.toURI().toURL();
-        PcapFile pcapFile = new PcapFile(pcapUrl);
+        final URL resource = getClass().getClassLoader().getResource(path);
+        PcapFile pcapFile = new PcapFile(resource);
         return pcapFile;
     }
 

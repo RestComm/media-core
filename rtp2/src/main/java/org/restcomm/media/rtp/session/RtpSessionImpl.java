@@ -190,7 +190,6 @@ public class RtpSessionImpl implements RtpSession {
     @Override
     public void incomingRtp(RtpPacket packet) {
         // Fire event
-        log.info("INCOMING RTP PACKET!!!!");
         RtpSessionIncomingRtpContext txContext = new RtpSessionIncomingRtpContext(packet, this.jitterBuffer, this.dtmfInput);
         this.fsm.fire(RtpSessionEvent.INCOMING_RTP, txContext);
     }

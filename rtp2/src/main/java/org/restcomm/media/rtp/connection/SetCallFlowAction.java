@@ -53,7 +53,6 @@ public class SetCallFlowAction extends AnonymousAction<RtpConnectionFsm, RtpConn
         }
         
         stateMachine.getContext().setInbound(inbound);
-        context.set(RtpConnectionTransitionParameter.INBOUND, inbound);
     }
 
 }

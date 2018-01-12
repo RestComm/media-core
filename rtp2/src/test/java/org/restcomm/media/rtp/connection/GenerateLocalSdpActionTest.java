@@ -57,13 +57,13 @@ public class GenerateLocalSdpActionTest {
         final GenerateLocalSdpAction action = new GenerateLocalSdpAction();
 
         context.set(RtpConnectionTransitionParameter.CNAME, cname);
-        context.set(RtpConnectionTransitionParameter.INBOUND, inbound);
         context.set(RtpConnectionTransitionParameter.BIND_ADDRESS, bindAddress);
         context.set(RtpConnectionTransitionParameter.EXTERNAL_ADDRESS, externalAddress);
         context.set(RtpConnectionTransitionParameter.RTP_SESSION, session);
         context.set(RtpConnectionTransitionParameter.SDP_BUILDER, sdpBuilder);
 
         when(fsm.getContext()).thenReturn(globalContext);
+        when(globalContext.isInbound()).thenReturn(inbound);
         when(sdpBuilder.buildSessionDescription(!inbound, cname, localAddress, externalAddress, session)).thenReturn(localSdp);
 
         // when
@@ -94,13 +94,13 @@ public class GenerateLocalSdpActionTest {
         final GenerateLocalSdpAction action = new GenerateLocalSdpAction();
 
         context.set(RtpConnectionTransitionParameter.CNAME, cname);
-        context.set(RtpConnectionTransitionParameter.INBOUND, inbound);
         context.set(RtpConnectionTransitionParameter.BIND_ADDRESS, bindAddress);
         context.set(RtpConnectionTransitionParameter.EXTERNAL_ADDRESS, externalAddress);
         context.set(RtpConnectionTransitionParameter.RTP_SESSION, session);
         context.set(RtpConnectionTransitionParameter.SDP_BUILDER, sdpBuilder);
 
         when(fsm.getContext()).thenReturn(globalContext);
+        when(globalContext.isInbound()).thenReturn(inbound);
         when(sdpBuilder.buildSessionDescription(!inbound, cname, localAddress, externalAddress, session)).thenThrow(new RuntimeException());
 
         // when

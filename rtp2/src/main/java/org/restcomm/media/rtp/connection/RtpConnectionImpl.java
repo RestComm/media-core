@@ -59,12 +59,19 @@ public class RtpConnectionImpl implements RtpConnection {
     }
 
     @Override
-    public void updateMode(ConnectionMode mode, FutureCallback<Void> callback) {
+    public void updateMode(ConnectionMode mode, FutureCallback<String> callback) {
         // Build transitional context
         RtpConnectionTransitionContext txContext = new RtpConnectionTransitionContext();
         txContext.set(RtpConnectionTransitionParameter.MODE, mode);
         txContext.set(RtpConnectionTransitionParameter.RTP_SESSION, this.context.getRtpSession());
         txContext.set(RtpConnectionTransitionParameter.CALLBACK, callback);
+
+        // Required for local sdp generation
+        txContext.set(RtpConnectionTransitionParameter.SDP_BUILDER, this.sdpBuilder);
+        txContext.set(RtpConnectionTransitionParameter.CNAME, this.context.getCname());
+        txContext.set(RtpConnectionTransitionParameter.BIND_ADDRESS, this.context.getRtpSession().getRtpAddress());
+        txContext.set(RtpConnectionTransitionParameter.EXTERNAL_ADDRESS, this.context.getExternalAddress());
+        txContext.set(RtpConnectionTransitionParameter.RTP_SESSION, this.context.getRtpSession());
 
         // Request connection to update mode
         this.fsm.fire(RtpConnectionEvent.UPDATE_MODE, txContext);
@@ -119,7 +126,6 @@ public class RtpConnectionImpl implements RtpConnection {
         txContext.set(RtpConnectionTransitionParameter.RTP_SESSION, this.context.getRtpSession());
         txContext.set(RtpConnectionTransitionParameter.REMOTE_SDP_STRING, remoteDescription);
         txContext.set(RtpConnectionTransitionParameter.CNAME, this.context.getCname());
-        txContext.set(RtpConnectionTransitionParameter.INBOUND, this.context.isInbound());
         txContext.set(RtpConnectionTransitionParameter.BIND_ADDRESS, this.context.getRtpSession().getRtpAddress());
         txContext.set(RtpConnectionTransitionParameter.EXTERNAL_ADDRESS, this.context.getExternalAddress());
         txContext.set(RtpConnectionTransitionParameter.CALLBACK, callback);

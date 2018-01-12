@@ -44,12 +44,7 @@ public class OpenConnectionCallback implements FutureCallback<String> {
     @Override
     public void onSuccess(String result) {
         // Save data into context
-        if(result != null) {
-            this.context.setLocalDescription(result.replace("inactive", "sendrecv"));
-        } else {
         this.context.setLocalDescription(result);
-        }
-
 
         // Mark connection as open
         if(this.primary) {

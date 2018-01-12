@@ -40,7 +40,6 @@ public enum RtpConnectionTransitionParameter {
 
     CALLBACK(FutureCallback.class),
     CNAME(String.class),
-    INBOUND(Boolean.class),
     LOCAL_SDP(SessionDescription.class),
     LOCAL_SDP_STRING(String.class),
     REMOTE_SDP(SessionDescription.class),
