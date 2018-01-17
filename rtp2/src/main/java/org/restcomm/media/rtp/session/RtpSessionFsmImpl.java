@@ -108,6 +108,9 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
             // Update context with negotiated formats
             this.globalContext.setNegotiatedFormats(negotiated);
 
+            // Set default format as first in the negotiated list
+            this.globalContext.setCurrentFormat(negotiated.first());
+
             if (log.isDebugEnabled()) {
                 long ssrc = this.globalContext.getSsrc();
                 log.debug("RTP session " + ssrc + " negotiated the formats " + negotiated.toString());
@@ -284,6 +287,9 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
                     if (DtmfFormat.FORMAT.matches(format.getFormat())) {
                         txContext.getDtmfInput().write(packet);
                     } else {
+                        // Update current format
+                        globalContext.setCurrentFormat(format);
+
                         txContext.getRtpInput().write(packet, format);
                         // Update statistics
                         this.globalContext.getStatistics().incomingRtp(packet);

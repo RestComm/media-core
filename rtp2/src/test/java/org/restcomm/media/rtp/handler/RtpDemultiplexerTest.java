@@ -1,7 +1,7 @@
 /*
  * TeleStax, Open Source Cloud Communications
  * Copyright 2011-2017, Telestax Inc and individual contributors
- * by the @authors tag. 
+ * by the @authors tag.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -21,16 +21,11 @@
 
 package org.restcomm.media.rtp.handler;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.embedded.EmbeddedChannel;
+import io.netty.channel.socket.DatagramPacket;
+import net.ripe.hadoop.pcap.packet.Packet;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Test;
@@ -38,14 +33,14 @@ import org.restcomm.media.pcap.GenericPcapReader;
 import org.restcomm.media.pcap.PcapFile;
 import org.restcomm.media.rtp.RtpPacket;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.embedded.EmbeddedChannel;
-import net.ripe.hadoop.pcap.packet.Packet;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.URL;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
  */
 public class RtpDemultiplexerTest {
 
@@ -71,9 +66,8 @@ public class RtpDemultiplexerTest {
     @Test
     public void testRtpPacketRecognition() throws Exception {
         // given
-        final File file = new File("src/test/resources/pcap/rtp-packet.pcap");
-        final URL pcapUrl = file.toURI().toURL();
-        this.pcapFile = new PcapFile(pcapUrl);
+        final URL resource = getClass().getClassLoader().getResource("pcap/rtp-packet.pcap");
+        this.pcapFile = new PcapFile(resource);
         final RtpDemultiplexer demultiplexer = new RtpDemultiplexer();
         final EmbeddedChannel channel = new EmbeddedChannel(demultiplexer);
 
@@ -81,9 +75,10 @@ public class RtpDemultiplexerTest {
         pcapFile.open();
         final Packet pcapPacket = pcapFile.read();
         byte[] data = (byte[]) pcapPacket.get(GenericPcapReader.PAYLOAD);
-
         final ByteBuf buffer = Unpooled.wrappedBuffer(data);
-        final boolean wrote = channel.writeInbound(buffer);
+        final DatagramPacket datagramPacket = new DatagramPacket(buffer, new InetSocketAddress("127.0.0.1", 2427));
+
+        final boolean wrote = channel.writeInbound(datagramPacket);
         final Object packet = channel.readInbound();
 
         // then
@@ -206,9 +201,8 @@ public class RtpDemultiplexerTest {
     @Test
     public void testUnsupportedPacketRecognition() throws Exception {
         // given
-        final File file = new File("src/test/resources/pcap/mgcp-packet.pcap");
-        final URL pcapUrl = file.toURI().toURL();
-        this.pcapFile = new PcapFile(pcapUrl);
+        final URL resource = getClass().getClassLoader().getResource("pcap/mgcp-packet.pcap");
+        this.pcapFile = new PcapFile(resource);
         final RtpDemultiplexer demultiplexer = new RtpDemultiplexer();
         final EmbeddedChannel channel = new EmbeddedChannel(demultiplexer);
 
@@ -218,7 +212,9 @@ public class RtpDemultiplexerTest {
         byte[] data = (byte[]) pcapPacket.get(GenericPcapReader.PAYLOAD);
 
         final ByteBuf buffer = Unpooled.wrappedBuffer(data);
-        final boolean wrote = channel.writeInbound(buffer);
+        final DatagramPacket datagramPacket = new DatagramPacket(buffer, new InetSocketAddress("127.0.0.1", 2427));
+
+        final boolean wrote = channel.writeInbound(datagramPacket);
         final Object packet = channel.readInbound();
 
         // then

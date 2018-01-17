@@ -59,16 +59,19 @@ public class RtpSessionImplFactory implements RtpSessionFactory {
 
     @Override
     public RtpSession build() {
+        final long ssrc = this.ssrcGenerator.generateSsrc();
+        final RtpSessionStatistics statistics = new RtpSessionStatistics(wallClock, ssrc);
+        final RtpClock rtpClock = new RtpClock(this.wallClock);
+        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, this.formats, rtpClock);
+
         // Build dependencies
         RtpChannel channel = this.channelFactory.build();
         RtpInput rtpInput = this.rtpInputFactory.build();
-        RtpOutput rtpOutput = this.rtpOutputFactory.build();
+        RtpOutput rtpOutput = this.rtpOutputFactory.build(context);
         DtmfInput dtmfInput = this.dtmfInputFactory.build();
 
         // Build RTP Session
-        long ssrc = this.ssrcGenerator.generateSsrc();
-        RtpSessionStatistics statistics = new RtpSessionStatistics(wallClock, ssrc);
-        RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, this.formats);
+
         return new RtpSessionImpl(componentIdGenerator.incrementAndGet(), channel, context, rtpInput, dtmfInput, rtpOutput);
     }
 

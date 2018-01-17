@@ -177,6 +177,10 @@ public class RTPFormats {
     public boolean hasMore() {
         return cursor != rtpFormats.size();
     }
+
+    public RTPFormat first() {
+        return rtpFormats.get(0);
+    }
     
     public RTPFormat next() {
         return rtpFormats.get(cursor++);
