@@ -25,6 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 import org.restcomm.media.component.audio.AudioOutput;
+import org.restcomm.media.rtp.session.RtpSessionContext;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.spi.dsp.DspFactory;
 import org.restcomm.media.spi.dsp.Processor;
@@ -55,7 +56,7 @@ public class RtpOutputFactory {
         this.idGenerator = new AtomicInteger(MIN_ID);
     }
 
-    public RtpOutput build() {
+    public RtpOutput build(RtpSessionContext sessionContext) {
         // Retrieve dependencies
         int id = generateId();
         String name = NAME_PREFIX + "-" + id;
@@ -69,7 +70,7 @@ public class RtpOutputFactory {
         }
 
         // Build RTP Output
-        RtpOutput rtpOutput = new RtpOutput(name, audioOutput, dsp);
+        RtpOutput rtpOutput = new RtpOutput(name, sessionContext, audioOutput, dsp);
         return rtpOutput;
     }
 

@@ -1,7 +1,7 @@
 /*
  * TeleStax, Open Source Cloud Communications
  * Copyright 2011-2017, Telestax Inc and individual contributors
- * by the @authors tag. 
+ * by the @authors tag.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -21,15 +21,17 @@
 
 package org.restcomm.media.rtp.session;
 
-import java.net.SocketAddress;
-
 import org.restcomm.media.rtp.MediaType;
+import org.restcomm.media.rtp.RtpClock;
+import org.restcomm.media.sdp.format.RTPFormat;
 import org.restcomm.media.sdp.format.RTPFormats;
 import org.restcomm.media.spi.ConnectionMode;
 
+import java.net.SocketAddress;
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
  */
 public class RtpSessionContext {
 
@@ -37,21 +39,32 @@ public class RtpSessionContext {
     private final MediaType mediaType;
     private final RtpSessionStatistics statistics;
     private final RTPFormats supportedFormats;
+    private final RtpClock rtpClock;
 
     private SocketAddress localAddress;
     private SocketAddress remoteAddress;
     private RTPFormats negotiatedFormats;
     private ConnectionMode mode;
 
-    public RtpSessionContext(long ssrc, MediaType mediaType, RtpSessionStatistics statistics, RTPFormats formats) {
+    private RTPFormat currentFormat;
+    private long txTimestamp;
+    private final AtomicInteger txSequence;
+
+    public RtpSessionContext(long ssrc, MediaType mediaType, RtpSessionStatistics statistics, RTPFormats formats, RtpClock rtpClock) {
         super();
         this.ssrc = ssrc;
         this.mediaType = mediaType;
         this.statistics = statistics;
         this.supportedFormats = formats;
+        this.rtpClock = rtpClock;
 
         this.negotiatedFormats = new RTPFormats();
         this.mode = ConnectionMode.INACTIVE;
+
+        this.currentFormat = this.supportedFormats.first();
+
+        this.txTimestamp = -1L;
+        this.txSequence = new AtomicInteger(0);
     }
 
     public long getSsrc() {
@@ -64,6 +77,10 @@ public class RtpSessionContext {
 
     public RtpSessionStatistics getStatistics() {
         return statistics;
+    }
+
+    public RtpClock getRtpClock() {
+        return rtpClock;
     }
 
     public RTPFormats getSupportedFormats() {
@@ -106,4 +123,24 @@ public class RtpSessionContext {
         this.remoteAddress = remoteAddress;
     }
 
+    public RTPFormat getCurrentFormat() {
+        return currentFormat;
+    }
+
+    public void setCurrentFormat(RTPFormat currentFormat) {
+        this.currentFormat = currentFormat;
+        this.rtpClock.setClockRate(currentFormat.getClockRate());
+    }
+
+    public long getTxTimestamp() {
+        return txTimestamp;
+    }
+
+    public void setTxTimestamp(long txTimestamp) {
+        this.txTimestamp = txTimestamp;
+    }
+
+    public AtomicInteger getTxSequence() {
+        return txSequence;
+    }
 }

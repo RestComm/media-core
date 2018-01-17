@@ -29,6 +29,7 @@ import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.rtp.*;
 import org.restcomm.media.rtp.handler.RtpDemultiplexer;
 import org.restcomm.media.rtp.handler.RtpInboundHandler;
+import org.restcomm.media.rtp.handler.RtpPacketEncoder;
 import org.restcomm.media.rtp.handler.RtpPacketFilter;
 import org.restcomm.media.rtp.rfc2833.DtmfInput;
 import org.restcomm.media.sdp.attributes.RtpMapAttribute;
@@ -45,7 +46,7 @@ import java.net.SocketAddress;
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
-public class RtpSessionImpl implements RtpSession {
+public class RtpSessionImpl implements RtpSession, MediaSourceObserver {
 
     private static final Logger log = LogManager.getLogger(RtpSessionImpl.class);
 
@@ -68,16 +69,18 @@ public class RtpSessionImpl implements RtpSession {
         this.componentId = componentId;
         this.context = context;
         this.fsm = RtpSessionFsmBuilder.INSTANCE.build(this.context);
-        this.channelInitializer = new RtpChannelInitializer(new RtpDemultiplexer(), new RtpPacketFilter(), new RtpInboundHandler(this));
+        this.channelInitializer = new RtpChannelInitializer(new RtpDemultiplexer(), new RtpPacketFilter(), new RtpInboundHandler(this), new RtpPacketEncoder(this.context.getStatistics()));
 
         // RTP Components
         this.channel = channel;
         this.dtmfInput = dtmfInput;
         this.rtpInput = rtpInput;
         this.rtpOutput = rtpOutput;
+        this.rtpOutput.observe(this);
+
         this.audioComponent = new AudioComponent(this.componentId);
         this.audioComponent.addInput(this.rtpInput.getInput());
-        // TODO Add RTP output
+        this.audioComponent.addOutput(this.rtpOutput.getOutput());
 
         this.oobComponent = new OOBComponent(this.componentId);
         // TODO Add OOB Input
@@ -131,7 +134,7 @@ public class RtpSessionImpl implements RtpSession {
             try {
                 final int payloadTypeInt = Integer.parseInt(payloadType);
 
-                if(payloadTypeInt < AVProfile.DYNAMIC_PT_MIN || payloadTypeInt > AVProfile.DYNAMIC_PT_MAX) {
+                if (payloadTypeInt < AVProfile.DYNAMIC_PT_MIN || payloadTypeInt > AVProfile.DYNAMIC_PT_MAX) {
                     // static payload type
                     format = AVProfile.getFormat(payloadTypeInt, AVProfile.AUDIO);
                 } else {
@@ -142,7 +145,7 @@ public class RtpSessionImpl implements RtpSession {
 
                     // Check if code is supported
                     final boolean supported = staticFormat != null && staticFormat.getClockRate() == codecSdp.getClockRate();
-                    if(supported) {
+                    if (supported) {
                         format = new RTPFormat(payloadTypeInt, staticFormat.getFormat(), staticFormat.getClockRate());
                     } else {
                         format = null;
@@ -152,7 +155,7 @@ public class RtpSessionImpl implements RtpSession {
                 format = null;
             }
 
-            if(format != null) {
+            if (format != null) {
                 offeredFormats.add(format);
             } else {
                 if (log.isDebugEnabled()) {
@@ -236,5 +239,10 @@ public class RtpSessionImpl implements RtpSession {
     @Override
     public OOBComponent getOOBComponent() {
         return this.oobComponent;
+    }
+
+    @Override
+    public void onMediaGenerated(RtpPacket rtpPacket) {
+        this.outgoingRtp(rtpPacket);
     }
 }

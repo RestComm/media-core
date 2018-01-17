@@ -72,7 +72,8 @@ public class RtpSessionFsmImplTest {
         final RtpChannelInitializer channelInitializer = mock(RtpChannelInitializer.class);
         final RtpSessionStatistics statistics = new RtpSessionStatistics(clock, ssrc);
         final RTPFormats formats = AVProfile.audio;
-        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
+        final RtpClock rtpClock = mock(RtpClock.class);
+        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats, rtpClock);
         final RtpSessionFsmImpl fsm = new RtpSessionFsmImpl(context);
 
         // when
@@ -95,7 +96,8 @@ public class RtpSessionFsmImplTest {
         final RtpChannelInitializer channelInitializer = mock(RtpChannelInitializer.class);
         final RtpSessionStatistics statistics = new RtpSessionStatistics(clock, ssrc);
         final RTPFormats formats = AVProfile.audio;
-        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
+        final RtpClock rtpClock = mock(RtpClock.class);
+        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats, rtpClock);
         final RtpSessionFsmImpl fsm = new RtpSessionFsmImpl(context);
 
         // when
@@ -116,7 +118,8 @@ public class RtpSessionFsmImplTest {
         final RtpChannel channel = mock(RtpChannel.class);
         final RtpSessionStatistics statistics = new RtpSessionStatistics(clock, ssrc);
         final RTPFormats formats = AVProfile.audio;
-        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
+        final RtpClock rtpClock = mock(RtpClock.class);
+        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats, rtpClock);
         final RtpSessionFsmImpl fsm = spy(new RtpSessionFsmImpl(context));
 
         final RTPFormats offeredFormats = new RTPFormats(2);
@@ -342,6 +345,7 @@ public class RtpSessionFsmImplTest {
         verify(rtpInput).write(packet, format);
         verify(dtmfInput, never()).write(packet);
         verify(statistics).incomingRtp(packet);
+        verify(context).setCurrentFormat(format);
     }
 
     @Test
@@ -371,6 +375,7 @@ public class RtpSessionFsmImplTest {
         verify(jitterBuffer, never()).write(packet, format);
         verify(dtmfInput).write(packet);
         verify(statistics, never()).incomingRtp(packet);
+        verify(context, never()).setCurrentFormat(any(RTPFormat.class));
     }
 
     @Test
@@ -486,7 +491,8 @@ public class RtpSessionFsmImplTest {
         final RtpChannel channel = mock(RtpChannel.class);
         final RtpSessionStatistics statistics = new RtpSessionStatistics(clock, ssrc);
         final RTPFormats formats = AVProfile.audio;
-        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
+        final RtpClock rtpClock = mock(RtpClock.class);
+        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats, rtpClock);
         final RtpSessionFsmImpl fsm = new RtpSessionFsmImpl(context);
 
         final RTPFormats offeredFormats = new RTPFormats(2);
@@ -566,7 +572,8 @@ public class RtpSessionFsmImplTest {
         final RtpChannelInitializer channelInitializer = mock(RtpChannelInitializer.class);
         final RtpSessionStatistics statistics = new RtpSessionStatistics(clock, ssrc);
         final RTPFormats formats = AVProfile.audio;
-        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
+        final RtpClock rtpClock = mock(RtpClock.class);
+        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats, rtpClock);
         this.fsm = RtpSessionFsmBuilder.INSTANCE.build(context);
         final SocketAddress localAddress = new InetSocketAddress("127.0.0.1", 6000);
 
@@ -679,7 +686,8 @@ public class RtpSessionFsmImplTest {
         final RtpChannelInitializer channelInitializer = mock(RtpChannelInitializer.class);
         final RtpSessionStatistics statistics = new RtpSessionStatistics(clock, ssrc);
         final RTPFormats formats = AVProfile.audio;
-        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
+        final RtpClock rtpClock = mock(RtpClock.class);
+        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats, rtpClock);
         this.fsm = RtpSessionFsmBuilder.INSTANCE.build(context);
         final SocketAddress localAddress = new InetSocketAddress("127.0.0.1", 6000);
 

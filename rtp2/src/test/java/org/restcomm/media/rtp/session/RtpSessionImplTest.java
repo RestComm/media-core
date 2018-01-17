@@ -64,10 +64,16 @@ public class RtpSessionImplTest {
         final RTPFormats formats = AVProfile.audio;
         final RtpChannel channel = mock(RtpChannel.class);
         final DtmfInput dtmfInput = mock(DtmfInput.class);
-        final RtpInput rtpInput = mock(RtpInput.class);
-        final RtpOutput rtpOutput = mock(RtpOutput.class);
-        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
+        final RtpInput rtpInput = mock(RtpInput.class, RETURNS_DEEP_STUBS);
+        final RtpOutput rtpOutput = mock(RtpOutput.class, RETURNS_DEEP_STUBS);
+        final RtpClock rtpClock = mock(RtpClock.class);
+
+        when(rtpInput.getInput().getInputId()).thenReturn(1);
+        when(rtpOutput.getOutput().getOutputId()).thenReturn(1);
+
+        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats, rtpClock);
         final RtpSessionImpl session = new RtpSessionImpl(1, channel, context, rtpInput, dtmfInput, rtpOutput);
+
 
         doAnswer(new Answer<Void>() {
 
@@ -117,9 +123,14 @@ public class RtpSessionImplTest {
         final RtpChannel channel = mock(RtpChannel.class);
 
         final DtmfInput dtmfInput = mock(DtmfInput.class);
-        final RtpInput rtpInput = mock(RtpInput.class);
-        final RtpOutput rtpOutput = mock(RtpOutput.class);
-        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
+        final RtpInput rtpInput = mock(RtpInput.class, RETURNS_DEEP_STUBS);
+        final RtpOutput rtpOutput = mock(RtpOutput.class, RETURNS_DEEP_STUBS);
+        final RtpClock rtpClock = mock(RtpClock.class);
+        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats, rtpClock);
+
+        when(rtpInput.getInput().getInputId()).thenReturn(1);
+        when(rtpOutput.getOutput().getOutputId()).thenReturn(1);
+
         final RtpSessionImpl session = new RtpSessionImpl(1, channel, context, rtpInput, dtmfInput, rtpOutput);
 
         doAnswer(new Answer<Void>() {
@@ -171,9 +182,14 @@ public class RtpSessionImplTest {
         final RTPFormats formats = AVProfile.audio;
         final RtpChannel channel = mock(RtpChannel.class);
         final DtmfInput dtmfInput = mock(DtmfInput.class);
-        final RtpInput rtpInput = mock(RtpInput.class);
-        final RtpOutput rtpOutput = mock(RtpOutput.class);
-        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
+        final RtpInput rtpInput = mock(RtpInput.class, RETURNS_DEEP_STUBS);
+        final RtpOutput rtpOutput = mock(RtpOutput.class, RETURNS_DEEP_STUBS);
+        final RtpClock rtpClock = mock(RtpClock.class);
+        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats, rtpClock);
+
+        when(rtpInput.getInput().getInputId()).thenReturn(1);
+        when(rtpOutput.getOutput().getOutputId()).thenReturn(1);
+
         final RtpSessionImpl session = new RtpSessionImpl(1, channel, context, rtpInput, dtmfInput, rtpOutput);
 
         // when
@@ -201,9 +217,14 @@ public class RtpSessionImplTest {
         final RtpChannel channel = mock(RtpChannel.class);
 
         final DtmfInput dtmfInput = mock(DtmfInput.class);
-        final RtpInput rtpInput = mock(RtpInput.class);
-        final RtpOutput rtpOutput = mock(RtpOutput.class);
-        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
+        final RtpInput rtpInput = mock(RtpInput.class, RETURNS_DEEP_STUBS);
+        final RtpOutput rtpOutput = mock(RtpOutput.class, RETURNS_DEEP_STUBS);
+        final RtpClock rtpClock = mock(RtpClock.class);
+        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats, rtpClock);
+
+        when(rtpInput.getInput().getInputId()).thenReturn(1);
+        when(rtpOutput.getOutput().getOutputId()).thenReturn(1);
+
         final RtpSessionImpl session = new RtpSessionImpl(1, channel, context, rtpInput, dtmfInput, rtpOutput);
 
         InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
@@ -284,9 +305,14 @@ public class RtpSessionImplTest {
         final RtpChannel channel = mock(RtpChannel.class);
 
         final DtmfInput dtmfInput = mock(DtmfInput.class);
-        final RtpInput rtpInput = mock(RtpInput.class);
-        final RtpOutput rtpOutput = mock(RtpOutput.class);
-        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
+        final RtpInput rtpInput = mock(RtpInput.class, RETURNS_DEEP_STUBS);
+        final RtpOutput rtpOutput = mock(RtpOutput.class, RETURNS_DEEP_STUBS);
+        final RtpClock rtpClock = mock(RtpClock.class);
+        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats, rtpClock);
+
+        when(rtpInput.getInput().getInputId()).thenReturn(1);
+        when(rtpOutput.getOutput().getOutputId()).thenReturn(1);
+
         final RtpSessionImpl session = new RtpSessionImpl(1, channel, context, rtpInput, dtmfInput, rtpOutput);
 
         InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
@@ -329,9 +355,14 @@ public class RtpSessionImplTest {
         final RtpChannel channel = mock(RtpChannel.class);
 
         final DtmfInput dtmfInput = mock(DtmfInput.class);
-        final RtpInput rtpInput = mock(RtpInput.class);
-        final RtpOutput rtpOutput = mock(RtpOutput.class);
-        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
+        final RtpInput rtpInput = mock(RtpInput.class, RETURNS_DEEP_STUBS);
+        final RtpOutput rtpOutput = mock(RtpOutput.class, RETURNS_DEEP_STUBS);
+        final RtpClock rtpClock = mock(RtpClock.class);
+        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats, rtpClock);
+
+        when(rtpInput.getInput().getInputId()).thenReturn(1);
+        when(rtpOutput.getOutput().getOutputId()).thenReturn(1);
+
         final RtpSessionImpl session = new RtpSessionImpl(1, channel, context, rtpInput, dtmfInput, rtpOutput);
 
         InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
@@ -409,9 +440,14 @@ public class RtpSessionImplTest {
         final RtpChannel channel = mock(RtpChannel.class);
 
         final DtmfInput dtmfInput = mock(DtmfInput.class);
-        final RtpInput rtpInput = mock(RtpInput.class);
-        final RtpOutput rtpOutput = mock(RtpOutput.class);
-        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
+        final RtpInput rtpInput = mock(RtpInput.class, RETURNS_DEEP_STUBS);
+        final RtpOutput rtpOutput = mock(RtpOutput.class, RETURNS_DEEP_STUBS);
+        final RtpClock rtpClock = mock(RtpClock.class);
+        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats, rtpClock);
+
+        when(rtpInput.getInput().getInputId()).thenReturn(1);
+        when(rtpOutput.getOutput().getOutputId()).thenReturn(1);
+
         final RtpSessionImpl session = new RtpSessionImpl(1, channel, context, rtpInput, dtmfInput, rtpOutput);
 
         InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
@@ -494,9 +530,14 @@ public class RtpSessionImplTest {
         final RtpChannel channel = mock(RtpChannel.class);
 
         final DtmfInput dtmfInput = mock(DtmfInput.class);
-        final RtpInput rtpInput = mock(RtpInput.class);
-        final RtpOutput rtpOutput = mock(RtpOutput.class);
-        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
+        final RtpInput rtpInput = mock(RtpInput.class, RETURNS_DEEP_STUBS);
+        final RtpOutput rtpOutput = mock(RtpOutput.class, RETURNS_DEEP_STUBS);
+        final RtpClock rtpClock = mock(RtpClock.class);
+        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats, rtpClock);
+
+        when(rtpInput.getInput().getInputId()).thenReturn(1);
+        when(rtpOutput.getOutput().getOutputId()).thenReturn(1);
+
         final RtpSessionImpl session = new RtpSessionImpl(1, channel, context, rtpInput, dtmfInput, rtpOutput);
 
         InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
@@ -571,9 +612,14 @@ public class RtpSessionImplTest {
         final RtpChannel channel = mock(RtpChannel.class);
 
         final DtmfInput dtmfInput = mock(DtmfInput.class);
-        final RtpInput rtpInput = mock(RtpInput.class);
-        final RtpOutput rtpOutput = mock(RtpOutput.class);
-        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
+        final RtpInput rtpInput = mock(RtpInput.class, RETURNS_DEEP_STUBS);
+        final RtpOutput rtpOutput = mock(RtpOutput.class, RETURNS_DEEP_STUBS);
+        final RtpClock rtpClock = mock(RtpClock.class);
+        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats, rtpClock);
+
+        when(rtpInput.getInput().getInputId()).thenReturn(1);
+        when(rtpOutput.getOutput().getOutputId()).thenReturn(1);
+
         final RtpSessionImpl session = new RtpSessionImpl(1, channel, context, rtpInput, dtmfInput, rtpOutput);
 
         InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
@@ -591,6 +637,8 @@ public class RtpSessionImplTest {
         remoteSdp.setConnection(remoteConnection);
 
         when(remoteConnection.getAddress()).thenReturn(remoteAddress.getHostString());
+        when(rtpInput.getInput().getInputId()).thenReturn(1);
+        when(rtpOutput.getOutput().getOutputId()).thenReturn(1);
 
         doAnswer(new Answer<Void>() {
 
@@ -650,9 +698,14 @@ public class RtpSessionImplTest {
         final RtpChannel channel = mock(RtpChannel.class);
 
         final DtmfInput dtmfInput = mock(DtmfInput.class);
-        final RtpInput rtpInput = mock(RtpInput.class);
-        final RtpOutput rtpOutput = mock(RtpOutput.class);
-        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
+        final RtpInput rtpInput = mock(RtpInput.class, RETURNS_DEEP_STUBS);
+        final RtpOutput rtpOutput = mock(RtpOutput.class, RETURNS_DEEP_STUBS);
+        final RtpClock rtpClock = mock(RtpClock.class);
+        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats, rtpClock);
+
+        when(rtpInput.getInput().getInputId()).thenReturn(1);
+        when(rtpOutput.getOutput().getOutputId()).thenReturn(1);
+
         final RtpSessionImpl session = new RtpSessionImpl(1, channel, context, rtpInput, dtmfInput, rtpOutput);
 
         InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
@@ -729,9 +782,14 @@ public class RtpSessionImplTest {
         final RtpChannel channel = mock(RtpChannel.class);
 
         final DtmfInput dtmfInput = mock(DtmfInput.class);
-        final RtpInput rtpInput = mock(RtpInput.class);
-        final RtpOutput rtpOutput = mock(RtpOutput.class);
-        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
+        final RtpInput rtpInput = mock(RtpInput.class, RETURNS_DEEP_STUBS);
+        final RtpOutput rtpOutput = mock(RtpOutput.class, RETURNS_DEEP_STUBS);
+        final RtpClock rtpClock = mock(RtpClock.class);
+        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats, rtpClock);
+
+        when(rtpInput.getInput().getInputId()).thenReturn(1);
+        when(rtpOutput.getOutput().getOutputId()).thenReturn(1);
+
         final RtpSessionImpl session = new RtpSessionImpl(1, channel, context, rtpInput, dtmfInput, rtpOutput);
 
         InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
@@ -800,9 +858,14 @@ public class RtpSessionImplTest {
         final RtpChannel channel = mock(RtpChannel.class);
 
         final DtmfInput dtmfInput = mock(DtmfInput.class);
-        final RtpInput rtpInput = mock(RtpInput.class);
-        final RtpOutput rtpOutput = mock(RtpOutput.class);
-        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
+        final RtpInput rtpInput = mock(RtpInput.class, RETURNS_DEEP_STUBS);
+        final RtpOutput rtpOutput = mock(RtpOutput.class, RETURNS_DEEP_STUBS);
+        final RtpClock rtpClock = mock(RtpClock.class);
+        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats, rtpClock);
+
+        when(rtpInput.getInput().getInputId()).thenReturn(1);
+        when(rtpOutput.getOutput().getOutputId()).thenReturn(1);
+
         final RtpSessionImpl session = new RtpSessionImpl(1, channel, context, rtpInput, dtmfInput, rtpOutput);
 
         InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
@@ -880,9 +943,14 @@ public class RtpSessionImplTest {
         final RtpChannel channel = mock(RtpChannel.class);
 
         final DtmfInput dtmfInput = mock(DtmfInput.class);
-        final RtpInput rtpInput = mock(RtpInput.class);
-        final RtpOutput rtpOutput = mock(RtpOutput.class);
-        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
+        final RtpInput rtpInput = mock(RtpInput.class, RETURNS_DEEP_STUBS);
+        final RtpOutput rtpOutput = mock(RtpOutput.class, RETURNS_DEEP_STUBS);
+        final RtpClock rtpClock = mock(RtpClock.class);
+        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats, rtpClock);
+
+        when(rtpInput.getInput().getInputId()).thenReturn(1);
+        when(rtpOutput.getOutput().getOutputId()).thenReturn(1);
+
         final RtpSessionImpl session = new RtpSessionImpl(1, channel, context, rtpInput, dtmfInput, rtpOutput);
 
         InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
@@ -969,9 +1037,14 @@ public class RtpSessionImplTest {
         final RtpChannel channel = mock(RtpChannel.class);
 
         final DtmfInput dtmfInput = mock(DtmfInput.class);
-        final RtpInput rtpInput = mock(RtpInput.class);
-        final RtpOutput rtpOutput = mock(RtpOutput.class);
-        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
+        final RtpInput rtpInput = mock(RtpInput.class, RETURNS_DEEP_STUBS);
+        final RtpOutput rtpOutput = mock(RtpOutput.class, RETURNS_DEEP_STUBS);
+        final RtpClock rtpClock = mock(RtpClock.class);
+        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats, rtpClock);
+
+        when(rtpInput.getInput().getInputId()).thenReturn(1);
+        when(rtpOutput.getOutput().getOutputId()).thenReturn(1);
+
         final RtpSessionImpl session = new RtpSessionImpl(1, channel, context, rtpInput, dtmfInput, rtpOutput);
 
         InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
@@ -1038,9 +1111,14 @@ public class RtpSessionImplTest {
         final RtpChannel channel = mock(RtpChannel.class);
 
         final DtmfInput dtmfInput = mock(DtmfInput.class);
-        final RtpInput rtpInput = mock(RtpInput.class);
-        final RtpOutput rtpOutput = mock(RtpOutput.class);
-        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
+        final RtpInput rtpInput = mock(RtpInput.class, RETURNS_DEEP_STUBS);
+        final RtpOutput rtpOutput = mock(RtpOutput.class, RETURNS_DEEP_STUBS);
+        final RtpClock rtpClock = mock(RtpClock.class);
+        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats, rtpClock);
+
+        when(rtpInput.getInput().getInputId()).thenReturn(1);
+        when(rtpOutput.getOutput().getOutputId()).thenReturn(1);
+
         final RtpSessionImpl session = new RtpSessionImpl(1, channel, context, rtpInput, dtmfInput, rtpOutput);
 
         InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
@@ -1128,9 +1206,14 @@ public class RtpSessionImplTest {
         final RtpChannel channel = mock(RtpChannel.class);
 
         final DtmfInput dtmfInput = mock(DtmfInput.class);
-        final RtpInput rtpInput = mock(RtpInput.class);
-        final RtpOutput rtpOutput = mock(RtpOutput.class);
-        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
+        final RtpInput rtpInput = mock(RtpInput.class, RETURNS_DEEP_STUBS);
+        final RtpOutput rtpOutput = mock(RtpOutput.class, RETURNS_DEEP_STUBS);
+        final RtpClock rtpClock = mock(RtpClock.class);
+        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats, rtpClock);
+
+        when(rtpInput.getInput().getInputId()).thenReturn(1);
+        when(rtpOutput.getOutput().getOutputId()).thenReturn(1);
+
         final RtpSessionImpl session = new RtpSessionImpl(1, channel, context, rtpInput, dtmfInput, rtpOutput);
 
         InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
@@ -1222,9 +1305,14 @@ public class RtpSessionImplTest {
         final RtpChannel channel = mock(RtpChannel.class);
 
         final DtmfInput dtmfInput = mock(DtmfInput.class);
-        final RtpInput rtpInput = mock(RtpInput.class);
-        final RtpOutput rtpOutput = mock(RtpOutput.class);
-        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
+        final RtpInput rtpInput = mock(RtpInput.class, RETURNS_DEEP_STUBS);
+        final RtpOutput rtpOutput = mock(RtpOutput.class, RETURNS_DEEP_STUBS);
+        final RtpClock rtpClock = mock(RtpClock.class);
+        final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats, rtpClock);
+
+        when(rtpInput.getInput().getInputId()).thenReturn(1);
+        when(rtpOutput.getOutput().getOutputId()).thenReturn(1);
+
         final RtpSessionImpl session = new RtpSessionImpl(1, channel, context, rtpInput, dtmfInput, rtpOutput);
 
         // when
