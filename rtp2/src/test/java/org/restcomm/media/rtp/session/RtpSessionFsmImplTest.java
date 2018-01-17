@@ -1,7 +1,7 @@
 /*
  * TeleStax, Open Source Cloud Communications
  * Copyright 2011-2017, Telestax Inc and individual contributors
- * by the @authors tag. 
+ * by the @authors tag.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -36,7 +36,6 @@ import org.restcomm.media.spi.ConnectionMode;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.concurrent.Future;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -46,7 +45,6 @@ import static org.mockito.Mockito.*;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
  */
 public class RtpSessionFsmImplTest {
 
@@ -148,7 +146,6 @@ public class RtpSessionFsmImplTest {
         final RtpSessionContext context = mock(RtpSessionContext.class);
         final RtpSessionFsmImpl fsm = spy(new RtpSessionFsmImpl(context));
 
-        final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
         final RtpInput rtpInput = mock(RtpInput.class);
         final DtmfInput dtmfInput = mock(DtmfInput.class);
         final RtpOutput rtpOutput = mock(RtpOutput.class);
@@ -158,12 +155,10 @@ public class RtpSessionFsmImplTest {
         when(context.getMode()).thenReturn(ConnectionMode.SEND_RECV);
 
         // when
-        RtpSessionUpdateModeContext txContext = new RtpSessionUpdateModeContext(mode, jitterBuffer, dtmfInput, rtpInput,
-                rtpOutput, callback);
+        RtpSessionUpdateModeContext txContext = new RtpSessionUpdateModeContext(mode, dtmfInput, rtpInput, rtpOutput, callback);
         fsm.onUpdateMode(RtpSessionState.OPEN, RtpSessionState.OPEN, RtpSessionEvent.UPDATE_MODE, txContext);
 
         // then
-        verify(jitterBuffer).restart();
         verify(rtpInput).deactivate();
         verify(dtmfInput).deactivate();
         verify(rtpOutput).deactivate();
@@ -177,7 +172,6 @@ public class RtpSessionFsmImplTest {
         final RtpSessionContext context = mock(RtpSessionContext.class);
         final RtpSessionFsmImpl fsm = spy(new RtpSessionFsmImpl(context));
 
-        final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
         final RtpInput rtpInput = mock(RtpInput.class);
         final DtmfInput dtmfInput = mock(DtmfInput.class);
         final RtpOutput rtpOutput = mock(RtpOutput.class);
@@ -187,12 +181,10 @@ public class RtpSessionFsmImplTest {
         when(context.getMode()).thenReturn(ConnectionMode.SEND_RECV);
 
         // when
-        RtpSessionUpdateModeContext txContext = new RtpSessionUpdateModeContext(mode, jitterBuffer, dtmfInput, rtpInput,
-                rtpOutput, callback);
+        RtpSessionUpdateModeContext txContext = new RtpSessionUpdateModeContext(mode, dtmfInput, rtpInput, rtpOutput, callback);
         fsm.onUpdateMode(RtpSessionState.OPEN, RtpSessionState.OPEN, RtpSessionEvent.UPDATE_MODE, txContext);
 
         // then
-        verify(jitterBuffer).restart();
         verify(rtpInput).deactivate();
         verify(dtmfInput).deactivate();
         verify(rtpOutput).activate();
@@ -216,7 +208,7 @@ public class RtpSessionFsmImplTest {
         when(context.getMode()).thenReturn(ConnectionMode.SEND_RECV);
 
         // when
-        RtpSessionUpdateModeContext txContext = new RtpSessionUpdateModeContext(mode, jitterBuffer, dtmfInput, rtpInput,
+        RtpSessionUpdateModeContext txContext = new RtpSessionUpdateModeContext(mode, dtmfInput, rtpInput,
                 rtpOutput, callback);
         fsm.onUpdateMode(RtpSessionState.OPEN, RtpSessionState.OPEN, RtpSessionEvent.UPDATE_MODE, txContext);
 
@@ -245,7 +237,7 @@ public class RtpSessionFsmImplTest {
         when(context.getMode()).thenReturn(ConnectionMode.INACTIVE);
 
         // when
-        RtpSessionUpdateModeContext txContext = new RtpSessionUpdateModeContext(mode, jitterBuffer, dtmfInput, rtpInput,
+        RtpSessionUpdateModeContext txContext = new RtpSessionUpdateModeContext(mode, dtmfInput, rtpInput,
                 rtpOutput, callback);
         fsm.onUpdateMode(RtpSessionState.OPEN, RtpSessionState.OPEN, RtpSessionEvent.UPDATE_MODE, txContext);
 
@@ -274,7 +266,7 @@ public class RtpSessionFsmImplTest {
         when(context.getMode()).thenReturn(ConnectionMode.INACTIVE);
 
         // when
-        RtpSessionUpdateModeContext txContext = new RtpSessionUpdateModeContext(mode, jitterBuffer, dtmfInput, rtpInput,
+        RtpSessionUpdateModeContext txContext = new RtpSessionUpdateModeContext(mode, dtmfInput, rtpInput,
                 rtpOutput, callback);
         fsm.onUpdateMode(RtpSessionState.OPEN, RtpSessionState.OPEN, RtpSessionEvent.UPDATE_MODE, txContext);
 
@@ -303,7 +295,7 @@ public class RtpSessionFsmImplTest {
         when(context.getMode()).thenReturn(ConnectionMode.CONFERENCE);
 
         // when
-        RtpSessionUpdateModeContext txContext = new RtpSessionUpdateModeContext(mode, jitterBuffer, dtmfInput, rtpInput,
+        RtpSessionUpdateModeContext txContext = new RtpSessionUpdateModeContext(mode, dtmfInput, rtpInput,
                 rtpOutput, callback);
         fsm.onUpdateMode(RtpSessionState.OPEN, RtpSessionState.OPEN, RtpSessionEvent.UPDATE_MODE, txContext);
 
@@ -326,7 +318,7 @@ public class RtpSessionFsmImplTest {
         final byte[] payload = "hello".getBytes();
         final RtpPacket packet = new RtpPacket(true, payloadType, 1, System.currentTimeMillis(), 12345L, payload);
         final RTPFormat format = AVProfile.audio.find(payloadType);
-        final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
+        final RtpInput rtpInput = mock(RtpInput.class);
         final DtmfInput dtmfInput = mock(DtmfInput.class);
 
         when(context.getNegotiatedFormats()).thenReturn(AVProfile.audio);
@@ -334,11 +326,11 @@ public class RtpSessionFsmImplTest {
         when(context.getStatistics()).thenReturn(statistics);
 
         // when
-        RtpSessionIncomingRtpContext txContext = new RtpSessionIncomingRtpContext(packet, jitterBuffer, dtmfInput);
+        RtpSessionIncomingRtpContext txContext = new RtpSessionIncomingRtpContext(packet, rtpInput, dtmfInput);
         fsm.onIncomingRtp(RtpSessionState.ESTABLISHED, RtpSessionState.ESTABLISHED, RtpSessionEvent.INCOMING_RTP, txContext);
 
         // then
-        verify(jitterBuffer).write(packet, format);
+        verify(rtpInput).write(packet, format);
         verify(dtmfInput, never()).write(packet);
         verify(statistics).incomingRtp(packet);
     }
@@ -355,14 +347,15 @@ public class RtpSessionFsmImplTest {
         final RtpPacket packet = new RtpPacket(true, payloadType, 1, System.currentTimeMillis(), 12345L, payload);
         final RTPFormat format = AVProfile.audio.find(payloadType);
         final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
+        final RtpInput rtpInput = mock(RtpInput.class);
         final DtmfInput dtmfInput = mock(DtmfInput.class);
-        
+
         when(context.getNegotiatedFormats()).thenReturn(AVProfile.audio);
         when(context.getMode()).thenReturn(ConnectionMode.CONFERENCE);
         when(context.getStatistics()).thenReturn(statistics);
 
         // when
-        RtpSessionIncomingRtpContext txContext = new RtpSessionIncomingRtpContext(packet, jitterBuffer, dtmfInput);
+        RtpSessionIncomingRtpContext txContext = new RtpSessionIncomingRtpContext(packet, rtpInput, dtmfInput);
         fsm.onIncomingRtp(RtpSessionState.ESTABLISHED, RtpSessionState.ESTABLISHED, RtpSessionEvent.INCOMING_RTP, txContext);
 
         // then
@@ -382,6 +375,7 @@ public class RtpSessionFsmImplTest {
         final RtpPacket packet = mock(RtpPacket.class);
         final RTPFormat format = AVProfile.audio.find(payloadType);
         final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
+        final RtpInput rtpInput = mock(RtpInput.class);
         final DtmfInput dtmfInput = mock(DtmfInput.class);
 
         when(packet.getPayloadType()).thenReturn(payloadType);
@@ -390,7 +384,7 @@ public class RtpSessionFsmImplTest {
         when(context.getStatistics()).thenReturn(statistics);
 
         // when
-        RtpSessionIncomingRtpContext txContext = new RtpSessionIncomingRtpContext(packet, jitterBuffer, dtmfInput);
+        RtpSessionIncomingRtpContext txContext = new RtpSessionIncomingRtpContext(packet, rtpInput, dtmfInput);
         fsm.onIncomingRtp(RtpSessionState.ESTABLISHED, RtpSessionState.ESTABLISHED, RtpSessionEvent.INCOMING_RTP, txContext);
 
         // then
@@ -510,7 +504,6 @@ public class RtpSessionFsmImplTest {
         final RtpSessionFsmImpl fsm = spy(new RtpSessionFsmImpl(context));
 
         final RtpChannel channel = mock(RtpChannel.class);
-        final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
         final RtpInput rtpInput = mock(RtpInput.class);
         final DtmfInput dtmfInput = mock(DtmfInput.class);
         final RtpOutput rtpOutput = mock(RtpOutput.class);
@@ -519,8 +512,7 @@ public class RtpSessionFsmImplTest {
         doNothing().when(fsm).fire(any(RtpSessionEvent.class), any(RtpSessionTransactionContext.class));
 
         // when
-        RtpSessionCloseContext txContext = new RtpSessionCloseContext(channel, jitterBuffer, dtmfInput, rtpInput, rtpOutput,
-                callback);
+        RtpSessionCloseContext txContext = new RtpSessionCloseContext(channel, dtmfInput, rtpInput, rtpOutput, callback);
         fsm.enterDeactivating(RtpSessionState.CLOSING, RtpSessionState.DEACTIVATING, RtpSessionEvent.CLOSE, txContext);
 
         // then
@@ -528,8 +520,6 @@ public class RtpSessionFsmImplTest {
         verify(dtmfInput).deactivate();
         verify(rtpOutput).deactivate();
         verify(context).setMode(ConnectionMode.INACTIVE);
-        verify(jitterBuffer).restart();
-        verify(jitterBuffer).forget(rtpInput);
     }
 
     @Test
@@ -549,10 +539,8 @@ public class RtpSessionFsmImplTest {
         doNothing().when(fsm).fire(any(RtpSessionEvent.class), any(RtpSessionTransactionContext.class));
 
         // when
-        RtpSessionCloseContext txContext = new RtpSessionCloseContext(channel, jitterBuffer, dtmfInput, rtpInput, rtpOutput,
-                callback);
-        fsm.enterDeallocating(RtpSessionState.DEACTIVATING, RtpSessionState.DEALLOCATING, RtpSessionEvent.DEACTIVATED,
-                txContext);
+        RtpSessionCloseContext txContext = new RtpSessionCloseContext(channel, dtmfInput, rtpInput, rtpOutput, callback);
+        fsm.enterDeallocating(RtpSessionState.DEACTIVATING, RtpSessionState.DEALLOCATING, RtpSessionEvent.DEACTIVATED, txContext);
 
         // then
         verify(channel).close(any(FutureCallback.class));
@@ -657,7 +645,7 @@ public class RtpSessionFsmImplTest {
         final RtpOutput rtpOutput = mock(RtpOutput.class);
         final FutureCallback<Void> callback = mock(FutureCallback.class);
 
-        RtpSessionCloseContext closeContext = new RtpSessionCloseContext(channel, jitterBuffer, dtmfInput, rtpInput, rtpOutput, callback);
+        RtpSessionCloseContext closeContext = new RtpSessionCloseContext(channel, dtmfInput, rtpInput, rtpOutput, callback);
         fsm.fire(RtpSessionEvent.CLOSE, closeContext);
 
         // then
@@ -723,7 +711,7 @@ public class RtpSessionFsmImplTest {
         verify(openCallback, timeout(100)).onSuccess(null);
 
         final FutureCallback<Void> updateCallback = mock(FutureCallback.class);
-        RtpSessionUpdateModeContext modeContext = new RtpSessionUpdateModeContext(mode, jitterBuffer, dtmfInput, rtpInput, rtpOutput, updateCallback);
+        RtpSessionUpdateModeContext modeContext = new RtpSessionUpdateModeContext(mode, dtmfInput, rtpInput, rtpOutput, updateCallback);
         fsm.fire(RtpSessionEvent.UPDATE_MODE, modeContext);
 
         verify(updateCallback, timeout(100)).onSuccess(null);

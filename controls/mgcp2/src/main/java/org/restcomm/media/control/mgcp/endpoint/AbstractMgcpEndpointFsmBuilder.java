@@ -21,10 +21,10 @@
 
 package org.restcomm.media.control.mgcp.endpoint;
 
-import java.util.List;
-
 import org.squirrelframework.foundation.fsm.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
+
+import java.util.List;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)

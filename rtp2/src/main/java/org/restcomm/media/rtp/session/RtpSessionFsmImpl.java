@@ -187,7 +187,6 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
         ConnectionMode newMode = txContext.getMode();
 
         if (!currentMode.equals(newMode)) {
-            JitterBuffer jitterBuffer = txContext.getJitterBuffer();
             DtmfInput dtmfInput = txContext.getDtmfInput();
             RtpInput rtpInput = txContext.getRtpInput();
             RtpOutput rtpOutput = txContext.getRtpOutput();
@@ -205,7 +204,6 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
                     dtmfInput.deactivate();
                     rtpInput.deactivate();
                     rtpOutput.activate();
-                    jitterBuffer.restart();
                     break;
 
                 case SEND_RECV:
@@ -219,7 +217,6 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
                     dtmfInput.deactivate();
                     rtpInput.deactivate();
                     rtpOutput.deactivate();
-                    jitterBuffer.restart();
                     break;
             }
 
@@ -281,7 +278,7 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
                     if (DtmfFormat.FORMAT.matches(format.getFormat())) {
                         txContext.getDtmfInput().write(packet);
                     } else {
-                        txContext.getJitterBuffer().write(packet, format);
+                        txContext.getRtpInput().write(packet, format);
                         // Update statistics
                         this.globalContext.getStatistics().incomingRtp(packet);
                     }
@@ -343,8 +340,6 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
         txContext.getRtpInput().deactivate();
         txContext.getDtmfInput().deactivate();
         txContext.getRtpOutput().deactivate();
-        txContext.getJitterBuffer().restart();
-        txContext.getJitterBuffer().forget(txContext.getRtpInput());
 
         // Update mode to inactive
         this.globalContext.setMode(ConnectionMode.INACTIVE);

@@ -21,7 +21,7 @@
 
 package org.restcomm.media.rtp.session;
 
-import org.restcomm.media.rtp.JitterBuffer;
+import org.restcomm.media.rtp.RtpInput;
 import org.restcomm.media.rtp.RtpPacket;
 import org.restcomm.media.rtp.rfc2833.DtmfInput;
 
@@ -32,13 +32,13 @@ import org.restcomm.media.rtp.rfc2833.DtmfInput;
 public class RtpSessionIncomingRtpContext extends RtpSessionBaseTransactionContext {
 
     private final RtpPacket packet;
-    private final JitterBuffer jitterBuffer;
     private final DtmfInput dtmfInput;
+    private final RtpInput rtpInput;
 
-    public RtpSessionIncomingRtpContext(RtpPacket packet, JitterBuffer jitterBuffer, DtmfInput dtmfInput) {
+    public RtpSessionIncomingRtpContext(RtpPacket packet, RtpInput rtpInput, DtmfInput dtmfInput) {
         super(null);
         this.packet = packet;
-        this.jitterBuffer = jitterBuffer;
+        this.rtpInput = rtpInput;
         this.dtmfInput = dtmfInput;
     }
 
@@ -46,8 +46,8 @@ public class RtpSessionIncomingRtpContext extends RtpSessionBaseTransactionConte
         return packet;
     }
 
-    public JitterBuffer getJitterBuffer() {
-        return jitterBuffer;
+    public RtpInput getRtpInput() {
+        return rtpInput;
     }
 
     public DtmfInput getDtmfInput() {

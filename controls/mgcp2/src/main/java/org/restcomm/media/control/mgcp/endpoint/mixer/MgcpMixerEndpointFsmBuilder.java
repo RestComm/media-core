@@ -22,6 +22,7 @@
 package org.restcomm.media.control.mgcp.endpoint.mixer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.restcomm.media.control.mgcp.endpoint.AbstractMgcpEndpointFsmBuilder;
@@ -33,28 +34,12 @@ import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointAction;
  */
 public class MgcpMixerEndpointFsmBuilder extends AbstractMgcpEndpointFsmBuilder {
 
+    private static final List<MgcpEndpointAction> activationActions = Arrays.asList(ActivateMixerAction.INSTANCE, RegisterMediaGroupInMixerAction.INSTANCE);
+    private static final List<MgcpEndpointAction> deactivationActions = Arrays.asList(UnregisterMediaGroupFromMixerAction.INSTANCE, DeactivateMixerAction.INSTANCE);
+    private static final List<MgcpEndpointAction> registeredConnectionActions = Arrays.asList(RegisterConnectionInMixerAction.INSTANCE);
+    private static final List<MgcpEndpointAction> unregisteredConnectionActions = Arrays.asList(UnregisterConnectionsFromMixerAction.INSTANCE);
+
     public static final MgcpMixerEndpointFsmBuilder INSTANCE = new MgcpMixerEndpointFsmBuilder();
-
-    private static final List<MgcpEndpointAction> activationActions;
-    private static final List<MgcpEndpointAction> deactivationActions;
-    private static final List<MgcpEndpointAction> registeredConnectionActions;
-    private static final List<MgcpEndpointAction> unregisteredConnectionActions;
-
-    static {
-        activationActions = new ArrayList<>(2);
-        activationActions.add(ActivateMixerAction.INSTANCE);
-        activationActions.add(RegisterMediaGroupInMixerAction.INSTANCE);
-
-        deactivationActions = new ArrayList<>(2);
-        deactivationActions.add(UnregisterMediaGroupFromMixerAction.INSTANCE);
-        deactivationActions.add(DeactivateMixerAction.INSTANCE);
-
-        registeredConnectionActions = new ArrayList<>(1);
-        registeredConnectionActions.add(RegisterConnectionInMixerAction.INSTANCE);
-
-        unregisteredConnectionActions = new ArrayList<>(1);
-        unregisteredConnectionActions.add(UnregisterConnectionsFromMixerAction.INSTANCE);
-    }
 
     MgcpMixerEndpointFsmBuilder() {
         super();

@@ -25,6 +25,7 @@ import org.restcomm.media.control.mgcp.endpoint.AbstractMgcpEndpointFsmBuilder;
 import org.restcomm.media.control.mgcp.endpoint.MgcpEndpointAction;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -32,26 +33,12 @@ import java.util.List;
  */
 public class MgcpSplitterEndpointFsmBuilder extends AbstractMgcpEndpointFsmBuilder {
 
+    private static final List<MgcpEndpointAction> activationActions = Arrays.asList(ActivateSplitterAction.INSTANCE);
+    private static final List<MgcpEndpointAction> deactivationActions = Arrays.asList(DeactivateSplitterAction.INSTANCE);
+    private static final List<MgcpEndpointAction> registeredConnectionActions = Arrays.asList(RegisterConnectionInSplitterAction.INSTANCE);
+    private static final List<MgcpEndpointAction> unregisteredConnectionActions = Arrays.asList(UnregisterConnectionsFromSplitterAction.INSTANCE);
+
     public static final MgcpSplitterEndpointFsmBuilder INSTANCE = new MgcpSplitterEndpointFsmBuilder();
-
-    private static final List<MgcpEndpointAction> activationActions;
-    private static final List<MgcpEndpointAction> deactivationActions;
-    private static final List<MgcpEndpointAction> registeredConnectionActions;
-    private static final List<MgcpEndpointAction> unregisteredConnectionActions;
-
-    static {
-        activationActions = new ArrayList<>(1);
-        activationActions.add(ActivateSplitterAction.INSTANCE);
-
-        deactivationActions = new ArrayList<>(1);
-        deactivationActions.add(DeactivateSplitterAction.INSTANCE);
-
-        registeredConnectionActions = new ArrayList<>(1);
-        registeredConnectionActions.add(RegisterConnectionInSplitterAction.INSTANCE);
-
-        unregisteredConnectionActions = new ArrayList<>(1);
-        unregisteredConnectionActions.add(UnregisterConnectionsFromSplitterAction.INSTANCE);
-    }
 
     MgcpSplitterEndpointFsmBuilder() {
         super();
