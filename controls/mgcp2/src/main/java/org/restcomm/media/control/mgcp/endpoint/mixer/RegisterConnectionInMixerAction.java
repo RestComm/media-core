@@ -71,7 +71,7 @@ public class RegisterConnectionInMixerAction
         AudioComponent component = connection.getAudioComponent();
         AudioMixer mixer = globalContext.getMixer();
         mixer.addComponent(component);
-        
+
         if(log.isTraceEnabled()) {
             EndpointIdentifier endpointId = globalContext.getEndpointId();
             String connectionIdHex = connection.getHexIdentifier();

@@ -1,7 +1,7 @@
 /*
  * TeleStax, Open Source Cloud Communications
  * Copyright 2011-2017, Telestax Inc and individual contributors
- * by the @authors tag. 
+ * by the @authors tag.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -21,31 +21,20 @@
 
 package org.restcomm.media.rtp.session;
 
-import org.restcomm.media.rtp.DtmfInputFactory;
-import org.restcomm.media.rtp.JitterBuffer;
-import org.restcomm.media.rtp.JitterBufferFactory;
-import org.restcomm.media.rtp.MediaType;
-import org.restcomm.media.rtp.RtpChannel;
-import org.restcomm.media.rtp.RtpChannelFactory;
-import org.restcomm.media.rtp.RtpInput;
-import org.restcomm.media.rtp.RtpInputFactory;
-import org.restcomm.media.rtp.RtpOutput;
-import org.restcomm.media.rtp.RtpOutputFactory;
-import org.restcomm.media.rtp.RtpSession;
-import org.restcomm.media.rtp.RtpSessionFactory;
-import org.restcomm.media.rtp.SsrcGenerator;
+import org.restcomm.media.rtp.*;
 import org.restcomm.media.rtp.rfc2833.DtmfInput;
 import org.restcomm.media.scheduler.Clock;
 import org.restcomm.media.sdp.format.RTPFormats;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
  */
 public class RtpSessionImplFactory implements RtpSessionFactory {
 
+    private final AtomicInteger componentIdGenerator;
     private final RtpChannelFactory channelFactory;
-    private final JitterBufferFactory jitterBufferFactory;
     private final RtpInputFactory rtpInputFactory;
     private final RtpOutputFactory rtpOutputFactory;
     private final DtmfInputFactory dtmfInputFactory;
@@ -54,11 +43,11 @@ public class RtpSessionImplFactory implements RtpSessionFactory {
     private final MediaType mediaType;
     private final RTPFormats formats;
 
-    public RtpSessionImplFactory(RtpChannelFactory channelFactory, JitterBufferFactory jitterBufferFactory,
-            RtpInputFactory rtpInputFactory, RtpOutputFactory rtpOutputFactory, DtmfInputFactory dtmfInputFactory,
-            SsrcGenerator ssrcGenerator, Clock wallClock, MediaType mediaType, RTPFormats formats) {
+    public RtpSessionImplFactory(AtomicInteger componentIdGenerator, RtpChannelFactory channelFactory,
+                                 RtpInputFactory rtpInputFactory, RtpOutputFactory rtpOutputFactory, DtmfInputFactory dtmfInputFactory,
+                                 SsrcGenerator ssrcGenerator, Clock wallClock, MediaType mediaType, RTPFormats formats) {
+        this.componentIdGenerator = componentIdGenerator;
         this.channelFactory = channelFactory;
-        this.jitterBufferFactory = jitterBufferFactory;
         this.rtpInputFactory = rtpInputFactory;
         this.rtpOutputFactory = rtpOutputFactory;
         this.dtmfInputFactory = dtmfInputFactory;
@@ -72,17 +61,15 @@ public class RtpSessionImplFactory implements RtpSessionFactory {
     public RtpSession build() {
         // Build dependencies
         RtpChannel channel = this.channelFactory.build();
-        JitterBuffer jitterBuffer = this.jitterBufferFactory.build();
         RtpInput rtpInput = this.rtpInputFactory.build();
         RtpOutput rtpOutput = this.rtpOutputFactory.build();
         DtmfInput dtmfInput = this.dtmfInputFactory.build();
-        
+
         // Build RTP Session
         long ssrc = this.ssrcGenerator.generateSsrc();
         RtpSessionStatistics statistics = new RtpSessionStatistics(wallClock, ssrc);
         RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, this.formats);
-        RtpSession rtpSession = new RtpSessionImpl(channel, context, jitterBuffer, rtpInput, dtmfInput, rtpOutput);
-        return rtpSession;
+        return new RtpSessionImpl(componentIdGenerator.incrementAndGet(), channel, context, rtpInput, dtmfInput, rtpOutput);
     }
 
 }

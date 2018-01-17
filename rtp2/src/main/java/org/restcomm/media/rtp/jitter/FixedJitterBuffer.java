@@ -302,10 +302,12 @@ public class FixedJitterBuffer implements JitterBuffer {
             // check if this buffer already full
             boolean readyTest = (!useBuffer || (duration >= jitterBufferSize && queue.size() > 1));
             if (ready.compareAndSet(false, readyTest)) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Jitter Buffer is ready! [duration=" + duration + "ms, frames=" + queue.size() + "]");
+                if(ready.get()) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Jitter Buffer is ready! [duration=" + duration + "ms, frames=" + queue.size() + "]");
+                    }
+                    notify(JitterBufferEvent.BUFFER_FILLED);
                 }
-                notify(JitterBufferEvent.BUFFER_FILLED);
             }
         }
     }

@@ -23,6 +23,7 @@ package org.restcomm.media.rtp.session;
 
 import com.google.common.util.concurrent.FutureCallback;
 import org.apache.log4j.Logger;
+import org.restcomm.media.component.audio.AudioComponent;
 import org.restcomm.media.rtp.*;
 import org.restcomm.media.rtp.format.DtmfFormat;
 import org.restcomm.media.rtp.rfc2833.DtmfInput;
@@ -187,25 +188,25 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
         ConnectionMode newMode = txContext.getMode();
 
         if (!currentMode.equals(newMode)) {
-            JitterBuffer jitterBuffer = txContext.getJitterBuffer();
             DtmfInput dtmfInput = txContext.getDtmfInput();
             RtpInput rtpInput = txContext.getRtpInput();
             RtpOutput rtpOutput = txContext.getRtpOutput();
+            final AudioComponent audioComponent = txContext.getAudioComponent();
 
             // Update mode of RTP components
             switch (newMode) {
                 case RECV_ONLY:
-                case NETWORK_LOOPBACK:
                     dtmfInput.activate();
                     rtpInput.activate();
                     rtpOutput.deactivate();
+                    audioComponent.updateMode(true, false);
                     break;
 
                 case SEND_ONLY:
                     dtmfInput.deactivate();
                     rtpInput.deactivate();
                     rtpOutput.activate();
-                    jitterBuffer.restart();
+                    audioComponent.updateMode(false, true);
                     break;
 
                 case SEND_RECV:
@@ -213,13 +214,15 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
                     dtmfInput.activate();
                     rtpInput.activate();
                     rtpOutput.activate();
+                    audioComponent.updateMode(true, true);
                     break;
 
+                case NETWORK_LOOPBACK:
                 default:
                     dtmfInput.deactivate();
                     rtpInput.deactivate();
                     rtpOutput.deactivate();
-                    jitterBuffer.restart();
+                    audioComponent.updateMode(false, false);
                     break;
             }
 
@@ -281,7 +284,7 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
                     if (DtmfFormat.FORMAT.matches(format.getFormat())) {
                         txContext.getDtmfInput().write(packet);
                     } else {
-                        txContext.getJitterBuffer().write(packet, format);
+                        txContext.getRtpInput().write(packet, format);
                         // Update statistics
                         this.globalContext.getStatistics().incomingRtp(packet);
                     }
@@ -343,8 +346,6 @@ public class RtpSessionFsmImpl extends AbstractRtpSessionFsm {
         txContext.getRtpInput().deactivate();
         txContext.getDtmfInput().deactivate();
         txContext.getRtpOutput().deactivate();
-        txContext.getJitterBuffer().restart();
-        txContext.getJitterBuffer().forget(txContext.getRtpInput());
 
         // Update mode to inactive
         this.globalContext.setMode(ConnectionMode.INACTIVE);

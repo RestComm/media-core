@@ -26,6 +26,7 @@ import org.restcomm.media.component.AbstractSource;
 import org.restcomm.media.component.audio.AudioInput;
 import org.restcomm.media.rtp.format.LinearFormat;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.sdp.format.RTPFormat;
 import org.restcomm.media.spi.dsp.Processor;
 import org.restcomm.media.spi.memory.Frame;
 
@@ -51,7 +52,6 @@ public class RtpInput extends AbstractSource implements JitterBufferObserver {
         this.buffer = buffer;
         this.dsp = dsp;
         this.input = input;
-        buffer.observe(this);
         connect(this.input);
     }
 
@@ -79,6 +79,10 @@ public class RtpInput extends AbstractSource implements JitterBufferObserver {
             case BUFFER_FILLED:
                 // Jitter Buffer is filled. Resume transmission to consumer.
                 this.wakeup();
+
+                if(log.isTraceEnabled()) {
+                    log.trace("RTP Input " + this.getName() + " has awake because jitter buffer is full.");
+                }
                 break;
 
             default:
@@ -88,4 +92,22 @@ public class RtpInput extends AbstractSource implements JitterBufferObserver {
 
     }
 
+    public AudioInput getInput() {
+        return input;
+    }
+
+    public void write(RtpPacket packet, RTPFormat format) {
+        this.buffer.write(packet, format);
+    }
+
+    @Override
+    protected void stopped() {
+        this.buffer.forget(this);
+        this.buffer.restart();
+    }
+
+    @Override
+    protected void started() {
+        this.buffer.observe(this);
+    }
 }

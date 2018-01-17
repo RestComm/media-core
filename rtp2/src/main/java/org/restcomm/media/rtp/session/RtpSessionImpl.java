@@ -55,24 +55,33 @@ public class RtpSessionImpl implements RtpSession {
     private final RtpChannelInitializer channelInitializer;
 
     // RTP Components
+    private final int componentId;
     private final RtpChannel channel;
-    private final JitterBuffer jitterBuffer;
     private final DtmfInput dtmfInput;
     private final RtpInput rtpInput;
     private final RtpOutput rtpOutput;
+    private final AudioComponent audioComponent;
+    private final OOBComponent oobComponent;
 
-    public RtpSessionImpl(RtpChannel channel, RtpSessionContext context, JitterBuffer jitterBuffer, RtpInput rtpInput, DtmfInput dtmfInput, RtpOutput rtpOutput) {
+    public RtpSessionImpl(int componentId, RtpChannel channel, RtpSessionContext context, RtpInput rtpInput, DtmfInput dtmfInput, RtpOutput rtpOutput) {
         // RTP Session
+        this.componentId = componentId;
         this.context = context;
         this.fsm = RtpSessionFsmBuilder.INSTANCE.build(this.context);
         this.channelInitializer = new RtpChannelInitializer(new RtpDemultiplexer(), new RtpPacketFilter(), new RtpInboundHandler(this));
 
         // RTP Components
         this.channel = channel;
-        this.jitterBuffer = jitterBuffer;
         this.dtmfInput = dtmfInput;
         this.rtpInput = rtpInput;
         this.rtpOutput = rtpOutput;
+        this.audioComponent = new AudioComponent(this.componentId);
+        this.audioComponent.addInput(this.rtpInput.getInput());
+        // TODO Add RTP output
+
+        this.oobComponent = new OOBComponent(this.componentId);
+        // TODO Add OOB Input
+        // TODO Add OOB Output
     }
 
     @Override
@@ -172,7 +181,7 @@ public class RtpSessionImpl implements RtpSession {
         this.fsm.addDeclarativeListener(listener);
 
         // Fire event
-        RtpSessionCloseContext txContext = new RtpSessionCloseContext(this.channel, this.jitterBuffer, this.dtmfInput, this.rtpInput, this.rtpOutput, callback);
+        RtpSessionCloseContext txContext = new RtpSessionCloseContext(this.channel, this.dtmfInput, this.rtpInput, this.rtpOutput, callback);
         this.fsm.fire(RtpSessionEvent.CLOSE, txContext);
     }
 
@@ -183,14 +192,14 @@ public class RtpSessionImpl implements RtpSession {
         this.fsm.addDeclarativeListener(listener);
 
         // Fire event
-        RtpSessionUpdateModeContext txContext = new RtpSessionUpdateModeContext(mode, this.jitterBuffer, this.dtmfInput, this.rtpInput, this.rtpOutput, callback);
+        RtpSessionUpdateModeContext txContext = new RtpSessionUpdateModeContext(mode, this.dtmfInput, this.rtpInput, this.rtpOutput, this.audioComponent, callback);
         this.fsm.fire(RtpSessionEvent.UPDATE_MODE, txContext);
     }
 
     @Override
     public void incomingRtp(RtpPacket packet) {
         // Fire event
-        RtpSessionIncomingRtpContext txContext = new RtpSessionIncomingRtpContext(packet, this.jitterBuffer, this.dtmfInput);
+        RtpSessionIncomingRtpContext txContext = new RtpSessionIncomingRtpContext(packet, this.rtpInput, this.dtmfInput);
         this.fsm.fire(RtpSessionEvent.INCOMING_RTP, txContext);
     }
 
@@ -221,13 +230,11 @@ public class RtpSessionImpl implements RtpSession {
 
     @Override
     public AudioComponent getAudioComponent() {
-        // TODO RtpSession.getAudioComponent
-        return null;
+        return this.audioComponent;
     }
 
     @Override
     public OOBComponent getOOBComponent() {
-        // TODO RtpSession.getOOBComponent
-        return null;
+        return this.oobComponent;
     }
 }

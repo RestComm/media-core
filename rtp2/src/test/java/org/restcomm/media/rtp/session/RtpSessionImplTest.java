@@ -1,7 +1,7 @@
 /*
  * TeleStax, Open Source Cloud Communications
  * Copyright 2011-2017, Telestax Inc and individual contributors
- * by the @authors tag. 
+ * by the @authors tag.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -50,7 +50,6 @@ import static org.mockito.Mockito.*;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
  */
 public class RtpSessionImplTest {
 
@@ -64,12 +63,11 @@ public class RtpSessionImplTest {
         final RtpSessionStatistics statistics = new RtpSessionStatistics(clock, ssrc);
         final RTPFormats formats = AVProfile.audio;
         final RtpChannel channel = mock(RtpChannel.class);
-        final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
         final DtmfInput dtmfInput = mock(DtmfInput.class);
         final RtpInput rtpInput = mock(RtpInput.class);
         final RtpOutput rtpOutput = mock(RtpOutput.class);
         final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
-        final RtpSessionImpl session = new RtpSessionImpl(channel, context, jitterBuffer, rtpInput, dtmfInput, rtpOutput);
+        final RtpSessionImpl session = new RtpSessionImpl(1, channel, context, rtpInput, dtmfInput, rtpOutput);
 
         doAnswer(new Answer<Void>() {
 
@@ -117,12 +115,12 @@ public class RtpSessionImplTest {
         final RtpSessionStatistics statistics = new RtpSessionStatistics(clock, ssrc);
         final RTPFormats formats = AVProfile.audio;
         final RtpChannel channel = mock(RtpChannel.class);
-        final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
+
         final DtmfInput dtmfInput = mock(DtmfInput.class);
         final RtpInput rtpInput = mock(RtpInput.class);
         final RtpOutput rtpOutput = mock(RtpOutput.class);
         final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
-        final RtpSessionImpl session = new RtpSessionImpl(channel, context, jitterBuffer, rtpInput, dtmfInput, rtpOutput);
+        final RtpSessionImpl session = new RtpSessionImpl(1, channel, context, rtpInput, dtmfInput, rtpOutput);
 
         doAnswer(new Answer<Void>() {
 
@@ -172,12 +170,11 @@ public class RtpSessionImplTest {
         final RtpSessionStatistics statistics = new RtpSessionStatistics(clock, ssrc);
         final RTPFormats formats = AVProfile.audio;
         final RtpChannel channel = mock(RtpChannel.class);
-        final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
         final DtmfInput dtmfInput = mock(DtmfInput.class);
         final RtpInput rtpInput = mock(RtpInput.class);
         final RtpOutput rtpOutput = mock(RtpOutput.class);
         final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
-        final RtpSessionImpl session = new RtpSessionImpl(channel, context, jitterBuffer, rtpInput, dtmfInput, rtpOutput);
+        final RtpSessionImpl session = new RtpSessionImpl(1, channel, context, rtpInput, dtmfInput, rtpOutput);
 
         // when
         FutureCallback<Void> modeCallback = mock(FutureCallback.class);
@@ -202,19 +199,19 @@ public class RtpSessionImplTest {
         final RtpSessionStatistics statistics = new RtpSessionStatistics(clock, ssrc);
         final RTPFormats formats = AVProfile.audio;
         final RtpChannel channel = mock(RtpChannel.class);
-        final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
+
         final DtmfInput dtmfInput = mock(DtmfInput.class);
         final RtpInput rtpInput = mock(RtpInput.class);
         final RtpOutput rtpOutput = mock(RtpOutput.class);
         final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
-        final RtpSessionImpl session = new RtpSessionImpl(channel, context, jitterBuffer, rtpInput, dtmfInput, rtpOutput);
+        final RtpSessionImpl session = new RtpSessionImpl(1, channel, context, rtpInput, dtmfInput, rtpOutput);
 
         InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
         ConnectionField remoteConnection = mock(ConnectionField.class);
         SsrcAttribute ssrcAttribute = new SsrcAttribute("54321");
         RtpMapAttribute pcmu = new RtpMapAttribute(0, "pcmu", 8000, 1);
         RtpMapAttribute telephoneEvent = new RtpMapAttribute(101, "telephone-event", 8000, 1);
-        RtpMapAttribute[] offeredFormats = new RtpMapAttribute[] { pcmu, telephoneEvent };
+        RtpMapAttribute[] offeredFormats = new RtpMapAttribute[]{pcmu, telephoneEvent};
 
         MediaDescriptionField remoteSdp = new MediaDescriptionField();
         remoteSdp.setPayloadTypes(String.valueOf(pcmu.getPayloadType()), String.valueOf(telephoneEvent.getPayloadType()));
@@ -285,19 +282,19 @@ public class RtpSessionImplTest {
         final RtpSessionStatistics statistics = new RtpSessionStatistics(clock, ssrc);
         final RTPFormats formats = AVProfile.audio;
         final RtpChannel channel = mock(RtpChannel.class);
-        final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
+
         final DtmfInput dtmfInput = mock(DtmfInput.class);
         final RtpInput rtpInput = mock(RtpInput.class);
         final RtpOutput rtpOutput = mock(RtpOutput.class);
         final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
-        final RtpSessionImpl session = new RtpSessionImpl(channel, context, jitterBuffer, rtpInput, dtmfInput, rtpOutput);
+        final RtpSessionImpl session = new RtpSessionImpl(1, channel, context, rtpInput, dtmfInput, rtpOutput);
 
         InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
         ConnectionField remoteConnection = mock(ConnectionField.class);
         SsrcAttribute ssrcAttribute = new SsrcAttribute("54321");
         RtpMapAttribute pcmu = new RtpMapAttribute(0, "pcmu", 8000, 1);
         RtpMapAttribute telephoneEvent = new RtpMapAttribute(101, "telephone-event", 8000, 1);
-        RtpMapAttribute[] offeredFormats = new RtpMapAttribute[] { pcmu, telephoneEvent };
+        RtpMapAttribute[] offeredFormats = new RtpMapAttribute[]{pcmu, telephoneEvent};
 
         MediaDescriptionField remoteSdp = new MediaDescriptionField();
         remoteSdp.setPayloadTypes(String.valueOf(pcmu.getPayloadType()), String.valueOf(telephoneEvent.getPayloadType()));
@@ -330,18 +327,18 @@ public class RtpSessionImplTest {
         final RtpSessionStatistics statistics = new RtpSessionStatistics(clock, ssrc);
         final RTPFormats formats = AVProfile.audio;
         final RtpChannel channel = mock(RtpChannel.class);
-        final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
+
         final DtmfInput dtmfInput = mock(DtmfInput.class);
         final RtpInput rtpInput = mock(RtpInput.class);
         final RtpOutput rtpOutput = mock(RtpOutput.class);
         final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
-        final RtpSessionImpl session = new RtpSessionImpl(channel, context, jitterBuffer, rtpInput, dtmfInput, rtpOutput);
+        final RtpSessionImpl session = new RtpSessionImpl(1, channel, context, rtpInput, dtmfInput, rtpOutput);
 
         InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
         ConnectionField remoteConnection = mock(ConnectionField.class);
         SsrcAttribute ssrcAttribute = new SsrcAttribute("54321");
         RtpMapAttribute unknownFormat = new RtpMapAttribute(999, "xyz", 8000, 1);
-        RtpMapAttribute[] offeredFormats = new RtpMapAttribute[] { unknownFormat };
+        RtpMapAttribute[] offeredFormats = new RtpMapAttribute[]{unknownFormat};
 
         MediaDescriptionField remoteSdp = new MediaDescriptionField();
         remoteSdp.setPayloadTypes(String.valueOf(unknownFormat.getPayloadType()));
@@ -410,12 +407,12 @@ public class RtpSessionImplTest {
         final RtpSessionStatistics statistics = new RtpSessionStatistics(clock, ssrc);
         final RTPFormats formats = AVProfile.audio;
         final RtpChannel channel = mock(RtpChannel.class);
-        final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
+
         final DtmfInput dtmfInput = mock(DtmfInput.class);
         final RtpInput rtpInput = mock(RtpInput.class);
         final RtpOutput rtpOutput = mock(RtpOutput.class);
         final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
-        final RtpSessionImpl session = new RtpSessionImpl(channel, context, jitterBuffer, rtpInput, dtmfInput, rtpOutput);
+        final RtpSessionImpl session = new RtpSessionImpl(1, channel, context, rtpInput, dtmfInput, rtpOutput);
 
         InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
         ConnectionField remoteConnection = mock(ConnectionField.class);
@@ -495,18 +492,18 @@ public class RtpSessionImplTest {
         final RtpSessionStatistics statistics = new RtpSessionStatistics(clock, ssrc);
         final RTPFormats formats = AVProfile.audio;
         final RtpChannel channel = mock(RtpChannel.class);
-        final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
+
         final DtmfInput dtmfInput = mock(DtmfInput.class);
         final RtpInput rtpInput = mock(RtpInput.class);
         final RtpOutput rtpOutput = mock(RtpOutput.class);
         final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
-        final RtpSessionImpl session = new RtpSessionImpl(channel, context, jitterBuffer, rtpInput, dtmfInput, rtpOutput);
+        final RtpSessionImpl session = new RtpSessionImpl(1, channel, context, rtpInput, dtmfInput, rtpOutput);
 
         InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
         ConnectionField remoteConnection = mock(ConnectionField.class);
         SsrcAttribute ssrcAttribute = new SsrcAttribute("54321");
         RtpMapAttribute pcmu = new RtpMapAttribute(0, "pcmu", 8000, 1);
-        RtpMapAttribute[] offeredFormats = new RtpMapAttribute[] { pcmu };
+        RtpMapAttribute[] offeredFormats = new RtpMapAttribute[]{pcmu};
 
         MediaDescriptionField remoteSdp = new MediaDescriptionField();
         remoteSdp.setPayloadTypes(String.valueOf(pcmu.getPayloadType()));
@@ -572,19 +569,19 @@ public class RtpSessionImplTest {
         final RtpSessionStatistics statistics = mock(RtpSessionStatistics.class);
         final RTPFormats formats = AVProfile.audio;
         final RtpChannel channel = mock(RtpChannel.class);
-        final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
+
         final DtmfInput dtmfInput = mock(DtmfInput.class);
         final RtpInput rtpInput = mock(RtpInput.class);
         final RtpOutput rtpOutput = mock(RtpOutput.class);
         final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
-        final RtpSessionImpl session = new RtpSessionImpl(channel, context, jitterBuffer, rtpInput, dtmfInput, rtpOutput);
+        final RtpSessionImpl session = new RtpSessionImpl(1, channel, context, rtpInput, dtmfInput, rtpOutput);
 
         InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
         ConnectionField remoteConnection = mock(ConnectionField.class);
         SsrcAttribute ssrcAttribute = new SsrcAttribute("54321");
         RtpMapAttribute pcmu = new RtpMapAttribute(0, "pcmu", 8000, 1);
         RtpMapAttribute telephoneEvent = new RtpMapAttribute(101, "telephone-event", 8000, 0);
-        RtpMapAttribute[] offeredFormats = new RtpMapAttribute[] { pcmu, telephoneEvent };
+        RtpMapAttribute[] offeredFormats = new RtpMapAttribute[]{pcmu, telephoneEvent};
 
         MediaDescriptionField remoteSdp = new MediaDescriptionField();
         remoteSdp.setPayloadTypes(String.valueOf(pcmu.getPayloadType()), String.valueOf(telephoneEvent.getPayloadType()));
@@ -637,7 +634,7 @@ public class RtpSessionImplTest {
         session.incomingRtp(packet);
 
         // then
-        verify(jitterBuffer).write(eq(packet), any(RTPFormat.class));
+        verify(rtpInput).write(eq(packet), any(RTPFormat.class));
         verify(dtmfInput, never()).write(packet);
         verify(statistics).incomingRtp(packet);
     }
@@ -651,19 +648,19 @@ public class RtpSessionImplTest {
         final RtpSessionStatistics statistics = mock(RtpSessionStatistics.class);
         final RTPFormats formats = AVProfile.audio;
         final RtpChannel channel = mock(RtpChannel.class);
-        final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
+
         final DtmfInput dtmfInput = mock(DtmfInput.class);
         final RtpInput rtpInput = mock(RtpInput.class);
         final RtpOutput rtpOutput = mock(RtpOutput.class);
         final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
-        final RtpSessionImpl session = new RtpSessionImpl(channel, context, jitterBuffer, rtpInput, dtmfInput, rtpOutput);
+        final RtpSessionImpl session = new RtpSessionImpl(1, channel, context, rtpInput, dtmfInput, rtpOutput);
 
         InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
         ConnectionField remoteConnection = mock(ConnectionField.class);
         SsrcAttribute ssrcAttribute = new SsrcAttribute("54321");
         RtpMapAttribute pcmu = new RtpMapAttribute(0, "pcmu", 8000, 1);
         RtpMapAttribute telephoneEvent = new RtpMapAttribute(101, "telephone-event", 8000, 0);
-        RtpMapAttribute[] offeredFormats = new RtpMapAttribute[] { pcmu, telephoneEvent };
+        RtpMapAttribute[] offeredFormats = new RtpMapAttribute[]{pcmu, telephoneEvent};
 
         MediaDescriptionField remoteSdp = new MediaDescriptionField();
         remoteSdp.setPayloadTypes(String.valueOf(pcmu.getPayloadType()), String.valueOf(telephoneEvent.getPayloadType()));
@@ -716,7 +713,7 @@ public class RtpSessionImplTest {
         session.incomingRtp(packet);
 
         // then
-        verify(jitterBuffer, never()).write(eq(packet), any(RTPFormat.class));
+        verify(rtpInput, never()).write(eq(packet), any(RTPFormat.class));
         verify(dtmfInput).write(packet);
         verify(statistics, never()).incomingRtp(packet);
     }
@@ -730,12 +727,12 @@ public class RtpSessionImplTest {
         final RtpSessionStatistics statistics = mock(RtpSessionStatistics.class);
         final RTPFormats formats = AVProfile.audio;
         final RtpChannel channel = mock(RtpChannel.class);
-        final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
+
         final DtmfInput dtmfInput = mock(DtmfInput.class);
         final RtpInput rtpInput = mock(RtpInput.class);
         final RtpOutput rtpOutput = mock(RtpOutput.class);
         final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
-        final RtpSessionImpl session = new RtpSessionImpl(channel, context, jitterBuffer, rtpInput, dtmfInput, rtpOutput);
+        final RtpSessionImpl session = new RtpSessionImpl(1, channel, context, rtpInput, dtmfInput, rtpOutput);
 
         InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
         MediaDescriptionField remoteSdp = mock(MediaDescriptionField.class);
@@ -748,7 +745,7 @@ public class RtpSessionImplTest {
         RtpMapAttribute telephoneEvent = new RtpMapAttribute();
         telephoneEvent.setCodec("telephone-event");
         telephoneEvent.setPayloadType(101);
-        RtpMapAttribute[] offeredFormats = new RtpMapAttribute[] { pcmu, telephoneEvent };
+        RtpMapAttribute[] offeredFormats = new RtpMapAttribute[]{pcmu, telephoneEvent};
 
         when(remoteSdp.getSsrc()).thenReturn(ssrcAttribute);
         when(remoteSdp.getPort()).thenReturn(remoteAddress.getPort());
@@ -786,7 +783,7 @@ public class RtpSessionImplTest {
         session.incomingRtp(packet);
 
         // then
-        verify(jitterBuffer, never()).write(eq(packet), any(RTPFormat.class));
+        verify(rtpInput, never()).write(eq(packet), any(RTPFormat.class));
         verify(dtmfInput, never()).write(packet);
         verify(statistics, never()).incomingRtp(packet);
         // TODO check dropped packets
@@ -801,19 +798,19 @@ public class RtpSessionImplTest {
         final RtpSessionStatistics statistics = mock(RtpSessionStatistics.class);
         final RTPFormats formats = AVProfile.audio;
         final RtpChannel channel = mock(RtpChannel.class);
-        final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
+
         final DtmfInput dtmfInput = mock(DtmfInput.class);
         final RtpInput rtpInput = mock(RtpInput.class);
         final RtpOutput rtpOutput = mock(RtpOutput.class);
         final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
-        final RtpSessionImpl session = new RtpSessionImpl(channel, context, jitterBuffer, rtpInput, dtmfInput, rtpOutput);
+        final RtpSessionImpl session = new RtpSessionImpl(1, channel, context, rtpInput, dtmfInput, rtpOutput);
 
         InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
         ConnectionField remoteConnection = mock(ConnectionField.class);
         SsrcAttribute ssrcAttribute = new SsrcAttribute("54321");
         RtpMapAttribute pcmu = new RtpMapAttribute(0, "pcmu", 8000, 1);
         RtpMapAttribute telephoneEvent = new RtpMapAttribute(101, "telephone-event", 8000, 0);
-        RtpMapAttribute[] offeredFormats = new RtpMapAttribute[] { pcmu, telephoneEvent };
+        RtpMapAttribute[] offeredFormats = new RtpMapAttribute[]{pcmu, telephoneEvent};
 
         MediaDescriptionField remoteSdp = new MediaDescriptionField();
         remoteSdp.setPayloadTypes(String.valueOf(pcmu.getPayloadType()), String.valueOf(telephoneEvent.getPayloadType()));
@@ -866,7 +863,7 @@ public class RtpSessionImplTest {
         session.incomingRtp(packet);
 
         // then
-        verify(jitterBuffer, never()).write(eq(packet), any(RTPFormat.class));
+        verify(rtpInput, never()).write(eq(packet), any(RTPFormat.class));
         verify(dtmfInput, never()).write(packet);
         verify(statistics, never()).incomingRtp(packet);
         // TODO check dropped packets
@@ -881,19 +878,19 @@ public class RtpSessionImplTest {
         final RtpSessionStatistics statistics = mock(RtpSessionStatistics.class);
         final RTPFormats formats = AVProfile.audio;
         final RtpChannel channel = mock(RtpChannel.class);
-        final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
+
         final DtmfInput dtmfInput = mock(DtmfInput.class);
         final RtpInput rtpInput = mock(RtpInput.class);
         final RtpOutput rtpOutput = mock(RtpOutput.class);
         final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
-        final RtpSessionImpl session = new RtpSessionImpl(channel, context, jitterBuffer, rtpInput, dtmfInput, rtpOutput);
+        final RtpSessionImpl session = new RtpSessionImpl(1, channel, context, rtpInput, dtmfInput, rtpOutput);
 
         InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
         ConnectionField remoteConnection = mock(ConnectionField.class);
         SsrcAttribute ssrcAttribute = new SsrcAttribute("54321");
         RtpMapAttribute pcmu = new RtpMapAttribute(0, "pcmu", 8000, 1);
         RtpMapAttribute telephoneEvent = new RtpMapAttribute(101, "telephone-event", 8000, 0);
-        RtpMapAttribute[] offeredFormats = new RtpMapAttribute[] { pcmu, telephoneEvent };
+        RtpMapAttribute[] offeredFormats = new RtpMapAttribute[]{pcmu, telephoneEvent};
 
         MediaDescriptionField remoteSdp = new MediaDescriptionField();
         remoteSdp.setPayloadTypes(String.valueOf(pcmu.getPayloadType()), String.valueOf(telephoneEvent.getPayloadType()));
@@ -970,12 +967,12 @@ public class RtpSessionImplTest {
         final RtpSessionStatistics statistics = mock(RtpSessionStatistics.class);
         final RTPFormats formats = AVProfile.audio;
         final RtpChannel channel = mock(RtpChannel.class);
-        final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
+
         final DtmfInput dtmfInput = mock(DtmfInput.class);
         final RtpInput rtpInput = mock(RtpInput.class);
         final RtpOutput rtpOutput = mock(RtpOutput.class);
         final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
-        final RtpSessionImpl session = new RtpSessionImpl(channel, context, jitterBuffer, rtpInput, dtmfInput, rtpOutput);
+        final RtpSessionImpl session = new RtpSessionImpl(1, channel, context, rtpInput, dtmfInput, rtpOutput);
 
         InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
         MediaDescriptionField remoteSdp = mock(MediaDescriptionField.class);
@@ -988,7 +985,7 @@ public class RtpSessionImplTest {
         RtpMapAttribute telephoneEvent = new RtpMapAttribute();
         telephoneEvent.setCodec("telephone-event");
         telephoneEvent.setPayloadType(101);
-        RtpMapAttribute[] offeredFormats = new RtpMapAttribute[] { pcmu, telephoneEvent };
+        RtpMapAttribute[] offeredFormats = new RtpMapAttribute[]{pcmu, telephoneEvent};
 
         when(remoteSdp.getSsrc()).thenReturn(ssrcAttribute);
         when(remoteSdp.getPort()).thenReturn(remoteAddress.getPort());
@@ -1039,19 +1036,19 @@ public class RtpSessionImplTest {
         final RtpSessionStatistics statistics = mock(RtpSessionStatistics.class);
         final RTPFormats formats = AVProfile.audio;
         final RtpChannel channel = mock(RtpChannel.class);
-        final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
+
         final DtmfInput dtmfInput = mock(DtmfInput.class);
         final RtpInput rtpInput = mock(RtpInput.class);
         final RtpOutput rtpOutput = mock(RtpOutput.class);
         final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
-        final RtpSessionImpl session = new RtpSessionImpl(channel, context, jitterBuffer, rtpInput, dtmfInput, rtpOutput);
+        final RtpSessionImpl session = new RtpSessionImpl(1, channel, context, rtpInput, dtmfInput, rtpOutput);
 
         InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
         ConnectionField remoteConnection = mock(ConnectionField.class);
         SsrcAttribute ssrcAttribute = new SsrcAttribute("54321");
         RtpMapAttribute pcmu = new RtpMapAttribute(0, "pcmu", 8000, 1);
         RtpMapAttribute telephoneEvent = new RtpMapAttribute(101, "telephone-event", 8000, 1);
-        RtpMapAttribute[] offeredFormats = new RtpMapAttribute[] { pcmu, telephoneEvent };
+        RtpMapAttribute[] offeredFormats = new RtpMapAttribute[]{pcmu, telephoneEvent};
 
         MediaDescriptionField remoteSdp = new MediaDescriptionField();
         remoteSdp.setPayloadTypes(String.valueOf(pcmu.getPayloadType()), String.valueOf(telephoneEvent.getPayloadType()));
@@ -1118,7 +1115,7 @@ public class RtpSessionImplTest {
         verify(channel, never()).send(eq(packet), any(FutureCallback.class));
         verify(statistics, never()).outgoingRtp(packet);
     }
-    
+
     @SuppressWarnings("unchecked")
     @Test
     public void testCloseEstablishedSession() {
@@ -1129,19 +1126,19 @@ public class RtpSessionImplTest {
         final RtpSessionStatistics statistics = new RtpSessionStatistics(clock, ssrc);
         final RTPFormats formats = AVProfile.audio;
         final RtpChannel channel = mock(RtpChannel.class);
-        final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
+
         final DtmfInput dtmfInput = mock(DtmfInput.class);
         final RtpInput rtpInput = mock(RtpInput.class);
         final RtpOutput rtpOutput = mock(RtpOutput.class);
         final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
-        final RtpSessionImpl session = new RtpSessionImpl(channel, context, jitterBuffer, rtpInput, dtmfInput, rtpOutput);
+        final RtpSessionImpl session = new RtpSessionImpl(1, channel, context, rtpInput, dtmfInput, rtpOutput);
 
         InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 7000);
         ConnectionField remoteConnection = mock(ConnectionField.class);
         SsrcAttribute ssrcAttribute = new SsrcAttribute("54321");
         RtpMapAttribute pcmu = new RtpMapAttribute(0, "pcmu", 8000, 1);
         RtpMapAttribute telephoneEvent = new RtpMapAttribute(101, "telephone-event", 8000, 0);
-        RtpMapAttribute[] offeredFormats = new RtpMapAttribute[] { pcmu, telephoneEvent };
+        RtpMapAttribute[] offeredFormats = new RtpMapAttribute[]{pcmu, telephoneEvent};
 
         MediaDescriptionField remoteSdp = new MediaDescriptionField();
         remoteSdp.setPayloadTypes(String.valueOf(pcmu.getPayloadType()), String.valueOf(telephoneEvent.getPayloadType()));
@@ -1184,23 +1181,23 @@ public class RtpSessionImplTest {
             }
 
         }).when(channel).connect(any(SocketAddress.class), any(FutureCallback.class));
-        
+
         doAnswer(new Answer<Void>() {
-            
+
             @Override
             public Void answer(InvocationOnMock invocation) throws Throwable {
                 FutureCallback<Void> callback = invocation.getArgumentAt(0, FutureCallback.class);
                 callback.onSuccess(null);
                 return null;
             }
-            
+
         }).when(channel).close(any(FutureCallback.class));
 
         // when
         session.open(new InetSocketAddress("127.0.0.1", 6000), mock(FutureCallback.class));
         session.updateMode(ConnectionMode.SEND_RECV, mock(FutureCallback.class));
         session.negotiate(remoteSdp, mock(FutureCallback.class));
-        
+
         FutureCallback<Void> callback = mock(FutureCallback.class);
         session.close(callback);
 
@@ -1209,8 +1206,6 @@ public class RtpSessionImplTest {
         verify(rtpInput).deactivate();
         verify(dtmfInput).deactivate();
         verify(rtpOutput).deactivate();
-        verify(jitterBuffer).restart();
-        verify(jitterBuffer).forget(rtpInput);
         verify(channel).close(any(FutureCallback.class));
         assertEquals(ConnectionMode.INACTIVE, context.getMode());
     }
@@ -1225,23 +1220,22 @@ public class RtpSessionImplTest {
         final RtpSessionStatistics statistics = new RtpSessionStatistics(clock, ssrc);
         final RTPFormats formats = AVProfile.audio;
         final RtpChannel channel = mock(RtpChannel.class);
-        final JitterBuffer jitterBuffer = mock(JitterBuffer.class);
+
         final DtmfInput dtmfInput = mock(DtmfInput.class);
         final RtpInput rtpInput = mock(RtpInput.class);
         final RtpOutput rtpOutput = mock(RtpOutput.class);
         final RtpSessionContext context = new RtpSessionContext(ssrc, mediaType, statistics, formats);
-        final RtpSessionImpl session = new RtpSessionImpl(channel, context, jitterBuffer, rtpInput, dtmfInput, rtpOutput);
-        
+        final RtpSessionImpl session = new RtpSessionImpl(1, channel, context, rtpInput, dtmfInput, rtpOutput);
+
         // when
         FutureCallback<Void> callback = mock(FutureCallback.class);
         session.close(callback);
-        
+
         // then
         verify(callback).onSuccess(null);
         verify(rtpInput, never()).deactivate();
         verify(dtmfInput, never()).deactivate();
         verify(rtpOutput, never()).deactivate();
-        verify(jitterBuffer, never()).restart();
         verify(channel, never()).close(any(FutureCallback.class));
         assertEquals(ConnectionMode.INACTIVE, context.getMode());
     }
