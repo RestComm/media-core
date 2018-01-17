@@ -78,7 +78,6 @@ public class RtpSessionImpl implements RtpSession {
         this.audioComponent = new AudioComponent(this.componentId);
         this.audioComponent.addInput(this.rtpInput.getInput());
         // TODO Add RTP output
-        this.audioComponent.updateMode(true, true);
 
         this.oobComponent = new OOBComponent(this.componentId);
         // TODO Add OOB Input
@@ -193,7 +192,7 @@ public class RtpSessionImpl implements RtpSession {
         this.fsm.addDeclarativeListener(listener);
 
         // Fire event
-        RtpSessionUpdateModeContext txContext = new RtpSessionUpdateModeContext(mode, this.dtmfInput, this.rtpInput, this.rtpOutput, callback);
+        RtpSessionUpdateModeContext txContext = new RtpSessionUpdateModeContext(mode, this.dtmfInput, this.rtpInput, this.rtpOutput, this.audioComponent, callback);
         this.fsm.fire(RtpSessionEvent.UPDATE_MODE, txContext);
     }
 

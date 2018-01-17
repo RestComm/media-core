@@ -26,6 +26,7 @@ import org.junit.After;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.restcomm.media.component.audio.AudioComponent;
 import org.restcomm.media.rtp.*;
 import org.restcomm.media.rtp.rfc2833.DtmfInput;
 import org.restcomm.media.scheduler.WallClock;
@@ -149,19 +150,21 @@ public class RtpSessionFsmImplTest {
         final RtpInput rtpInput = mock(RtpInput.class);
         final DtmfInput dtmfInput = mock(DtmfInput.class);
         final RtpOutput rtpOutput = mock(RtpOutput.class);
+        final AudioComponent audioComponent = mock(AudioComponent.class);
         final ConnectionMode mode = ConnectionMode.INACTIVE;
         final FutureCallback<Void> callback = mock(FutureCallback.class);
 
         when(context.getMode()).thenReturn(ConnectionMode.SEND_RECV);
 
         // when
-        RtpSessionUpdateModeContext txContext = new RtpSessionUpdateModeContext(mode, dtmfInput, rtpInput, rtpOutput, callback);
+        RtpSessionUpdateModeContext txContext = new RtpSessionUpdateModeContext(mode, dtmfInput, rtpInput, rtpOutput, audioComponent, callback);
         fsm.onUpdateMode(RtpSessionState.OPEN, RtpSessionState.OPEN, RtpSessionEvent.UPDATE_MODE, txContext);
 
         // then
         verify(rtpInput).deactivate();
         verify(dtmfInput).deactivate();
         verify(rtpOutput).deactivate();
+        verify(audioComponent).updateMode(false, false);
         verify(context).setMode(mode);
     }
 
@@ -175,19 +178,21 @@ public class RtpSessionFsmImplTest {
         final RtpInput rtpInput = mock(RtpInput.class);
         final DtmfInput dtmfInput = mock(DtmfInput.class);
         final RtpOutput rtpOutput = mock(RtpOutput.class);
+        final AudioComponent audioComponent = mock(AudioComponent.class);
         final ConnectionMode mode = ConnectionMode.SEND_ONLY;
         final FutureCallback<Void> callback = mock(FutureCallback.class);
 
         when(context.getMode()).thenReturn(ConnectionMode.SEND_RECV);
 
         // when
-        RtpSessionUpdateModeContext txContext = new RtpSessionUpdateModeContext(mode, dtmfInput, rtpInput, rtpOutput, callback);
+        RtpSessionUpdateModeContext txContext = new RtpSessionUpdateModeContext(mode, dtmfInput, rtpInput, rtpOutput, audioComponent, callback);
         fsm.onUpdateMode(RtpSessionState.OPEN, RtpSessionState.OPEN, RtpSessionEvent.UPDATE_MODE, txContext);
 
         // then
         verify(rtpInput).deactivate();
         verify(dtmfInput).deactivate();
         verify(rtpOutput).activate();
+        verify(audioComponent).updateMode(false, true);
         verify(context).setMode(mode);
     }
 
@@ -202,14 +207,14 @@ public class RtpSessionFsmImplTest {
         final RtpInput rtpInput = mock(RtpInput.class);
         final DtmfInput dtmfInput = mock(DtmfInput.class);
         final RtpOutput rtpOutput = mock(RtpOutput.class);
+        final AudioComponent audioComponent = mock(AudioComponent.class);
         final ConnectionMode mode = ConnectionMode.RECV_ONLY;
         final FutureCallback<Void> callback = mock(FutureCallback.class);
 
         when(context.getMode()).thenReturn(ConnectionMode.SEND_RECV);
 
         // when
-        RtpSessionUpdateModeContext txContext = new RtpSessionUpdateModeContext(mode, dtmfInput, rtpInput,
-                rtpOutput, callback);
+        RtpSessionUpdateModeContext txContext = new RtpSessionUpdateModeContext(mode, dtmfInput, rtpInput, rtpOutput, audioComponent, callback);
         fsm.onUpdateMode(RtpSessionState.OPEN, RtpSessionState.OPEN, RtpSessionEvent.UPDATE_MODE, txContext);
 
         // then
@@ -217,6 +222,7 @@ public class RtpSessionFsmImplTest {
         verify(rtpInput).activate();
         verify(dtmfInput).activate();
         verify(rtpOutput, never()).activate();
+        verify(audioComponent).updateMode(true, false);
         verify(context).setMode(mode);
     }
 
@@ -231,14 +237,14 @@ public class RtpSessionFsmImplTest {
         final RtpInput rtpInput = mock(RtpInput.class);
         final DtmfInput dtmfInput = mock(DtmfInput.class);
         final RtpOutput rtpOutput = mock(RtpOutput.class);
+        final AudioComponent audioComponent = mock(AudioComponent.class);
         final ConnectionMode mode = ConnectionMode.SEND_RECV;
         final FutureCallback<Void> callback = mock(FutureCallback.class);
 
         when(context.getMode()).thenReturn(ConnectionMode.INACTIVE);
 
         // when
-        RtpSessionUpdateModeContext txContext = new RtpSessionUpdateModeContext(mode, dtmfInput, rtpInput,
-                rtpOutput, callback);
+        RtpSessionUpdateModeContext txContext = new RtpSessionUpdateModeContext(mode, dtmfInput, rtpInput, rtpOutput, audioComponent, callback);
         fsm.onUpdateMode(RtpSessionState.OPEN, RtpSessionState.OPEN, RtpSessionEvent.UPDATE_MODE, txContext);
 
         // then
@@ -246,6 +252,7 @@ public class RtpSessionFsmImplTest {
         verify(rtpInput).activate();
         verify(dtmfInput).activate();
         verify(rtpOutput).activate();
+        verify(audioComponent).updateMode(true, true);
         verify(context).setMode(mode);
     }
 
@@ -260,14 +267,14 @@ public class RtpSessionFsmImplTest {
         final RtpInput rtpInput = mock(RtpInput.class);
         final DtmfInput dtmfInput = mock(DtmfInput.class);
         final RtpOutput rtpOutput = mock(RtpOutput.class);
+        final AudioComponent audioComponent = mock(AudioComponent.class);
         final ConnectionMode mode = ConnectionMode.CONFERENCE;
         final FutureCallback<Void> callback = mock(FutureCallback.class);
 
         when(context.getMode()).thenReturn(ConnectionMode.INACTIVE);
 
         // when
-        RtpSessionUpdateModeContext txContext = new RtpSessionUpdateModeContext(mode, dtmfInput, rtpInput,
-                rtpOutput, callback);
+        RtpSessionUpdateModeContext txContext = new RtpSessionUpdateModeContext(mode, dtmfInput, rtpInput, rtpOutput, audioComponent, callback);
         fsm.onUpdateMode(RtpSessionState.OPEN, RtpSessionState.OPEN, RtpSessionEvent.UPDATE_MODE, txContext);
 
         // then
@@ -275,6 +282,7 @@ public class RtpSessionFsmImplTest {
         verify(rtpInput).activate();
         verify(dtmfInput).activate();
         verify(rtpOutput).activate();
+        verify(audioComponent).updateMode(true, true);
         verify(context).setMode(mode);
     }
 
@@ -289,14 +297,14 @@ public class RtpSessionFsmImplTest {
         final RtpInput rtpInput = mock(RtpInput.class);
         final DtmfInput dtmfInput = mock(DtmfInput.class);
         final RtpOutput rtpOutput = mock(RtpOutput.class);
+        final AudioComponent audioComponent = mock(AudioComponent.class);
         final ConnectionMode mode = ConnectionMode.CONFERENCE;
         final FutureCallback<Void> callback = mock(FutureCallback.class);
 
         when(context.getMode()).thenReturn(ConnectionMode.CONFERENCE);
 
         // when
-        RtpSessionUpdateModeContext txContext = new RtpSessionUpdateModeContext(mode, dtmfInput, rtpInput,
-                rtpOutput, callback);
+        RtpSessionUpdateModeContext txContext = new RtpSessionUpdateModeContext(mode, dtmfInput, rtpInput, rtpOutput, audioComponent, callback);
         fsm.onUpdateMode(RtpSessionState.OPEN, RtpSessionState.OPEN, RtpSessionEvent.UPDATE_MODE, txContext);
 
         // then
@@ -304,6 +312,7 @@ public class RtpSessionFsmImplTest {
         verify(rtpInput, never()).activate();
         verify(dtmfInput, never()).activate();
         verify(rtpOutput, never()).activate();
+        verify(audioComponent, never()).updateMode(anyBoolean(), anyBoolean());
         verify(context, never()).setMode(mode);
     }
 
@@ -678,6 +687,7 @@ public class RtpSessionFsmImplTest {
         final RtpInput rtpInput = mock(RtpInput.class);
         final DtmfInput dtmfInput = mock(DtmfInput.class);
         final RtpOutput rtpOutput = mock(RtpOutput.class);
+        final AudioComponent audioComponent = mock(AudioComponent.class);
         final ConnectionMode mode = ConnectionMode.SEND_RECV;
 
         doAnswer(new Answer<Void>() {
@@ -711,7 +721,7 @@ public class RtpSessionFsmImplTest {
         verify(openCallback, timeout(100)).onSuccess(null);
 
         final FutureCallback<Void> updateCallback = mock(FutureCallback.class);
-        RtpSessionUpdateModeContext modeContext = new RtpSessionUpdateModeContext(mode, dtmfInput, rtpInput, rtpOutput, updateCallback);
+        RtpSessionUpdateModeContext modeContext = new RtpSessionUpdateModeContext(mode, dtmfInput, rtpInput, rtpOutput, audioComponent, updateCallback);
         fsm.fire(RtpSessionEvent.UPDATE_MODE, modeContext);
 
         verify(updateCallback, timeout(100)).onSuccess(null);
@@ -721,6 +731,7 @@ public class RtpSessionFsmImplTest {
         verify(rtpInput).activate();
         verify(dtmfInput).activate();
         verify(rtpOutput).activate();
+        verify(audioComponent).updateMode(true, true);
         assertEquals(mode, context.getMode());
     }
 

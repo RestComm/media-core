@@ -22,6 +22,7 @@
 package org.restcomm.media.rtp.session;
 
 import com.google.common.util.concurrent.FutureCallback;
+import org.restcomm.media.component.audio.AudioComponent;
 import org.restcomm.media.rtp.RtpInput;
 import org.restcomm.media.rtp.RtpOutput;
 import org.restcomm.media.rtp.rfc2833.DtmfInput;
@@ -39,13 +40,15 @@ public class RtpSessionUpdateModeContext implements RtpSessionTransactionContext
     private final DtmfInput dtmfInput;
     private final RtpInput rtpInput;
     private final RtpOutput rtpOutput;
+    private final AudioComponent audioComponent;
 
-    public RtpSessionUpdateModeContext(ConnectionMode mode, DtmfInput dtmfInput, RtpInput rtpInput, RtpOutput rtpOutput, FutureCallback<Void> callback) {
+    public RtpSessionUpdateModeContext(ConnectionMode mode, DtmfInput dtmfInput, RtpInput rtpInput, RtpOutput rtpOutput, AudioComponent audioComponent, FutureCallback<Void> callback) {
         this.callback = callback;
         this.mode = mode;
         this.dtmfInput = dtmfInput;
         this.rtpInput = rtpInput;
         this.rtpOutput = rtpOutput;
+        this.audioComponent = audioComponent;
     }
 
     @Override
@@ -69,4 +72,7 @@ public class RtpSessionUpdateModeContext implements RtpSessionTransactionContext
         return rtpOutput;
     }
 
+    public AudioComponent getAudioComponent() {
+        return audioComponent;
+    }
 }
