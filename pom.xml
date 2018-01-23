@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
@@ -9,143 +10,95 @@
         <version>4.1.0-14</version>
     </parent>
 
-    <groupId>org.restcomm</groupId>
-    <artifactId>media</artifactId>
-    <version>7.0.0-SNAPSHOT</version>
+    <groupId>org.restcomm.media</groupId>
+    <artifactId>media-core</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
 
-    <name>RestComm Media Server</name>
-    <url>https://github.com/RestComm/mediaserver</url>
+    <name>RestComm Media Core</name>
+    <url>https://github.com/RestComm/media-core</url>
     <organization>
         <name>TeleStax, Inc.</name>
         <url>http://www.telestax.com</url>
     </organization>
     <issueManagement>
-        <url>https://github.com/RestComm/mediaserver/issues</url>
+        <url>https://github.com/RestComm/media-core/issues</url>
     </issueManagement>
 
     <properties>
-        <!-- RELEASE CONFIGURATION -->
-        <release.name>
-            ${release.name.prefix}${parent.version}${release.name.suffix}
-        </release.name>
-
+        <java.version>1.8</java.version>
         <version.junit>4.12</version.junit>
-        <version.xerces>2.9.1</version.xerces>
         <log4j.version>2.10.0</log4j.version>
-        <concurrent.version>1.3.4</concurrent.version>
-        <version.freetts>1.2.2</version.freetts>
-        <version.jboss.microcontainer>2.2.0.M2</version.jboss.microcontainer>
         <version.guava>19.0</version.guava>
         <version.apache.commons.codec>1.10</version.apache.commons.codec>
         <fsm.squirrel.version>0.3.9.11</fsm.squirrel.version>
-        <jain-mgcp.version>1.0</jain-mgcp.version>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
 
     <modules>
-        <module>spi</module>
         <module>concurrent</module>
         <module>scheduler</module>
-        <module>codecs</module>
-        <module>component</module>
-        <module>network</module>
-        <module>ice</module>
-        <module>stun</module>
-        <module>rtp</module>
-        <module>pcap</module>
-        <module>sdp</module>
-        <module>resources</module>
-        <module>client</module>
-        <module>controls</module>
-        <module>asr</module>
-        <module>docs</module>
-        <module>drivers</module>
+        <module>spi</module>
     </modules>
-
-    <dependencies>
-        <dependency>
-            <groupId>concurrent</groupId>
-            <artifactId>concurrent</artifactId>
-            <version>${concurrent.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>apache-xerces</groupId>
-            <artifactId>xml-apis</artifactId>
-            <version>${version.xerces}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${version.junit}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>1.10.19</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-module-junit4</artifactId>
-            <version>1.6.6</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-api-mockito</artifactId>
-            <version>1.6.6</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- Dependency Injection -->
-        <dependency>
-            <groupId>com.google.inject</groupId>
-            <artifactId>guice</artifactId>
-            <version>4.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.inject.extensions</groupId>
-            <artifactId>guice-grapher</artifactId>
-            <version>4.1.0</version>
-        </dependency>
-
-        <!-- Utilities -->
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>${version.guava}</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
-        </dependency>
-
-        <!-- Logging -->
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <version>${log4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>${log4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-1.2-api</artifactId>
-            <version>${log4j.version}</version>
-        </dependency>
-    </dependencies>
 
     <dependencyManagement>
         <dependencies>
+            <!-- Google Guava -->
             <dependency>
-                <groupId>commons-codec</groupId>
-                <artifactId>commons-codec</artifactId>
-                <version>${version.apache.commons.codec}</version>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${version.guava}</version>
+            </dependency>
+
+            <!-- Dependency Injection -->
+            <dependency>
+                <groupId>com.google.inject</groupId>
+                <artifactId>guice</artifactId>
+                <version>4.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.inject.extensions</groupId>
+                <artifactId>guice-grapher</artifactId>
+                <version>4.1.0</version>
+            </dependency>
+
+            <!-- FSM -->
+            <dependency>
+                <groupId>org.restcomm.fsm</groupId>
+                <artifactId>squirrel-foundation</artifactId>
+                <version>${fsm.squirrel.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <!-- jUnit -->
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${version.junit}</version>
+            </dependency>
+
+            <!-- Mockito -->
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-all</artifactId>
+                <version>1.10.19</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.powermock</groupId>
+                <artifactId>powermock-module-junit4</artifactId>
+                <version>1.6.6</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.powermock</groupId>
+                <artifactId>powermock-api-mockito</artifactId>
+                <version>1.6.6</version>
+                <scope>test</scope>
             </dependency>
 
             <!-- Log4j -->
@@ -175,128 +128,59 @@
                 <version>1.7.7</version>
             </dependency>
 
-            <!-- FSM -->
+            <!-- BASE64 Encoding -->
             <dependency>
-                <groupId>org.restcomm.fsm</groupId>
-                <artifactId>squirrel-foundation</artifactId>
-                <version>${fsm.squirrel.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>log4j</groupId>
-                        <artifactId>log4j</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <!-- JAIN MGCP -->
-            <dependency>
-                <groupId>jain</groupId>
-                <artifactId>jain-mgcp-ri</artifactId>
-                <version>${jain-mgcp.version}</version>
-            </dependency>
-
-            <!-- jUnit -->
-            <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>${version.junit}</version>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>${version.apache.commons.codec}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
 
-    <!-- RELEASE STUFF -->
+    <dependencies>
+        <!-- Log4j -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-1.2-api</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+
+        <!-- jUnit -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Mockito -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit4</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-mockito</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
     <profiles>
-        <profile>
-            <id>maven-release</id>
-            <modules>
-                <module>spi</module>
-                <module>concurrent</module>
-                <module>scheduler</module>
-                <module>codecs</module>
-                <module>component</module>
-                <module>network</module>
-                <module>ice</module>
-                <module>stun</module>
-                <module>rtp</module>
-                <module>pcap</module>
-                <module>sdp</module>
-                <module>resources</module>
-                <module>core</module>
-                <module>client</module>
-                <module>controls</module>
-                <module>docs</module>
-                <module>bootstrap</module>
-            </modules>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-release-plugin</artifactId>
-                        <version>2.5.1</version>
-                        <configuration>
-                            <allowTimestampedSnapshots>true</allowTimestampedSnapshots>
-                            <autoVersionSubmodules>true</autoVersionSubmodules>
-                            <preparationGoals>clean install</preparationGoals>
-                            <arguments>-Dmaven.test.skip</arguments>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <version>2.1.2</version>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>2.8.1</version>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>release-sign-artifacts</id>
-            <activation>
-                <property>
-                    <name>performRelease</name>
-                    <value>true</value>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>install</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
+        <!-- TODO Release profile -->
+        <!-- TODO Sign artifacts -->
     </profiles>
 
     <scm>
@@ -306,57 +190,30 @@
         <tag>HEAD</tag>
     </scm>
 
-    <!--  -->
     <build>
         <plugins>
             <plugin>
-                <artifactId>maven-eclipse-plugin</artifactId>
-                <groupId>org.restcomm.tools</groupId>
-                <version>
-                    ${restcomm.tools.mavenplugin.eclipse.version}
-                </version>
-                <inherited>false</inherited>
-                <executions/>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.7.0</version>
                 <configuration>
-                    <classpathExcludes>
-                        <exclude>xml-apis:xml-apis</exclude>
-                        <exclude>jtidy:jtidy</exclude>
-                    </classpathExcludes>
-                    <resolveTransitiveDependencies>
-                        true
-                    </resolveTransitiveDependencies>
-                    <eclipseProjectName>
-                        restcomm-media-server
-                    </eclipseProjectName>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>2.5.1</version>
+                <version>2.5.3</version>
                 <configuration>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.5.1</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
                 </configuration>
             </plugin>
         </plugins>
     </build>
 
 
-    <!--
-        dupe info from parent, but it's only way to retrieve the parent
-        without user configuration
-    -->
-
+    <!-- Dupe info from parent, but it's only way to retrieve the parent without user configuration -->
     <repositories>
         <repository>
             <id>mobicents-public-repository-group</id>
@@ -372,44 +229,5 @@
                 <updatePolicy>never</updatePolicy>
             </snapshots>
         </repository>
-        <repository>
-            <id>jboss-public-repository-group</id>
-            <name>JBoss Public Maven Repository Group</name>
-            <url>http://repository.jboss.org/nexus/content/groups/public</url>
-            <layout>default</layout>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-            </snapshots>
-        </repository>
-
-        <repository>
-            <id>jboss-deprecated</id>
-            <name>jboss-deprecated</name>
-            <url>http://repository.jboss.org/nexus/content/repositories/deprecated</url>
-        </repository>
     </repositories>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>jboss-public-repository-group</id>
-            <name>JBoss Public Maven Repository Group</name>
-            <url>http://repository.jboss.org/nexus/content/groups/public/</url>
-            <layout>default</layout>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-            </snapshots>
-        </pluginRepository>
-    </pluginRepositories>
-
-
 </project>
