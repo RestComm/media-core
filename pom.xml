@@ -44,6 +44,7 @@
         <module>sdp</module>
         <module>stun</module>
         <module>pcap</module>
+        <module>ice</module>
     </modules>
 
     <dependencyManagement>
