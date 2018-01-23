@@ -1,40 +1,33 @@
-<?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>org.restcomm</groupId>
-		<artifactId>media</artifactId>
-		<version>7.0.0-SNAPSHOT</version>
+		<groupId>org.restcomm.media</groupId>
+		<artifactId>media-core</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 
-	<groupId>org.restcomm.media</groupId>
+	<groupId>org.restcomm.media.core</groupId>
 	<artifactId>sdp</artifactId>
 	<name>SDP</name>
 
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
-
 	<dependencies>
 		<dependency>
-			<groupId>org.restcomm.media</groupId>
+			<groupId>org.restcomm.media.core</groupId>
 			<artifactId>spi</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
-	
-		<build>
+
+	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
-				</configuration>
 			</plugin>
 		</plugins>
-		<finalName>restcomm-mediaserver-sdp-${project.version}</finalName>
+		<finalName>media-core-sdp-${project.version}</finalName>
 	</build>
 </project>

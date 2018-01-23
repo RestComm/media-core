@@ -41,6 +41,7 @@
         <module>component</module>
         <module>codec</module>
         <module>network</module>
+        <module>sdp</module>
     </modules>
 
     <dependencyManagement>
