@@ -40,6 +40,7 @@
         <module>spi</module>
         <module>component</module>
         <module>codec</module>
+        <module>network</module>
     </modules>
 
     <dependencyManagement>
