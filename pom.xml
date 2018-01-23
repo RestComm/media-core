@@ -38,6 +38,7 @@
         <module>concurrent</module>
         <module>scheduler</module>
         <module>spi</module>
+        <module>component</module>
     </modules>
 
     <dependencyManagement>
