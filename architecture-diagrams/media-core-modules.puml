@@ -1,0 +1,99 @@
+@startuml
+rectangle concurrent
+rectangle scheduler
+rectangle spi
+rectangle component
+
+rectangle codec {
+ rectangle g711
+ rectangle g729
+ rectangle gsm
+ rectangle ilbc
+ rectangle l16
+ rectangle opus
+}
+
+rectangle network
+rectangle sdp
+rectangle stun
+rectangle pcap
+rectangle ice
+
+rectangle resource {
+ rectangle dtmf
+ rectangle player as "media-player"
+ rectangle recorder as "media-recorder"
+}
+
+rectangle driver {
+ rectangle asr_driver as "asr-driver" {
+  rectangle asr_driver_api as "asr-driver-api"
+ }
+}
+
+rectangle asr {
+ rectangle asr_api as "asr-api"
+ rectangle asr_engine as "asr-engine"
+}
+
+rectangle rtp
+
+rectangle client {
+ rectangle mgcp-client {
+  rectangle mgcp_driver as "mgcp-driver"
+  rectangle mgcp_tck as "mgcp-driver-tck"
+ }
+
+ rectangle jsr309 as "jsr-309" {
+  rectangle jsr309_driver as "jsr-309-driver"
+  rectangle jsr309_tck as "jsr-309-tck"
+ }
+}
+
+rectangle mgcp
+
+concurrent <-- scheduler
+concurrent <-- mgcp_driver
+
+scheduler <-- spi
+
+spi <-- component
+spi <-- codec
+spi <-- network
+spi <-- sdp
+spi <-- asr
+
+g711 <.. component : scope=test
+g711 <.. player : scope=test
+
+g729 <.. player : scope=test
+
+gsm <.. player : scope=test
+
+network <-- stun
+network <-- pcap
+
+stun <-- ice
+
+component <-- resource
+component <-- asr_engine
+component <-- rtp
+
+asr_driver_api <-- asr_api
+asr_api <-- asr_engine
+
+pcap <.. rtp : scope=test
+
+sdp <-- rtp
+
+ice <-- rtp
+
+dtmf <-- rtp
+
+mgcp_driver <-- jsr309_driver
+
+player<-- mgcp
+recorder<-- mgcp
+rtp<-- mgcp
+asr_engine<-- mgcp
+@enduml
