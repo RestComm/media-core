@@ -42,6 +42,7 @@
         <module>codec</module>
         <module>network</module>
         <module>sdp</module>
+        <module>stun</module>
     </modules>
 
     <dependencyManagement>
