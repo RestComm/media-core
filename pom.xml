@@ -45,6 +45,7 @@
         <module>stun</module>
         <module>pcap</module>
         <module>ice</module>
+        <module>resource</module>
     </modules>
 
     <dependencyManagement>
