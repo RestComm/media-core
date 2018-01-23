@@ -31,6 +31,7 @@
         <version.guava>19.0</version.guava>
         <version.apache.commons.codec>1.10</version.apache.commons.codec>
         <fsm.squirrel.version>0.3.9.11</fsm.squirrel.version>
+        <jain.mgcp.version>1.0</jain.mgcp.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
@@ -50,6 +51,7 @@
         <module>driver</module>
         <module>asr</module>
         <module>rtp</module>
+        <module>client</module>
     </modules>
 
     <dependencyManagement>
@@ -145,6 +147,13 @@
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
                 <version>${version.apache.commons.codec}</version>
+            </dependency>
+
+            <!-- JAIN MGCP -->
+            <dependency>
+                <groupId>jain</groupId>
+                <artifactId>jain-mgcp-ri</artifactId>
+                <version>${jain.mgcp.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

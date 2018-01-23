@@ -4,18 +4,16 @@
     <packaging>pom</packaging>
 
     <parent>
-        <groupId>org.restcomm.media</groupId>
+        <groupId>org.restcomm.media.core</groupId>
         <artifactId>client</artifactId>
-        <version>7.0.0-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.restcomm.media.client</groupId>
+    <groupId>org.restcomm.media.core.client</groupId>
     <artifactId>mgcp</artifactId>
-    <name>MGCP</name>
+    <name>mgcp-client</name>
     
     <modules>
         <module>driver</module>
     </modules>
-	
-
 </project>
