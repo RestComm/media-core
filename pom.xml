@@ -52,6 +52,7 @@
         <module>asr</module>
         <module>rtp</module>
         <module>client</module>
+        <module>control</module>
     </modules>
 
     <dependencyManagement>
