@@ -39,6 +39,7 @@
         <module>scheduler</module>
         <module>spi</module>
         <module>component</module>
+        <module>codec</module>
     </modules>
 
     <dependencyManagement>

@@ -4,14 +4,14 @@
     <packaging>jar</packaging>
 
     <parent>
-        <groupId>org.restcomm.media.codecs</groupId>
+        <groupId>org.restcomm.media.core.codec</groupId>
         <artifactId>opus</artifactId>
-        <version>7.0.0-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.restcomm.media.codecs.opus</groupId>
+    <groupId>org.restcomm.media.core.codec.opus</groupId>
     <artifactId>opus-java</artifactId>
-    <name>Opus Java</name>
+    <name>Codec OPUS - Java</name>
 
     <profiles>
         <profile>
@@ -40,7 +40,7 @@
             <properties>
                 <libopus.artifactId>libopus_jni_macos</libopus.artifactId>
                 <libopus.packaging>dylib</libopus.packaging>
-                <libopus.distro>macosx</libopus.distro>
+                <libopus.distro>macos</libopus.distro>
                 <libopus.libName>opus_jni_macos</libopus.libName>
             </properties>
         </profile>
@@ -48,12 +48,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.restcomm.media</groupId>
-            <artifactId>spi</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.restcomm.media.codecs.opus</groupId>
+            <groupId>org.restcomm.media.core.codec.opus</groupId>
             <artifactId>${libopus.artifactId}</artifactId>
             <version>${project.version}</version>
             <type>${libopus.packaging}</type>
@@ -72,13 +67,8 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
             </plugin>
         </plugins>
-        <finalName>restcomm-mediaserver-codecs-opus-${project.version}</finalName>
+        <finalName>media-core-codec-opus-${project.version}</finalName>
     </build>
-
 </project>
