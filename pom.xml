@@ -43,6 +43,7 @@
         <module>network</module>
         <module>sdp</module>
         <module>stun</module>
+        <module>pcap</module>
     </modules>
 
     <dependencyManagement>
