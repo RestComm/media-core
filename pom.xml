@@ -46,6 +46,7 @@
         <module>pcap</module>
         <module>ice</module>
         <module>resource</module>
+        <module>driver</module>
     </modules>
 
     <dependencyManagement>
