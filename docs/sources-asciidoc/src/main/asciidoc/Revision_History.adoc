@@ -1,9 +1,0 @@
-
-:sectnums!:
-
-[appendix]
-= Revision History
-
-	
-
-:sectnums:
