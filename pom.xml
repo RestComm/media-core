@@ -36,25 +36,6 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
 
-    <modules>
-        <module>concurrent</module>
-        <module>scheduler</module>
-        <module>spi</module>
-        <module>component</module>
-        <module>codec</module>
-        <module>network</module>
-        <module>sdp</module>
-        <module>stun</module>
-        <module>pcap</module>
-        <module>ice</module>
-        <module>resource</module>
-        <module>driver</module>
-        <module>asr</module>
-        <module>rtp</module>
-        <module>client</module>
-        <module>control</module>
-    </modules>
-
     <dependencyManagement>
         <dependencies>
             <!-- Google Guava -->
@@ -200,10 +181,12 @@
         </dependency>
     </dependencies>
 
+    <!--
     <profiles>
-        <!-- TODO Release profile -->
-        <!-- TODO Sign artifacts -->
+        TODO Release profile
+        TODO Sign artifacts
     </profiles>
+    -->
 
     <scm>
         <connection>scm:git:git@github.com:RestComm/mediaserver.git</connection>
@@ -211,6 +194,40 @@
         <url>scm:git:git@github.com:RestComm/mediaserver.git/</url>
         <tag>HEAD</tag>
     </scm>
+
+    <profiles>
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>concurrent</module>
+                <module>scheduler</module>
+                <module>spi</module>
+                <module>component</module>
+                <module>codec</module>
+                <module>network</module>
+                <module>sdp</module>
+                <module>stun</module>
+                <module>pcap</module>
+                <module>ice</module>
+                <module>resource</module>
+                <module>driver</module>
+                <module>asr</module>
+                <module>rtp</module>
+                <module>control</module>
+                <module>assembly</module>
+            </modules>
+        </profile>
+
+        <profile>
+            <id>client</id>
+            <modules>
+                <module>client</module>
+            </modules>
+        </profile>
+    </profiles>
 
     <build>
         <plugins>
@@ -221,14 +238,6 @@
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>2.5.3</version>
-                <configuration>
-                    <autoVersionSubmodules>true</autoVersionSubmodules>
                 </configuration>
             </plugin>
         </plugins>
