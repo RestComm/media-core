@@ -64,7 +64,6 @@
         <module>asr</module>
         <module>rtp</module>
         <module>control</module>
-        <module>assembly</module>
     </modules>
 
     <dependencyManagement>
@@ -224,6 +223,13 @@
             <id>client</id>
             <modules>
                 <module>client</module>
+            </modules>
+        </profile>
+
+        <profile>
+            <id>assembly</id>
+            <modules>
+                <module>assembly</module>
             </modules>
         </profile>
 
