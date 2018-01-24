@@ -39,10 +39,33 @@
         <jain.mgcp.version>1.0</jain.mgcp.version>
 
         <maven.compiler.version>3.7.0</maven.compiler.version>
+        <maven.release.version>2.5.1</maven.release.version>
+        <maven.source.version>3.0.1</maven.source.version>
+        <maven.javadoc.version>2.8.1</maven.javadoc.version>
+        <maven.gpg.version>1.6</maven.gpg.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
+
+    <modules>
+        <module>concurrent</module>
+        <module>scheduler</module>
+        <module>spi</module>
+        <module>component</module>
+        <module>codec</module>
+        <module>network</module>
+        <module>sdp</module>
+        <module>stun</module>
+        <module>pcap</module>
+        <module>ice</module>
+        <module>resource</module>
+        <module>driver</module>
+        <module>asr</module>
+        <module>rtp</module>
+        <module>control</module>
+        <module>assembly</module>
+    </modules>
 
     <dependencyManagement>
         <dependencies>
@@ -189,13 +212,6 @@
         </dependency>
     </dependencies>
 
-    <!--
-    <profiles>
-        TODO Release profile
-        TODO Sign artifacts
-    </profiles>
-    -->
-
     <scm>
         <connection>scm:git:git@github.com:RestComm/mediaserver.git</connection>
         <developerConnection>scm:git:git@github.com:RestComm/mediaserver.git</developerConnection>
@@ -205,41 +221,85 @@
 
     <profiles>
         <profile>
-            <id>compile</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <modules>
-                <module>concurrent</module>
-                <module>scheduler</module>
-                <module>spi</module>
-                <module>component</module>
-                <module>codec</module>
-                <module>network</module>
-                <module>sdp</module>
-                <module>stun</module>
-                <module>pcap</module>
-                <module>ice</module>
-                <module>resource</module>
-                <module>driver</module>
-                <module>asr</module>
-                <module>rtp</module>
-                <module>control</module>
-            </modules>
-        </profile>
-
-        <profile>
-            <id>assembly</id>
-            <modules>
-                <module>assembly</module>
-            </modules>
-        </profile>
-
-        <profile>
             <id>client</id>
             <modules>
                 <module>client</module>
             </modules>
+        </profile>
+
+        <profile>
+            <id>maven-release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-release-plugin</artifactId>
+                        <version>${maven.release.version}</version>
+                        <configuration>
+                            <allowTimestampedSnapshots>true</allowTimestampedSnapshots>
+                            <autoVersionSubmodules>true</autoVersionSubmodules>
+                            <preparationGoals>clean install</preparationGoals>
+                            <arguments>-Dmaven.test.skip</arguments>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>${maven.source.version}</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>${maven.javadoc.version}</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>release-sign-artifacts</id>
+            <activation>
+                <property>
+                    <name>performRelease</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>${maven.gpg.version}</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 
