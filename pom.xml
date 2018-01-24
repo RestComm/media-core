@@ -205,7 +205,7 @@
 
     <profiles>
         <profile>
-            <id>default</id>
+            <id>compile</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
@@ -225,6 +225,12 @@
                 <module>asr</module>
                 <module>rtp</module>
                 <module>control</module>
+            </modules>
+        </profile>
+
+        <profile>
+            <id>assembly</id>
+            <modules>
                 <module>assembly</module>
             </modules>
         </profile>
