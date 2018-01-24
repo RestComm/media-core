@@ -11,7 +11,7 @@
 
     <groupId>org.restcomm.media.core.codec.opus</groupId>
     <artifactId>libopus_jni_linux</artifactId>
-    <name>Codec OPUS - Native Linux</name>
+    <name>media-core-codec-opus-native-linux</name>
 
     <build>
         <plugins>
@@ -46,5 +46,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

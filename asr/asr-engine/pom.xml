@@ -12,7 +12,7 @@
 
 	<groupId>org.restcomm.media.core.asr</groupId>
 	<artifactId>asr-engine</artifactId>
-	<name>ASR Engine</name>
+	<name>media-core-asr-engine</name>
 
 	<dependencies>
 		<dependency>
@@ -38,6 +38,6 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 			</plugin>
 		</plugins>
-		<finalName>media-core-asr-engine-${project.parent.version}</finalName>
+		<finalName>${name}-${project.parent.version}</finalName>
 	</build>
 </project>

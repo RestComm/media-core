@@ -12,7 +12,7 @@
 
     <groupId>org.restcomm.media.core.codec.opus</groupId>
     <artifactId>opus-native</artifactId>
-    <name>Codec Opus - Native</name>
+    <name>media-core-codec-opus-native</name>
 
     <profiles>
         <profile>

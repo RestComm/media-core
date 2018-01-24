@@ -12,7 +12,7 @@
 
 	<groupId>org.restcomm.media.core</groupId>
 	<artifactId>pcap</artifactId>
-	<name>PCAP</name>
+	<name>media-core-pcap</name>
 
 	<properties>
 		<hadoop.version>1.1</hadoop.version>
@@ -46,6 +46,6 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 			</plugin>
 		</plugins>
-		<finalName>media-core-pcap-${project.version}</finalName>
+		<finalName>${name}-${project.version}</finalName>
 	</build>
 </project>

@@ -12,7 +12,7 @@
 
     <groupId>org.restcomm.media.core</groupId>
     <artifactId>concurrent</artifactId>
-    <name>Concurrent</name>
+    <name>media-core-concurrent</name>
 
     <build>
         <plugins>
@@ -21,6 +21,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
         </plugins>
-        <finalName>media-core-concurrent-${project.version}</finalName>
+        <finalName>${name}-${project.version}</finalName>
     </build>
 </project>

@@ -12,7 +12,7 @@
 
     <groupId>org.restcomm.media.core</groupId>
     <artifactId>rtp</artifactId>
-    <name>RTP</name>
+    <name>media-core-rtp</name>
 
     <properties>
         <bouncycastle.version>1.54</bouncycastle.version>
@@ -73,6 +73,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
         </plugins>
-        <finalName>media-core-rtp-${project.version}</finalName>
+        <finalName>${name}-${project.version}</finalName>
     </build>
 </project>

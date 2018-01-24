@@ -12,7 +12,7 @@
 
     <groupId>org.restcomm.media.core</groupId>
     <artifactId>scheduler</artifactId>
-    <name>Scheduler</name>
+    <name>media-core-scheduler</name>
 
     <dependencies>
         <!-- Media Core Modules -->
@@ -30,6 +30,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
         </plugins>
-        <finalName>media-core-scheduler-${project.version}</finalName>
+        <finalName>${name}-${project.version}</finalName>
     </build>
 </project>

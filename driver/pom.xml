@@ -12,7 +12,7 @@
 
     <groupId>org.restcomm.media.core</groupId>
     <artifactId>driver</artifactId>
-    <name>Driver</name>
+    <name>media-core-driver</name>
 
     <modules>
         <module>asr-driver</module>

@@ -12,7 +12,7 @@
 
     <groupId>org.restcomm.media.core.driver</groupId>
     <artifactId>asr-driver</artifactId>
-    <name>ASR Driver</name>
+    <name>media-core-driver-asr</name>
 
     <modules>
         <module>asr-driver-api</module>
@@ -25,6 +25,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
         </plugins>
-        <finalName>media-core-driver-asr-${project.version}</finalName>
+        <finalName>${name}-${project.version}</finalName>
     </build>
 </project>

@@ -10,7 +10,7 @@
 
     <groupId>org.restcomm.media.core.client.jsr309</groupId>
     <artifactId>jsr309-driver</artifactId>
-    <name>jsr-309-driver</name>
+    <name>media-core-client-jsr-309-driver</name>
 
     <properties>
         <maven.test.skip>false</maven.test.skip>

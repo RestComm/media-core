@@ -12,7 +12,7 @@
 
     <groupId>org.restcomm.media.core</groupId>
     <artifactId>codec</artifactId>
-    <name>Codec</name>
+    <name>media-core-codec</name>
 
     <dependencies>
         <dependency>

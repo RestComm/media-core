@@ -11,7 +11,7 @@
 
 	<groupId>org.restcomm.media.core</groupId>
 	<artifactId>sdp</artifactId>
-	<name>SDP</name>
+	<name>media-core-sdp</name>
 
 	<dependencies>
 		<dependency>
@@ -28,6 +28,6 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 			</plugin>
 		</plugins>
-		<finalName>media-core-sdp-${project.version}</finalName>
+		<finalName>${name}-${project.version}</finalName>
 	</build>
 </project>

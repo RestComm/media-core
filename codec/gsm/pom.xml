@@ -12,7 +12,7 @@
 
     <groupId>org.restcomm.media.core.codec</groupId>
     <artifactId>gsm</artifactId>
-    <name>Codec GSM</name>
+    <name>media-core-codec-gms</name>
 
     <build>
         <plugins>
@@ -21,6 +21,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
         </plugins>
-        <finalName>media-core-codec-gsm-${project.version}</finalName>
+        <finalName>${name}-${project.version}</finalName>
     </build>
 </project>

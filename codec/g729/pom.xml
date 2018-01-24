@@ -12,7 +12,7 @@
 
     <groupId>org.restcomm.media.core.codec</groupId>
     <artifactId>g729</artifactId>
-    <name>Codec g729</name>
+    <name>media-core-codec-g729</name>
 
     <build>
         <plugins>
@@ -21,6 +21,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
         </plugins>
-        <finalName>media-core-codec-g729-${project.version}</finalName>
+        <finalName>${name}-${project.version}</finalName>
     </build>
 </project>

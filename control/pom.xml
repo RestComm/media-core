@@ -12,7 +12,7 @@
 
     <groupId>org.restcomm.media.core</groupId>
     <artifactId>control</artifactId>
-    <name>control-protocols</name>
+    <name>media-core-control</name>
 
     <modules>
         <module>mgcp</module>

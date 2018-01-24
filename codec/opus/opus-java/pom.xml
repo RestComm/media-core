@@ -11,7 +11,7 @@
 
     <groupId>org.restcomm.media.core.codec.opus</groupId>
     <artifactId>opus-java</artifactId>
-    <name>Codec OPUS - Java</name>
+    <name>media-core-codec-opus-java</name>
 
     <profiles>
         <profile>
@@ -69,6 +69,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
         </plugins>
-        <finalName>media-core-codec-opus-${project.version}</finalName>
+        <finalName>${name}-${project.version}</finalName>
     </build>
 </project>

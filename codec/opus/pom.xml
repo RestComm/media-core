@@ -12,7 +12,7 @@
 
     <groupId>org.restcomm.media.core.codec</groupId>
     <artifactId>opus</artifactId>
-    <name>Codec OPUS</name>
+    <name>media-core-codec-opus</name>
 
     <modules>
         <module>opus-java</module>

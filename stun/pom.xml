@@ -12,7 +12,7 @@
 
     <groupId>org.restcomm.media.core</groupId>
     <artifactId>stun</artifactId>
-    <name>STUN</name>
+    <name>media-core-stun</name>
 
     <dependencies>
         <dependency>
@@ -29,6 +29,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
         </plugins>
-        <finalName>media-core-stun-${project.version}</finalName>
+        <finalName>${name}-${project.version}</finalName>
     </build>
 </project>

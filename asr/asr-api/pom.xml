@@ -12,7 +12,7 @@
 
 	<groupId>org.restcomm.media.core.asr</groupId>
 	<artifactId>asr-api</artifactId>
-	<name>ASR API</name>
+	<name>media-core-asr-api</name>
 
 	<dependencies>
 		<dependency>
@@ -29,6 +29,6 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 			</plugin>
 		</plugins>
-		<finalName>media-core-asr-api-${project.parent.version}</finalName>
+		<finalName>${name}-${project.parent.version}</finalName>
 	</build>
 </project>

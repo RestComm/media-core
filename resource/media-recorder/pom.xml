@@ -11,7 +11,7 @@
 
     <groupId>org.restcomm.media.core.resource</groupId>
     <artifactId>recorder</artifactId>
-    <name>Media Recorder</name>
+    <name>media-core-resource-recorder</name>
 
     <build>
         <plugins>
@@ -20,6 +20,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
         </plugins>
-        <finalName>media-core-resource-recorder-${project.version}</finalName>
+        <finalName>${name}-${project.version}</finalName>
     </build>
 </project>

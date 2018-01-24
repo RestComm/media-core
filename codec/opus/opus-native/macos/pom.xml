@@ -11,7 +11,7 @@
 
     <groupId>org.restcomm.media.core.codec.opus</groupId>
     <artifactId>libopus_jni_macos</artifactId>
-    <name>Codec OPUS - Native Mac OSX</name>
+    <name>media-core-codec-opus-native-macos</name>
 
     <build>
         <plugins>
@@ -43,6 +43,4 @@
             </plugin>
         </plugins>
     </build>
-
-
 </project>

@@ -12,7 +12,7 @@
 
     <groupId>org.restcomm.media.core.client</groupId>
     <artifactId>jsr-309</artifactId>
-    <name>jsr-309-client</name>
+    <name>media-core-client-jsr-309</name>
 
     <modules>
         <module>driver</module>

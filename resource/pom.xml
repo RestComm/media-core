@@ -12,7 +12,7 @@
 
     <groupId>org.restcomm.media.core</groupId>
     <artifactId>resource</artifactId>
-    <name>Resource</name>
+    <name>media-core-resource</name>
 
     <dependencies>
         <dependency>

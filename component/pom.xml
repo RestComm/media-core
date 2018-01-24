@@ -12,7 +12,7 @@
 
     <groupId>org.restcomm.media.core</groupId>
     <artifactId>component</artifactId>
-    <name>Component</name>
+    <name>media-core-component</name>
 
     <dependencies>
         <dependency>
@@ -35,6 +35,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
         </plugins>
-        <finalName>restcomm-core-component-${project.version}</finalName>
+        <finalName>${name}-${project.version}</finalName>
     </build>
 </project>

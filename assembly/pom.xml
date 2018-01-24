@@ -12,8 +12,7 @@
     <groupId>org.restcomm.media.core</groupId>
     <artifactId>assembly</artifactId>
     <packaging>pom</packaging>
-
-    <name>assembly</name>
+    <name>media-core-assembly</name>
 
     <build>
         <plugins>

@@ -12,7 +12,7 @@
 
     <groupId>org.restcomm.media.core</groupId>
     <artifactId>ice</artifactId>
-    <name>ICE</name>
+    <name>media-core-ice</name>
 
     <dependencies>
         <dependency>
@@ -29,6 +29,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
         </plugins>
-        <finalName>media-core-ice-${project.version}</finalName>
+        <finalName>${name}-${project.version}</finalName>
     </build>
 </project>

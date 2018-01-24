@@ -11,7 +11,7 @@
 
     <groupId>org.restcomm.media.core.client</groupId>
     <artifactId>mgcp</artifactId>
-    <name>mgcp-client</name>
+    <name>media-core-client-mgcp</name>
     
     <modules>
         <module>driver</module>

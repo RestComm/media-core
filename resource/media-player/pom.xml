@@ -12,7 +12,7 @@
 
     <groupId>org.restcomm.media.core.resource</groupId>
     <artifactId>player</artifactId>
-    <name>Media Player</name>
+    <name>media-core-resource-player</name>
 
     <properties>
         <tritonus.version>0.3.6</tritonus.version>
@@ -119,6 +119,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
         </plugins>
-        <finalName>media-core-resource-player-${project.version}</finalName>
+        <finalName>${name}-${project.version}</finalName>
     </build>
 </project>

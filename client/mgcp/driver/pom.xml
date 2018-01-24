@@ -10,7 +10,7 @@
 
     <groupId>org.restcomm.media.core.client.mgcp</groupId>
     <artifactId>mgcp-driver</artifactId>
-    <name>mgcp-driver</name>
+    <name>media-core-client-mgcp-driver</name>
 
     <developers>
         <developer>

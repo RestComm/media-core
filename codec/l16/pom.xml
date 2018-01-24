@@ -11,7 +11,7 @@
 
     <groupId>org.restcomm.media.core.codec</groupId>
     <artifactId>l16</artifactId>
-    <name>Codec L16</name>
+    <name>media-core-codec-l16</name>
 
     <build>
         <plugins>
@@ -20,6 +20,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
         </plugins>
-        <finalName>media-core-codec-l16-${project.version}</finalName>
+        <finalName>${name}-${project.version}</finalName>
     </build>
 </project>
