@@ -40,10 +40,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.restcomm.media.network.netty.NettyNetworkManager;
 import org.restcomm.media.network.netty.channel.NettyNetworkChannelGlobalContext;
-import org.restcomm.media.pcap.AsyncPcapChannel;
-import org.restcomm.media.pcap.AsyncPcapChannelHandler;
-import org.restcomm.media.pcap.PcapPacketEncoder;
-import org.restcomm.media.pcap.PcapPlayer;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
@@ -157,7 +153,7 @@ public class PcapPlayerTest {
         InetSocketAddress localAddress = new InetSocketAddress("127.0.0.1", 64000);
         InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 65000);
 
-        String filepath = "dtmf-oob-one-hash.cap.gz";
+        String filepath = "/pcap/dtmf-oob-one-hash.cap.gz";
         PcapPacketEncoder packetEncoder = new PcapPacketEncoder();
         AsyncPcapChannelHandler channelInitializer = new AsyncPcapChannelHandler(packetEncoder);
         bootstrap.handler(channelInitializer);
@@ -203,7 +199,7 @@ public class PcapPlayerTest {
         InetSocketAddress localAddress = new InetSocketAddress("127.0.0.1", 64000);
         InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 65000);
         
-        String filepath = "dtmf-oob-two-hash.cap.gz";
+        String filepath = "/pcap/dtmf-oob-two-hash.cap.gz";
         PcapPacketEncoder packetEncoder = new PcapPacketEncoder();
         AsyncPcapChannelHandler channelInitializer = new AsyncPcapChannelHandler(packetEncoder);
         bootstrap.handler(channelInitializer);
@@ -249,7 +245,7 @@ public class PcapPlayerTest {
         InetSocketAddress localAddress = new InetSocketAddress("127.0.0.1", 64000);
         InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 65000);
         
-        String filepath = "gigaset-n510-ip-pro-rfc2833.pcap";
+        String filepath = "/pcap/gigaset-n510-ip-pro-rfc2833.pcap";
         PcapPacketEncoder packetEncoder = new PcapPacketEncoder();
         AsyncPcapChannelHandler channelInitializer = new AsyncPcapChannelHandler(packetEncoder);
         bootstrap.handler(channelInitializer);
@@ -270,7 +266,7 @@ public class PcapPlayerTest {
         channel.connect(remoteAddress, connectCallback);
         verify(connectCallback, timeout(100)).onSuccess(null);
         
-        URL pcap = PcapPlayerTest.class.getResource(filepath);
+        URL pcap = getClass().getResource(filepath);
         player.play(pcap);
         
         // then
