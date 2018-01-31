@@ -41,7 +41,7 @@ Help us improve the project by [asking questions](https://groups.google.com/foru
 
 Top contributors will be given the opportunity to [apply for a job](https://telestax.com/jobs/) at TeleStax!
 
-Join our vibrant community and download the latest stable build NOW!
+Join our vibrant community and [download the latest stable build NOW](https://www.restcomm.com/downloads/)!
 
 ## Acknowledgements
 
