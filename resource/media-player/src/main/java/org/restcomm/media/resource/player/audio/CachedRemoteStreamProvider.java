@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -71,13 +72,18 @@ public class CachedRemoteStreamProvider implements RemoteStreamProvider {
 
         private volatile byte[] bytes;
 
+        private final int connectionTimeout = 2000;
+
         public byte[] getBytes(final URL uri, final ISizeChangedListener listener) throws IOException {
             if (bytes == null) {
                 lock.lock();
                 try {
                     //need to check twice
                     if (bytes == null) {
-                        bytes = IOUtils.toByteArray(uri.openStream());
+                        URLConnection connection = uri.openConnection();
+                        connection.setConnectTimeout(connectionTimeout);
+                        connection.setReadTimeout(connectionTimeout);
+                        bytes = IOUtils.toByteArray(connection.getInputStream());
                         listener.onSizeChanged(uri, this);
                     }
                 } finally {
