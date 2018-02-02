@@ -5,17 +5,17 @@
     <packaging>pom</packaging>
 
     <parent>
-        <groupId>org.restcomm.media</groupId>
-        <artifactId>media-core</artifactId>
+        <groupId>org.restcomm.media.core</groupId>
+        <artifactId>codec</artifactId>
         <version>8.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.restcomm.media.core</groupId>
-    <artifactId>client</artifactId>
-    <name>media-core-client</name>
+    <groupId>org.restcomm.media.core.codec</groupId>
+    <artifactId>opus</artifactId>
+    <name>media-core-codec-opus</name>
 
     <modules>
-        <module>jsr-309</module>
-        <module>mgcp</module>
+        <module>opus-java</module>
+        <module>opus-native</module>
     </modules>
 </project>

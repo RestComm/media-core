@@ -1,34 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<packaging>jar</packaging>
 
 	<parent>
-		<groupId>org.restcomm.media</groupId>
+		<groupId>org.restcomm.media.core</groupId>
 		<artifactId>asr</artifactId>
-		<version>7.0.0-SNAPSHOT</version>
+		<version>8.0.0-SNAPSHOT</version>
 	</parent>
 
-	<groupId>org.restcomm.media.asr</groupId>
+	<groupId>org.restcomm.media.core.asr</groupId>
 	<artifactId>asr-engine</artifactId>
-	<name>ASR Engine</name>
+	<name>media-core-asr-engine</name>
 
 	<dependencies>
 		<dependency>
-			<groupId>org.restcomm.media.asr</groupId>
+			<groupId>org.restcomm.media.core.asr</groupId>
 			<artifactId>asr-api</artifactId>
-			<version>${project.parent.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.restcomm.media</groupId>
-			<artifactId>components</artifactId>
-			<version>${project.parent.version}</version>
+			<groupId>org.restcomm.media.core</groupId>
+			<artifactId>component</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.restcomm.media</groupId>
-			<artifactId>scheduler</artifactId>
-			<version>${project.parent.version}</version>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
 		</dependency>
 	</dependencies>
 
@@ -37,12 +36,8 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
-				</configuration>
 			</plugin>
 		</plugins>
-		<finalName>restcomm-mediaserver-asr-engine-${project.parent.version}</finalName>
+		<finalName>${name}-${project.parent.version}</finalName>
 	</build>
 </project>

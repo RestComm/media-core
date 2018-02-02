@@ -11,11 +11,10 @@
     </parent>
 
     <groupId>org.restcomm.media.core</groupId>
-    <artifactId>client</artifactId>
-    <name>media-core-client</name>
+    <artifactId>driver</artifactId>
+    <name>media-core-driver</name>
 
     <modules>
-        <module>jsr-309</module>
-        <module>mgcp</module>
+        <module>asr-driver</module>
     </modules>
 </project>

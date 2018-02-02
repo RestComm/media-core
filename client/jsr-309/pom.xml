@@ -1,21 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
 
     <parent>
-        <groupId>org.restcomm.media</groupId>
+        <groupId>org.restcomm.media.core</groupId>
         <artifactId>client</artifactId>
-        <version>7.0.0-SNAPSHOT</version>
+        <version>8.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.restcomm.media.client</groupId>
+    <groupId>org.restcomm.media.core.client</groupId>
     <artifactId>jsr-309</artifactId>
-    <name>JSR-309</name>
-    
+    <name>media-core-client-jsr-309</name>
+
     <modules>
         <module>driver</module>
     </modules>
-	
-
 </project>

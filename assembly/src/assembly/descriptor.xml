@@ -1,0 +1,52 @@
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
+    <id>uber-jar</id>
+    <formats>
+        <format>jar</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <moduleSets>
+        <!-- Include all binaries and unpack them, except OPUS -->
+        <moduleSet>
+            <useAllReactorProjects>true</useAllReactorProjects>
+            <includes>
+                <include>org.restcomm.media.core*:*</include>
+            </includes>
+            <excludes>
+                <exclude>org.restcomm.media.core.codec.opus:*</exclude>
+            </excludes>
+            <binaries>
+                <outputDirectory>lib</outputDirectory>
+                <unpack>true</unpack>
+            </binaries>
+        </moduleSet>
+
+        <!-- Include OPUS but DO NOT include native dependency (maven cannot unpack it) -->
+        <moduleSet>
+            <useAllReactorProjects>true</useAllReactorProjects>
+            <includes>
+                <include>org.restcomm.media.core.codec.opus:opus-java</include>
+            </includes>
+            <binaries>
+                <includeDependencies>false</includeDependencies>
+                <outputDirectory>lib</outputDirectory>
+                <unpack>true</unpack>
+            </binaries>
+        </moduleSet>
+
+        <!-- Include Native OPUS without unpacking -->
+        <moduleSet>
+            <useAllReactorProjects>true</useAllReactorProjects>
+            <includes>
+                <include>org.restcomm.media.core.codec.opus:libopus_jni_macos</include>
+                <include>org.restcomm.media.core.codec.opus:libopus_jni_linux</include>
+            </includes>
+            <binaries>
+                <includeDependencies>false</includeDependencies>
+                <outputDirectory>lib/native</outputDirectory>
+                <unpack>false</unpack>
+            </binaries>
+        </moduleSet>
+    </moduleSets>
+</assembly>

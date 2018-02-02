@@ -11,29 +11,20 @@
     </parent>
 
     <groupId>org.restcomm.media.core</groupId>
-    <artifactId>asr</artifactId>
-    <name>media-core-asr</name>
+    <artifactId>resource</artifactId>
+    <name>media-core-resource</name>
 
     <dependencies>
         <dependency>
             <groupId>org.restcomm.media.core</groupId>
-            <artifactId>spi</artifactId>
+            <artifactId>component</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
 
     <modules>
-        <module>asr-api</module>
-        <module>asr-engine</module>
+        <module>dtmf</module>
+        <module>media-player</module>
+        <module>media-recorder</module>
     </modules>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-            </plugin>
-        </plugins>
-        <finalName>${name}-${project.parent.version}</finalName>
-    </build>
 </project>

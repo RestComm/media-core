@@ -11,8 +11,8 @@
     </parent>
 
     <groupId>org.restcomm.media.core</groupId>
-    <artifactId>asr</artifactId>
-    <name>media-core-asr</name>
+    <artifactId>codec</artifactId>
+    <name>media-core-codec</name>
 
     <dependencies>
         <dependency>
@@ -23,17 +23,11 @@
     </dependencies>
 
     <modules>
-        <module>asr-api</module>
-        <module>asr-engine</module>
+        <module>g711</module>
+        <module>gsm</module>
+        <module>g729</module>
+        <module>l16</module>
+        <module>ilbc</module>
+        <module>opus</module>
     </modules>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-            </plugin>
-        </plugins>
-        <finalName>${name}-${project.parent.version}</finalName>
-    </build>
 </project>
