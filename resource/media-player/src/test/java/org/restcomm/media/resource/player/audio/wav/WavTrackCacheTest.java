@@ -64,7 +64,7 @@ public class WavTrackCacheTest {
 
     @Test
     public void testCache() throws IOException, UnsupportedAudioFileException {
-        CachedRemoteStreamProvider cache = new CachedRemoteStreamProvider(10);
+        CachedRemoteStreamProvider cache = new CachedRemoteStreamProvider(10, 2000);
 
         URL url1 = new URL(null, "http://test.wav", handler);
         URL url2 = new URL(null, "http://test.wav", handler);
@@ -92,7 +92,7 @@ public class WavTrackCacheTest {
         double fileSize = 61712d;
         int iteration = (int) Math.floor(cacheSize * 1024d * 1024d / fileSize) - 1;
 
-        CachedRemoteStreamProvider cache = new CachedRemoteStreamProvider(1);
+        CachedRemoteStreamProvider cache = new CachedRemoteStreamProvider(1, 2000);
 
         for (int j = 0; j < 10; j++) {
             for (int i = 0; i < iteration; i++) {
@@ -114,7 +114,7 @@ public class WavTrackCacheTest {
 
     @Test
     public void testNoCache() throws IOException, UnsupportedAudioFileException {
-        DirectRemoteStreamProvider noCache = new DirectRemoteStreamProvider();
+        DirectRemoteStreamProvider noCache = new DirectRemoteStreamProvider(2000);
 
         URL url1 = new URL(null, "http://test.wav", handler);
         URL url2 = new URL(null, "http://test.wav", handler);

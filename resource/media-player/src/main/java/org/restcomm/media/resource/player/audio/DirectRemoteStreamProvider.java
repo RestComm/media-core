@@ -10,7 +10,11 @@ import java.net.URLConnection;
  */
 public class DirectRemoteStreamProvider implements RemoteStreamProvider {
 
-    private final int connectionTimeout = 2000;
+    private final int connectionTimeout;
+
+    public DirectRemoteStreamProvider(int connectionTimeout) {
+        this.connectionTimeout = connectionTimeout;
+    }
 
     @Override
     public InputStream getStream(URL uri) throws IOException {

@@ -30,7 +30,10 @@ public class CachedRemoteStreamProvider implements RemoteStreamProvider {
 
     private ByteStreamCache.ISizeChangedListener sizeChangedListener;
 
-    public CachedRemoteStreamProvider(int size) {
+    private final int connectionTimeout;
+
+    public CachedRemoteStreamProvider(int size, int connectionTimeout) {
+        this.connectionTimeout = connectionTimeout;
         log.info("Create AudioCache with size: " + size + "Mb");
         cacheManager = CacheManagerBuilder.newCacheManagerBuilder()
                 .withCache("preConfigured",
@@ -56,7 +59,7 @@ public class CachedRemoteStreamProvider implements RemoteStreamProvider {
 
         ByteStreamCache stream = cache.get(uri);
         if (stream == null) {
-            stream = new ByteStreamCache();
+            stream = new ByteStreamCache(connectionTimeout);
             ByteStreamCache exists = cache.putIfAbsent(uri, stream);
             if (exists != null) {
                 stream = exists;
@@ -72,7 +75,11 @@ public class CachedRemoteStreamProvider implements RemoteStreamProvider {
 
         private volatile byte[] bytes;
 
-        private final int connectionTimeout = 2000;
+        private final int connectionTimeout;
+
+        public ByteStreamCache(int connectionTimeout) {
+            this.connectionTimeout = connectionTimeout;
+        }
 
         public byte[] getBytes(final URL uri, final ISizeChangedListener listener) throws IOException {
             if (bytes == null) {
