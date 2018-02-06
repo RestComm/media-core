@@ -32,6 +32,10 @@ public class CachedRemoteStreamProvider implements RemoteStreamProvider {
 
     private final int connectionTimeout;
 
+    public CachedRemoteStreamProvider(int size) {
+        this(size, 2000);
+    }
+
     public CachedRemoteStreamProvider(int size, int connectionTimeout) {
         this.connectionTimeout = connectionTimeout;
         log.info("Create AudioCache with size: " + size + "Mb");

@@ -12,6 +12,10 @@ public class DirectRemoteStreamProvider implements RemoteStreamProvider {
 
     private final int connectionTimeout;
 
+    public DirectRemoteStreamProvider() {
+        this(2000);
+    }
+
     public DirectRemoteStreamProvider(int connectionTimeout) {
         this.connectionTimeout = connectionTimeout;
     }
