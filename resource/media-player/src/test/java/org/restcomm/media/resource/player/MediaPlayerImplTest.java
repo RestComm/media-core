@@ -54,7 +54,7 @@ public class MediaPlayerImplTest {
 
     @Before
     public void setUp() throws Exception {
-        CachedRemoteStreamProvider cache = new CachedRemoteStreamProvider(100);
+        CachedRemoteStreamProvider cache = new CachedRemoteStreamProvider(100, 2000);
         scheduler = new PriorityQueueScheduler();
         scheduler.setClock(new WallClock());
         scheduler.start();
