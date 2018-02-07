@@ -22,10 +22,9 @@
 package org.restcomm.media.core.resource.vad;
 
 /**
- * Interface for Voce Activity Detection plugin component
+ * Interface for Voice Activity Detection plugin component
  *
  * @author Vladimir Morosev (vladimir.morosev@telestax.com)
- *
  */
 public interface VoiceActivityDetector {
 
@@ -33,10 +32,11 @@ public interface VoiceActivityDetector {
      * The method analyses provided audio samples in buffer and detects wether
      * the speech is present in the signal.
      *
-     * @param data buffer with samples
+     * @param data   buffer with samples
      * @param offset first sample position
-     * @param len the number of samples
+     * @param len    the number of samples
      * @return true if speech detected
      */
-    public boolean detect(byte[] data, int offset, int len);
+    boolean detect(byte[] data, int offset, int len);
+
 }
