@@ -26,5 +26,6 @@
         <module>dtmf</module>
         <module>media-player</module>
         <module>media-recorder</module>
+        <module>vad</module>
     </modules>
 </project>
