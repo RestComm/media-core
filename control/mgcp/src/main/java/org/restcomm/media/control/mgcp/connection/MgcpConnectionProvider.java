@@ -37,22 +37,28 @@ public class MgcpConnectionProvider {
     
     private final AtomicInteger idGenerator;
     private final int timeout;
+    private final int halfOpenTimeout;
     private final MediaChannelProvider channelProvider;
     private final ChannelsManager channelsManager;
     private final ListeningScheduledExecutorService executor;
     private final MgcpEventProvider eventProvider;
     
-    public MgcpConnectionProvider(int timeout, MgcpEventProvider eventProvider, MediaChannelProvider channelProvider, ChannelsManager channelsManager, ListeningScheduledExecutorService executor) {
+    public MgcpConnectionProvider(int halfOpenTimeout, int timeout, MgcpEventProvider eventProvider, MediaChannelProvider channelProvider, ChannelsManager channelsManager, ListeningScheduledExecutorService executor) {
         this.idGenerator = new AtomicInteger(0);
         this.timeout = timeout;
+        this.halfOpenTimeout = halfOpenTimeout;
         this.eventProvider = eventProvider;
         this.channelProvider = channelProvider;
         this.channelsManager = channelsManager;
         this.executor = executor;
     }
+
+    public MgcpConnectionProvider(int timeout, MgcpEventProvider eventProvider, MediaChannelProvider channelProvider, ChannelsManager channelsManager, ListeningScheduledExecutorService executor) {
+        this(0, timeout, eventProvider, channelProvider, channelsManager, executor);
+    }
     
     public MgcpRemoteConnection provideRemote(int callId) {
-        return new MgcpRemoteConnection(this.idGenerator.incrementAndGet(), callId, this.timeout, eventProvider, channelProvider, executor);
+        return new MgcpRemoteConnection(this.idGenerator.incrementAndGet(), callId, this.halfOpenTimeout, this.timeout, eventProvider, channelProvider, executor);
     }
     
     public MgcpLocalConnection provideLocal(int callId) {
