@@ -1,8 +1,7 @@
 # RestComm Media-Core
 
 The RestComm Media-Core is a Java-based core framework where Media Services can be built on top of.
-
-This project includes the core runtime that is used by the RestComm Media Server application.
+This project includes the core runtime that is used by the [RestComm Media Server application](https://github.com/RestComm/media-server-standalone).
 
 Thanks to its pluggable architecture, users are able to develop and assemble a set of plugins for different features (such as ASR, VAD, Codecs, etc) according to their needs.
 This allows users to build tailored versions of a Media Service best suited for their needs.
@@ -12,7 +11,7 @@ This allows users to build tailored versions of a Media Service best suited for 
 
 The RestComm Media-Core project features:
 * Pluggable Architecture
-* Digital Signalling Processing
+* Digital Signal Processing
 * RTP and RTCP Processing
 * SDP Parsing
 * ICE and DTLS capabilities
