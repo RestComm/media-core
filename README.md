@@ -26,7 +26,7 @@ The project is led by [TeleStax, Inc.](http://www.telestax.com) and developed co
 
 ## Documentation
 
-Please refer to the [RestComm Media - Online Documentation](http://documentation.telestax.com/core/media_server/Media_Server_User_Guide.html).
+Please refer to the [RestComm Media - Online Documentation](https://restcomm.com/docs/core/media_server/Media_Server_User_Guide.html).
 
 ## Issue Tracker
 
@@ -38,10 +38,11 @@ When reporting issues, please identify the affected [media component](https://te
 
 You can become part of the Open Source RestComm project family by contributing with patches, documentation or tests. Read our [Contributors Guide](https://github.com/RestComm/restcomm/wiki/Contribute-to-RestComm) and [Open Source Playbook](https://telestax.com/wp-content/uploads/2016/04/TeleStaxOpenSourcePlaybook.pdf) to get started and check the [Media Server Roadmap](https://github.com/RestComm/mediaserver/milestones) for open issues marked as [Help Wanted](https://github.com/RestComm/mediaserver/issues?q=is%3Aissue+is%3Aopen+label%3Ahelp-wanted).
 
-Help us improve the project by [asking questions](https://groups.google.com/forum/#!forum/restcomm), [reporting bugs](https://telestax.atlassian.net/projects/RMS/issues) and [contributing back](https://github.com/RestComm/media-core/pulls).
+Help us improve the project by [asking questions](https://stackoverflow.com/questions/tagged/restcomm), [reporting bugs](https://telestax.atlassian.net/projects/RMS/issues) and [contributing back](https://github.com/RestComm/media-core/pulls).
+
 **Your Feedback is highly appreciated!**
 
-Top contributors will be given the opportunity to [apply for a job](https://telestax.com/jobs/) at TeleStax!
+Top contributors are the most likely to be considered for [one of our open positions](https://telestax.com/jobs/) at TeleStax!
 
 Join our vibrant community and [download the latest stable build NOW](https://www.restcomm.com/downloads/)!
 
@@ -53,7 +54,8 @@ Many thanks to [SIPME](https://www.sipme.me/) for the ongoing support and contri
 
 ## License [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bhttps%3A%2F%2Fgithub.com%2FRestComm%2Fmediaserver.svg?type=shield)](https://app.fossa.io/projects/git%2Bhttps%3A%2F%2Fgithub.com%2FRestComm%2Fmediaserver?ref=badge_shield)
 
-The RestComm Media Core project is licensed under the Free Open Source GNU Affero GPL v3.0.
+The RestComm Media Core project is is licensed under a dual license policy. The default license is the Free Open Source GNU Affero GPL v3.0.
+Alternatively a commercial license can be obtained from Telestax ([contact form](https://www.restcomm.com/contact/))
 
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bhttps%3A%2F%2Fgithub.com%2FRestComm%2Fmediaserver.svg?type=large)](https://app.fossa.io/projects/git%2Bhttps%3A%2F%2Fgithub.com%2FRestComm%2Fmediaserver?ref=badge_large)
 
