@@ -1,3 +1,5 @@
+![RestComm Media](https://github.com/RestComm/media-core/blob/master/logo.png)
+
 # RestComm Media-Core
 
 The RestComm Media-Core is a Java-based core framework where Media Services can be built on top of.
