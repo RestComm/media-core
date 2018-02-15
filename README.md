@@ -1,4 +1,4 @@
-![RestComm Media](https://github.com/RestComm/media-core/blob/master/logo.png)
+![RestComm Media](https://github.com/RestComm/media-core/blob/master/logo.svg)
 
 # RestComm Media-Core
 
