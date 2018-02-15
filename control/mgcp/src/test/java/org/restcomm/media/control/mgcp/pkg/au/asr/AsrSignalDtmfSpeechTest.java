@@ -106,7 +106,7 @@ public class AsrSignalDtmfSpeechTest extends AsrSignalBaseTest {
         verify(player, never()).activate();
         verify(observer, never()).onEvent(eq(asr), eventCaptor.capture());
 
-        speechDetectorListener.onSpeechDetected();
+        speechDetectorListener.onVoiceActivityDetected();
         detectorListener.process(new DtmfEventImpl(detector, "#", -30));
         asrEngineListener.onSpeechRecognized("text", true);
 
@@ -214,7 +214,7 @@ public class AsrSignalDtmfSpeechTest extends AsrSignalBaseTest {
         asr.observe(observer);
         asr.execute();
 
-        speechDetectorListener.onSpeechDetected();
+        speechDetectorListener.onVoiceActivityDetected();
 
         // then
         verify(asrEngine, times(1)).activate();

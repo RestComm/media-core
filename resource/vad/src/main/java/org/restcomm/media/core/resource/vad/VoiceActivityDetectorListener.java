@@ -19,19 +19,19 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.asr;
+package org.restcomm.media.core.resource.vad;
 
 /**
- * Listener that is notified about events raised by {@link SpeechDetector}.
+ * Listener that is notified about events raised by {@link VoiceActivityDetector}.
  * 
  * @author anikiforov
  *
  */
-public interface SpeechDetectorListener {
+public interface VoiceActivityDetectorListener {
 
     /**
      * Event raised when user speech is detected.
      */
-    void onSpeechDetected();
+    void onVoiceActivityDetected();
 
 }

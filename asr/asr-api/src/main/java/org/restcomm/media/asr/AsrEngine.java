@@ -1,7 +1,7 @@
 /*
  * TeleStax, Open Source Cloud Communications
  * Copyright 2011-2017, Telestax Inc and individual contributors
- * by the @authors tag. 
+ * by the @authors tag.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -23,38 +23,51 @@ package org.restcomm.media.asr;
 
 import java.util.List;
 
+import org.restcomm.media.MediaSink;
+import org.restcomm.media.core.resource.vad.VoiceActivityDetectorListener;
 import org.restcomm.media.drivers.asr.AsrDriverConfigurationException;
 import org.restcomm.media.drivers.asr.UnknownAsrDriverException;
 
 /**
  * @author gdubina
- *
  */
-public interface AsrEngine extends SpeechDetector {
+public interface AsrEngine extends MediaSink {
 
     /**
      * Configures the ASR Engine.
-     * 
-     * @param driver The ASR driver to be loaded.
+     *
+     * @param driver   The ASR driver to be loaded.
      * @param language The language to be used.
-     * @param hints The list of hotwords to help raise detection accuracy.
-     * @throws UnknownAsrDriverException When the provided driver is not supported.
+     * @param hints    The list of hotwords to help raise detection accuracy.
+     * @throws UnknownAsrDriverException       When the provided driver is not supported.
      * @throws AsrDriverConfigurationException When the driver is badly configured.
      */
     void configure(String driver, String language, List<String> hints) throws UnknownAsrDriverException, AsrDriverConfigurationException;
 
     /**
      * Attaches a listener to the engine to be notified about ASR events.
-     * 
+     *
      * @param listener The listener who will be notified by the ASR Engine.
      */
     void setListener(AsrEngineListener listener);
 
     /**
      * Gets the amount of time the engine will wait for the ASR provider to provide a transcription.
-     * 
+     *
      * @return The waiting time, in milliseconds.
      */
     int getResponseTimeoutInMilliseconds();
+
+    /**
+     * Starts speech detection process.
+     *
+     * @param voiceActivityDetectorListener The listener who will be notified about speech detection events.
+     */
+    void startSpeechDetection(VoiceActivityDetectorListener voiceActivityDetectorListener);
+
+    /**
+     * Stops the speech detection process.
+     */
+    void stopSpeechDetection();
 
 }

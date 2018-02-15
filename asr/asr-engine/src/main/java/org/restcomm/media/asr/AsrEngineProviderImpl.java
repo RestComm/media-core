@@ -1,7 +1,7 @@
 /*
  * TeleStax, Open Source Cloud Communications
  * Copyright 2011-2017, Telestax Inc and individual contributors
- * by the @authors tag. 
+ * by the @authors tag.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -21,10 +21,11 @@
 
 package org.restcomm.media.asr;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
+import org.restcomm.media.core.resource.vad.VoiceActivityDetectorProvider;
 import org.restcomm.media.drivers.asr.AsrDriverManager;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author gdubina
@@ -34,18 +35,18 @@ public class AsrEngineProviderImpl implements AsrEngineProvider {
     private final AtomicInteger id;
     private final PriorityQueueScheduler mediaScheduler;
     private final AsrDriverManager driverManager;
-    private final int silenceLevel;
+    private final VoiceActivityDetectorProvider vadProvider;
 
-    public AsrEngineProviderImpl(final PriorityQueueScheduler mediaScheduler, final AsrDriverManager driverManager, final int silenceLevel) {
+    public AsrEngineProviderImpl(final PriorityQueueScheduler mediaScheduler, final AsrDriverManager driverManager, VoiceActivityDetectorProvider vadProvider) {
         this.mediaScheduler = mediaScheduler;
         this.driverManager = driverManager;
         this.id = new AtomicInteger(0);
-        this.silenceLevel = silenceLevel;
+        this.vadProvider = vadProvider;
     }
 
     @Override
     public AsrEngine provide() {
-        return new AsrEngineImpl(nextId(), this.mediaScheduler, this.driverManager, this.silenceLevel);
+        return new AsrEngineImpl(nextId(), this.mediaScheduler, this.driverManager, this.vadProvider.provide());
     }
 
     private String nextId() {

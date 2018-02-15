@@ -21,10 +21,7 @@
 
 package org.restcomm.media.control.mgcp.pkg.au.asr;
 
-import java.net.MalformedURLException;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
+import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -33,13 +30,9 @@ import org.restcomm.media.asr.AsrEngine;
 import org.restcomm.media.asr.AsrEngineListener;
 import org.restcomm.media.asr.InputTimeoutDetector;
 import org.restcomm.media.asr.InputTimeoutListener;
-import org.restcomm.media.asr.SpeechDetectorListener;
 import org.restcomm.media.control.mgcp.pkg.MgcpEventSubject;
-import org.restcomm.media.control.mgcp.pkg.au.OperationComplete;
-import org.restcomm.media.control.mgcp.pkg.au.OperationFailed;
-import org.restcomm.media.control.mgcp.pkg.au.Playlist;
-import org.restcomm.media.control.mgcp.pkg.au.ReturnCode;
-import org.restcomm.media.control.mgcp.pkg.au.ReturnParameters;
+import org.restcomm.media.control.mgcp.pkg.au.*;
+import org.restcomm.media.core.resource.vad.VoiceActivityDetectorListener;
 import org.restcomm.media.drivers.asr.AsrDriverConfigurationException;
 import org.restcomm.media.drivers.asr.AsrDriverException;
 import org.restcomm.media.drivers.asr.UnknownAsrDriverException;
@@ -53,7 +46,9 @@ import org.restcomm.media.spi.player.PlayerEvent;
 import org.restcomm.media.spi.player.PlayerListener;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
 
-import com.google.common.util.concurrent.ListeningScheduledExecutorService;
+import java.net.MalformedURLException;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author anikiforov
@@ -640,11 +635,11 @@ public class AsrFsmImpl extends AbstractStateMachine<AsrFsm, AsrState, AsrEvent,
         }
     }
 
-    private final class LocalSpeechDetectorListener implements SpeechDetectorListener {
+    private final class LocalSpeechDetectorListener implements VoiceActivityDetectorListener {
         @Override
-        public void onSpeechDetected() {
+        public void onVoiceActivityDetected() {
             if (log.isTraceEnabled() && isStillCollecting()) {
-                log.trace("onSpeechDetected");
+                log.trace("onVoiceActivityDetected");
             }
             inputTimeoutDetector.processInput();
         }
@@ -749,7 +744,7 @@ public class AsrFsmImpl extends AbstractStateMachine<AsrFsm, AsrState, AsrEvent,
         private final long timestamp;
         private final AsrContext context;
 
-        public DetectorTimer(AsrContext context) {
+        DetectorTimer(AsrContext context) {
             this.timestamp = System.currentTimeMillis();
             this.context = context;
         }
