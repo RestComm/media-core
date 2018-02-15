@@ -54,7 +54,8 @@ Many thanks to [SIPME](https://www.sipme.me/) for the ongoing support and contri
 
 ## License [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bhttps%3A%2F%2Fgithub.com%2FRestComm%2Fmediaserver.svg?type=shield)](https://app.fossa.io/projects/git%2Bhttps%3A%2F%2Fgithub.com%2FRestComm%2Fmediaserver?ref=badge_shield)
 
-The RestComm Media Core project is licensed under the Free Open Source GNU Affero GPL v3.0.
+The RestComm Media Core project is is licensed under a dual license policy. The default license is the Free Open Source GNU Affero GPL v3.0.
+Alternatively a commercial license can be obtained from Telestax ([contact form](https://www.restcomm.com/contact/))
 
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bhttps%3A%2F%2Fgithub.com%2FRestComm%2Fmediaserver.svg?type=large)](https://app.fossa.io/projects/git%2Bhttps%3A%2F%2Fgithub.com%2FRestComm%2Fmediaserver?ref=badge_large)
 
