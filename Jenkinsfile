@@ -18,6 +18,10 @@ node("cxs-slave-master") {
         sh "mvn clean install -DskipTests=true"
     }
 
+    stage ('Test') {
+        sh "mvn clean install -Dmaven.test.failure.ignore=true"
+    }
+
     stage ('Deploy') {
         if(env.PUBLISH_TO_CXS_NEXUS == 'true') {
             sh "mvn clean install package deploy:deploy -Pattach-sources,generate-javadoc,maven-release -DskipTests=true -DskipNexusStagingDeployMojo=true -DaltDeploymentRepository=nexus::default::$CXS_NEXUS2_URL"
