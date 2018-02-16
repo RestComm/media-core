@@ -22,24 +22,16 @@
 
 package org.restcomm.media.resource.recorder.audio;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.concurrent.atomic.AtomicReference;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.restcomm.media.ComponentType;
 import org.restcomm.media.component.AbstractSink;
 import org.restcomm.media.component.audio.AudioOutput;
 import org.restcomm.media.component.oob.OOBOutput;
+import org.restcomm.media.core.resource.vad.VoiceActivityDetector;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.Task;
 import org.restcomm.media.spi.dtmf.DtmfTonesData;
-import org.restcomm.media.spi.format.AudioFormat;
-import org.restcomm.media.spi.format.FormatFactory;
-import org.restcomm.media.spi.format.Formats;
 import org.restcomm.media.spi.listener.Listeners;
 import org.restcomm.media.spi.listener.TooManyListenersException;
 import org.restcomm.media.spi.memory.Frame;
@@ -47,6 +39,12 @@ import org.restcomm.media.spi.pooling.PooledObject;
 import org.restcomm.media.spi.recorder.Recorder;
 import org.restcomm.media.spi.recorder.RecorderEvent;
 import org.restcomm.media.spi.recorder.RecorderListener;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author yulian oifa
@@ -56,15 +54,6 @@ import org.restcomm.media.spi.recorder.RecorderListener;
 public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledObject {
 
     private static final long serialVersionUID = -5290778284867189598L;
-
-    private final static AudioFormat LINEAR = FormatFactory.createAudioFormat("linear", 8000, 16, 1);
-    private final static Formats formats = new Formats();
-
-    private final static int SILENCE_LEVEL = 10;
-
-    static {
-        formats.add(LINEAR);
-    }
 
     private String recordDir;
     private AtomicReference<RecorderFileSink> sink = new AtomicReference<>(null);
@@ -90,7 +79,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
     private long maxRecordTime = -1;
 
     // listener
-    private Listeners<RecorderListener> listeners = new Listeners<RecorderListener>();
+    private Listeners<RecorderListener> listeners = new Listeners<>();
 
     // events
     private RecorderEventImpl recorderStarted;
@@ -109,9 +98,11 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
     private OOBOutput oobOutput;
     private OOBRecorder oobRecorder;
 
+    private final VoiceActivityDetector voiceDetector;
+
     private static final Logger logger = LogManager.getLogger(AudioRecorderImpl.class);
 
-    public AudioRecorderImpl(PriorityQueueScheduler scheduler) {
+    public AudioRecorderImpl(PriorityQueueScheduler scheduler, VoiceActivityDetector voiceDetector) {
         super("recorder");
         this.scheduler = scheduler;
 
@@ -132,6 +123,8 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
         oobOutput = new OOBOutput(scheduler, ComponentType.RECORDER.getType());
         oobRecorder = new OOBRecorder();
         oobOutput.join(oobRecorder);
+
+        this.voiceDetector = voiceDetector;
     }
 
     public AudioOutput getAudioOutput() {
@@ -235,8 +228,8 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
         if (snk != null) snk.write(byteBuffer);
 
         if (this.postSpeechTimer > 0 || this.preSpeechTimer > 0) {
-            // detecting silence
-            if (!this.checkForSilence(data, offset, len)) {
+            // detecting voice activity
+            if (this.voiceDetector.detect(data, offset, len)) {
                 this.lastPacketData = scheduler.getClock().getTime();
                 if(!this.speechDetected) {
                     fireEvent(new RecorderEventImpl(RecorderEvent.SPEECH_DETECTED, this));
@@ -263,35 +256,6 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
         if (snk != null) {
             logger.error("Sink for the recording is not cleaned properly, found " + snk);
         }
-    }
-
-    /**
-     * Checks does the frame contains sound or silence.
-     * 
-     * @param data buffer with samples
-     * @param offset the position of first sample in buffer
-     * @param len the number if samples
-     * @return true if silence detected
-     */
-    private boolean checkForSilence(byte[] data, int offset, int len) {
-        int[] correllation = new int[len];
-        for (int i = offset; i < len - 1; i += 2) {
-            correllation[i] = (data[i] & 0xff) | (data[i + 1] << 8);
-        }
-
-        double mean = mean(correllation);
-        if(mean > SILENCE_LEVEL) {
-            return false;
-        }
-        return true;
-    }
-    
-    public double mean(int[] m) {
-        double sum = 0;
-        for (int i = 0; i < m.length; i++) {
-            sum += m[i];
-        }
-        return sum / m.length;
     }
 
     @Override
@@ -341,7 +305,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
      */
     private class KillRecording extends Task {
 
-        public KillRecording() {
+        KillRecording() {
             super();
         }
 
@@ -363,7 +327,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
 
         protected RecorderEventImpl event;
 
-        public EventSender() {
+        EventSender() {
             super();
         }
 
@@ -383,7 +347,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
      */
     private class Heartbeat extends Task {
 
-        public Heartbeat() {
+        Heartbeat() {
             super();
         }
 
@@ -437,7 +401,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
 
         private ByteBuffer toneBuffer = ByteBuffer.allocateDirect(1600);
 
-        public OOBRecorder() {
+        OOBRecorder() {
             super("oob recorder");
         }
 
@@ -448,8 +412,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
                 return;
             }
 
-            boolean endOfEvent = false;
-            endOfEvent = (data[1] & 0X80) != 0;
+            boolean endOfEvent = (data[1] & 0X80) != 0;
 
             // lets ignore end of event packets
             if (endOfEvent) {

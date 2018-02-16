@@ -19,28 +19,19 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.asr;
-
-import org.restcomm.media.MediaSink;
+package org.restcomm.media.core.resource.vad;
 
 /**
- * Components that detects user speech from a stream of incoming audio.
+ * Listener that is notified about events raised by {@link VoiceActivityDetector}.
  * 
  * @author anikiforov
  *
  */
-public interface SpeechDetector extends MediaSink {
+public interface VoiceActivityDetectorListener {
 
     /**
-     * Starts speech detection process.
-     * 
-     * @param speechDetectorListener The listener who will be notified about speech detection events.
+     * Event raised when user speech is detected.
      */
-    void startSpeechDetection(SpeechDetectorListener speechDetectorListener);
-
-    /**
-     * Stops the speech detection process.
-     */
-    void stopSpeechDetection();
+    void onVoiceActivityDetected();
 
 }

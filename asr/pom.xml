@@ -20,6 +20,11 @@
             <artifactId>spi</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.restcomm.media.core.resource</groupId>
+            <artifactId>vad</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <modules>

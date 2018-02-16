@@ -21,12 +21,11 @@
 
 package org.restcomm.media.asr;
 
-import java.util.concurrent.TimeUnit;
-
+import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.google.common.util.concurrent.ListeningScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Component that triggers input timeout events during Speech Detection process.
@@ -36,7 +35,7 @@ import com.google.common.util.concurrent.ListeningScheduledExecutorService;
  */
 public class InputTimeoutDetector {
 
-    private final static Logger logger = LogManager.getLogger(SpeechDetectorImpl.class);
+    private final static Logger logger = LogManager.getLogger(InputTimeoutDetector.class);
 
     private final static long INVALID_TIME = -1L;
 

@@ -21,30 +21,29 @@
 
 package org.restcomm.media.control.mgcp.pkg.au.asr;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-
+import com.google.common.util.concurrent.ListeningScheduledExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.restcomm.media.asr.AsrEngine;
 import org.restcomm.media.asr.AsrEngineListener;
-import org.restcomm.media.asr.SpeechDetectorListener;
 import org.restcomm.media.control.mgcp.pkg.MgcpEventObserver;
 import org.restcomm.media.control.mgcp.pkg.au.SignalParameters;
+import org.restcomm.media.core.resource.vad.VoiceActivityDetectorListener;
 import org.restcomm.media.spi.dtmf.DtmfDetector;
 import org.restcomm.media.spi.dtmf.DtmfDetectorListener;
 import org.restcomm.media.spi.listener.TooManyListenersException;
 import org.restcomm.media.spi.player.Player;
 
-import com.google.common.util.concurrent.ListeningScheduledExecutorService;
-import com.google.common.util.concurrent.MoreExecutors;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 /**
  * @author anikiforov
@@ -70,7 +69,7 @@ public abstract class AsrSignalBaseTest {
 
     private ListeningScheduledExecutorService executor;
     protected MgcpEventObserver observer;
-    protected SpeechDetectorListener speechDetectorListener;
+    protected VoiceActivityDetectorListener speechDetectorListener;
     protected AsrEngineListener asrEngineListener;
     protected DtmfDetectorListener detectorListener;
 
@@ -83,10 +82,10 @@ public abstract class AsrSignalBaseTest {
         doAnswer(new Answer<Void>() {
             @Override
             public Void answer(InvocationOnMock invocation) throws Throwable {
-                speechDetectorListener = invocation.getArgumentAt(0, SpeechDetectorListener.class);
+                speechDetectorListener = invocation.getArgumentAt(0, VoiceActivityDetectorListener.class);
                 return null;
             }
-        }).when(asrEngine).startSpeechDetection(any(SpeechDetectorListener.class));
+        }).when(asrEngine).startSpeechDetection(any(VoiceActivityDetectorListener.class));
         doAnswer(new Answer<Void>() {
             @Override
             public Void answer(InvocationOnMock invocation) throws Throwable {
@@ -156,7 +155,7 @@ public abstract class AsrSignalBaseTest {
     }
 
     protected void speakRecognizedText(final String text) {
-        speechDetectorListener.onSpeechDetected();
+        speechDetectorListener.onVoiceActivityDetected();
         asrEngineListener.onSpeechRecognized(text, true);
     }
 
@@ -165,7 +164,7 @@ public abstract class AsrSignalBaseTest {
         final long finishTimestampInMilliseconds = startTimestampInMilliseconds + durationInMilliseconds;
         do {
             if (speechDetectorListener != null) {
-                speechDetectorListener.onSpeechDetected();
+                speechDetectorListener.onVoiceActivityDetected();
             } else {
                 logger.info("speechDetectorListener is null");
             }
