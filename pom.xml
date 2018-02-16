@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.restcomm.media</groupId>
         <artifactId>media-parent</artifactId>
-        <version>1.0.0-15</version>
+        <version>1.0.0-16</version>
     </parent>
 
     <groupId>org.restcomm.media</groupId>
@@ -110,11 +110,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven.compiler.version}</version>
-                <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
