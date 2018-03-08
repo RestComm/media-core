@@ -11,7 +11,7 @@
 	</parent>
 
 	<groupId>org.restcomm.media.core</groupId>
-	<artifactId>pcap</artifactId>
+	<artifactId>media-core-pcap</artifactId>
 	<name>media-core-pcap</name>
 
 	<properties>
@@ -21,7 +21,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.restcomm.media.core</groupId>
-			<artifactId>network</artifactId>
+			<artifactId>media-core-network</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<!-- Hadoop Pcap project home: https://github.com/RIPE-NCC/hadoop-pcap -->
@@ -46,6 +46,6 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 			</plugin>
 		</plugins>
-		<finalName>${name}-${project.version}</finalName>
+		<finalName>${project.artifactId}-${project.version}</finalName>
 	</build>
 </project>

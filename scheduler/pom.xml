@@ -11,14 +11,14 @@
     </parent>
 
     <groupId>org.restcomm.media.core</groupId>
-    <artifactId>scheduler</artifactId>
+    <artifactId>media-core-scheduler</artifactId>
     <name>media-core-scheduler</name>
 
     <dependencies>
         <!-- Media Core Modules -->
         <dependency>
             <groupId>org.restcomm.media.core</groupId>
-            <artifactId>concurrent</artifactId>
+            <artifactId>media-core-concurrent</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
@@ -30,6 +30,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
         </plugins>
-        <finalName>${name}-${project.version}</finalName>
+        <finalName>${project.artifactId}-${project.version}</finalName>
     </build>
 </project>

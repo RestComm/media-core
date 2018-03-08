@@ -11,13 +11,13 @@
     </parent>
 
     <groupId>org.restcomm.media.core</groupId>
-    <artifactId>codec</artifactId>
+    <artifactId>media-core-codec</artifactId>
     <name>media-core-codec</name>
 
     <dependencies>
         <dependency>
             <groupId>org.restcomm.media.core</groupId>
-            <artifactId>spi</artifactId>
+            <artifactId>media-core-spi</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

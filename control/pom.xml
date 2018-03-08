@@ -11,7 +11,7 @@
     </parent>
 
     <groupId>org.restcomm.media.core</groupId>
-    <artifactId>control</artifactId>
+    <artifactId>media-core-control</artifactId>
     <name>media-core-control</name>
 
     <modules>

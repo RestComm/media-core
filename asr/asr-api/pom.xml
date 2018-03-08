@@ -6,18 +6,18 @@
 
     <parent>
         <groupId>org.restcomm.media.core</groupId>
-        <artifactId>asr</artifactId>
+        <artifactId>media-core-asr</artifactId>
         <version>8.0.0-SNAPSHOT</version>
     </parent>
 
     <groupId>org.restcomm.media.core.asr</groupId>
-    <artifactId>asr-api</artifactId>
+    <artifactId>media-core-asr-api</artifactId>
     <name>media-core-asr-api</name>
 
     <dependencies>
         <dependency>
             <groupId>org.restcomm.media.core.driver.asr</groupId>
-            <artifactId>asr-driver-api</artifactId>
+            <artifactId>media-core-driver-asr-api</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
@@ -29,6 +29,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
         </plugins>
-        <finalName>${name}-${project.parent.version}</finalName>
+        <finalName>${project.artifactId}-${project.parent.version}</finalName>
     </build>
 </project>

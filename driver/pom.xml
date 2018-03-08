@@ -11,7 +11,7 @@
     </parent>
 
     <groupId>org.restcomm.media.core</groupId>
-    <artifactId>driver</artifactId>
+    <artifactId>media-core-driver</artifactId>
     <name>media-core-driver</name>
 
     <modules>

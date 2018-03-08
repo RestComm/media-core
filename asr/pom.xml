@@ -11,18 +11,18 @@
     </parent>
 
     <groupId>org.restcomm.media.core</groupId>
-    <artifactId>asr</artifactId>
+    <artifactId>media-core-asr</artifactId>
     <name>media-core-asr</name>
 
     <dependencies>
         <dependency>
             <groupId>org.restcomm.media.core</groupId>
-            <artifactId>spi</artifactId>
+            <artifactId>media-core-spi</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.restcomm.media.core.resource</groupId>
-            <artifactId>vad</artifactId>
+            <artifactId>media-core-resource-vad</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
@@ -39,6 +39,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
         </plugins>
-        <finalName>${name}-${project.parent.version}</finalName>
+        <finalName>${project.artifactId}-${project.parent.version}</finalName>
     </build>
 </project>

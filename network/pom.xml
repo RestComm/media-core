@@ -11,7 +11,7 @@
     </parent>
 
     <groupId>org.restcomm.media.core</groupId>
-    <artifactId>network</artifactId>
+    <artifactId>media-core-network</artifactId>
     <name>media-core-network</name>
 
     <properties>
@@ -21,7 +21,7 @@
     <dependencies>
         <dependency>
             <groupId>org.restcomm.media.core</groupId>
-            <artifactId>spi</artifactId>
+            <artifactId>media-core-spi</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -42,6 +42,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
         </plugins>
-        <finalName>${name}-${project.version}</finalName>
+        <finalName>${project.artifactId}-${project.version}</finalName>
     </build>
 </project>

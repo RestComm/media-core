@@ -6,12 +6,12 @@
 
     <parent>
         <groupId>org.restcomm.media.core</groupId>
-        <artifactId>client</artifactId>
+        <artifactId>media-core-client</artifactId>
         <version>8.0.0-SNAPSHOT</version>
     </parent>
 
     <groupId>org.restcomm.media.core.client</groupId>
-    <artifactId>jsr-309</artifactId>
+    <artifactId>media-core-client-jsr-309</artifactId>
     <name>media-core-client-jsr-309</name>
 
     <modules>

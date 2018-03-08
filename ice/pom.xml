@@ -11,13 +11,13 @@
     </parent>
 
     <groupId>org.restcomm.media.core</groupId>
-    <artifactId>ice</artifactId>
+    <artifactId>media-core-ice</artifactId>
     <name>media-core-ice</name>
 
     <dependencies>
         <dependency>
             <groupId>org.restcomm.media.core</groupId>
-            <artifactId>stun</artifactId>
+            <artifactId>media-core-stun</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
@@ -29,6 +29,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
         </plugins>
-        <finalName>${name}-${project.version}</finalName>
+        <finalName>${project.artifactId}-${project.version}</finalName>
     </build>
 </project>

@@ -6,23 +6,23 @@
 
 	<parent>
 		<groupId>org.restcomm.media.core</groupId>
-		<artifactId>asr</artifactId>
+		<artifactId>media-core-asr</artifactId>
 		<version>8.0.0-SNAPSHOT</version>
 	</parent>
 
 	<groupId>org.restcomm.media.core.asr</groupId>
-	<artifactId>asr-engine</artifactId>
+	<artifactId>media-core-asr-engine</artifactId>
 	<name>media-core-asr-engine</name>
 
 	<dependencies>
 		<dependency>
 			<groupId>org.restcomm.media.core.asr</groupId>
-			<artifactId>asr-api</artifactId>
+			<artifactId>media-core-asr-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.restcomm.media.core</groupId>
-			<artifactId>component</artifactId>
+			<artifactId>media-core-component</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -38,6 +38,6 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 			</plugin>
 		</plugins>
-		<finalName>${name}-${project.parent.version}</finalName>
+		<finalName>${project.artifactId}-${project.parent.version}</finalName>
 	</build>
 </project>
