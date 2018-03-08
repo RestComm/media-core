@@ -6,12 +6,12 @@
 
     <parent>
         <groupId>org.restcomm.media.core</groupId>
-        <artifactId>resource</artifactId>
+        <artifactId>media-core-resource</artifactId>
         <version>8.0.0-SNAPSHOT</version>
     </parent>
 
     <groupId>org.restcomm.media.core.resource</groupId>
-    <artifactId>player</artifactId>
+    <artifactId>media-core-resource-player</artifactId>
     <name>media-core-resource-player</name>
 
     <properties>
@@ -24,19 +24,19 @@
     <dependencies>
         <dependency>
             <groupId>org.restcomm.media.core.codec</groupId>
-            <artifactId>g711</artifactId>
+            <artifactId>media-core-codec-g711</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.restcomm.media.core.codec</groupId>
-            <artifactId>g729</artifactId>
+            <artifactId>media-core-codec-g729</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.restcomm.media.core.codec</groupId>
-            <artifactId>gsm</artifactId>
+            <artifactId>media-core-codec-gsm</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
@@ -119,6 +119,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
         </plugins>
-        <finalName>${name}-${project.version}</finalName>
+        <finalName>${project.artifactId}-${project.version}</finalName>
     </build>
 </project>

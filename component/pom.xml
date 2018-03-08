@@ -11,18 +11,18 @@
     </parent>
 
     <groupId>org.restcomm.media.core</groupId>
-    <artifactId>component</artifactId>
+    <artifactId>media-core-component</artifactId>
     <name>media-core-component</name>
 
     <dependencies>
         <dependency>
             <groupId>org.restcomm.media.core</groupId>
-            <artifactId>spi</artifactId>
+            <artifactId>media-core-spi</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.restcomm.media.core.codec</groupId>
-            <artifactId>g711</artifactId>
+            <artifactId>media-core-codec-g711</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
@@ -35,6 +35,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
         </plugins>
-        <finalName>${name}-${project.version}</finalName>
+        <finalName>${project.artifactId}-${project.version}</finalName>
     </build>
 </project>

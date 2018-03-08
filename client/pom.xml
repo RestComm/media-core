@@ -11,7 +11,7 @@
     </parent>
 
     <groupId>org.restcomm.media.core</groupId>
-    <artifactId>client</artifactId>
+    <artifactId>media-core-client</artifactId>
     <name>media-core-client</name>
 
     <modules>

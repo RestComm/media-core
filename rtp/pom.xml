@@ -11,7 +11,7 @@
     </parent>
 
     <groupId>org.restcomm.media.core</groupId>
-    <artifactId>rtp</artifactId>
+    <artifactId>media-core-rtp</artifactId>
     <name>media-core-rtp</name>
 
     <properties>
@@ -22,34 +22,34 @@
     <dependencies>
         <dependency>
             <groupId>org.restcomm.media.core</groupId>
-            <artifactId>sdp</artifactId>
+            <artifactId>media-core-sdp</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.restcomm.media.core</groupId>
-            <artifactId>ice</artifactId>
+            <artifactId>media-core-ice</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.restcomm.media.core</groupId>
-            <artifactId>component</artifactId>
+            <artifactId>media-core-component</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.restcomm.media.core.resource</groupId>
-            <artifactId>dtmf</artifactId>
+            <artifactId>media-core-resource-dtmf</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.restcomm.media.core</groupId>
-            <artifactId>pcap</artifactId>
+            <artifactId>media-core-pcap</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.restcomm.media.core.codec</groupId>
-            <artifactId>g711</artifactId>
+            <artifactId>media-core-codec-g711</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
@@ -73,6 +73,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
         </plugins>
-        <finalName>${name}-${project.version}</finalName>
+        <finalName>${project.artifactId}-${project.version}</finalName>
     </build>
 </project>

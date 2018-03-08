@@ -6,12 +6,12 @@
 
     <parent>
         <groupId>org.restcomm.media.core</groupId>
-        <artifactId>resource</artifactId>
+        <artifactId>media-core-resource</artifactId>
         <version>8.0.0-SNAPSHOT</version>
     </parent>
 
     <groupId>org.restcomm.media.core.resource</groupId>
-    <artifactId>dtmf</artifactId>
+    <artifactId>media-core-resource-dtmf</artifactId>
     <name>media-core-resource-dtmf</name>
 
     <build>
@@ -21,6 +21,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
         </plugins>
-        <finalName>${name}-${project.version}</finalName>
+        <finalName>${project.artifactId}-${project.version}</finalName>
     </build>
 </project>
