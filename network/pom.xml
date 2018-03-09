@@ -14,7 +14,7 @@
     <artifactId>media-core-network</artifactId>
     <name>media-core-network</name>
 
-    1.1.33.Fork26    <dependencies>
+    <dependencies>
         <dependency>
             <groupId>org.restcomm.media.core</groupId>
             <artifactId>media-core-spi</artifactId>
