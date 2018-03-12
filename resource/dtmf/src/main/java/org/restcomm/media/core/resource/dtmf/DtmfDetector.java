@@ -29,13 +29,13 @@ package org.restcomm.media.core.resource.dtmf;
 public interface DtmfDetector {
 
     /**
-     * The method that detects DTMF digit in provided audio buffer
+     * The method that detects DTMF digit in provided audio buffer. Detection
+     * status is passed to the application layer through a listener pattern.
      *
      * @param data     buffer with samples
-     * @param len      the number of samples
      * @param duration buffer duration 
      * @return Detected digit, null if nothing is detected
      */
-    String detect(byte[] data, int offset, int len, long duration);
+    void detect(byte[] data, long duration);
 
 }
