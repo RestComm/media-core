@@ -38,8 +38,8 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.restcomm.media.codec.g711.alaw.Decoder;
-import org.restcomm.media.codec.g711.ulaw.Encoder;
+import org.restcomm.media.core.codec.g711.alaw.Decoder;
+import org.restcomm.media.core.codec.g711.ulaw.Encoder;
 import org.restcomm.media.core.component.audio.AudioComponent;
 import org.restcomm.media.core.component.audio.AudioMixer;
 import org.restcomm.media.core.component.dsp.DspFactoryImpl;
@@ -157,8 +157,8 @@ public class DtmfRfc2833Test {
         this.dspFactory = new DspFactoryImpl();
         this.dspFactory.addCodec(Encoder.class.getName());
         this.dspFactory.addCodec(Decoder.class.getName());
-        this.dspFactory.addCodec(org.restcomm.media.codec.g711.alaw.Encoder.class.getName());
-        this.dspFactory.addCodec(org.restcomm.media.codec.g711.alaw.Decoder.class.getName());
+        this.dspFactory.addCodec(org.restcomm.media.core.codec.g711.alaw.Encoder.class.getName());
+        this.dspFactory.addCodec(org.restcomm.media.core.codec.g711.alaw.Decoder.class.getName());
 
         // RTP Stack
         this.rtpClock = new RtpClock(this.clock);

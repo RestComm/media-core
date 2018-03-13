@@ -31,8 +31,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-import org.restcomm.media.codec.g711.alaw.Decoder;
-import org.restcomm.media.codec.g711.alaw.Encoder;
+import org.restcomm.media.core.codec.g711.alaw.Decoder;
+import org.restcomm.media.core.codec.g711.alaw.Encoder;
 import org.restcomm.media.core.component.dsp.Dsp;
 import org.restcomm.media.core.component.dsp.DspFactoryImpl;
 import org.restcomm.media.core.spi.format.Format;

@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.codec.g711.alaw;
+package org.restcomm.media.core.codec.g711.alaw;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -29,8 +29,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-import org.restcomm.media.codec.g711.alaw.Decoder;
-import org.restcomm.media.codec.g711.alaw.Encoder;
+import org.restcomm.media.core.codec.g711.alaw.Decoder;
+import org.restcomm.media.core.codec.g711.alaw.Encoder;
 import org.restcomm.media.core.spi.memory.Frame;
 import org.restcomm.media.core.spi.memory.Memory;
 

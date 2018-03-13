@@ -20,10 +20,10 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.codec.g711.ulaw;
+package org.restcomm.media.core.codec.g711.ulaw;
 
-import org.restcomm.media.codec.g711.ulaw.Decoder;
-import org.restcomm.media.codec.g711.ulaw.Encoder;
+import org.restcomm.media.core.codec.g711.ulaw.Decoder;
+import org.restcomm.media.core.codec.g711.ulaw.Encoder;
 import org.restcomm.media.core.spi.memory.Frame;
 import org.restcomm.media.core.spi.memory.Memory;
 import org.junit.After;
