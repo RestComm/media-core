@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.codec.l16;
+package org.restcomm.media.core.codec.l16;
 
 import org.restcomm.media.core.spi.dsp.Codec;
 import org.restcomm.media.core.spi.format.Format;
@@ -31,31 +31,32 @@ import org.restcomm.media.core.spi.memory.Memory;
 /**
  * 
  * @author oifa yulian
+ * 
  */
-public class Decoder implements Codec {
+public class Encoder implements Codec {
 
     private final static Format l16 = FormatFactory.createAudioFormat("l16", 8000, 16, 1);
     private final static Format linear = FormatFactory.createAudioFormat("linear", 8000, 16, 1);
 
     public Frame process(Frame frame) {
-	Frame res = Memory.allocate(frame.getData().length);
-        System.arraycopy( frame.getData(), 0, res.getData(), 0, frame.getData().length );	
-            
+	Frame res = Memory.allocate(320);
+        System.arraycopy( frame.getData(), 0, res.getData(), 0, 320 );
+
         res.setOffset(0);
-        res.setLength(frame.getData().length);
+        res.setLength(320);
         res.setTimestamp(frame.getTimestamp());
         res.setDuration(frame.getDuration());
         res.setSequenceNumber(frame.getSequenceNumber());
         res.setEOM(frame.isEOM());
-        res.setFormat(linear);
+        res.setFormat(l16);
         return res;
     }
-    
+
     public Format getSupportedInputFormat() {
-        return l16;
+        return linear;
     }
 
     public Format getSupportedOutputFormat() {
-        return linear;
+        return l16;
     }    
 }
