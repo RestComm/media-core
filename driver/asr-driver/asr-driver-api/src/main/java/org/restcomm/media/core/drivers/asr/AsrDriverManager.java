@@ -19,26 +19,35 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.drivers.asr;
+package org.restcomm.media.core.drivers.asr;
+
+import java.util.Map;
 
 /**
+ * Manages a set of ASR drivers from multiple providers.
+ * 
  * @author gdubina
  *
  */
-public class UnknownAsrDriverException extends AsrDriverException {
+public interface AsrDriverManager {
 
-    private static final long serialVersionUID = 4319627008767482791L;
+    /**
+     * Registers a new ASR driver.
+     * 
+     * @param name The name of the driver.
+     * @param clazz The type of the driver.
+     * @param config The configuration parameters of the driver.
+     */
+    void registerDriver(String name, String clazz, Map<String, String> config);
 
-    public UnknownAsrDriverException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public UnknownAsrDriverException(String message) {
-        super(message);
-    }
-
-    public UnknownAsrDriverException(Throwable cause) {
-        super(cause);
-    }
+    /**
+     * Loads a driver by name.
+     * 
+     * @param name The name of the driver.
+     * @return A new driver instance.
+     * @throws UnknownAsrDriverException The driver name is unrecognized.
+     * @throws AsrDriverConfigurationException The driver was badly configured.
+     */
+    AsrDriver getDriver(String name) throws UnknownAsrDriverException, AsrDriverConfigurationException;
 
 }

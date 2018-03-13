@@ -26,10 +26,10 @@ import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.restcomm.media.drivers.asr.AsrDriver;
-import org.restcomm.media.drivers.asr.AsrDriverConfigurationException;
-import org.restcomm.media.drivers.asr.AsrDriverManager;
-import org.restcomm.media.drivers.asr.UnknownAsrDriverException;
+import org.restcomm.media.core.drivers.asr.AsrDriver;
+import org.restcomm.media.core.drivers.asr.AsrDriverConfigurationException;
+import org.restcomm.media.core.drivers.asr.AsrDriverManager;
+import org.restcomm.media.core.drivers.asr.UnknownAsrDriverException;
 
 /**
  * @author gdubina

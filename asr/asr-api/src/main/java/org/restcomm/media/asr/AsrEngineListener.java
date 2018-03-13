@@ -21,7 +21,7 @@
 
 package org.restcomm.media.asr;
 
-import org.restcomm.media.drivers.asr.AsrDriverException;
+import org.restcomm.media.core.drivers.asr.AsrDriverException;
 
 /**
  * Listens to events raised by {@link AsrEngine}.

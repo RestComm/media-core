@@ -19,7 +19,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.drivers.asr;
+package org.restcomm.media.core.drivers.asr;
 
 /**
  * @author gdubina

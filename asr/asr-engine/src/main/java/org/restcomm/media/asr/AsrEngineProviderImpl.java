@@ -21,9 +21,9 @@
 
 package org.restcomm.media.asr;
 
+import org.restcomm.media.core.drivers.asr.AsrDriverManager;
 import org.restcomm.media.core.resource.vad.VoiceActivityDetectorProvider;
 import org.restcomm.media.core.scheduler.PriorityQueueScheduler;
-import org.restcomm.media.drivers.asr.AsrDriverManager;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
