@@ -33,10 +33,10 @@ import org.restcomm.media.control.mgcp.message.LocalConnectionOptions;
 import org.restcomm.media.control.mgcp.pkg.MgcpEvent;
 import org.restcomm.media.control.mgcp.pkg.MgcpEventProvider;
 import org.restcomm.media.control.mgcp.pkg.MgcpRequestedEvent;
+import org.restcomm.media.core.rtp.ChannelsManager;
+import org.restcomm.media.core.rtp.LocalDataChannel;
 import org.restcomm.media.core.spi.ConnectionMode;
 import org.restcomm.media.core.spi.ModeNotSupportedException;
-import org.restcomm.media.rtp.ChannelsManager;
-import org.restcomm.media.rtp.LocalDataChannel;
 
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 

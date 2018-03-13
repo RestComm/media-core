@@ -42,9 +42,9 @@ import org.restcomm.media.control.mgcp.message.LocalConnectionOptions;
 import org.restcomm.media.control.mgcp.pkg.MgcpEventObserver;
 import org.restcomm.media.control.mgcp.pkg.MgcpEventProvider;
 import org.restcomm.media.control.mgcp.pkg.r.rto.RtpTimeoutEvent;
+import org.restcomm.media.core.rtp.channels.AudioChannel;
+import org.restcomm.media.core.rtp.channels.MediaChannelProvider;
 import org.restcomm.media.core.sdp.format.AVProfile;
-import org.restcomm.media.rtp.channels.AudioChannel;
-import org.restcomm.media.rtp.channels.MediaChannelProvider;
 
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
