@@ -19,7 +19,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.asr;
+package org.restcomm.media.core.asr;
 
 import static com.google.common.primitives.Ints.min;
 import static org.junit.Assert.assertEquals;
@@ -41,6 +41,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.restcomm.media.core.asr.InputTimeoutDetector;
+import org.restcomm.media.core.asr.InputTimeoutListener;
 
 import com.google.common.util.concurrent.ListenableScheduledFuture;
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;

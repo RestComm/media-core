@@ -19,7 +19,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.asr;
+package org.restcomm.media.core.asr;
 
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 import org.apache.logging.log4j.LogManager;

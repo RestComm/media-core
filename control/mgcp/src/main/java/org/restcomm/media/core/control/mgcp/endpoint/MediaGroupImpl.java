@@ -22,8 +22,8 @@
 package org.restcomm.media.core.control.mgcp.endpoint;
 
 import org.restcomm.media.asr.AsrEngine;
-import org.restcomm.media.asr.AsrEngineImpl;
 import org.restcomm.media.asr.AsrEngineProvider;
+import org.restcomm.media.core.asr.AsrEngineImpl;
 import org.restcomm.media.core.component.audio.AudioComponent;
 import org.restcomm.media.core.component.oob.OOBComponent;
 import org.restcomm.media.core.resource.dtmf.DetectorImpl;
