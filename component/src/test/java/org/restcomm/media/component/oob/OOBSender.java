@@ -24,12 +24,12 @@ package org.restcomm.media.component.oob;
 
 import org.restcomm.media.component.AbstractSource;
 import org.restcomm.media.component.oob.OOBInput;
+import org.restcomm.media.core.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.core.spi.ComponentType;
 import org.restcomm.media.core.spi.format.AudioFormat;
 import org.restcomm.media.core.spi.format.FormatFactory;
 import org.restcomm.media.core.spi.memory.Frame;
 import org.restcomm.media.core.spi.memory.Memory;
-import org.restcomm.media.scheduler.PriorityQueueScheduler;
 
 /**
  *

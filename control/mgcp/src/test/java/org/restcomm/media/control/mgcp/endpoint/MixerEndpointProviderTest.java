@@ -32,7 +32,7 @@ import org.restcomm.media.control.mgcp.endpoint.MediaGroupImpl;
 import org.restcomm.media.control.mgcp.endpoint.MgcpMixerEndpoint;
 import org.restcomm.media.control.mgcp.endpoint.provider.MediaGroupProvider;
 import org.restcomm.media.control.mgcp.endpoint.provider.MgcpMixerEndpointProvider;
-import org.restcomm.media.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.core.scheduler.PriorityQueueScheduler;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)

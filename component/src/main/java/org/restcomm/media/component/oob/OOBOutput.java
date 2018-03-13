@@ -25,8 +25,8 @@ package org.restcomm.media.component.oob;
 import org.restcomm.media.component.AbstractSink;
 import org.restcomm.media.component.AbstractSource;
 import org.restcomm.media.concurrent.ConcurrentCyclicFIFO;
+import org.restcomm.media.core.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.core.spi.memory.Frame;
-import org.restcomm.media.scheduler.PriorityQueueScheduler;
 
 /**
  * Implements output for compound components.

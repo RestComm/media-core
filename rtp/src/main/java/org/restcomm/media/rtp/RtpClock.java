@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.restcomm.media.scheduler.Clock;
+import org.restcomm.media.core.scheduler.Clock;
 
 /**
  * Provides time conversation between RTP time and media time.

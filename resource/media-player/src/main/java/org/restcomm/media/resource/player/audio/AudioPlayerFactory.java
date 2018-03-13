@@ -25,9 +25,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.restcomm.media.core.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.core.spi.dsp.DspFactory;
 import org.restcomm.media.core.spi.pooling.PooledObjectFactory;
-import org.restcomm.media.scheduler.PriorityQueueScheduler;
 
 /**
  * Factory that produces Audio Players.

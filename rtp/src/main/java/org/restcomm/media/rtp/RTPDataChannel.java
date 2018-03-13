@@ -30,6 +30,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.restcomm.media.component.audio.AudioComponent;
 import org.restcomm.media.component.oob.OOBComponent;
+import org.restcomm.media.core.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.core.scheduler.Task;
 import org.restcomm.media.core.sdp.format.AVProfile;
 import org.restcomm.media.core.sdp.format.RTPFormat;
 import org.restcomm.media.core.sdp.format.RTPFormats;
@@ -48,8 +50,6 @@ import org.restcomm.media.rtp.jitter.FixedJitterBuffer;
 import org.restcomm.media.rtp.rfc2833.DtmfInput;
 import org.restcomm.media.rtp.rfc2833.DtmfOutput;
 import org.restcomm.media.rtp.secure.DtlsHandler;
-import org.restcomm.media.scheduler.PriorityQueueScheduler;
-import org.restcomm.media.scheduler.Task;
 
 /**
  * 
@@ -601,7 +601,7 @@ public class RTPDataChannel {
 		/**
 		 * (Non Java-doc.)
 		 * 
-		 * @see org.restcomm.media.scheduler.Task#perform()
+		 * @see org.restcomm.media.core.scheduler.Task#perform()
 		 */
 		public long perform() {
 				// Make sure the DTLS is completed for WebRTC calls

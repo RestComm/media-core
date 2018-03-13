@@ -13,12 +13,12 @@ import org.restcomm.media.component.audio.AudioComponent;
 import org.restcomm.media.component.audio.AudioMixer;
 import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.component.oob.OOBMixer;
+import org.restcomm.media.core.scheduler.Clock;
+import org.restcomm.media.core.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.core.scheduler.WallClock;
 import org.restcomm.media.core.spi.dtmf.DtmfDetectorListener;
 import org.restcomm.media.core.spi.dtmf.DtmfEvent;
 import org.restcomm.media.core.spi.listener.TooManyListenersException;
-import org.restcomm.media.scheduler.Clock;
-import org.restcomm.media.scheduler.PriorityQueueScheduler;
-import org.restcomm.media.scheduler.WallClock;
 
 /**
  *

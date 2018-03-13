@@ -27,10 +27,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.restcomm.media.concurrent.ConcurrentMap;
+import org.restcomm.media.core.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.core.scheduler.Task;
 import org.restcomm.media.core.spi.format.AudioFormat;
 import org.restcomm.media.core.spi.format.FormatFactory;
-import org.restcomm.media.scheduler.PriorityQueueScheduler;
-import org.restcomm.media.scheduler.Task;
 
 /**
  * Implements compound audio splitter , one of core components of mms 3.0

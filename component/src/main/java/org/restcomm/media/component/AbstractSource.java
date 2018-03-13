@@ -25,10 +25,10 @@ package org.restcomm.media.component;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.restcomm.media.core.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.core.scheduler.Task;
 import org.restcomm.media.core.spi.MediaSource;
 import org.restcomm.media.core.spi.memory.Frame;
-import org.restcomm.media.scheduler.PriorityQueueScheduler;
-import org.restcomm.media.scheduler.Task;
 
 /**
  * The base implementation of the Media source.
@@ -378,7 +378,7 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
         /**
          * (Non Java-doc.)
          *
-         * @see org.restcomm.media.scheduler.Task#perform()
+         * @see org.restcomm.media.core.scheduler.Task#perform()
          */
         public long perform() {
         	if(initialDelay+initialTime>scheduler.getClock().getTime())

@@ -19,22 +19,24 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.restcomm.media.scheduler;
+
+package org.restcomm.media.core.scheduler;
 
 /**
- * Defines interface for monitoring task chain execution process.
+ * Defines task error handler.
  * 
  * @author kulikov
  */
-public interface TaskChainListener {
+public interface TaskListener {
     /**
-     * Called when task has been executed successfully
+     * Called when task execution terminates normally
      */
-    public void onTermination();
+    public void onTerminate();
     
     /**
-     * Called when task has been failed.
-     * @param e 
+     * Called when error has occurred.
+     * 
+     * @param e the error class
      */
-    public void onException(Exception e);
+    public void handlerError(Exception e);
 }

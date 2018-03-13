@@ -17,14 +17,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.restcomm.media.component.AbstractSink;
 import org.restcomm.media.component.AbstractSource;
+import org.restcomm.media.core.scheduler.Clock;
+import org.restcomm.media.core.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.core.scheduler.WallClock;
 import org.restcomm.media.core.spi.format.AudioFormat;
 import org.restcomm.media.core.spi.format.FormatFactory;
 import org.restcomm.media.core.spi.format.Formats;
 import org.restcomm.media.core.spi.memory.Frame;
 import org.restcomm.media.core.spi.memory.Memory;
-import org.restcomm.media.scheduler.Clock;
-import org.restcomm.media.scheduler.PriorityQueueScheduler;
-import org.restcomm.media.scheduler.WallClock;
 
 /**
  *

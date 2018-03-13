@@ -30,6 +30,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.restcomm.media.component.AbstractSource;
 import org.restcomm.media.component.audio.AudioInput;
+import org.restcomm.media.core.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.core.spi.ComponentType;
 import org.restcomm.media.core.spi.ResourceUnavailableException;
 import org.restcomm.media.core.spi.dsp.Processor;
@@ -48,7 +49,6 @@ import org.restcomm.media.resource.player.audio.mpeg.AMRTrackImpl;
 import org.restcomm.media.resource.player.audio.tone.ToneTrackImpl;
 import org.restcomm.media.resource.player.audio.tts.TtsTrackImpl;
 import org.restcomm.media.resource.player.audio.wav.WavTrackImpl;
-import org.restcomm.media.scheduler.PriorityQueueScheduler;
 
 /**
  * @author yulian oifa

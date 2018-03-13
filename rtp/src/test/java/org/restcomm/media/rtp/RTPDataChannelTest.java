@@ -33,6 +33,11 @@ import org.restcomm.media.component.audio.Sine;
 import org.restcomm.media.component.audio.SpectraAnalyzer;
 import org.restcomm.media.component.dsp.Dsp;
 import org.restcomm.media.component.dsp.DspFactoryImpl;
+import org.restcomm.media.core.scheduler.Clock;
+import org.restcomm.media.core.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.core.scheduler.Scheduler;
+import org.restcomm.media.core.scheduler.ServiceScheduler;
+import org.restcomm.media.core.scheduler.WallClock;
 import org.restcomm.media.core.sdp.format.AVProfile;
 import org.restcomm.media.core.spi.ConnectionMode;
 import org.restcomm.media.core.spi.format.AudioFormat;
@@ -44,11 +49,6 @@ import org.restcomm.media.rtp.ChannelsManager;
 import org.restcomm.media.rtp.RTPDataChannel;
 import org.restcomm.media.rtp.crypto.DtlsSrtpServer;
 import org.restcomm.media.rtp.crypto.DtlsSrtpServerProvider;
-import org.restcomm.media.scheduler.Clock;
-import org.restcomm.media.scheduler.PriorityQueueScheduler;
-import org.restcomm.media.scheduler.Scheduler;
-import org.restcomm.media.scheduler.ServiceScheduler;
-import org.restcomm.media.scheduler.WallClock;
 
 import java.net.InetSocketAddress;
 

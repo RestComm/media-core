@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.scheduler;
+package org.restcomm.media.core.scheduler;
 
 import java.lang.InterruptedException;
 import java.util.concurrent.atomic.AtomicInteger;

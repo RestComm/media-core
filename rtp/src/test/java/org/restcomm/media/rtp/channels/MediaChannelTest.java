@@ -22,6 +22,7 @@ package org.restcomm.media.rtp.channels;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.restcomm.media.core.scheduler.*;
 import org.restcomm.media.core.sdp.attributes.RtpMapAttribute;
 import org.restcomm.media.core.sdp.fields.MediaDescriptionField;
 import org.restcomm.media.core.sdp.format.AVProfile;
@@ -36,7 +37,6 @@ import org.restcomm.media.rtp.crypto.DtlsSrtpServer;
 import org.restcomm.media.rtp.crypto.DtlsSrtpServerProvider;
 import org.restcomm.media.rtp.sdp.SdpFactory;
 import org.restcomm.media.rtp.statistics.RtpStatistics;
-import org.restcomm.media.scheduler.*;
 
 import java.io.IOException;
 

@@ -28,12 +28,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.restcomm.media.component.AbstractSink;
+import org.restcomm.media.core.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.core.spi.ComponentType;
 import org.restcomm.media.core.spi.format.AudioFormat;
 import org.restcomm.media.core.spi.format.FormatFactory;
 import org.restcomm.media.core.spi.format.Formats;
 import org.restcomm.media.core.spi.memory.Frame;
-import org.restcomm.media.scheduler.PriorityQueueScheduler;
 
 /**
  * 

@@ -22,7 +22,7 @@
 
 package org.restcomm.media.core.spi;
 
-import org.restcomm.media.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.core.scheduler.PriorityQueueScheduler;
 
 /**
  * The basic implementation of the endpoint.

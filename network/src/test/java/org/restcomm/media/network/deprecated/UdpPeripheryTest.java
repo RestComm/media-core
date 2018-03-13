@@ -40,11 +40,11 @@ import org.apache.logging.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.restcomm.media.core.scheduler.Scheduler;
+import org.restcomm.media.core.scheduler.ServiceScheduler;
 import org.restcomm.media.network.deprecated.ProtocolHandler;
 import org.restcomm.media.network.deprecated.RtpPortManager;
 import org.restcomm.media.network.deprecated.UdpManager;
-import org.restcomm.media.scheduler.Scheduler;
-import org.restcomm.media.scheduler.ServiceScheduler;
 
 /**
  *

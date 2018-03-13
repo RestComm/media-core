@@ -25,6 +25,7 @@ import java.nio.ByteBuffer;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.restcomm.media.core.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.core.sdp.format.RTPFormat;
 import org.restcomm.media.core.sdp.format.RTPFormats;
 import org.restcomm.media.network.deprecated.channel.PacketHandler;
@@ -35,7 +36,6 @@ import org.restcomm.media.rtp.jitter.JitterBuffer;
 import org.restcomm.media.rtp.rfc2833.DtmfInput;
 import org.restcomm.media.rtp.secure.DtlsHandler;
 import org.restcomm.media.rtp.statistics.RtpStatistics;
-import org.restcomm.media.scheduler.PriorityQueueScheduler;
 
 /**
  * Handles incoming RTP packets.

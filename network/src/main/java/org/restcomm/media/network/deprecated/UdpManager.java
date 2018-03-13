@@ -38,10 +38,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.restcomm.media.core.scheduler.Scheduler;
+import org.restcomm.media.core.scheduler.ServiceScheduler;
 import org.restcomm.media.network.deprecated.channel.Channel;
 import org.restcomm.media.network.deprecated.channel.NetworkChannel;
-import org.restcomm.media.scheduler.Scheduler;
-import org.restcomm.media.scheduler.ServiceScheduler;
 
 /**
  * Manager responsible for scheduling I/O operations over UDP.

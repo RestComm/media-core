@@ -26,10 +26,10 @@ import java.io.IOException;
 
 import org.restcomm.media.component.AbstractSink;
 import org.restcomm.media.component.oob.OOBOutput;
+import org.restcomm.media.core.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.core.spi.memory.Frame;
 import org.restcomm.media.rtp.RTPDataChannel;
 import org.restcomm.media.rtp.RtpTransmitter;
-import org.restcomm.media.scheduler.PriorityQueueScheduler;
 
 /**
  * Transmitter implementation.

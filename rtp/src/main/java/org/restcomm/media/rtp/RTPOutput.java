@@ -28,13 +28,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.restcomm.media.component.AbstractSink;
 import org.restcomm.media.component.audio.AudioOutput;
+import org.restcomm.media.core.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.core.spi.FormatNotSupportedException;
 import org.restcomm.media.core.spi.dsp.Processor;
 import org.restcomm.media.core.spi.format.AudioFormat;
 import org.restcomm.media.core.spi.format.FormatFactory;
 import org.restcomm.media.core.spi.format.Formats;
 import org.restcomm.media.core.spi.memory.Frame;
-import org.restcomm.media.scheduler.PriorityQueueScheduler;
 
 /**
  * Transmitter implementation.

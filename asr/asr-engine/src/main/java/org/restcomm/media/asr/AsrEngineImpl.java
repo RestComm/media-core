@@ -27,11 +27,11 @@ import org.restcomm.media.component.AbstractSink;
 import org.restcomm.media.component.audio.AudioOutput;
 import org.restcomm.media.core.resource.vad.VoiceActivityDetector;
 import org.restcomm.media.core.resource.vad.VoiceActivityDetectorListener;
+import org.restcomm.media.core.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.core.scheduler.Task;
 import org.restcomm.media.core.spi.ComponentType;
 import org.restcomm.media.core.spi.memory.Frame;
 import org.restcomm.media.drivers.asr.*;
-import org.restcomm.media.scheduler.PriorityQueueScheduler;
-import org.restcomm.media.scheduler.Task;
 
 import java.util.List;
 

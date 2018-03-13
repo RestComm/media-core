@@ -22,6 +22,7 @@ package org.restcomm.media.rtp.channels;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.restcomm.media.core.scheduler.Clock;
 import org.restcomm.media.core.sdp.attributes.RtpMapAttribute;
 import org.restcomm.media.core.sdp.fields.MediaDescriptionField;
 import org.restcomm.media.core.sdp.format.AVProfile;
@@ -41,7 +42,6 @@ import org.restcomm.media.rtp.RtpChannel;
 import org.restcomm.media.rtp.RtpClock;
 import org.restcomm.media.rtp.SsrcGenerator;
 import org.restcomm.media.rtp.statistics.RtpStatistics;
-import org.restcomm.media.scheduler.Clock;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;

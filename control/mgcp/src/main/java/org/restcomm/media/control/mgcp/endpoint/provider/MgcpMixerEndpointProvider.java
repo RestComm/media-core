@@ -27,7 +27,7 @@ import org.restcomm.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.restcomm.media.control.mgcp.endpoint.EndpointIdentifier;
 import org.restcomm.media.control.mgcp.endpoint.MediaGroup;
 import org.restcomm.media.control.mgcp.endpoint.MgcpMixerEndpoint;
-import org.restcomm.media.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.core.scheduler.PriorityQueueScheduler;
 
 /**
  * Provides MGCP endpoints that rely on a Mixer to relay media.

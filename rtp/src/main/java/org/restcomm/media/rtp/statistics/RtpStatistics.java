@@ -27,6 +27,7 @@ import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.restcomm.media.core.scheduler.Clock;
 import org.restcomm.media.rtcp.RtcpIntervalCalculator;
 import org.restcomm.media.rtcp.RtcpPacket;
 import org.restcomm.media.rtcp.RtcpPacketType;
@@ -38,7 +39,6 @@ import org.restcomm.media.rtp.CnameGenerator;
 import org.restcomm.media.rtp.RtpClock;
 import org.restcomm.media.rtp.RtpPacket;
 import org.restcomm.media.rtp.SsrcGenerator;
-import org.restcomm.media.scheduler.Clock;
 
 /**
  * Encapsulates statistics of an RTP/RTCP channel

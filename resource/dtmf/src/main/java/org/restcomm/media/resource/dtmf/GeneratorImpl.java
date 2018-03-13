@@ -25,6 +25,7 @@ package org.restcomm.media.resource.dtmf;
 import org.restcomm.media.component.AbstractSource;
 import org.restcomm.media.component.audio.AudioInput;
 import org.restcomm.media.component.oob.OOBInput;
+import org.restcomm.media.core.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.core.spi.ComponentType;
 import org.restcomm.media.core.spi.dtmf.DtmfGenerator;
 import org.restcomm.media.core.spi.dtmf.DtmfGeneratorEvent;
@@ -37,7 +38,6 @@ import org.restcomm.media.core.spi.listener.TooManyListenersException;
 import org.restcomm.media.core.spi.memory.Frame;
 import org.restcomm.media.core.spi.memory.Memory;
 import org.restcomm.media.core.spi.pooling.PooledObject;
-import org.restcomm.media.scheduler.PriorityQueueScheduler;
 
 /**
  * InbandGenerator generates Inband DTMF Tone only for uncompressed LINEAR

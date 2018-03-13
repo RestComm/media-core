@@ -40,6 +40,11 @@ import org.restcomm.media.component.AbstractSource;
 import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.component.oob.OOBInput;
 import org.restcomm.media.component.oob.OOBSplitter;
+import org.restcomm.media.core.scheduler.Clock;
+import org.restcomm.media.core.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.core.scheduler.Scheduler;
+import org.restcomm.media.core.scheduler.ServiceScheduler;
+import org.restcomm.media.core.scheduler.WallClock;
 import org.restcomm.media.core.spi.ComponentType;
 import org.restcomm.media.core.spi.ConnectionMode;
 import org.restcomm.media.core.spi.dtmf.DtmfDetectorListener;
@@ -51,11 +56,6 @@ import org.restcomm.media.network.deprecated.UdpManager;
 import org.restcomm.media.resource.dtmf.DetectorImpl;
 import org.restcomm.media.rtp.crypto.DtlsSrtpServer;
 import org.restcomm.media.rtp.crypto.DtlsSrtpServerProvider;
-import org.restcomm.media.scheduler.Clock;
-import org.restcomm.media.scheduler.PriorityQueueScheduler;
-import org.restcomm.media.scheduler.Scheduler;
-import org.restcomm.media.scheduler.ServiceScheduler;
-import org.restcomm.media.scheduler.WallClock;
 
 /**
  *
