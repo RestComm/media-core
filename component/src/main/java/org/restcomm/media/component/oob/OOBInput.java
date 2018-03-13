@@ -26,7 +26,7 @@ import java.io.IOException;
 
 import org.restcomm.media.component.AbstractSink;
 import org.restcomm.media.concurrent.ConcurrentCyclicFIFO;
-import org.restcomm.media.spi.memory.Frame;
+import org.restcomm.media.core.spi.memory.Frame;
 
 /**
  * Implements input for compound components

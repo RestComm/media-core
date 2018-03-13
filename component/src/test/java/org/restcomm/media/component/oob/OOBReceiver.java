@@ -24,11 +24,11 @@ package org.restcomm.media.component.oob;
 
 import java.io.IOException;
 
-import org.restcomm.media.ComponentType;
 import org.restcomm.media.component.AbstractSink;
 import org.restcomm.media.component.oob.OOBOutput;
+import org.restcomm.media.core.spi.ComponentType;
+import org.restcomm.media.core.spi.memory.Frame;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
-import org.restcomm.media.spi.memory.Frame;
 
 /**
  * 

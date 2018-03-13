@@ -22,8 +22,8 @@
 package org.restcomm.media.resource.recorder.audio;
 
 import org.restcomm.media.core.resource.vad.VoiceActivityDetectorProvider;
+import org.restcomm.media.core.spi.pooling.PooledObjectFactory;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
-import org.restcomm.media.spi.pooling.PooledObjectFactory;
 
 /**
  * Factory that produces Audio Recorders.

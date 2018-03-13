@@ -22,7 +22,7 @@
 
 package org.restcomm.media.sdp.format;
 
-import org.restcomm.media.spi.format.Format;
+import org.restcomm.media.core.spi.format.Format;
 
 /**
  * RTP Format descriptor.

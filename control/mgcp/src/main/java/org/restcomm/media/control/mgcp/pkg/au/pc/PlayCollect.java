@@ -28,12 +28,12 @@ import org.restcomm.media.control.mgcp.pkg.AbstractMgcpSignal;
 import org.restcomm.media.control.mgcp.pkg.SignalType;
 import org.restcomm.media.control.mgcp.pkg.au.AudioPackage;
 import org.restcomm.media.control.mgcp.pkg.au.SignalParameters;
-import org.restcomm.media.spi.dtmf.DtmfDetector;
-import org.restcomm.media.spi.dtmf.DtmfDetectorListener;
-import org.restcomm.media.spi.dtmf.DtmfEvent;
-import org.restcomm.media.spi.player.Player;
-import org.restcomm.media.spi.player.PlayerEvent;
-import org.restcomm.media.spi.player.PlayerListener;
+import org.restcomm.media.core.spi.dtmf.DtmfDetector;
+import org.restcomm.media.core.spi.dtmf.DtmfDetectorListener;
+import org.restcomm.media.core.spi.dtmf.DtmfEvent;
+import org.restcomm.media.core.spi.player.Player;
+import org.restcomm.media.core.spi.player.PlayerEvent;
+import org.restcomm.media.core.spi.player.PlayerListener;
 
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 

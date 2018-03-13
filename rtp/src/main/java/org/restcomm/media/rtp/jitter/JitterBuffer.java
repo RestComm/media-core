@@ -21,10 +21,10 @@
 
 package org.restcomm.media.rtp.jitter;
 
+import org.restcomm.media.core.spi.memory.Frame;
 import org.restcomm.media.rtp.BufferListener;
 import org.restcomm.media.rtp.RtpPacket;
 import org.restcomm.media.sdp.format.RTPFormat;
-import org.restcomm.media.spi.memory.Frame;
 
 /**
  * A jitter buffer temporarily stores arriving packets in order to minimize delay variations. If packets arrive too late then

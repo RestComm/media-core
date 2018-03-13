@@ -28,7 +28,7 @@ import org.restcomm.media.control.mgcp.exception.UnsupportedMgcpEventException;
 import org.restcomm.media.control.mgcp.message.LocalConnectionOptions;
 import org.restcomm.media.control.mgcp.pkg.MgcpEventSubject;
 import org.restcomm.media.control.mgcp.pkg.MgcpRequestedEvent;
-import org.restcomm.media.spi.ConnectionMode;
+import org.restcomm.media.core.spi.ConnectionMode;
 
 /**
  * Connections are created on each endpoint that will be involved in the call.

@@ -22,9 +22,9 @@
 
 package org.restcomm.media.sdp.format;
 
-import org.restcomm.media.spi.format.AudioFormat;
-import org.restcomm.media.spi.format.FormatFactory;
-import org.restcomm.media.spi.utils.Text;
+import org.restcomm.media.core.spi.format.AudioFormat;
+import org.restcomm.media.core.spi.format.FormatFactory;
+import org.restcomm.media.core.spi.utils.Text;
 
 /**
  *

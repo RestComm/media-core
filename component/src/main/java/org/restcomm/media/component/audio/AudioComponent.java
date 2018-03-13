@@ -26,10 +26,10 @@ import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.restcomm.media.concurrent.ConcurrentMap;
-import org.restcomm.media.spi.format.AudioFormat;
-import org.restcomm.media.spi.format.FormatFactory;
-import org.restcomm.media.spi.memory.Frame;
-import org.restcomm.media.spi.memory.Memory;
+import org.restcomm.media.core.spi.format.AudioFormat;
+import org.restcomm.media.core.spi.format.FormatFactory;
+import org.restcomm.media.core.spi.memory.Frame;
+import org.restcomm.media.core.spi.memory.Memory;
 
 /**
  * Implements compound components used by mixer and splitter.

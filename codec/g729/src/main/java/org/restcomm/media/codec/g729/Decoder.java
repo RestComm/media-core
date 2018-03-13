@@ -22,11 +22,11 @@
 
 package org.restcomm.media.codec.g729;
 
-import org.restcomm.media.spi.dsp.Codec;
-import org.restcomm.media.spi.format.Format;
-import org.restcomm.media.spi.format.FormatFactory;
-import org.restcomm.media.spi.memory.Frame;
-import org.restcomm.media.spi.memory.Memory;
+import org.restcomm.media.core.spi.dsp.Codec;
+import org.restcomm.media.core.spi.format.Format;
+import org.restcomm.media.core.spi.format.FormatFactory;
+import org.restcomm.media.core.spi.memory.Frame;
+import org.restcomm.media.core.spi.memory.Memory;
 
 public class Decoder implements Codec {
 

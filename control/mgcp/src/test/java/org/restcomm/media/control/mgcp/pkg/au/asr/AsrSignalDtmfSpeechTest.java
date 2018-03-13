@@ -39,8 +39,8 @@ import org.mockito.ArgumentCaptor;
 import org.restcomm.media.control.mgcp.pkg.MgcpEvent;
 import org.restcomm.media.control.mgcp.pkg.au.ReturnCode;
 import org.restcomm.media.control.mgcp.pkg.au.SignalParameters;
+import org.restcomm.media.core.spi.listener.TooManyListenersException;
 import org.restcomm.media.resource.dtmf.DtmfEventImpl;
-import org.restcomm.media.spi.listener.TooManyListenersException;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)

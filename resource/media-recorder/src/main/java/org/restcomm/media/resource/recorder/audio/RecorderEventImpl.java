@@ -21,8 +21,8 @@
  */
 package org.restcomm.media.resource.recorder.audio;
 
-import org.restcomm.media.spi.recorder.Recorder;
-import org.restcomm.media.spi.recorder.RecorderEvent;
+import org.restcomm.media.core.spi.recorder.Recorder;
+import org.restcomm.media.core.spi.recorder.RecorderEvent;
 
 /**
  * Implements events fired by recorder.

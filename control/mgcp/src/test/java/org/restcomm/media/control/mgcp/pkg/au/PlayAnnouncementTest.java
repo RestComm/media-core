@@ -46,9 +46,9 @@ import org.restcomm.media.control.mgcp.pkg.au.OperationFailed;
 import org.restcomm.media.control.mgcp.pkg.au.PlayAnnouncement;
 import org.restcomm.media.control.mgcp.pkg.au.ReturnCode;
 import org.restcomm.media.control.mgcp.pkg.au.SignalParameters;
-import org.restcomm.media.spi.ResourceUnavailableException;
-import org.restcomm.media.spi.player.Player;
-import org.restcomm.media.spi.player.PlayerEvent;
+import org.restcomm.media.core.spi.ResourceUnavailableException;
+import org.restcomm.media.core.spi.player.Player;
+import org.restcomm.media.core.spi.player.PlayerEvent;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)

@@ -22,7 +22,7 @@
 
 package org.restcomm.media.component;
 
-import org.restcomm.media.Component;
+import org.restcomm.media.core.spi.Component;
 
 /**
  *

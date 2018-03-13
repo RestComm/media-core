@@ -23,8 +23,8 @@ package org.restcomm.media.asr;
 
 import java.util.List;
 
-import org.restcomm.media.MediaSink;
 import org.restcomm.media.core.resource.vad.VoiceActivityDetectorListener;
+import org.restcomm.media.core.spi.MediaSink;
 import org.restcomm.media.drivers.asr.AsrDriverConfigurationException;
 import org.restcomm.media.drivers.asr.UnknownAsrDriverException;
 

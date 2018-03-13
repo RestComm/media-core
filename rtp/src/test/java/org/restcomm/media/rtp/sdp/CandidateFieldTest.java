@@ -25,8 +25,8 @@ import java.util.Collections;
 import java.util.List;
 
 import org.junit.Test;
+import org.restcomm.media.core.spi.utils.Text;
 import org.restcomm.media.rtp.sdp.CandidateField;
-import org.restcomm.media.spi.utils.Text;
 
 import static org.junit.Assert.*;
 

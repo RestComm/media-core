@@ -23,9 +23,9 @@ package org.restcomm.media.resource.dtmf;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.restcomm.media.core.spi.dtmf.DtmfDetector;
+import org.restcomm.media.core.spi.pooling.PooledObjectFactory;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
-import org.restcomm.media.spi.dtmf.DtmfDetector;
-import org.restcomm.media.spi.pooling.PooledObjectFactory;
 
 /**
  * Factory that produces DTMF Detectors.

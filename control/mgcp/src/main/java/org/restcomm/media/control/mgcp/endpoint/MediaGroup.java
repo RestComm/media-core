@@ -22,10 +22,10 @@
 package org.restcomm.media.control.mgcp.endpoint;
 
 import org.restcomm.media.asr.AsrEngine;
-import org.restcomm.media.spi.dtmf.DtmfDetector;
-import org.restcomm.media.spi.dtmf.DtmfGenerator;
-import org.restcomm.media.spi.player.Player;
-import org.restcomm.media.spi.recorder.Recorder;
+import org.restcomm.media.core.spi.dtmf.DtmfDetector;
+import org.restcomm.media.core.spi.dtmf.DtmfGenerator;
+import org.restcomm.media.core.spi.player.Player;
+import org.restcomm.media.core.spi.recorder.Recorder;
 
 /**
  * Holds media components.

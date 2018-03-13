@@ -32,10 +32,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.restcomm.media.component.AbstractSink;
 import org.restcomm.media.component.AbstractSource;
+import org.restcomm.media.core.spi.memory.Frame;
 import org.restcomm.media.scheduler.Clock;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.WallClock;
-import org.restcomm.media.spi.memory.Frame;
 /**
  *
  * @author yulian oifa

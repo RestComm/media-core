@@ -22,8 +22,8 @@
 
 package org.restcomm.media.resource.dtmf;
 
-import org.restcomm.media.spi.dtmf.DtmfDetector;
-import org.restcomm.media.spi.dtmf.DtmfEvent;
+import org.restcomm.media.core.spi.dtmf.DtmfDetector;
+import org.restcomm.media.core.spi.dtmf.DtmfEvent;
 
 /**
  * 

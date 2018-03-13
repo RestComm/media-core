@@ -28,15 +28,15 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.restcomm.media.core.spi.format.ApplicationFormat;
+import org.restcomm.media.core.spi.format.AudioFormat;
+import org.restcomm.media.core.spi.format.EncodingName;
+import org.restcomm.media.core.spi.format.FormatFactory;
+import org.restcomm.media.core.spi.format.VideoFormat;
+import org.restcomm.media.core.spi.utils.Text;
 import org.restcomm.media.sdp.format.AVProfile;
 import org.restcomm.media.sdp.format.RTPFormat;
 import org.restcomm.media.sdp.format.RTPFormats;
-import org.restcomm.media.spi.format.ApplicationFormat;
-import org.restcomm.media.spi.format.AudioFormat;
-import org.restcomm.media.spi.format.EncodingName;
-import org.restcomm.media.spi.format.FormatFactory;
-import org.restcomm.media.spi.format.VideoFormat;
-import org.restcomm.media.spi.utils.Text;
 
 /**
  * Media descriptor attribute.

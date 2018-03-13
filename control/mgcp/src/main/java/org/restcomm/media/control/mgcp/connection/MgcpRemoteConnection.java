@@ -35,6 +35,7 @@ import org.restcomm.media.control.mgcp.pkg.MgcpEventProvider;
 import org.restcomm.media.control.mgcp.pkg.MgcpRequestedEvent;
 import org.restcomm.media.control.mgcp.pkg.r.RtpPackage;
 import org.restcomm.media.control.mgcp.pkg.r.rto.RtpTimeoutEvent;
+import org.restcomm.media.core.spi.ConnectionMode;
 import org.restcomm.media.rtp.CnameGenerator;
 import org.restcomm.media.rtp.RtpListener;
 import org.restcomm.media.rtp.channels.AudioChannel;
@@ -46,7 +47,6 @@ import org.restcomm.media.sdp.SessionDescriptionParser;
 import org.restcomm.media.sdp.dtls.attributes.FingerprintAttribute;
 import org.restcomm.media.sdp.fields.MediaDescriptionField;
 import org.restcomm.media.sdp.rtcp.attributes.RtcpAttribute;
-import org.restcomm.media.spi.ConnectionMode;
 
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 

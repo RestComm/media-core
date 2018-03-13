@@ -26,13 +26,13 @@ import java.util.ArrayList;
 
 import org.restcomm.media.component.AbstractSource;
 import org.restcomm.media.component.oob.OOBInput;
+import org.restcomm.media.core.spi.format.AudioFormat;
+import org.restcomm.media.core.spi.format.FormatFactory;
+import org.restcomm.media.core.spi.memory.Frame;
+import org.restcomm.media.core.spi.memory.Memory;
 import org.restcomm.media.rtp.RtpClock;
 import org.restcomm.media.rtp.RtpPacket;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
-import org.restcomm.media.spi.format.AudioFormat;
-import org.restcomm.media.spi.format.FormatFactory;
-import org.restcomm.media.spi.memory.Frame;
-import org.restcomm.media.spi.memory.Memory;
 
 /**
  *

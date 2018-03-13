@@ -26,8 +26,8 @@ import java.io.IOException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.restcomm.media.MediaSink;
-import org.restcomm.media.spi.memory.Frame;
+import org.restcomm.media.core.spi.MediaSink;
+import org.restcomm.media.core.spi.memory.Frame;
 /**
  * The base implementation of the media sink.
  * 

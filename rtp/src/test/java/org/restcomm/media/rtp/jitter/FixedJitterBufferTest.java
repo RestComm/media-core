@@ -29,11 +29,11 @@ import java.util.Random;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.restcomm.media.core.spi.memory.Frame;
 import org.restcomm.media.rtp.MockWallClock;
 import org.restcomm.media.rtp.RtpClock;
 import org.restcomm.media.rtp.RtpPacket;
 import org.restcomm.media.sdp.format.AVProfile;
-import org.restcomm.media.spi.memory.Frame;
 
 /**
  *

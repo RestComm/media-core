@@ -44,10 +44,10 @@ import org.restcomm.media.control.mgcp.message.MgcpResponse;
 import org.restcomm.media.control.mgcp.message.MgcpResponseCode;
 import org.restcomm.media.control.mgcp.network.netty.AsyncMgcpChannel;
 import org.restcomm.media.control.mgcp.transaction.MgcpTransactionManager;
-import org.restcomm.media.spi.ControlProtocol;
-import org.restcomm.media.spi.Endpoint;
-import org.restcomm.media.spi.EndpointInstaller;
-import org.restcomm.media.spi.ServerManager;
+import org.restcomm.media.core.spi.ControlProtocol;
+import org.restcomm.media.core.spi.Endpoint;
+import org.restcomm.media.core.spi.EndpointInstaller;
+import org.restcomm.media.core.spi.ServerManager;
 
 import com.google.common.util.concurrent.FutureCallback;
 

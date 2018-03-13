@@ -36,11 +36,16 @@ import java.net.SocketException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.restcomm.media.ComponentType;
 import org.restcomm.media.component.AbstractSource;
 import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.component.oob.OOBInput;
 import org.restcomm.media.component.oob.OOBSplitter;
+import org.restcomm.media.core.spi.ComponentType;
+import org.restcomm.media.core.spi.ConnectionMode;
+import org.restcomm.media.core.spi.dtmf.DtmfDetectorListener;
+import org.restcomm.media.core.spi.dtmf.DtmfEvent;
+import org.restcomm.media.core.spi.memory.Frame;
+import org.restcomm.media.core.spi.memory.Memory;
 import org.restcomm.media.network.deprecated.RtpPortManager;
 import org.restcomm.media.network.deprecated.UdpManager;
 import org.restcomm.media.resource.dtmf.DetectorImpl;
@@ -51,11 +56,6 @@ import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.Scheduler;
 import org.restcomm.media.scheduler.ServiceScheduler;
 import org.restcomm.media.scheduler.WallClock;
-import org.restcomm.media.spi.ConnectionMode;
-import org.restcomm.media.spi.dtmf.DtmfDetectorListener;
-import org.restcomm.media.spi.dtmf.DtmfEvent;
-import org.restcomm.media.spi.memory.Frame;
-import org.restcomm.media.spi.memory.Memory;
 
 /**
  *

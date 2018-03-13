@@ -42,7 +42,7 @@ import org.restcomm.media.control.mgcp.exception.MgcpCallNotFoundException;
 import org.restcomm.media.control.mgcp.exception.MgcpConnectionException;
 import org.restcomm.media.control.mgcp.exception.MgcpConnectionNotFoundException;
 import org.restcomm.media.control.mgcp.exception.MgcpException;
-import org.restcomm.media.spi.ConnectionMode;
+import org.restcomm.media.core.spi.ConnectionMode;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)

@@ -22,10 +22,10 @@
 package org.restcomm.media.control.mgcp.pkg.au.pc;
 
 import org.restcomm.media.control.mgcp.pkg.MgcpEventSubject;
-import org.restcomm.media.spi.dtmf.DtmfDetector;
-import org.restcomm.media.spi.dtmf.DtmfDetectorListener;
-import org.restcomm.media.spi.player.Player;
-import org.restcomm.media.spi.player.PlayerListener;
+import org.restcomm.media.core.spi.dtmf.DtmfDetector;
+import org.restcomm.media.core.spi.dtmf.DtmfDetectorListener;
+import org.restcomm.media.core.spi.player.Player;
+import org.restcomm.media.core.spi.player.PlayerListener;
 import org.squirrelframework.foundation.fsm.HistoryType;
 import org.squirrelframework.foundation.fsm.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;

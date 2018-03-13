@@ -33,10 +33,10 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.restcomm.media.codec.g711.alaw.Decoder;
 import org.restcomm.media.codec.g711.alaw.Encoder;
-import org.restcomm.media.spi.format.Format;
-import org.restcomm.media.spi.format.FormatFactory;
-import org.restcomm.media.spi.memory.Frame;
-import org.restcomm.media.spi.memory.Memory;
+import org.restcomm.media.core.spi.format.Format;
+import org.restcomm.media.core.spi.format.FormatFactory;
+import org.restcomm.media.core.spi.memory.Frame;
+import org.restcomm.media.core.spi.memory.Memory;
 
 /**
  *

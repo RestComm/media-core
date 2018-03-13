@@ -37,6 +37,10 @@ import org.restcomm.media.component.audio.Sine;
 import org.restcomm.media.component.audio.SpectraAnalyzer;
 import org.restcomm.media.component.dsp.Dsp;
 import org.restcomm.media.component.dsp.DspFactoryImpl;
+import org.restcomm.media.core.spi.ConnectionMode;
+import org.restcomm.media.core.spi.format.AudioFormat;
+import org.restcomm.media.core.spi.format.FormatFactory;
+import org.restcomm.media.core.spi.format.Formats;
 import org.restcomm.media.network.deprecated.RtpPortManager;
 import org.restcomm.media.network.deprecated.UdpManager;
 import org.restcomm.media.rtp.ChannelsManager;
@@ -51,10 +55,6 @@ import org.restcomm.media.scheduler.Scheduler;
 import org.restcomm.media.scheduler.ServiceScheduler;
 import org.restcomm.media.scheduler.WallClock;
 import org.restcomm.media.sdp.format.AVProfile;
-import org.restcomm.media.spi.ConnectionMode;
-import org.restcomm.media.spi.format.AudioFormat;
-import org.restcomm.media.spi.format.FormatFactory;
-import org.restcomm.media.spi.format.Formats;
 
 /**
  * 

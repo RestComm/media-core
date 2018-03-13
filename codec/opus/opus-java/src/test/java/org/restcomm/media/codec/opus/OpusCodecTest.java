@@ -46,8 +46,8 @@ import java.nio.ByteOrder;
 import org.restcomm.media.codec.opus.Decoder;
 import org.restcomm.media.codec.opus.Encoder;
 import org.restcomm.media.codec.opus.OpusJni;
-import org.restcomm.media.spi.memory.Frame;
-import org.restcomm.media.spi.memory.Memory;
+import org.restcomm.media.core.spi.memory.Frame;
+import org.restcomm.media.core.spi.memory.Memory;
 
 
 /**

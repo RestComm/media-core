@@ -30,6 +30,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.restcomm.media.component.audio.AudioComponent;
 import org.restcomm.media.component.oob.OOBComponent;
+import org.restcomm.media.core.spi.ConnectionMode;
+import org.restcomm.media.core.spi.FormatNotSupportedException;
+import org.restcomm.media.core.spi.dsp.Processor;
+import org.restcomm.media.core.spi.format.AudioFormat;
+import org.restcomm.media.core.spi.format.FormatFactory;
+import org.restcomm.media.core.spi.format.Formats;
+import org.restcomm.media.core.spi.utils.Text;
 import org.restcomm.media.ice.IceAuthenticator;
 import org.restcomm.media.ice.IceComponent;
 import org.restcomm.media.ice.IceHandler;
@@ -45,13 +52,6 @@ import org.restcomm.media.rtp.statistics.RtpStatistics;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.Task;
 import org.restcomm.media.sdp.format.RTPFormats;
-import org.restcomm.media.spi.ConnectionMode;
-import org.restcomm.media.spi.FormatNotSupportedException;
-import org.restcomm.media.spi.dsp.Processor;
-import org.restcomm.media.spi.format.AudioFormat;
-import org.restcomm.media.spi.format.FormatFactory;
-import org.restcomm.media.spi.format.Formats;
-import org.restcomm.media.spi.utils.Text;
 
 /**
  * 

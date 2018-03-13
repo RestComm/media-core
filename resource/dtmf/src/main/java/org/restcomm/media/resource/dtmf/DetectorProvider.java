@@ -23,9 +23,9 @@ package org.restcomm.media.resource.dtmf;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.restcomm.media.core.spi.dtmf.DtmfDetector;
+import org.restcomm.media.core.spi.dtmf.DtmfDetectorProvider;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
-import org.restcomm.media.spi.dtmf.DtmfDetector;
-import org.restcomm.media.spi.dtmf.DtmfDetectorProvider;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)

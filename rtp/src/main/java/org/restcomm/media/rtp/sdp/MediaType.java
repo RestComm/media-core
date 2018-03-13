@@ -20,7 +20,7 @@
 
 package org.restcomm.media.rtp.sdp;
 
-import org.restcomm.media.spi.utils.Text;
+import org.restcomm.media.core.spi.utils.Text;
 
 /**
  * Supported media types in an SDP description.

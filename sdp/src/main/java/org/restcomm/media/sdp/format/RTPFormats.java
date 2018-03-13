@@ -24,8 +24,8 @@ package org.restcomm.media.sdp.format;
 
 import java.util.ArrayList;
 
-import org.restcomm.media.spi.format.Format;
-import org.restcomm.media.spi.format.Formats;
+import org.restcomm.media.core.spi.format.Format;
+import org.restcomm.media.core.spi.format.Formats;
 /**
  * Implements RTP formats collection with fast search.
  *

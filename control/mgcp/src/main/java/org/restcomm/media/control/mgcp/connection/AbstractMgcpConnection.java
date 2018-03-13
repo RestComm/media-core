@@ -39,7 +39,7 @@ import org.restcomm.media.control.mgcp.pkg.MgcpEventObserver;
 import org.restcomm.media.control.mgcp.pkg.MgcpEventProvider;
 import org.restcomm.media.control.mgcp.pkg.MgcpRequestedEvent;
 import org.restcomm.media.control.mgcp.pkg.r.rto.RtpTimeoutEvent;
-import org.restcomm.media.spi.ConnectionMode;
+import org.restcomm.media.core.spi.ConnectionMode;
 
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.FutureCallback;

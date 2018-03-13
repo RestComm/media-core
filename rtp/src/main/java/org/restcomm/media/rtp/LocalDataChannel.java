@@ -30,10 +30,10 @@ import org.restcomm.media.component.audio.AudioOutput;
 import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.component.oob.OOBInput;
 import org.restcomm.media.component.oob.OOBOutput;
-import org.restcomm.media.spi.ConnectionMode;
-import org.restcomm.media.spi.ModeNotSupportedException;
-import org.restcomm.media.spi.format.AudioFormat;
-import org.restcomm.media.spi.format.FormatFactory;
+import org.restcomm.media.core.spi.ConnectionMode;
+import org.restcomm.media.core.spi.ModeNotSupportedException;
+import org.restcomm.media.core.spi.format.AudioFormat;
+import org.restcomm.media.core.spi.format.FormatFactory;
 
 
 /**

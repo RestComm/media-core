@@ -27,8 +27,8 @@ import java.io.FileInputStream;
 import java.net.URL;
 
 import org.junit.Test;
-import org.restcomm.media.spi.memory.Frame;
-import org.restcomm.media.spi.memory.Memory;
+import org.restcomm.media.core.spi.memory.Frame;
+import org.restcomm.media.core.spi.memory.Memory;
 /**
  *
  * @author oifa yulian

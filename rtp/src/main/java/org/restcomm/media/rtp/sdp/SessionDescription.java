@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.restcomm.media.spi.utils.Text;
+import org.restcomm.media.core.spi.utils.Text;
 
 /**
  * Session Descriptor.

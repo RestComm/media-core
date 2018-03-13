@@ -23,7 +23,7 @@ package org.restcomm.media.control.mgcp.command;
 
 import org.restcomm.media.control.mgcp.message.LocalConnectionOptions;
 import org.restcomm.media.control.mgcp.message.MgcpResponseCode;
-import org.restcomm.media.spi.ConnectionMode;
+import org.restcomm.media.core.spi.ConnectionMode;
 
 /**
  * Contains contextual data for an MGCP CRCX operation.

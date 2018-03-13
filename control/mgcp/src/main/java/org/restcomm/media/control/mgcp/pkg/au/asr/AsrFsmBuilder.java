@@ -23,8 +23,8 @@ package org.restcomm.media.control.mgcp.pkg.au.asr;
 
 import org.restcomm.media.asr.AsrEngine;
 import org.restcomm.media.control.mgcp.pkg.MgcpEventSubject;
-import org.restcomm.media.spi.dtmf.DtmfDetector;
-import org.restcomm.media.spi.player.Player;
+import org.restcomm.media.core.spi.dtmf.DtmfDetector;
+import org.restcomm.media.core.spi.player.Player;
 import org.squirrelframework.foundation.fsm.HistoryType;
 import org.squirrelframework.foundation.fsm.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;

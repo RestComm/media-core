@@ -28,13 +28,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.restcomm.media.component.AbstractSink;
 import org.restcomm.media.component.audio.AudioOutput;
+import org.restcomm.media.core.spi.FormatNotSupportedException;
+import org.restcomm.media.core.spi.dsp.Processor;
+import org.restcomm.media.core.spi.format.AudioFormat;
+import org.restcomm.media.core.spi.format.FormatFactory;
+import org.restcomm.media.core.spi.format.Formats;
+import org.restcomm.media.core.spi.memory.Frame;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
-import org.restcomm.media.spi.FormatNotSupportedException;
-import org.restcomm.media.spi.dsp.Processor;
-import org.restcomm.media.spi.format.AudioFormat;
-import org.restcomm.media.spi.format.FormatFactory;
-import org.restcomm.media.spi.format.Formats;
-import org.restcomm.media.spi.memory.Frame;
 
 /**
  * Transmitter implementation.
@@ -118,7 +118,7 @@ public class RTPOutput extends AbstractSink {
 	 * (Non Java-doc.)
 	 * 
 	 * 
-	 * @see org.restcomm.media.MediaSink#setFormats(org.restcomm.media.spi.format.Formats)
+	 * @see org.restcomm.media.core.spi.MediaSink#setFormats(org.restcomm.media.core.spi.format.Formats)
 	 */
 	public void setFormats(Formats formats) throws FormatNotSupportedException {
 		this.formats = formats;

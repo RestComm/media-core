@@ -38,8 +38,8 @@ import org.restcomm.media.control.mgcp.pkg.SignalType;
 import org.restcomm.media.control.mgcp.pkg.au.AudioPackage;
 import org.restcomm.media.control.mgcp.pkg.au.AudioSignalType;
 import org.restcomm.media.control.mgcp.pkg.au.SignalParameters;
-import org.restcomm.media.spi.dtmf.DtmfDetector;
-import org.restcomm.media.spi.player.Player;
+import org.restcomm.media.core.spi.dtmf.DtmfDetector;
+import org.restcomm.media.core.spi.player.Player;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;

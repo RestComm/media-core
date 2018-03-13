@@ -29,11 +29,11 @@ import org.apache.logging.log4j.Logger;
 import org.restcomm.media.control.mgcp.command.param.NotifiedEntity;
 import org.restcomm.media.control.mgcp.pkg.AbstractMgcpSignal;
 import org.restcomm.media.control.mgcp.pkg.SignalType;
-import org.restcomm.media.spi.ResourceUnavailableException;
-import org.restcomm.media.spi.listener.TooManyListenersException;
-import org.restcomm.media.spi.player.Player;
-import org.restcomm.media.spi.player.PlayerEvent;
-import org.restcomm.media.spi.player.PlayerListener;
+import org.restcomm.media.core.spi.ResourceUnavailableException;
+import org.restcomm.media.core.spi.listener.TooManyListenersException;
+import org.restcomm.media.core.spi.player.Player;
+import org.restcomm.media.core.spi.player.PlayerEvent;
+import org.restcomm.media.core.spi.player.PlayerListener;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;

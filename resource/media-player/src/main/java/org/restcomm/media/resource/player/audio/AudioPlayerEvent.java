@@ -22,8 +22,8 @@
 
 package org.restcomm.media.resource.player.audio;
 
-import org.restcomm.media.spi.player.Player;
-import org.restcomm.media.spi.player.PlayerEvent;
+import org.restcomm.media.core.spi.player.Player;
+import org.restcomm.media.core.spi.player.PlayerEvent;
 
 /**
  *

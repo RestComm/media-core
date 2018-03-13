@@ -43,13 +43,13 @@ import org.restcomm.media.control.mgcp.pkg.MgcpEvent;
 import org.restcomm.media.control.mgcp.pkg.MgcpEventObserver;
 import org.restcomm.media.control.mgcp.pkg.au.ReturnCode;
 import org.restcomm.media.control.mgcp.pkg.au.pc.PlayCollect;
+import org.restcomm.media.core.spi.ResourceUnavailableException;
+import org.restcomm.media.core.spi.dtmf.DtmfDetector;
+import org.restcomm.media.core.spi.player.Player;
+import org.restcomm.media.core.spi.player.PlayerEvent;
 import org.restcomm.media.resource.dtmf.DtmfEventImpl;
 import org.restcomm.media.resource.player.audio.AudioPlayerEvent;
 import org.restcomm.media.resource.player.audio.AudioPlayerImpl;
-import org.restcomm.media.spi.ResourceUnavailableException;
-import org.restcomm.media.spi.dtmf.DtmfDetector;
-import org.restcomm.media.spi.player.Player;
-import org.restcomm.media.spi.player.PlayerEvent;
 
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;

@@ -25,7 +25,7 @@ package org.restcomm.media.rtp.sdp;
 import java.text.ParseException;
 import java.util.Iterator;
 
-import org.restcomm.media.spi.utils.Text;
+import org.restcomm.media.core.spi.utils.Text;
 
 /**
  * Origin attribute.

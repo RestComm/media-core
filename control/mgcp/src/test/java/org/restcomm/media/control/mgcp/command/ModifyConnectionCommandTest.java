@@ -43,7 +43,7 @@ import org.restcomm.media.control.mgcp.message.MgcpParameterType;
 import org.restcomm.media.control.mgcp.message.MgcpRequest;
 import org.restcomm.media.control.mgcp.message.MgcpResponseCode;
 import org.restcomm.media.control.mgcp.util.collections.Parameters;
-import org.restcomm.media.spi.ConnectionMode;
+import org.restcomm.media.core.spi.ConnectionMode;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)

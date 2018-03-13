@@ -25,10 +25,10 @@ package org.restcomm.media.component.audio;
 import java.util.Iterator;
 
 import org.restcomm.media.concurrent.ConcurrentMap;
+import org.restcomm.media.core.spi.format.AudioFormat;
+import org.restcomm.media.core.spi.format.FormatFactory;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.Task;
-import org.restcomm.media.spi.format.AudioFormat;
-import org.restcomm.media.spi.format.FormatFactory;
 
 /**
  * Implements compound audio mixer , one of core components of mms 3.0

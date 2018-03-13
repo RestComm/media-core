@@ -32,10 +32,10 @@ import org.restcomm.media.asr.AsrEngineListener;
 import org.restcomm.media.control.mgcp.pkg.MgcpEventObserver;
 import org.restcomm.media.control.mgcp.pkg.au.SignalParameters;
 import org.restcomm.media.core.resource.vad.VoiceActivityDetectorListener;
-import org.restcomm.media.spi.dtmf.DtmfDetector;
-import org.restcomm.media.spi.dtmf.DtmfDetectorListener;
-import org.restcomm.media.spi.listener.TooManyListenersException;
-import org.restcomm.media.spi.player.Player;
+import org.restcomm.media.core.spi.dtmf.DtmfDetector;
+import org.restcomm.media.core.spi.dtmf.DtmfDetectorListener;
+import org.restcomm.media.core.spi.listener.TooManyListenersException;
+import org.restcomm.media.core.spi.player.Player;
 
 import java.util.HashMap;
 import java.util.Map;

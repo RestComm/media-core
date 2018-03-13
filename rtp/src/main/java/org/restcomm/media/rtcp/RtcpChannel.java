@@ -28,6 +28,7 @@ import java.nio.channels.DatagramChannel;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.restcomm.media.core.spi.utils.Text;
 import org.restcomm.media.ice.IceAuthenticator;
 import org.restcomm.media.ice.IceComponent;
 import org.restcomm.media.ice.IceHandler;
@@ -40,7 +41,6 @@ import org.restcomm.media.rtp.crypto.DtlsSrtpServerProvider;
 import org.restcomm.media.rtp.secure.DtlsHandler;
 import org.restcomm.media.rtp.secure.DtlsListener;
 import org.restcomm.media.rtp.statistics.RtpStatistics;
-import org.restcomm.media.spi.utils.Text;
 
 /**
  * Channel for exchanging RTCP traffic

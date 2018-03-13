@@ -26,9 +26,9 @@ import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.restcomm.media.concurrent.ConcurrentMap;
+import org.restcomm.media.core.spi.memory.Frame;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.Task;
-import org.restcomm.media.spi.memory.Frame;
 
 /**
  * Implements compound oob splitter , one of core components of mms 3.0

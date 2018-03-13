@@ -22,10 +22,10 @@
 
 package org.restcomm.media.component.dsp;
 
-import org.restcomm.media.spi.dsp.Codec;
-import org.restcomm.media.spi.dsp.Processor;
-import org.restcomm.media.spi.format.Format;
-import org.restcomm.media.spi.memory.Frame;
+import org.restcomm.media.core.spi.dsp.Codec;
+import org.restcomm.media.core.spi.dsp.Processor;
+import org.restcomm.media.core.spi.format.Format;
+import org.restcomm.media.core.spi.memory.Frame;
 
 /**
  * Digital signaling processor.

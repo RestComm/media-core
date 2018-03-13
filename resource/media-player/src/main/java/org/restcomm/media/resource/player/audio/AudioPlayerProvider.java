@@ -25,10 +25,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.restcomm.media.core.spi.dsp.DspFactory;
+import org.restcomm.media.core.spi.player.Player;
+import org.restcomm.media.core.spi.player.PlayerProvider;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
-import org.restcomm.media.spi.dsp.DspFactory;
-import org.restcomm.media.spi.player.Player;
-import org.restcomm.media.spi.player.PlayerProvider;
 
 /**
  * Provides audio players.

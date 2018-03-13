@@ -22,6 +22,13 @@ package org.restcomm.media.rtp.channels;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.restcomm.media.core.spi.ConnectionMode;
+import org.restcomm.media.core.spi.FormatNotSupportedException;
+import org.restcomm.media.core.spi.dsp.Codec;
+import org.restcomm.media.core.spi.dsp.Processor;
+import org.restcomm.media.core.spi.format.AudioFormat;
+import org.restcomm.media.core.spi.format.FormatFactory;
+import org.restcomm.media.core.spi.format.Formats;
 import org.restcomm.media.ice.IceAuthenticatorImpl;
 import org.restcomm.media.rtcp.RtcpChannel;
 import org.restcomm.media.rtp.ChannelsManager;
@@ -35,13 +42,6 @@ import org.restcomm.media.sdp.fields.MediaDescriptionField;
 import org.restcomm.media.sdp.format.AVProfile;
 import org.restcomm.media.sdp.format.RTPFormat;
 import org.restcomm.media.sdp.format.RTPFormats;
-import org.restcomm.media.spi.ConnectionMode;
-import org.restcomm.media.spi.FormatNotSupportedException;
-import org.restcomm.media.spi.dsp.Codec;
-import org.restcomm.media.spi.dsp.Processor;
-import org.restcomm.media.spi.format.AudioFormat;
-import org.restcomm.media.spi.format.FormatFactory;
-import org.restcomm.media.spi.format.Formats;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;

@@ -22,11 +22,11 @@
 
 package org.restcomm.media.codec.g711.ulaw;
 
-import org.restcomm.media.spi.dsp.Codec;
-import org.restcomm.media.spi.format.Format;
-import org.restcomm.media.spi.format.FormatFactory;
-import org.restcomm.media.spi.memory.Frame;
-import org.restcomm.media.spi.memory.Memory;
+import org.restcomm.media.core.spi.dsp.Codec;
+import org.restcomm.media.core.spi.format.Format;
+import org.restcomm.media.core.spi.format.FormatFactory;
+import org.restcomm.media.core.spi.memory.Frame;
+import org.restcomm.media.core.spi.memory.Memory;
 
 /**
  * Implements G.711 U-law compressor.

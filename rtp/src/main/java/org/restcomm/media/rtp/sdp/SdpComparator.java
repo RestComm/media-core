@@ -24,8 +24,8 @@ package org.restcomm.media.rtp.sdp;
 
 import java.util.Collection;
 
+import org.restcomm.media.core.spi.utils.Text;
 import org.restcomm.media.sdp.format.RTPFormats;
-import org.restcomm.media.spi.utils.Text;
 
 /**
  * Compares two SDPs.

@@ -23,11 +23,11 @@ package org.restcomm.media.rtp.netty;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.restcomm.media.core.spi.ConnectionMode;
 import org.restcomm.media.rtp.RTPInput;
 import org.restcomm.media.rtp.RtpPacket;
 import org.restcomm.media.rtp.rfc2833.DtmfInput;
 import org.restcomm.media.sdp.format.RTPFormats;
-import org.restcomm.media.spi.ConnectionMode;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
