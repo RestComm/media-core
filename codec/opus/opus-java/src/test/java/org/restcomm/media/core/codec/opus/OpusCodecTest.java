@@ -19,7 +19,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.codec.opus;
+package org.restcomm.media.core.codec.opus;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -43,9 +43,9 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import org.restcomm.media.codec.opus.Decoder;
-import org.restcomm.media.codec.opus.Encoder;
-import org.restcomm.media.codec.opus.OpusJni;
+import org.restcomm.media.core.codec.opus.Decoder;
+import org.restcomm.media.core.codec.opus.Encoder;
+import org.restcomm.media.core.codec.opus.OpusJni;
 import org.restcomm.media.core.spi.memory.Frame;
 import org.restcomm.media.core.spi.memory.Memory;
 
