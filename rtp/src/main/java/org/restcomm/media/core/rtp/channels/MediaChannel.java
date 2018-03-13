@@ -22,6 +22,7 @@ package org.restcomm.media.core.rtp.channels;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.restcomm.media.core.ice.IceAuthenticatorImpl;
 import org.restcomm.media.core.rtcp.RtcpChannel;
 import org.restcomm.media.core.rtp.ChannelsManager;
 import org.restcomm.media.core.rtp.RtpChannel;
@@ -41,7 +42,6 @@ import org.restcomm.media.core.spi.dsp.Processor;
 import org.restcomm.media.core.spi.format.AudioFormat;
 import org.restcomm.media.core.spi.format.FormatFactory;
 import org.restcomm.media.core.spi.format.Formats;
-import org.restcomm.media.ice.IceAuthenticatorImpl;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;

@@ -19,6 +19,8 @@
  */
 package org.restcomm.media.core.rtp.sdp;
 
+import org.restcomm.media.core.ice.IceCandidate;
+import org.restcomm.media.core.ice.IceComponent;
 import org.restcomm.media.core.rtp.channels.AudioChannel;
 import org.restcomm.media.core.rtp.channels.MediaChannel;
 import org.restcomm.media.core.sdp.MediaProfile;
@@ -45,8 +47,6 @@ import org.restcomm.media.core.sdp.ice.attributes.IceUfragAttribute;
 import org.restcomm.media.core.sdp.rtcp.attributes.RtcpAttribute;
 import org.restcomm.media.core.sdp.rtcp.attributes.RtcpMuxAttribute;
 import org.restcomm.media.core.spi.format.AudioFormat;
-import org.restcomm.media.ice.IceCandidate;
-import org.restcomm.media.ice.IceComponent;
 
 /**
  * Factory that produces SDP offers and answers.
