@@ -33,7 +33,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.restcomm.media.sdp.format.AVProfile;
+import org.restcomm.media.core.sdp.format.AVProfile;
 
 import static org.junit.Assert.*;
 

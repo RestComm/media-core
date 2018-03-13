@@ -30,6 +30,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.restcomm.media.component.audio.AudioComponent;
 import org.restcomm.media.component.oob.OOBComponent;
+import org.restcomm.media.core.sdp.format.AVProfile;
+import org.restcomm.media.core.sdp.format.RTPFormat;
+import org.restcomm.media.core.sdp.format.RTPFormats;
 import org.restcomm.media.core.spi.ConnectionMode;
 import org.restcomm.media.core.spi.FormatNotSupportedException;
 import org.restcomm.media.core.spi.dsp.Processor;
@@ -47,9 +50,6 @@ import org.restcomm.media.rtp.rfc2833.DtmfOutput;
 import org.restcomm.media.rtp.secure.DtlsHandler;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.scheduler.Task;
-import org.restcomm.media.sdp.format.AVProfile;
-import org.restcomm.media.sdp.format.RTPFormat;
-import org.restcomm.media.sdp.format.RTPFormats;
 
 /**
  * 

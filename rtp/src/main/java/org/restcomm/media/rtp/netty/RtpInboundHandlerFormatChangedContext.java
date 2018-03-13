@@ -21,7 +21,7 @@
 
 package org.restcomm.media.rtp.netty;
 
-import org.restcomm.media.sdp.format.RTPFormats;
+import org.restcomm.media.core.sdp.format.RTPFormats;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)

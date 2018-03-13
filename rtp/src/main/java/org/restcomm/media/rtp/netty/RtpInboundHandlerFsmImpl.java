@@ -23,10 +23,10 @@ package org.restcomm.media.rtp.netty;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.restcomm.media.core.sdp.format.RTPFormat;
 import org.restcomm.media.rtp.RtpChannel;
 import org.restcomm.media.rtp.RtpPacket;
 import org.restcomm.media.rtp.statistics.RtpStatistics;
-import org.restcomm.media.sdp.format.RTPFormat;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)

@@ -27,14 +27,14 @@ import java.nio.channels.DatagramChannel;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.restcomm.media.core.sdp.format.AVProfile;
+import org.restcomm.media.core.sdp.format.RTPFormat;
+import org.restcomm.media.core.sdp.format.RTPFormats;
 import org.restcomm.media.core.spi.memory.Frame;
 import org.restcomm.media.rtp.rfc2833.DtmfOutput;
 import org.restcomm.media.rtp.secure.DtlsHandler;
 import org.restcomm.media.rtp.statistics.RtpStatistics;
 import org.restcomm.media.scheduler.PriorityQueueScheduler;
-import org.restcomm.media.sdp.format.AVProfile;
-import org.restcomm.media.sdp.format.RTPFormat;
-import org.restcomm.media.sdp.format.RTPFormats;
 
 /**
  * Transmits RTP packets over a channel.

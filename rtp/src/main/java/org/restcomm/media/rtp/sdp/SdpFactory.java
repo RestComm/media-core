@@ -19,34 +19,34 @@
  */
 package org.restcomm.media.rtp.sdp;
 
+import org.restcomm.media.core.sdp.MediaProfile;
+import org.restcomm.media.core.sdp.SessionDescription;
+import org.restcomm.media.core.sdp.attributes.ConnectionModeAttribute;
+import org.restcomm.media.core.sdp.attributes.FormatParameterAttribute;
+import org.restcomm.media.core.sdp.attributes.PacketTimeAttribute;
+import org.restcomm.media.core.sdp.attributes.RtpMapAttribute;
+import org.restcomm.media.core.sdp.attributes.SsrcAttribute;
+import org.restcomm.media.core.sdp.dtls.attributes.FingerprintAttribute;
+import org.restcomm.media.core.sdp.dtls.attributes.SetupAttribute;
+import org.restcomm.media.core.sdp.fields.ConnectionField;
+import org.restcomm.media.core.sdp.fields.MediaDescriptionField;
+import org.restcomm.media.core.sdp.fields.OriginField;
+import org.restcomm.media.core.sdp.fields.SessionNameField;
+import org.restcomm.media.core.sdp.fields.TimingField;
+import org.restcomm.media.core.sdp.fields.VersionField;
+import org.restcomm.media.core.sdp.format.AVProfile;
+import org.restcomm.media.core.sdp.format.RTPFormat;
+import org.restcomm.media.core.sdp.ice.attributes.CandidateAttribute;
+import org.restcomm.media.core.sdp.ice.attributes.IceLiteAttribute;
+import org.restcomm.media.core.sdp.ice.attributes.IcePwdAttribute;
+import org.restcomm.media.core.sdp.ice.attributes.IceUfragAttribute;
+import org.restcomm.media.core.sdp.rtcp.attributes.RtcpAttribute;
+import org.restcomm.media.core.sdp.rtcp.attributes.RtcpMuxAttribute;
 import org.restcomm.media.core.spi.format.AudioFormat;
 import org.restcomm.media.ice.IceCandidate;
 import org.restcomm.media.ice.IceComponent;
 import org.restcomm.media.rtp.channels.AudioChannel;
 import org.restcomm.media.rtp.channels.MediaChannel;
-import org.restcomm.media.sdp.MediaProfile;
-import org.restcomm.media.sdp.SessionDescription;
-import org.restcomm.media.sdp.attributes.ConnectionModeAttribute;
-import org.restcomm.media.sdp.attributes.FormatParameterAttribute;
-import org.restcomm.media.sdp.attributes.PacketTimeAttribute;
-import org.restcomm.media.sdp.attributes.RtpMapAttribute;
-import org.restcomm.media.sdp.attributes.SsrcAttribute;
-import org.restcomm.media.sdp.dtls.attributes.FingerprintAttribute;
-import org.restcomm.media.sdp.dtls.attributes.SetupAttribute;
-import org.restcomm.media.sdp.fields.ConnectionField;
-import org.restcomm.media.sdp.fields.MediaDescriptionField;
-import org.restcomm.media.sdp.fields.OriginField;
-import org.restcomm.media.sdp.fields.SessionNameField;
-import org.restcomm.media.sdp.fields.TimingField;
-import org.restcomm.media.sdp.fields.VersionField;
-import org.restcomm.media.sdp.format.AVProfile;
-import org.restcomm.media.sdp.format.RTPFormat;
-import org.restcomm.media.sdp.ice.attributes.CandidateAttribute;
-import org.restcomm.media.sdp.ice.attributes.IceLiteAttribute;
-import org.restcomm.media.sdp.ice.attributes.IcePwdAttribute;
-import org.restcomm.media.sdp.ice.attributes.IceUfragAttribute;
-import org.restcomm.media.sdp.rtcp.attributes.RtcpAttribute;
-import org.restcomm.media.sdp.rtcp.attributes.RtcpMuxAttribute;
 
 /**
  * Factory that produces SDP offers and answers.

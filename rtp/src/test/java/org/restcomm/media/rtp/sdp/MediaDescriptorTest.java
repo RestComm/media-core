@@ -27,9 +27,9 @@
 
 package org.restcomm.media.rtp.sdp;
 
+import org.restcomm.media.core.sdp.format.RTPFormats;
 import org.restcomm.media.core.spi.utils.Text;
 import org.restcomm.media.rtp.sdp.MediaDescriptorField;
-import org.restcomm.media.sdp.format.RTPFormats;
 
 import java.text.ParseException;
 

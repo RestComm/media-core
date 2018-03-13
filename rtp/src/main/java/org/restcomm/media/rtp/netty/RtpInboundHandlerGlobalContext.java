@@ -24,12 +24,12 @@ package org.restcomm.media.rtp.netty;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.restcomm.media.core.sdp.format.RTPFormats;
 import org.restcomm.media.rtp.RTPInput;
 import org.restcomm.media.rtp.jitter.JitterBuffer;
 import org.restcomm.media.rtp.rfc2833.DtmfInput;
 import org.restcomm.media.rtp.statistics.RtpStatistics;
 import org.restcomm.media.scheduler.Clock;
-import org.restcomm.media.sdp.format.RTPFormats;
 
 /**
  * Context that defines the state of the {@link RtpInboundHandler}.

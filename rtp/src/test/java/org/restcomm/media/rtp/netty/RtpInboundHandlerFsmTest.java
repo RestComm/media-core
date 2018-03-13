@@ -30,14 +30,14 @@ import static org.mockito.Mockito.when;
 
 import org.junit.After;
 import org.junit.Test;
+import org.restcomm.media.core.sdp.format.AVProfile;
+import org.restcomm.media.core.sdp.format.RTPFormat;
 import org.restcomm.media.rtp.RTPInput;
 import org.restcomm.media.rtp.RtpPacket;
 import org.restcomm.media.rtp.jitter.JitterBuffer;
 import org.restcomm.media.rtp.rfc2833.DtmfInput;
 import org.restcomm.media.rtp.statistics.RtpStatistics;
 import org.restcomm.media.scheduler.Clock;
-import org.restcomm.media.sdp.format.AVProfile;
-import org.restcomm.media.sdp.format.RTPFormat;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)

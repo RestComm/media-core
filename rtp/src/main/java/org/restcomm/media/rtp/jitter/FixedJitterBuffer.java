@@ -31,12 +31,12 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.restcomm.media.core.sdp.format.RTPFormat;
 import org.restcomm.media.core.spi.memory.Frame;
 import org.restcomm.media.core.spi.memory.Memory;
 import org.restcomm.media.rtp.BufferListener;
 import org.restcomm.media.rtp.RtpClock;
 import org.restcomm.media.rtp.RtpPacket;
-import org.restcomm.media.sdp.format.RTPFormat;
 
 /**
  * Implements jitter buffer.
