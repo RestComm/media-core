@@ -42,32 +42,32 @@ jobject gOpusObserver;
 
 extern "C" {
 
-  JNIEXPORT jlong JNICALL Java_org_restcomm_media_codec_opus_OpusJni_createEncoderNative(JNIEnv *, jobject,
+  JNIEXPORT jlong JNICALL Java_org_restcomm_media_core_codec_opus_OpusJni_createEncoderNative(JNIEnv *, jobject,
     jint, jint, jint, jint);
 
-  JNIEXPORT jlong JNICALL Java_org_restcomm_media_codec_opus_OpusJni_createDecoderNative(JNIEnv *, jobject,
+  JNIEXPORT jlong JNICALL Java_org_restcomm_media_core_codec_opus_OpusJni_createDecoderNative(JNIEnv *, jobject,
     jint, jint);
 
-  JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_releaseEncoderNative(JNIEnv *, jobject,
+  JNIEXPORT void JNICALL Java_org_restcomm_media_core_codec_opus_OpusJni_releaseEncoderNative(JNIEnv *, jobject,
     jlong);
 
-  JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_releaseDecoderNative(JNIEnv *, jobject,
+  JNIEXPORT void JNICALL Java_org_restcomm_media_core_codec_opus_OpusJni_releaseDecoderNative(JNIEnv *, jobject,
     jlong);
 
-  JNIEXPORT jbyteArray JNICALL Java_org_restcomm_media_codec_opus_OpusJni_encodeNative(
+  JNIEXPORT jbyteArray JNICALL Java_org_restcomm_media_core_codec_opus_OpusJni_encodeNative(
     JNIEnv *jni, jobject, jlong, jshortArray);
 
-  JNIEXPORT jshortArray JNICALL Java_org_restcomm_media_codec_opus_OpusJni_decodeNative(
+  JNIEXPORT jshortArray JNICALL Java_org_restcomm_media_core_codec_opus_OpusJni_decodeNative(
     JNIEnv *jni, jobject, jlong, jbyteArray);
 
-  JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_sayHelloNative(JNIEnv *, jobject);
+  JNIEXPORT void JNICALL Java_org_restcomm_media_core_codec_opus_OpusJni_sayHelloNative(JNIEnv *, jobject);
 
-  JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_setOpusObserverNative(JNIEnv *, jobject, jobject);
+  JNIEXPORT void JNICALL Java_org_restcomm_media_core_codec_opus_OpusJni_setOpusObserverNative(JNIEnv *, jobject, jobject);
 
-  JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_unsetOpusObserverNative(JNIEnv *, jobject);
+  JNIEXPORT void JNICALL Java_org_restcomm_media_core_codec_opus_OpusJni_unsetOpusObserverNative(JNIEnv *, jobject);
 }
 
-JNIEXPORT jlong JNICALL Java_org_restcomm_media_codec_opus_OpusJni_createEncoderNative(JNIEnv *env, jobject,
+JNIEXPORT jlong JNICALL Java_org_restcomm_media_core_codec_opus_OpusJni_createEncoderNative(JNIEnv *env, jobject,
   jint jSampleRate, jint jChannels, jint jApplicationType, jint jBitrate) {
 
   int err;
@@ -87,7 +87,7 @@ JNIEXPORT jlong JNICALL Java_org_restcomm_media_codec_opus_OpusJni_createEncoder
   return (jlong)encoder;
 }
 
-JNIEXPORT jlong JNICALL Java_org_restcomm_media_codec_opus_OpusJni_createDecoderNative(JNIEnv *env, jobject,
+JNIEXPORT jlong JNICALL Java_org_restcomm_media_core_codec_opus_OpusJni_createDecoderNative(JNIEnv *env, jobject,
   jint jSampleRate, jint jChannels) {
 
   int err;
@@ -101,7 +101,7 @@ JNIEXPORT jlong JNICALL Java_org_restcomm_media_codec_opus_OpusJni_createDecoder
   return (jlong)decoder;
 }
 
-JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_releaseEncoderNative(JNIEnv *env, jobject,
+JNIEXPORT void JNICALL Java_org_restcomm_media_core_codec_opus_OpusJni_releaseEncoderNative(JNIEnv *env, jobject,
   jlong jEncoderAddress) {
 
   OpusEncoder *encoder = (OpusEncoder *)jEncoderAddress;
@@ -109,7 +109,7 @@ JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_releaseEncoder
   opus_encoder_destroy(encoder);
 }
 
-JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_releaseDecoderNative(JNIEnv *env, jobject,
+JNIEXPORT void JNICALL Java_org_restcomm_media_core_codec_opus_OpusJni_releaseDecoderNative(JNIEnv *env, jobject,
   jlong jDecoderAddress) {
 
   OpusDecoder *decoder = (OpusDecoder *)jDecoderAddress;
@@ -117,7 +117,7 @@ JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_releaseDecoder
   opus_decoder_destroy(decoder);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_org_restcomm_media_codec_opus_OpusJni_encodeNative(
+JNIEXPORT jbyteArray JNICALL Java_org_restcomm_media_core_codec_opus_OpusJni_encodeNative(
   JNIEnv *env, jobject, jlong jEncoderAddress, jshortArray jPcmData) {
 
   jshort *pcmData = env->GetShortArrayElements(jPcmData, NULL);
@@ -142,7 +142,7 @@ JNIEXPORT jbyteArray JNICALL Java_org_restcomm_media_codec_opus_OpusJni_encodeNa
   return jOpusData;
 }
 
-JNIEXPORT jshortArray JNICALL Java_org_restcomm_media_codec_opus_OpusJni_decodeNative(
+JNIEXPORT jshortArray JNICALL Java_org_restcomm_media_core_codec_opus_OpusJni_decodeNative(
   JNIEnv *env, jobject, jlong jDecoderAddress, jbyteArray jOpusData) {
 
   jbyte *opusData = env->GetByteArrayElements(jOpusData, NULL);
@@ -178,17 +178,17 @@ void OnHello() {
   jni->CallVoidMethod(gOpusObserver, jOnHelloMid);
 }
 
-JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_sayHelloNative(JNIEnv *, jobject) {
+JNIEXPORT void JNICALL Java_org_restcomm_media_core_codec_opus_OpusJni_sayHelloNative(JNIEnv *, jobject) {
   printf("Hello World - native!\n");
   OnHello();
 }
 
-JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_setOpusObserverNative(
+JNIEXPORT void JNICALL Java_org_restcomm_media_core_codec_opus_OpusJni_setOpusObserverNative(
   JNIEnv *env, jobject, jobject jObserver) {
   gOpusObserver = env->NewGlobalRef(jObserver);
 }
 
-JNIEXPORT void JNICALL Java_org_restcomm_media_codec_opus_OpusJni_unsetOpusObserverNative(
+JNIEXPORT void JNICALL Java_org_restcomm_media_core_codec_opus_OpusJni_unsetOpusObserverNative(
   JNIEnv *env, jobject) {
   env->DeleteGlobalRef(gOpusObserver);
 }
