@@ -26,6 +26,7 @@ import org.restcomm.media.asr.AsrEngineImpl;
 import org.restcomm.media.asr.AsrEngineProvider;
 import org.restcomm.media.component.audio.AudioComponent;
 import org.restcomm.media.component.oob.OOBComponent;
+import org.restcomm.media.core.resource.recorder.audio.AudioRecorderImpl;
 import org.restcomm.media.core.spi.dtmf.DtmfDetector;
 import org.restcomm.media.core.spi.dtmf.DtmfDetectorProvider;
 import org.restcomm.media.core.spi.dtmf.DtmfGenerator;
@@ -35,7 +36,6 @@ import org.restcomm.media.core.spi.recorder.Recorder;
 import org.restcomm.media.core.spi.recorder.RecorderProvider;
 import org.restcomm.media.resource.dtmf.DetectorImpl;
 import org.restcomm.media.resource.player.audio.AudioPlayerImpl;
-import org.restcomm.media.resource.recorder.audio.AudioRecorderImpl;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)

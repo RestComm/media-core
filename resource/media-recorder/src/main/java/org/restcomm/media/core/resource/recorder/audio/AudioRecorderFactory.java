@@ -19,29 +19,30 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.resource.recorder.audio;
+package org.restcomm.media.core.resource.recorder.audio;
 
 import org.restcomm.media.core.resource.vad.VoiceActivityDetectorProvider;
 import org.restcomm.media.core.scheduler.PriorityQueueScheduler;
-import org.restcomm.media.core.spi.recorder.Recorder;
-import org.restcomm.media.core.spi.recorder.RecorderProvider;
+import org.restcomm.media.core.spi.pooling.PooledObjectFactory;
 
 /**
+ * Factory that produces Audio Recorders.
+ *
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
-public class AudioRecorderProvider implements RecorderProvider {
+public class AudioRecorderFactory implements PooledObjectFactory<AudioRecorderImpl> {
 
-    private final PriorityQueueScheduler scheduler;
+    private final PriorityQueueScheduler mediaScheduler;
     private final VoiceActivityDetectorProvider vadProvider;
 
-    public AudioRecorderProvider(PriorityQueueScheduler scheduler, VoiceActivityDetectorProvider vadProvider) {
-        this.scheduler = scheduler;
+    public AudioRecorderFactory(PriorityQueueScheduler mediaScheduler, VoiceActivityDetectorProvider vadProvider) {
+        this.mediaScheduler = mediaScheduler;
         this.vadProvider = vadProvider;
     }
 
     @Override
-    public Recorder provide() {
-        return new AudioRecorderImpl(this.scheduler, this.vadProvider.provide());
+    public AudioRecorderImpl produce() {
+        return new AudioRecorderImpl(this.mediaScheduler, this.vadProvider.provide());
     }
 
 }

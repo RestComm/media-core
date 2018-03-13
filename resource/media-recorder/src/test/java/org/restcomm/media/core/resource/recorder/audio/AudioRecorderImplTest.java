@@ -2,13 +2,14 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.restcomm.media.resource.recorder.audio;
+package org.restcomm.media.core.resource.recorder.audio;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.restcomm.media.component.audio.AudioComponent;
 import org.restcomm.media.component.audio.AudioMixer;
 import org.restcomm.media.component.audio.Sine;
+import org.restcomm.media.core.resource.recorder.audio.AudioRecorderImpl;
 import org.restcomm.media.core.resource.vad.VoiceActivityDetector;
 import org.restcomm.media.core.scheduler.Clock;
 import org.restcomm.media.core.scheduler.PriorityQueueScheduler;

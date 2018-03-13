@@ -19,7 +19,7 @@
  * @author pavel.shlupacek@spinoco.com
  */
 
-package org.restcomm.media.resource.recorder.audio;
+package org.restcomm.media.core.resource.recorder.audio;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

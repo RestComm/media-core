@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.resource.recorder.audio;
+package org.restcomm.media.core.resource.recorder.audio;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

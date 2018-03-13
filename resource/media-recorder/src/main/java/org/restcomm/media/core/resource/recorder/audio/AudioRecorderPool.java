@@ -1,7 +1,7 @@
 /*
  * TeleStax, Open Source Cloud Communications
  * Copyright 2011-2016, Telestax Inc and individual contributors
- * by the @authors tag.
+ * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -19,30 +19,30 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.resource.recorder.audio;
+package org.restcomm.media.core.resource.recorder.audio;
 
-import org.restcomm.media.core.resource.vad.VoiceActivityDetectorProvider;
-import org.restcomm.media.core.scheduler.PriorityQueueScheduler;
+import org.restcomm.media.core.spi.pooling.AbstractConcurrentResourcePool;
 import org.restcomm.media.core.spi.pooling.PooledObjectFactory;
 
 /**
- * Factory that produces Audio Recorders.
- *
+ * Thread-safe pool for Audio Recorders.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
+ *
  */
-public class AudioRecorderFactory implements PooledObjectFactory<AudioRecorderImpl> {
+public class AudioRecorderPool extends AbstractConcurrentResourcePool<AudioRecorderImpl> {
 
-    private final PriorityQueueScheduler mediaScheduler;
-    private final VoiceActivityDetectorProvider vadProvider;
+    private final PooledObjectFactory<AudioRecorderImpl> recorderFactory;
 
-    public AudioRecorderFactory(PriorityQueueScheduler mediaScheduler, VoiceActivityDetectorProvider vadProvider) {
-        this.mediaScheduler = mediaScheduler;
-        this.vadProvider = vadProvider;
+    public AudioRecorderPool(int initialCapacity, PooledObjectFactory<AudioRecorderImpl> recorderFactory) {
+        super(initialCapacity);
+        this.recorderFactory = recorderFactory;
+        populate();
     }
 
     @Override
-    public AudioRecorderImpl produce() {
-        return new AudioRecorderImpl(this.mediaScheduler, this.vadProvider.provide());
+    protected AudioRecorderImpl createResource() {
+        return this.recorderFactory.produce();
     }
 
 }
