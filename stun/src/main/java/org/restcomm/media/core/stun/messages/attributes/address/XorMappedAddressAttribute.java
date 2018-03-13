@@ -11,9 +11,9 @@ package org.restcomm.media.core.stun.messages.attributes.address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import org.restcomm.media.core.network.deprecated.TransportAddress;
+import org.restcomm.media.core.network.deprecated.TransportAddress.TransportProtocol;
 import org.restcomm.media.core.stun.messages.StunMessage;
-import org.restcomm.media.network.deprecated.TransportAddress;
-import org.restcomm.media.network.deprecated.TransportAddress.TransportProtocol;
 
 /**
  * The XOR-MAPPED-ADDRESS attribute is only present in Binding

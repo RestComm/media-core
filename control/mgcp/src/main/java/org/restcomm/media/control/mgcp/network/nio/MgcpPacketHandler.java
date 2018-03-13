@@ -35,8 +35,8 @@ import org.restcomm.media.control.mgcp.message.MgcpMessageParser;
 import org.restcomm.media.control.mgcp.message.MgcpMessageSubject;
 import org.restcomm.media.control.mgcp.message.MgcpRequest;
 import org.restcomm.media.control.mgcp.message.MgcpResponse;
-import org.restcomm.media.network.deprecated.channel.PacketHandler;
-import org.restcomm.media.network.deprecated.channel.PacketHandlerException;
+import org.restcomm.media.core.network.deprecated.channel.PacketHandler;
+import org.restcomm.media.core.network.deprecated.channel.PacketHandlerException;
 
 import com.google.common.collect.Sets;
 

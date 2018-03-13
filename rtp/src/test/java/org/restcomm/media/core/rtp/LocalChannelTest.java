@@ -38,6 +38,8 @@ import org.restcomm.media.component.audio.AudioComponent;
 import org.restcomm.media.component.audio.AudioMixer;
 import org.restcomm.media.component.audio.Sine;
 import org.restcomm.media.component.audio.SpectraAnalyzer;
+import org.restcomm.media.core.network.deprecated.RtpPortManager;
+import org.restcomm.media.core.network.deprecated.UdpManager;
 import org.restcomm.media.core.rtp.ChannelsManager;
 import org.restcomm.media.core.rtp.LocalDataChannel;
 import org.restcomm.media.core.rtp.crypto.DtlsSrtpServer;
@@ -48,8 +50,6 @@ import org.restcomm.media.core.scheduler.Scheduler;
 import org.restcomm.media.core.scheduler.ServiceScheduler;
 import org.restcomm.media.core.scheduler.WallClock;
 import org.restcomm.media.core.spi.ConnectionMode;
-import org.restcomm.media.network.deprecated.RtpPortManager;
-import org.restcomm.media.network.deprecated.UdpManager;
 
 /**
  *

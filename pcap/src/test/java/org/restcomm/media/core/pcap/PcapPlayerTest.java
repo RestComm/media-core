@@ -38,12 +38,12 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.restcomm.media.core.network.netty.NettyNetworkManager;
+import org.restcomm.media.core.network.netty.channel.NettyNetworkChannelGlobalContext;
 import org.restcomm.media.core.pcap.AsyncPcapChannel;
 import org.restcomm.media.core.pcap.AsyncPcapChannelHandler;
 import org.restcomm.media.core.pcap.PcapPacketEncoder;
 import org.restcomm.media.core.pcap.PcapPlayer;
-import org.restcomm.media.network.netty.NettyNetworkManager;
-import org.restcomm.media.network.netty.channel.NettyNetworkChannelGlobalContext;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;

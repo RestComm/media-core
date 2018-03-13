@@ -38,6 +38,7 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.restcomm.media.core.network.deprecated.RtpPortManager;
 import org.restcomm.media.ice.FoundationsRegistry;
 import org.restcomm.media.ice.HostCandidate;
 import org.restcomm.media.ice.IceCandidate;
@@ -50,7 +51,6 @@ import org.restcomm.media.ice.harvest.HarvestException;
 import org.restcomm.media.ice.harvest.HostCandidateHarvester;
 import org.restcomm.media.ice.harvest.NoCandidatesGatheredException;
 import org.restcomm.media.ice.lite.LiteFoundationsRegistry;
-import org.restcomm.media.network.deprecated.RtpPortManager;
 
 /**
  * 

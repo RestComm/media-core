@@ -30,12 +30,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.restcomm.media.core.network.deprecated.channel.PacketHandler;
+import org.restcomm.media.core.network.deprecated.channel.PacketHandlerException;
 import org.restcomm.media.core.rtp.RtpPacket;
 import org.restcomm.media.core.rtp.secure.DtlsHandler;
 import org.restcomm.media.core.rtp.statistics.RtpStatistics;
 import org.restcomm.media.core.scheduler.Scheduler;
-import org.restcomm.media.network.deprecated.channel.PacketHandler;
-import org.restcomm.media.network.deprecated.channel.PacketHandlerException;
 
 /**
  * 

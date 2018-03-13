@@ -22,6 +22,8 @@ package org.restcomm.media.core.rtp.channels;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.restcomm.media.core.network.deprecated.RtpPortManager;
+import org.restcomm.media.core.network.deprecated.UdpManager;
 import org.restcomm.media.core.rtcp.RtcpChannel;
 import org.restcomm.media.core.rtp.ChannelsManager;
 import org.restcomm.media.core.rtp.RtpChannel;
@@ -37,8 +39,6 @@ import org.restcomm.media.core.sdp.attributes.RtpMapAttribute;
 import org.restcomm.media.core.sdp.fields.MediaDescriptionField;
 import org.restcomm.media.core.sdp.format.AVProfile;
 import org.restcomm.media.core.sdp.format.RTPFormats;
-import org.restcomm.media.network.deprecated.RtpPortManager;
-import org.restcomm.media.network.deprecated.UdpManager;
 
 import java.io.IOException;
 

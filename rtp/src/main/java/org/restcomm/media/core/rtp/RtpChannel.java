@@ -30,6 +30,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.restcomm.media.component.audio.AudioComponent;
 import org.restcomm.media.component.oob.OOBComponent;
+import org.restcomm.media.core.network.deprecated.UdpManager;
+import org.restcomm.media.core.network.deprecated.channel.MultiplexedChannel;
 import org.restcomm.media.core.rtcp.RtcpHandler;
 import org.restcomm.media.core.rtp.crypto.DtlsSrtpServerProvider;
 import org.restcomm.media.core.rtp.secure.DtlsHandler;
@@ -50,8 +52,6 @@ import org.restcomm.media.ice.IceComponent;
 import org.restcomm.media.ice.IceHandler;
 import org.restcomm.media.ice.events.IceEventListener;
 import org.restcomm.media.ice.events.SelectedCandidatesEvent;
-import org.restcomm.media.network.deprecated.UdpManager;
-import org.restcomm.media.network.deprecated.channel.MultiplexedChannel;
 
 /**
  * 

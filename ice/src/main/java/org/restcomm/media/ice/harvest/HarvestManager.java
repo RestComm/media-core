@@ -25,11 +25,11 @@ import java.nio.channels.Selector;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.restcomm.media.core.network.deprecated.RtpPortManager;
 import org.restcomm.media.ice.CandidateType;
 import org.restcomm.media.ice.FoundationsRegistry;
 import org.restcomm.media.ice.IceMediaStream;
 import org.restcomm.media.ice.lite.LiteFoundationsRegistry;
-import org.restcomm.media.network.deprecated.RtpPortManager;
 
 /**
  * Manages the candidate harvesting process

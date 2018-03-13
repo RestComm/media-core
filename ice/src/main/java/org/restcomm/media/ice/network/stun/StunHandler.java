@@ -25,6 +25,10 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.restcomm.media.core.network.deprecated.TransportAddress;
+import org.restcomm.media.core.network.deprecated.TransportAddress.TransportProtocol;
+import org.restcomm.media.core.network.deprecated.channel.PacketHandler;
+import org.restcomm.media.core.network.deprecated.channel.PacketHandlerException;
 import org.restcomm.media.core.stun.StunException;
 import org.restcomm.media.core.stun.messages.StunMessage;
 import org.restcomm.media.core.stun.messages.StunMessageFactory;
@@ -37,10 +41,6 @@ import org.restcomm.media.core.stun.messages.attributes.general.MessageIntegrity
 import org.restcomm.media.core.stun.messages.attributes.general.PriorityAttribute;
 import org.restcomm.media.core.stun.messages.attributes.general.UsernameAttribute;
 import org.restcomm.media.ice.IceAuthenticator;
-import org.restcomm.media.network.deprecated.TransportAddress;
-import org.restcomm.media.network.deprecated.TransportAddress.TransportProtocol;
-import org.restcomm.media.network.deprecated.channel.PacketHandler;
-import org.restcomm.media.network.deprecated.channel.PacketHandlerException;
 
 /**
  * Handles STUN traffic.

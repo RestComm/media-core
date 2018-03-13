@@ -21,8 +21,8 @@
 
 package org.restcomm.media.core.pcap;
 
-import org.restcomm.media.network.netty.channel.AsyncNettyNetworkChannel;
-import org.restcomm.media.network.netty.channel.NettyNetworkChannelGlobalContext;
+import org.restcomm.media.core.network.netty.channel.AsyncNettyNetworkChannel;
+import org.restcomm.media.core.network.netty.channel.NettyNetworkChannelGlobalContext;
 
 import net.ripe.hadoop.pcap.packet.Packet;
 

@@ -8,10 +8,10 @@
 
 package org.restcomm.media.core.stun.messages.attributes.address;
 
+import org.restcomm.media.core.network.deprecated.TransportAddress;
+import org.restcomm.media.core.network.deprecated.TransportAddress.TransportProtocol;
 import org.restcomm.media.core.stun.StunException;
 import org.restcomm.media.core.stun.messages.attributes.StunAttribute;
-import org.restcomm.media.network.deprecated.TransportAddress;
-import org.restcomm.media.network.deprecated.TransportAddress.TransportProtocol;
 
 /**
  * This class is used to represent Stun attributes that contain an address. Such

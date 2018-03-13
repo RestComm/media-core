@@ -2,6 +2,7 @@ package org.restcomm.media.ice;
 
 import junit.framework.Assert;
 import org.junit.Test;
+import org.restcomm.media.core.network.deprecated.channel.PacketHandlerException;
 import org.restcomm.media.core.stun.StunException;
 import org.restcomm.media.core.stun.messages.StunMessage;
 import org.restcomm.media.core.stun.messages.StunRequest;
@@ -10,7 +11,6 @@ import org.restcomm.media.core.stun.messages.attributes.general.ErrorCodeAttribu
 import org.restcomm.media.ice.IceComponent;
 import org.restcomm.media.ice.IceHandler;
 import org.restcomm.media.ice.events.IceEventListener;
-import org.restcomm.media.network.deprecated.channel.PacketHandlerException;
 
 import static org.restcomm.media.core.stun.messages.StunMessage.BINDING_REQUEST;
 

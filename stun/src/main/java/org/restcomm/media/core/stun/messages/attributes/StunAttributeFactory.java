@@ -11,6 +11,7 @@ package org.restcomm.media.core.stun.messages.attributes;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.UndeclaredThrowableException;
 
+import org.restcomm.media.core.network.deprecated.TransportAddress;
 import org.restcomm.media.core.stun.StunException;
 import org.restcomm.media.core.stun.messages.attributes.address.ChangedAddressAttribute;
 import org.restcomm.media.core.stun.messages.attributes.address.DestinationAddressAttribute;
@@ -41,7 +42,6 @@ import org.restcomm.media.core.stun.messages.attributes.general.SoftwareAttribut
 import org.restcomm.media.core.stun.messages.attributes.general.UnknownAttributesAttribute;
 import org.restcomm.media.core.stun.messages.attributes.general.UseCandidateAttribute;
 import org.restcomm.media.core.stun.messages.attributes.general.UsernameAttribute;
-import org.restcomm.media.network.deprecated.TransportAddress;
 
 /**
  * Factory that provides STUN/TURN/ICE attributes.

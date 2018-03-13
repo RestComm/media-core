@@ -34,6 +34,7 @@ import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.restcomm.media.core.network.deprecated.RtpPortManager;
 import org.restcomm.media.ice.events.IceEventListener;
 import org.restcomm.media.ice.events.SelectedCandidatesEvent;
 import org.restcomm.media.ice.harvest.ExternalCandidateHarvester;
@@ -41,7 +42,6 @@ import org.restcomm.media.ice.harvest.HarvestException;
 import org.restcomm.media.ice.harvest.HarvestManager;
 import org.restcomm.media.ice.harvest.NoCandidatesGatheredException;
 import org.restcomm.media.ice.network.stun.ConnectivityCheckServer;
-import org.restcomm.media.network.deprecated.RtpPortManager;
 
 /**
  * Agent responsible for ICE negotiation.

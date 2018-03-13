@@ -38,13 +38,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bouncycastle.crypto.tls.DTLSServerProtocol;
 import org.bouncycastle.crypto.tls.DatagramTransport;
+import org.restcomm.media.core.network.deprecated.channel.PacketHandler;
+import org.restcomm.media.core.network.deprecated.channel.PacketHandlerException;
 import org.restcomm.media.core.rtp.crypto.DtlsSrtpServer;
 import org.restcomm.media.core.rtp.crypto.DtlsSrtpServerProvider;
 import org.restcomm.media.core.rtp.crypto.PacketTransformer;
 import org.restcomm.media.core.rtp.crypto.SRTPPolicy;
 import org.restcomm.media.core.rtp.crypto.SRTPTransformEngine;
-import org.restcomm.media.network.deprecated.channel.PacketHandler;
-import org.restcomm.media.network.deprecated.channel.PacketHandlerException;
 
 /**
  * Handler to process DTLS packets.

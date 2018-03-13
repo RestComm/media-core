@@ -48,6 +48,8 @@ import org.restcomm.media.component.dsp.Dsp;
 import org.restcomm.media.component.dsp.DspFactoryImpl;
 import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.component.oob.OOBMixer;
+import org.restcomm.media.core.network.deprecated.RtpPortManager;
+import org.restcomm.media.core.network.deprecated.UdpManager;
 import org.restcomm.media.core.resource.dtmf.DetectorImpl;
 import org.restcomm.media.core.rtp.ChannelsManager;
 import org.restcomm.media.core.rtp.RTPDataChannel;
@@ -66,8 +68,6 @@ import org.restcomm.media.core.spi.dtmf.DtmfEvent;
 import org.restcomm.media.core.spi.format.AudioFormat;
 import org.restcomm.media.core.spi.format.FormatFactory;
 import org.restcomm.media.core.spi.format.Formats;
-import org.restcomm.media.network.deprecated.RtpPortManager;
-import org.restcomm.media.network.deprecated.UdpManager;
 
 /**
  *

@@ -41,8 +41,8 @@ import org.restcomm.media.control.mgcp.message.MgcpMessage;
 import org.restcomm.media.control.mgcp.message.MgcpMessageObserver;
 import org.restcomm.media.control.mgcp.network.nio.MgcpChannel;
 import org.restcomm.media.control.mgcp.network.nio.MgcpPacketHandler;
-import org.restcomm.media.network.deprecated.UdpManager;
-import org.restcomm.media.network.deprecated.channel.NetworkGuard;
+import org.restcomm.media.core.network.deprecated.UdpManager;
+import org.restcomm.media.core.network.deprecated.channel.NetworkGuard;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)

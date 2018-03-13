@@ -21,7 +21,7 @@
         
 package org.restcomm.media.control.mgcp.network.netty;
 
-import org.restcomm.media.network.netty.NettyNetworkManager;
+import org.restcomm.media.core.network.netty.NettyNetworkManager;
 
 import io.netty.bootstrap.Bootstrap;
 

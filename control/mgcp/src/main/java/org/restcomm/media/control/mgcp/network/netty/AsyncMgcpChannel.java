@@ -31,8 +31,8 @@ import org.restcomm.media.control.mgcp.message.MessageDirection;
 import org.restcomm.media.control.mgcp.message.MgcpMessage;
 import org.restcomm.media.control.mgcp.message.MgcpMessageObserver;
 import org.restcomm.media.control.mgcp.message.MgcpMessageSubject;
-import org.restcomm.media.network.netty.channel.AsyncNettyNetworkChannel;
-import org.restcomm.media.network.netty.channel.NettyNetworkChannelGlobalContext;
+import org.restcomm.media.core.network.netty.channel.AsyncNettyNetworkChannel;
+import org.restcomm.media.core.network.netty.channel.NettyNetworkChannelGlobalContext;
 
 import com.google.common.collect.Sets;
 

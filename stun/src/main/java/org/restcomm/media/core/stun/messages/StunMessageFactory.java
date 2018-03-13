@@ -8,9 +8,9 @@
 
 package org.restcomm.media.core.stun.messages;
 
+import org.restcomm.media.core.network.deprecated.TransportAddress;
 import org.restcomm.media.core.stun.messages.attributes.StunAttributeFactory;
 import org.restcomm.media.core.stun.messages.attributes.address.XorMappedAddressAttribute;
-import org.restcomm.media.network.deprecated.TransportAddress;
 
 /**
  * Factory that provides STUN Messages.

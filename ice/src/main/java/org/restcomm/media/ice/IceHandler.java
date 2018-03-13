@@ -27,6 +27,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.restcomm.media.core.network.deprecated.TransportAddress;
+import org.restcomm.media.core.network.deprecated.TransportAddress.TransportProtocol;
+import org.restcomm.media.core.network.deprecated.channel.PacketHandler;
+import org.restcomm.media.core.network.deprecated.channel.PacketHandlerException;
 import org.restcomm.media.core.stun.StunException;
 import org.restcomm.media.core.stun.messages.StunMessage;
 import org.restcomm.media.core.stun.messages.StunMessageFactory;
@@ -39,10 +43,6 @@ import org.restcomm.media.core.stun.messages.attributes.general.MessageIntegrity
 import org.restcomm.media.core.stun.messages.attributes.general.UsernameAttribute;
 import org.restcomm.media.ice.events.IceEventListener;
 import org.restcomm.media.ice.events.SelectedCandidatesEvent;
-import org.restcomm.media.network.deprecated.TransportAddress;
-import org.restcomm.media.network.deprecated.TransportAddress.TransportProtocol;
-import org.restcomm.media.network.deprecated.channel.PacketHandler;
-import org.restcomm.media.network.deprecated.channel.PacketHandlerException;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)

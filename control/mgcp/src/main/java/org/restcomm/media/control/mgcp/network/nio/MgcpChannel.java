@@ -32,8 +32,8 @@ import org.restcomm.media.control.mgcp.message.MessageDirection;
 import org.restcomm.media.control.mgcp.message.MgcpMessage;
 import org.restcomm.media.control.mgcp.message.MgcpMessageObserver;
 import org.restcomm.media.control.mgcp.message.MgcpMessageSubject;
-import org.restcomm.media.network.deprecated.channel.MultiplexedNetworkChannel;
-import org.restcomm.media.network.deprecated.channel.NetworkGuard;
+import org.restcomm.media.core.network.deprecated.channel.MultiplexedNetworkChannel;
+import org.restcomm.media.core.network.deprecated.channel.NetworkGuard;
 
 import com.google.common.collect.Sets;
 

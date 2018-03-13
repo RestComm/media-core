@@ -26,6 +26,7 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.restcomm.media.core.network.deprecated.RtpPortManager;
 import org.restcomm.media.ice.CandidateType;
 import org.restcomm.media.ice.FoundationsRegistry;
 import org.restcomm.media.ice.HostCandidate;
@@ -33,7 +34,6 @@ import org.restcomm.media.ice.IceComponent;
 import org.restcomm.media.ice.IceMediaStream;
 import org.restcomm.media.ice.LocalCandidateWrapper;
 import org.restcomm.media.ice.ServerReflexiveCandidate;
-import org.restcomm.media.network.deprecated.RtpPortManager;
 
 /**
  * Gathers SRFLX candidates for the public address on which Media Server is installed.

@@ -36,7 +36,7 @@ import org.restcomm.media.control.mgcp.message.MgcpMessageParser;
 import org.restcomm.media.control.mgcp.message.MgcpRequest;
 import org.restcomm.media.control.mgcp.message.MgcpResponse;
 import org.restcomm.media.control.mgcp.network.nio.MgcpPacketHandler;
-import org.restcomm.media.network.deprecated.channel.PacketHandlerException;
+import org.restcomm.media.core.network.deprecated.channel.PacketHandlerException;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
