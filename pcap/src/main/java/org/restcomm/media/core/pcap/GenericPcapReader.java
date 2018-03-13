@@ -18,24 +18,29 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
+        
+package org.restcomm.media.core.pcap;
 
-package org.restcomm.media.pcap;
+import java.io.DataInputStream;
+import java.io.IOException;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.MessageToByteEncoder;
+import net.ripe.hadoop.pcap.PcapReader;
 import net.ripe.hadoop.pcap.packet.Packet;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class PcapPacketEncoder extends MessageToByteEncoder<Packet> {
+public class GenericPcapReader extends PcapReader {
+    
+    public final static String PAYLOAD = "payload";
 
-    @Override
-    protected void encode(ChannelHandlerContext ctx, Packet msg, ByteBuf out) throws Exception {
-        byte[] payload = (byte[]) msg.get(GenericPcapReader.PAYLOAD);
-        out.writeBytes(payload);
+    public GenericPcapReader(DataInputStream is) throws IOException {
+        super(is);
+    }
+    
+    protected void processPacketPayload(Packet packet, byte[] payload) {
+        packet.put(PAYLOAD, payload);
     }
 
 }

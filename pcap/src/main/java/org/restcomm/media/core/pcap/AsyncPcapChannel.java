@@ -18,29 +18,23 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
-package org.restcomm.media.pcap;
 
-import java.io.DataInputStream;
-import java.io.IOException;
+package org.restcomm.media.core.pcap;
 
-import net.ripe.hadoop.pcap.PcapReader;
+import org.restcomm.media.network.netty.channel.AsyncNettyNetworkChannel;
+import org.restcomm.media.network.netty.channel.NettyNetworkChannelGlobalContext;
+
 import net.ripe.hadoop.pcap.packet.Packet;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
+ * @author Ivelin Ivanov <ivelin.ivanov@telestax.com>
  *
  */
-public class GenericPcapReader extends PcapReader {
-    
-    public final static String PAYLOAD = "payload";
+public class AsyncPcapChannel extends AsyncNettyNetworkChannel<Packet> {
 
-    public GenericPcapReader(DataInputStream is) throws IOException {
-        super(is);
-    }
-    
-    protected void processPacketPayload(Packet packet, byte[] payload) {
-        packet.put(PAYLOAD, payload);
+    public AsyncPcapChannel(NettyNetworkChannelGlobalContext context) {
+        super(context);
     }
 
 }

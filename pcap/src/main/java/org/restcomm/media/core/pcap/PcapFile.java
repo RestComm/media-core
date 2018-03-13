@@ -19,7 +19,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.pcap;
+package org.restcomm.media.core.pcap;
 
 import java.io.Closeable;
 import java.io.DataInputStream;

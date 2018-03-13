@@ -19,22 +19,27 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.pcap;
+package org.restcomm.media.core.pcap;
 
-import org.restcomm.media.network.netty.channel.AsyncNettyNetworkChannel;
-import org.restcomm.media.network.netty.channel.NettyNetworkChannelGlobalContext;
-
-import net.ripe.hadoop.pcap.packet.Packet;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelInitializer;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- * @author Ivelin Ivanov <ivelin.ivanov@telestax.com>
  *
  */
-public class AsyncPcapChannel extends AsyncNettyNetworkChannel<Packet> {
+public class AsyncPcapChannelHandler extends ChannelInitializer<Channel> {
 
-    public AsyncPcapChannel(NettyNetworkChannelGlobalContext context) {
-        super(context);
+    private final PcapPacketEncoder encoder;
+
+    public AsyncPcapChannelHandler(PcapPacketEncoder encoder) {
+        super();
+        this.encoder = encoder;
+    }
+
+    @Override
+    protected void initChannel(Channel ch) throws Exception {
+        ch.pipeline().addFirst(this.encoder);
     }
 
 }
