@@ -40,6 +40,7 @@ import org.restcomm.media.component.AbstractSource;
 import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.component.oob.OOBInput;
 import org.restcomm.media.component.oob.OOBSplitter;
+import org.restcomm.media.core.resource.dtmf.DetectorImpl;
 import org.restcomm.media.core.rtp.ChannelsManager;
 import org.restcomm.media.core.rtp.LocalDataChannel;
 import org.restcomm.media.core.rtp.crypto.DtlsSrtpServer;
@@ -57,7 +58,6 @@ import org.restcomm.media.core.spi.memory.Frame;
 import org.restcomm.media.core.spi.memory.Memory;
 import org.restcomm.media.network.deprecated.RtpPortManager;
 import org.restcomm.media.network.deprecated.UdpManager;
-import org.restcomm.media.resource.dtmf.DetectorImpl;
 
 /**
  *

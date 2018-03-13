@@ -19,7 +19,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.resource.dtmf;
+package org.restcomm.media.core.resource.dtmf;
 
 import org.restcomm.media.core.spi.pooling.AbstractConcurrentResourcePool;
 import org.restcomm.media.core.spi.pooling.PooledObjectFactory;

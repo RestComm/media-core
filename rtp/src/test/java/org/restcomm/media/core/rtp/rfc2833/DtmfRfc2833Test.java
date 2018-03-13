@@ -45,6 +45,7 @@ import org.restcomm.media.component.audio.AudioMixer;
 import org.restcomm.media.component.dsp.DspFactoryImpl;
 import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.component.oob.OOBMixer;
+import org.restcomm.media.core.resource.dtmf.DetectorImpl;
 import org.restcomm.media.core.rtp.RtpChannel;
 import org.restcomm.media.core.rtp.RtpClock;
 import org.restcomm.media.core.rtp.crypto.DtlsSrtpServerProvider;
@@ -70,7 +71,6 @@ import org.restcomm.media.pcap.AsyncPcapChannel;
 import org.restcomm.media.pcap.AsyncPcapChannelHandler;
 import org.restcomm.media.pcap.PcapPacketEncoder;
 import org.restcomm.media.pcap.PcapPlayer;
-import org.restcomm.media.resource.dtmf.DetectorImpl;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;

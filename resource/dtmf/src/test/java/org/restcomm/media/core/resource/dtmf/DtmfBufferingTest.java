@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.restcomm.media.resource.dtmf;
+package org.restcomm.media.core.resource.dtmf;
 
 import static org.junit.Assert.assertEquals;
 
@@ -13,6 +13,8 @@ import org.restcomm.media.component.audio.AudioComponent;
 import org.restcomm.media.component.audio.AudioMixer;
 import org.restcomm.media.component.oob.OOBComponent;
 import org.restcomm.media.component.oob.OOBMixer;
+import org.restcomm.media.core.resource.dtmf.DetectorImpl;
+import org.restcomm.media.core.resource.dtmf.GeneratorImpl;
 import org.restcomm.media.core.scheduler.Clock;
 import org.restcomm.media.core.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.core.scheduler.WallClock;

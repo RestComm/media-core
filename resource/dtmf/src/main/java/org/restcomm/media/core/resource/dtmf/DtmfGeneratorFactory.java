@@ -19,42 +19,48 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.resource.dtmf;
+package org.restcomm.media.core.resource.dtmf;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.restcomm.media.core.scheduler.PriorityQueueScheduler;
-import org.restcomm.media.core.spi.dtmf.DtmfDetector;
-import org.restcomm.media.core.spi.dtmf.DtmfDetectorProvider;
+import org.restcomm.media.core.spi.pooling.PooledObjectFactory;
 
 /**
+ * Factory that produces DTMF Generators.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class DetectorProvider implements DtmfDetectorProvider {
+public class DtmfGeneratorFactory implements PooledObjectFactory<GeneratorImpl> {
 
-    private final PriorityQueueScheduler scheduler;
-    private final AtomicInteger id;
-    private final int volume;
-    private final int duration;
-    private final int interval;
+    /** Global ID generator for produced objects */
+    private static final AtomicInteger ID = new AtomicInteger(1);
 
-    public DetectorProvider(PriorityQueueScheduler scheduler, int volume, int duration, int interval) {
-        this.scheduler = scheduler;
-        this.id = new AtomicInteger(0);
+    private static final int TONE_DURATION = 80;
+    private static final int TONE_VOLUME = -20;
+
+    private final PriorityQueueScheduler mediaScheduler;
+
+    private int duration;
+    private int volume;
+
+    public DtmfGeneratorFactory(PriorityQueueScheduler mediaScheduler, int volume, int duration) {
+        this.mediaScheduler = mediaScheduler;
         this.volume = volume;
         this.duration = duration;
-        this.interval = interval;
+    }
+
+    public DtmfGeneratorFactory(PriorityQueueScheduler mediaScheduler) {
+        this(mediaScheduler, TONE_VOLUME, TONE_DURATION);
     }
 
     @Override
-    public DtmfDetector provide() {
-        DetectorImpl detector = new DetectorImpl(nextId(), this.volume, this.duration, this.interval, this.scheduler);
-        return detector;
-    }
-
-    private String nextId() {
-        return "dtmf-detector" + id.getAndIncrement();
+    public GeneratorImpl produce() {
+        GeneratorImpl generator = new GeneratorImpl("generator" + ID.getAndIncrement(), mediaScheduler);
+        generator.setVolume(this.volume);
+        generator.setToneDuration(this.duration);
+        return generator;
     }
 
 }

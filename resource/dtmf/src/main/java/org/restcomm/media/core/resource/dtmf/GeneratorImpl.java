@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.resource.dtmf;
+package org.restcomm.media.core.resource.dtmf;
 
 import org.restcomm.media.component.AbstractSource;
 import org.restcomm.media.component.audio.AudioInput;
