@@ -20,14 +20,14 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.codec.gsm;
+package org.restcomm.media.core.codec.gsm;
 
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.restcomm.media.codec.gsm.BasicFunctions;
+import org.restcomm.media.core.codec.gsm.BasicFunctions;
 
 import static org.junit.Assert.*;
 
