@@ -34,6 +34,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.After;
 import org.junit.Test;
+import org.restcomm.media.core.stun.messages.StunRequest;
 import org.restcomm.media.pcap.GenericPcapReader;
 import org.restcomm.media.pcap.PcapFile;
 import org.restcomm.media.rtcp.RtcpHeader;
@@ -44,7 +45,6 @@ import org.restcomm.media.rtcp.RtcpSdesChunk;
 import org.restcomm.media.rtcp.RtcpSenderReport;
 import org.restcomm.media.rtp.RtpPacket;
 import org.restcomm.media.rtp.secure.DtlsPacket;
-import org.restcomm.media.stun.messages.StunRequest;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;

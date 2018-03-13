@@ -27,22 +27,22 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.restcomm.media.core.stun.StunException;
+import org.restcomm.media.core.stun.messages.StunMessage;
+import org.restcomm.media.core.stun.messages.StunMessageFactory;
+import org.restcomm.media.core.stun.messages.StunRequest;
+import org.restcomm.media.core.stun.messages.StunResponse;
+import org.restcomm.media.core.stun.messages.attributes.StunAttribute;
+import org.restcomm.media.core.stun.messages.attributes.StunAttributeFactory;
+import org.restcomm.media.core.stun.messages.attributes.general.ErrorCodeAttribute;
+import org.restcomm.media.core.stun.messages.attributes.general.MessageIntegrityAttribute;
+import org.restcomm.media.core.stun.messages.attributes.general.UsernameAttribute;
 import org.restcomm.media.ice.events.IceEventListener;
 import org.restcomm.media.ice.events.SelectedCandidatesEvent;
 import org.restcomm.media.network.deprecated.TransportAddress;
 import org.restcomm.media.network.deprecated.TransportAddress.TransportProtocol;
 import org.restcomm.media.network.deprecated.channel.PacketHandler;
 import org.restcomm.media.network.deprecated.channel.PacketHandlerException;
-import org.restcomm.media.stun.StunException;
-import org.restcomm.media.stun.messages.StunMessage;
-import org.restcomm.media.stun.messages.StunMessageFactory;
-import org.restcomm.media.stun.messages.StunRequest;
-import org.restcomm.media.stun.messages.StunResponse;
-import org.restcomm.media.stun.messages.attributes.StunAttribute;
-import org.restcomm.media.stun.messages.attributes.StunAttributeFactory;
-import org.restcomm.media.stun.messages.attributes.general.ErrorCodeAttribute;
-import org.restcomm.media.stun.messages.attributes.general.MessageIntegrityAttribute;
-import org.restcomm.media.stun.messages.attributes.general.UsernameAttribute;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
