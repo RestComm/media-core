@@ -25,7 +25,7 @@ package org.restcomm.media.component.oob;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.restcomm.media.concurrent.ConcurrentMap;
+import org.restcomm.media.core.concurrent.ConcurrentMap;
 import org.restcomm.media.core.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.core.scheduler.Task;
 import org.restcomm.media.core.spi.memory.Frame;

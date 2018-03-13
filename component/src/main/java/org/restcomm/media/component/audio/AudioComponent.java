@@ -25,7 +25,7 @@ package org.restcomm.media.component.audio;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.restcomm.media.concurrent.ConcurrentMap;
+import org.restcomm.media.core.concurrent.ConcurrentMap;
 import org.restcomm.media.core.spi.format.AudioFormat;
 import org.restcomm.media.core.spi.format.FormatFactory;
 import org.restcomm.media.core.spi.memory.Frame;

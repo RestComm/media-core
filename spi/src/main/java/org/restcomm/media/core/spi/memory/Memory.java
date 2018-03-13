@@ -22,7 +22,7 @@
 
 package org.restcomm.media.core.spi.memory;
 
-import org.restcomm.media.concurrent.ConcurrentMap;
+import org.restcomm.media.core.concurrent.ConcurrentMap;
 
 /**
  *

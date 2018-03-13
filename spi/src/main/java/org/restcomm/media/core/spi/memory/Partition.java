@@ -22,7 +22,7 @@
 
 package org.restcomm.media.core.spi.memory;
 
-import org.restcomm.media.concurrent.ConcurrentCyclicFIFO;
+import org.restcomm.media.core.concurrent.ConcurrentCyclicFIFO;
 
 /**
  *

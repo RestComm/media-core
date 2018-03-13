@@ -22,7 +22,7 @@
 
 package org.restcomm.media.core.scheduler;
 
-import org.restcomm.media.concurrent.ConcurrentCyclicFIFO;
+import org.restcomm.media.core.concurrent.ConcurrentCyclicFIFO;
 
 /**
  * Implements queue of tasks.

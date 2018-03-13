@@ -26,7 +26,7 @@ import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.restcomm.media.concurrent.ConcurrentMap;
+import org.restcomm.media.core.concurrent.ConcurrentMap;
 import org.restcomm.media.core.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.core.scheduler.Task;
 import org.restcomm.media.core.spi.format.AudioFormat;
