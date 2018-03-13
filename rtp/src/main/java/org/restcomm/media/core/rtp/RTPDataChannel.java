@@ -28,8 +28,8 @@ import java.nio.channels.SelectionKey;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.restcomm.media.component.audio.AudioComponent;
-import org.restcomm.media.component.oob.OOBComponent;
+import org.restcomm.media.core.component.audio.AudioComponent;
+import org.restcomm.media.core.component.oob.OOBComponent;
 import org.restcomm.media.core.network.deprecated.ProtocolHandler;
 import org.restcomm.media.core.network.deprecated.UdpManager;
 import org.restcomm.media.core.rtp.crypto.DtlsSrtpServerProvider;

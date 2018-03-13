@@ -30,10 +30,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.restcomm.media.component.AbstractSink;
-import org.restcomm.media.component.audio.AudioOutput;
-import org.restcomm.media.component.audio.GoertzelFilter;
-import org.restcomm.media.component.oob.OOBOutput;
+import org.restcomm.media.core.component.AbstractSink;
+import org.restcomm.media.core.component.audio.AudioOutput;
+import org.restcomm.media.core.component.audio.GoertzelFilter;
+import org.restcomm.media.core.component.oob.OOBOutput;
 import org.restcomm.media.core.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.core.scheduler.Task;
 import org.restcomm.media.core.spi.ComponentType;

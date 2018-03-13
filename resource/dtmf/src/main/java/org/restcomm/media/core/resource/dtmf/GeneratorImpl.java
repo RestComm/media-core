@@ -22,9 +22,9 @@
 
 package org.restcomm.media.core.resource.dtmf;
 
-import org.restcomm.media.component.AbstractSource;
-import org.restcomm.media.component.audio.AudioInput;
-import org.restcomm.media.component.oob.OOBInput;
+import org.restcomm.media.core.component.AbstractSource;
+import org.restcomm.media.core.component.audio.AudioInput;
+import org.restcomm.media.core.component.oob.OOBInput;
 import org.restcomm.media.core.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.core.spi.ComponentType;
 import org.restcomm.media.core.spi.dtmf.DtmfGenerator;

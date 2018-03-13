@@ -25,10 +25,10 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 import org.junit.Test;
-import org.restcomm.media.component.audio.AudioComponent;
-import org.restcomm.media.component.audio.AudioMixer;
-import org.restcomm.media.component.oob.OOBComponent;
-import org.restcomm.media.component.oob.OOBMixer;
+import org.restcomm.media.core.component.audio.AudioComponent;
+import org.restcomm.media.core.component.audio.AudioMixer;
+import org.restcomm.media.core.component.oob.OOBComponent;
+import org.restcomm.media.core.component.oob.OOBMixer;
 import org.restcomm.media.core.control.mgcp.connection.MgcpConnectionProvider;
 import org.restcomm.media.core.control.mgcp.connection.MgcpRemoteConnection;
 import org.restcomm.media.core.control.mgcp.endpoint.EndpointIdentifier;

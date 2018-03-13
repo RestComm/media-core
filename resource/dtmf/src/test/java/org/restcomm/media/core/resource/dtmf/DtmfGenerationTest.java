@@ -14,10 +14,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-import org.restcomm.media.component.audio.AudioComponent;
-import org.restcomm.media.component.audio.AudioMixer;
-import org.restcomm.media.component.oob.OOBComponent;
-import org.restcomm.media.component.oob.OOBMixer;
+import org.restcomm.media.core.component.audio.AudioComponent;
+import org.restcomm.media.core.component.audio.AudioMixer;
+import org.restcomm.media.core.component.oob.OOBComponent;
+import org.restcomm.media.core.component.oob.OOBMixer;
 import org.restcomm.media.core.resource.dtmf.GeneratorImpl;
 import org.restcomm.media.core.scheduler.Clock;
 import org.restcomm.media.core.scheduler.PriorityQueueScheduler;

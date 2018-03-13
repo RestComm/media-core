@@ -28,8 +28,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.restcomm.media.component.audio.AudioComponent;
-import org.restcomm.media.component.oob.OOBComponent;
+import org.restcomm.media.core.component.audio.AudioComponent;
+import org.restcomm.media.core.component.oob.OOBComponent;
 import org.restcomm.media.core.control.mgcp.exception.MalformedMgcpEventRequestException;
 import org.restcomm.media.core.control.mgcp.exception.MgcpEventNotFoundException;
 import org.restcomm.media.core.control.mgcp.exception.MgcpPackageNotFoundException;

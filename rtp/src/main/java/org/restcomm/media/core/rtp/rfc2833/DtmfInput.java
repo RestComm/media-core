@@ -24,8 +24,8 @@ package org.restcomm.media.core.rtp.rfc2833;
 
 import java.util.ArrayList;
 
-import org.restcomm.media.component.AbstractSource;
-import org.restcomm.media.component.oob.OOBInput;
+import org.restcomm.media.core.component.AbstractSource;
+import org.restcomm.media.core.component.oob.OOBInput;
 import org.restcomm.media.core.rtp.RtpClock;
 import org.restcomm.media.core.rtp.RtpPacket;
 import org.restcomm.media.core.scheduler.PriorityQueueScheduler;

@@ -20,8 +20,8 @@
 
 package org.restcomm.media.core.rtp.channels;
 
-import org.restcomm.media.component.audio.AudioComponent;
-import org.restcomm.media.component.oob.OOBComponent;
+import org.restcomm.media.core.component.audio.AudioComponent;
+import org.restcomm.media.core.component.oob.OOBComponent;
 import org.restcomm.media.core.rtp.ChannelsManager;
 import org.restcomm.media.core.scheduler.Clock;
 

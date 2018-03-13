@@ -21,8 +21,8 @@
 
 package org.restcomm.media.core.control.mgcp.connection;
 
-import org.restcomm.media.component.audio.AudioComponent;
-import org.restcomm.media.component.oob.OOBComponent;
+import org.restcomm.media.core.component.audio.AudioComponent;
+import org.restcomm.media.core.component.oob.OOBComponent;
 import org.restcomm.media.core.control.mgcp.exception.MgcpConnectionException;
 import org.restcomm.media.core.control.mgcp.exception.UnsupportedMgcpEventException;
 import org.restcomm.media.core.control.mgcp.message.LocalConnectionOptions;

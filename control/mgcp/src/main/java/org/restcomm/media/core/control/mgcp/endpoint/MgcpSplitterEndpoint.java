@@ -21,8 +21,8 @@
 
 package org.restcomm.media.core.control.mgcp.endpoint;
 
-import org.restcomm.media.component.audio.AudioSplitter;
-import org.restcomm.media.component.oob.OOBSplitter;
+import org.restcomm.media.core.component.audio.AudioSplitter;
+import org.restcomm.media.core.component.oob.OOBSplitter;
 import org.restcomm.media.core.control.mgcp.connection.MgcpConnection;
 import org.restcomm.media.core.control.mgcp.connection.MgcpConnectionProvider;
 

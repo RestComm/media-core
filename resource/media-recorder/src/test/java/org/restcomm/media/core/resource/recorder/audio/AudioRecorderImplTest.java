@@ -6,9 +6,9 @@ package org.restcomm.media.core.resource.recorder.audio;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.restcomm.media.component.audio.AudioComponent;
-import org.restcomm.media.component.audio.AudioMixer;
-import org.restcomm.media.component.audio.Sine;
+import org.restcomm.media.core.component.audio.AudioComponent;
+import org.restcomm.media.core.component.audio.AudioMixer;
+import org.restcomm.media.core.component.audio.Sine;
 import org.restcomm.media.core.resource.recorder.audio.AudioRecorderImpl;
 import org.restcomm.media.core.resource.vad.VoiceActivityDetector;
 import org.restcomm.media.core.scheduler.Clock;

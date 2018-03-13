@@ -26,8 +26,8 @@ import java.io.IOException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.restcomm.media.component.AbstractSink;
-import org.restcomm.media.component.audio.AudioOutput;
+import org.restcomm.media.core.component.AbstractSink;
+import org.restcomm.media.core.component.audio.AudioOutput;
 import org.restcomm.media.core.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.core.spi.FormatNotSupportedException;
 import org.restcomm.media.core.spi.dsp.Processor;

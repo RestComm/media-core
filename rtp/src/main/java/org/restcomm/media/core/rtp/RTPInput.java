@@ -24,8 +24,8 @@ package org.restcomm.media.core.rtp;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.restcomm.media.component.AbstractSource;
-import org.restcomm.media.component.audio.AudioInput;
+import org.restcomm.media.core.component.AbstractSource;
+import org.restcomm.media.core.component.audio.AudioInput;
 import org.restcomm.media.core.rtp.jitter.JitterBuffer;
 import org.restcomm.media.core.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.core.spi.dsp.Processor;

@@ -27,12 +27,12 @@
 
 package org.restcomm.media.core.rtp;
 
-import org.restcomm.media.component.audio.AudioComponent;
-import org.restcomm.media.component.audio.AudioMixer;
-import org.restcomm.media.component.audio.Sine;
-import org.restcomm.media.component.audio.SpectraAnalyzer;
-import org.restcomm.media.component.dsp.Dsp;
-import org.restcomm.media.component.dsp.DspFactoryImpl;
+import org.restcomm.media.core.component.audio.AudioComponent;
+import org.restcomm.media.core.component.audio.AudioMixer;
+import org.restcomm.media.core.component.audio.Sine;
+import org.restcomm.media.core.component.audio.SpectraAnalyzer;
+import org.restcomm.media.core.component.dsp.Dsp;
+import org.restcomm.media.core.component.dsp.DspFactoryImpl;
 import org.restcomm.media.core.network.deprecated.RtpPortManager;
 import org.restcomm.media.core.network.deprecated.UdpManager;
 import org.restcomm.media.core.rtp.ChannelsManager;

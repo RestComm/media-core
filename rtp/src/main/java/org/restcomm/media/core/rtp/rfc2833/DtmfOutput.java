@@ -24,8 +24,8 @@ package org.restcomm.media.core.rtp.rfc2833;
 
 import java.io.IOException;
 
-import org.restcomm.media.component.AbstractSink;
-import org.restcomm.media.component.oob.OOBOutput;
+import org.restcomm.media.core.component.AbstractSink;
+import org.restcomm.media.core.component.oob.OOBOutput;
 import org.restcomm.media.core.rtp.RTPDataChannel;
 import org.restcomm.media.core.rtp.RtpTransmitter;
 import org.restcomm.media.core.scheduler.PriorityQueueScheduler;

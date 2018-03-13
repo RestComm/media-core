@@ -24,12 +24,12 @@ package org.restcomm.media.core.rtp;
 
 import java.io.IOException;
 
-import org.restcomm.media.component.audio.AudioComponent;
-import org.restcomm.media.component.audio.AudioInput;
-import org.restcomm.media.component.audio.AudioOutput;
-import org.restcomm.media.component.oob.OOBComponent;
-import org.restcomm.media.component.oob.OOBInput;
-import org.restcomm.media.component.oob.OOBOutput;
+import org.restcomm.media.core.component.audio.AudioComponent;
+import org.restcomm.media.core.component.audio.AudioInput;
+import org.restcomm.media.core.component.audio.AudioOutput;
+import org.restcomm.media.core.component.oob.OOBComponent;
+import org.restcomm.media.core.component.oob.OOBInput;
+import org.restcomm.media.core.component.oob.OOBOutput;
 import org.restcomm.media.core.spi.ConnectionMode;
 import org.restcomm.media.core.spi.ModeNotSupportedException;
 import org.restcomm.media.core.spi.format.AudioFormat;

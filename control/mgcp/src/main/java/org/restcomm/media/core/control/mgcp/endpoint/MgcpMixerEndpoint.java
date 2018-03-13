@@ -21,8 +21,8 @@
 
 package org.restcomm.media.core.control.mgcp.endpoint;
 
-import org.restcomm.media.component.audio.AudioMixer;
-import org.restcomm.media.component.oob.OOBMixer;
+import org.restcomm.media.core.component.audio.AudioMixer;
+import org.restcomm.media.core.component.oob.OOBMixer;
 import org.restcomm.media.core.control.mgcp.connection.MgcpConnection;
 import org.restcomm.media.core.control.mgcp.connection.MgcpConnectionProvider;
 

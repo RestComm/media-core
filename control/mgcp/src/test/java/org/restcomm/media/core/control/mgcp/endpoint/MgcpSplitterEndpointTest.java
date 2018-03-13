@@ -28,10 +28,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.junit.Test;
-import org.restcomm.media.component.audio.AudioComponent;
-import org.restcomm.media.component.audio.AudioSplitter;
-import org.restcomm.media.component.oob.OOBComponent;
-import org.restcomm.media.component.oob.OOBSplitter;
+import org.restcomm.media.core.component.audio.AudioComponent;
+import org.restcomm.media.core.component.audio.AudioSplitter;
+import org.restcomm.media.core.component.oob.OOBComponent;
+import org.restcomm.media.core.component.oob.OOBSplitter;
 import org.restcomm.media.core.control.mgcp.connection.MgcpConnectionProvider;
 import org.restcomm.media.core.control.mgcp.connection.MgcpLocalConnection;
 import org.restcomm.media.core.control.mgcp.connection.MgcpRemoteConnection;

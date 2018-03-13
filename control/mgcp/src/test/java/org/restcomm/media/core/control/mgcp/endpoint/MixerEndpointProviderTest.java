@@ -26,7 +26,7 @@ import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.*;
 
 import org.junit.Test;
-import org.restcomm.media.component.audio.AudioComponent;
+import org.restcomm.media.core.component.audio.AudioComponent;
 import org.restcomm.media.core.control.mgcp.connection.MgcpConnectionProvider;
 import org.restcomm.media.core.control.mgcp.endpoint.MediaGroupImpl;
 import org.restcomm.media.core.control.mgcp.endpoint.MgcpMixerEndpoint;

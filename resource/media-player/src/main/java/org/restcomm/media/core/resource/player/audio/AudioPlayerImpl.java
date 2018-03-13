@@ -28,8 +28,8 @@ import java.net.URL;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.restcomm.media.component.AbstractSource;
-import org.restcomm.media.component.audio.AudioInput;
+import org.restcomm.media.core.component.AbstractSource;
+import org.restcomm.media.core.component.audio.AudioInput;
 import org.restcomm.media.core.resource.player.Track;
 import org.restcomm.media.core.resource.player.audio.gsm.GsmTrackImpl;
 import org.restcomm.media.core.resource.player.audio.mpeg.AMRTrackImpl;
