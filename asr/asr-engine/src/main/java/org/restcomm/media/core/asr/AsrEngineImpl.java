@@ -23,8 +23,8 @@ package org.restcomm.media.core.asr;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.restcomm.media.asr.AsrEngine;
-import org.restcomm.media.asr.AsrEngineListener;
+import org.restcomm.media.core.asr.AsrEngine;
+import org.restcomm.media.core.asr.AsrEngineListener;
 import org.restcomm.media.core.component.AbstractSink;
 import org.restcomm.media.core.component.audio.AudioOutput;
 import org.restcomm.media.core.drivers.asr.*;

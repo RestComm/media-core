@@ -21,7 +21,7 @@
 
 package org.restcomm.media.core.control.mgcp.pkg.au.asr;
 
-import org.restcomm.media.asr.AsrEngine;
+import org.restcomm.media.core.asr.AsrEngine;
 import org.restcomm.media.core.control.mgcp.pkg.MgcpEventSubject;
 import org.restcomm.media.core.spi.dtmf.DtmfDetector;
 import org.restcomm.media.core.spi.player.Player;

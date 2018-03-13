@@ -30,7 +30,7 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.restcomm.media.asr.AsrEngine;
+import org.restcomm.media.core.asr.AsrEngine;
 import org.restcomm.media.core.asr.InputTimeoutListener;
 import org.restcomm.media.core.control.mgcp.command.param.NotifiedEntity;
 import org.restcomm.media.core.control.mgcp.pkg.AbstractMgcpSignal;

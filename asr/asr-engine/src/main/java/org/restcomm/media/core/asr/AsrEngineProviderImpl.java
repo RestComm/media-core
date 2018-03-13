@@ -21,8 +21,8 @@
 
 package org.restcomm.media.core.asr;
 
-import org.restcomm.media.asr.AsrEngine;
-import org.restcomm.media.asr.AsrEngineProvider;
+import org.restcomm.media.core.asr.AsrEngine;
+import org.restcomm.media.core.asr.AsrEngineProvider;
 import org.restcomm.media.core.drivers.asr.AsrDriverManager;
 import org.restcomm.media.core.resource.vad.VoiceActivityDetectorProvider;
 import org.restcomm.media.core.scheduler.PriorityQueueScheduler;
