@@ -20,13 +20,15 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.codec.ilbc;
+package org.restcomm.media.core.codec.ilbc;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.net.URL;
 
 import org.junit.Test;
+import org.restcomm.media.core.codec.ilbc.Decoder;
+import org.restcomm.media.core.codec.ilbc.Encoder;
 import org.restcomm.media.core.spi.memory.Frame;
 import org.restcomm.media.core.spi.memory.Memory;
 /**
