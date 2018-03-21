@@ -128,7 +128,7 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector, PooledOb
         this.oobOutput.join(oobDetector);
         
         // DTMF Components
-        this.dtmfBuffer = new DtmfBuffer(null);
+        this.dtmfBuffer = new DtmfBuffer(this);
         this.dtmfBuffer.setInterdigitInterval(toneInterval);
         this.eventSender = new EventSender();
         this.listeners = new Listeners<DtmfDetectorListener>();

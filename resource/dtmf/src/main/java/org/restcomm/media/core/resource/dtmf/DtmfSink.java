@@ -49,6 +49,10 @@ public class DtmfSink extends AbstractSink implements org.restcomm.media.core.sp
 
     private static final long serialVersionUID = 450306501541827622L;
 
+    private final static String[] oobEvtID = new String[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "#", "A", "B", "C", "D" };
+
+    private final DtmfDetectorProvider dtmfProvider = null;
+
     private DtmfDetector detector;
 
     private final DtmfBuffer dtmfBuffer;
@@ -80,7 +84,7 @@ public class DtmfSink extends AbstractSink implements org.restcomm.media.core.sp
         
         // DTMF Components
         this.dtmfBuffer = new DtmfBuffer(this);
-        this.dtmfBuffer.setInterdigitInterval(DEFAULT_INTERDIGIT_INTERVAL);
+        this.dtmfBuffer.setInterdigitInterval(detector.getToneInterval());
         this.eventSender = new EventSender();
         this.listeners = new Listeners<org.restcomm.media.core.spi.dtmf.DtmfDetectorListener>();
     }
@@ -258,7 +262,7 @@ public class DtmfSink extends AbstractSink implements org.restcomm.media.core.sp
 
             latestSeq = buffer.getSequenceNumber();
             currTone = data[0];
-            //dtmfBuffer.push(oobEvtID[currTone]);
+            dtmfBuffer.push(oobEvtID[currTone]);
         }
 
         @Override
