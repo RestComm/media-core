@@ -52,7 +52,7 @@ public class DtmfBuffer implements Serializable {
     private String lastSymbol;
 
     //Owner of this buffer
-    private DetectorImpl detector;
+    private DtmfSink detector;
     private final static Logger logger = LogManager.getLogger(DtmfBuffer.class);
     
     
@@ -61,7 +61,7 @@ public class DtmfBuffer implements Serializable {
      * 
      * @param detector tone detector
      */
-    public DtmfBuffer(DetectorImpl detector) {
+    public DtmfBuffer(DtmfSink detector) {
         this.detector = detector;
     }
 
