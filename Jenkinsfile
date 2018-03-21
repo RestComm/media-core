@@ -17,7 +17,13 @@ node("cxs-slave-master") {
         } else {
             echo 'Using default parent version'
         }
-        sh "mvn versions:set -DnewVersion=${env.MAJOR_VERSION_NUMBER}-${env.BUILD_NUMBER} -DprocessDependencies=false -DprocessParent=true -Dmaven.test.skip=true"
+        if(env.SNAPSHOT == 'false') {
+	   echo '>>> Update versions'
+           sh "mvn versions:set -DnewVersion=${env.MAJOR_VERSION_NUMBER}-${env.BUILD_NUMBER} -DprocessDependencies=false -DprocessParent=true -Dmaven.test.skip=true"
+	}
+	else {
+	   echo '>>> Using SNAPSHOT versions'
+	}
     }
 
     stage ('Build') {
@@ -31,7 +37,9 @@ node("cxs-slave-master") {
     stage ('Deploy') {
         if(env.PUBLISH_TO_CXS_NEXUS == 'true') {
             sh "mvn clean install package deploy:deploy -Pattach-sources,generate-javadoc,maven-release -DskipTests=true -DskipNexusStagingDeployMojo=true -DaltDeploymentRepository=nexus::default::$CXS_NEXUS2_URL"
-        } else {
+        } else if(env.SNAPSHOT == 'true') {
+            sh "mvn clean install package deploy:deploy -Pattach-sources,generate-javadoc,maven-release -DskipTests=true -DskipNexusStagingDeployMojo=true -DaltDeploymentRepository=nexus::default::$CXS_NEXUS_SNAPSHOTS_URL"
+	} else {
             echo 'Skipped deployment to CXS Nexus'
         }
     }
