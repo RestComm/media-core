@@ -11,19 +11,8 @@ node("cxs-slave-master") {
     }
 
     stage ('Versioning') {
-        if(env.UPDATE_PARENT == 'true') {
-            sh "mvn versions:update-parent"
-            echo 'Align parent to latest'
-        } else {
-            echo 'Using default parent version'
-        }
-        if(env.SNAPSHOT == 'false') {
-	   echo '>>> Update versions'
-           sh "mvn versions:set -DnewVersion=${env.MAJOR_VERSION_NUMBER}-${env.BUILD_NUMBER} -DprocessDependencies=false -DprocessParent=true -Dmaven.test.skip=true"
-	}
-	else {
-	   echo '>>> Using SNAPSHOT versions'
-	}
+        sh "mvn versions:update-parent -DparentVersion=[${env.MAJOR_VERSION_NUMBER}]"
+        sh "mvn versions:set -DnewVersion=${env.MAJOR_VERSION_NUMBER}-${env.BUILD_NUMBER} -DprocessDependencies=false -DprocessParent=true -Dmaven.test.skip=true"
     }
 
     stage ('Build') {
@@ -35,15 +24,11 @@ node("cxs-slave-master") {
     }
 
     stage ('Deploy') {
-        if(env.SNAPSHOT == 'true') {
-            sh "mvn clean install package deploy:deploy -Pattach-sources,generate-javadoc,maven-release -DskipTests=true -DskipNexusStagingDeployMojo=true -DaltDeploymentRepository=nexus::default::$CXS_NEXUS_SNAPSHOTS_URL"
-        } else {
-            sh "mvn clean install package deploy:deploy -Pattach-sources,generate-javadoc,maven-release -DskipTests=true -DskipNexusStagingDeployMojo=true -DaltDeploymentRepository=nexus::default::$CXS_NEXUS2_URL"
-        }
+        sh "mvn clean install package deploy:deploy -Pattach-sources,generate-javadoc,maven-release -DskipTests=true -DskipNexusStagingDeployMojo=true -DaltDeploymentRepository=nexus::default::$CXS_NEXUS2_URL"
     }
 
     stage('Tag') {
-        if(env.PUBLISH_TO_SONATYPE == 'true') {
+        if(env.RELEASE == 'true') {
             withCredentials([usernamePassword(credentialsId: 'CXSGithub', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
                 sh 'git commit -a -m "New release candidate"'
                 sh "git tag ${env.MAJOR_VERSION_NUMBER}-${env.BUILD_NUMBER}"
@@ -55,7 +40,7 @@ node("cxs-slave-master") {
     }
 
     stage ('Release') {
-        if(env.PUBLISH_TO_SONATYPE == 'true') {
+        if(env.RELEASE == 'true') {
             sh "mvn clean deploy -DskipTests=true -Dgpg.passphrase=${env.GPG_PASSPHRASE} -Pattach-sources,generate-javadoc,release-sign-artifacts,cxs-oss-release"
         } else {
             echo 'Skipped deployment to Sonatype'
