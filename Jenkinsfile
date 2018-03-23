@@ -35,12 +35,10 @@ node("cxs-slave-master") {
     }
 
     stage ('Deploy') {
-        if(env.PUBLISH_TO_CXS_NEXUS == 'true') {
-            sh "mvn clean install package deploy:deploy -Pattach-sources,generate-javadoc,maven-release -DskipTests=true -DskipNexusStagingDeployMojo=true -DaltDeploymentRepository=nexus::default::$CXS_NEXUS2_URL"
-        } else if(env.SNAPSHOT == 'true') {
+        if(env.SNAPSHOT == 'true') {
             sh "mvn clean install package deploy:deploy -Pattach-sources,generate-javadoc,maven-release -DskipTests=true -DskipNexusStagingDeployMojo=true -DaltDeploymentRepository=nexus::default::$CXS_NEXUS_SNAPSHOTS_URL"
-	} else {
-            echo 'Skipped deployment to CXS Nexus'
+        } else {
+            sh "mvn clean install package deploy:deploy -Pattach-sources,generate-javadoc,maven-release -DskipTests=true -DskipNexusStagingDeployMojo=true -DaltDeploymentRepository=nexus::default::$CXS_NEXUS2_URL"
         }
     }
 
