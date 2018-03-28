@@ -53,7 +53,6 @@ public class DtmfBuffer implements Serializable {
 
     //Owner of this buffer
     private DetectorImpl detectorImpl;
-    private DtmfSink dtmfSink;
     private final static Logger logger = LogManager.getLogger(DtmfBuffer.class);
     
     
@@ -64,15 +63,6 @@ public class DtmfBuffer implements Serializable {
      */
     public DtmfBuffer(DetectorImpl detector) {
         this.detectorImpl = detector;
-    }
-
-    /**
-     * Constructs new instance of this buffer.
-     *
-     * @param detector tone detector
-     */
-    public DtmfBuffer(DtmfSink detector) {
-        this.dtmfSink = detector;
     }
 
     /**
@@ -104,10 +94,7 @@ public class DtmfBuffer implements Serializable {
             lastActivity = now;
             lastSymbol = symbol;
 
-            if (detectorImpl != null)
-                detectorImpl.fireEvent(symbol);
-            else if (dtmfSink != null)
-                dtmfSink.fireEvent(symbol);
+            detectorImpl.fireEvent(symbol);
         }
         else
             lastActivity=now;
@@ -128,25 +115,16 @@ public class DtmfBuffer implements Serializable {
             queue.poll();
         }
         queue.offer(evt);
-        if (detectorImpl != null)
-            logger.info(String.format("(%s) Buffer size: %d", detectorImpl.getName(), queue.size()));
-        else if (dtmfSink != null)
-            logger.info(String.format("(%s) Buffer size: %d", dtmfSink.getName(), queue.size()));
+        logger.info(String.format("(%s) Buffer size: %d", detectorImpl.getName(), queue.size()));
     }
     
     /**
      * Flushes the buffer content.
      */
     public void flush() {
-        if (detectorImpl != null)
-            logger.info(String.format("(%s) Flush, buffer size: %d", detectorImpl.getName(), queue.size()));
-        else if (dtmfSink != null)
-            logger.info(String.format("(%s) Flush, buffer size: %d", dtmfSink.getName(), queue.size()));
+        logger.info(String.format("(%s) Flush, buffer size: %d", detectorImpl.getName(), queue.size()));
         while(queue.size()>0)
-            if (detectorImpl != null)
-                detectorImpl.fireEvent(queue.poll());
-            else if (dtmfSink != null)
-                dtmfSink.fireEvent(queue.poll());
+            detectorImpl.fireEvent(queue.poll());
     }
     
     /**
