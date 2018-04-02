@@ -38,4 +38,24 @@ public interface DtmfDetector {
      */
     void detect(byte[] data, long duration);
 
+    /**
+     * DTMF tone volume in dBi
+     *
+     * @return Volume level
+     */
+    public int getDbi();
+
+    /**
+     * DTMF tone duration in milliseconds
+     *
+     * @return Tone duration
+     */
+    public int getToneDuration();
+
+    /**
+     * Interval between two DTMF tones in milliseconds
+     *
+     * @return Tone interval
+     */
+    public int getToneInterval();
 }
