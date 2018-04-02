@@ -27,6 +27,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -36,15 +38,13 @@ import org.restcomm.media.core.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.core.scheduler.Task;
 import org.restcomm.media.core.spi.ComponentType;
 import org.restcomm.media.core.spi.memory.Frame;
-import org.restcomm.media.core.spi.listener.Listeners;
-import org.restcomm.media.core.spi.listener.TooManyListenersException;
 
 /**
  * DTMF sink with in-band and out-of-band DTMF detector components
  *
  * @author Vladimir Morosev (vladimir.morosev@telestax.com)
  */
-public class DtmfSink extends AbstractSink implements org.restcomm.media.core.spi.dtmf.DtmfDetector, DtmfEventObserver {
+public class DtmfSink extends AbstractSink implements DtmfEventObserver, DtmfEventSubject {
 
     private static final long serialVersionUID = 450306501541827622L;
 
@@ -53,7 +53,7 @@ public class DtmfSink extends AbstractSink implements org.restcomm.media.core.sp
     private DtmfDetector inbandDetector;
     private DtmfDetector oobDetector;
 
-    private final Listeners<org.restcomm.media.core.spi.dtmf.DtmfDetectorListener> listeners;
+    private Set<DtmfEventObserver> observers = ConcurrentHashMap.newKeySet();
 
     private final EventSender eventSender;
     private final PriorityQueueScheduler scheduler;
@@ -73,8 +73,6 @@ public class DtmfSink extends AbstractSink implements org.restcomm.media.core.sp
         
         this.output = new AudioOutput(scheduler, ComponentType.DTMF_DETECTOR.getType());
         this.output.join(this);
-        
-        this.listeners = new Listeners<org.restcomm.media.core.spi.dtmf.DtmfDetectorListener>();
     }
     
     public AudioOutput getAudioOutput() {
@@ -92,24 +90,6 @@ public class DtmfSink extends AbstractSink implements org.restcomm.media.core.sp
     }
 
     @Override
-    public int getVolume() {
-        return 0;
-    }
-
-    @Override
-    public int getInterdigitInterval() {
-        return 0;
-    }
-
-    @Override
-    public void flushBuffer() {
-    }
-
-    @Override
-    public void clearDigits() {
-    }
-
-    @Override
     public void onMediaTransfer(Frame buffer) throws IOException {
         inbandDetector.detect(buffer.getData(), buffer.getDuration() / 1000000, 0);
         oobDetector.detect(buffer.getData(), buffer.getDuration() / 1000000, buffer.getSequenceNumber());
@@ -117,29 +97,38 @@ public class DtmfSink extends AbstractSink implements org.restcomm.media.core.sp
 
     @Override
     public void onDtmfEvent(DtmfEvent event) {
-        eventSender.events.add(new DtmfEventImpl(this, event.getTone(), 0));
+        eventSender.events.add(new DtmfEvent(event.getTone()));
         // schedule event delivery
         scheduler.submit(eventSender, PriorityQueueScheduler.INPUT_QUEUE);
     }
 
     @Override
-    public void addListener(org.restcomm.media.core.spi.dtmf.DtmfDetectorListener listener) throws TooManyListenersException {
-        listeners.add(listener);
+    public void notify(DtmfEvent event) {
+        // Inform observers about DTMF tone detection
+        for (DtmfEventObserver observer : observers) {
+            observer.onDtmfEvent(event);
+        }
     }
 
     @Override
-    public void removeListener(org.restcomm.media.core.spi.dtmf.DtmfDetectorListener listener) {
-        listeners.remove(listener);
+    public void observe(DtmfEventObserver observer) {
+       final boolean added = this.observers.add(observer);
+        if (added && logger.isDebugEnabled()) {
+            logger.debug("Registered observer DtmfEventObserver@" + observer.hashCode() + ". Count: " + observers.size());
+        }
     }
 
     @Override
-    public void clearAllListeners() {
-        listeners.clear();
+    public void forget(DtmfEventObserver observer) {
+        final boolean removed = observers.remove(observer);
+        if (removed && logger.isDebugEnabled()) {
+            logger.debug("Unregistered observer DtmfEventObserver@" + observer.hashCode() + ". Count: " + observers.size());
+        }
     }
 
     public class EventSender extends Task {
 
-        private final Queue<DtmfEventImpl> events = new ConcurrentLinkedQueue<>();
+        private final Queue<DtmfEvent> events = new ConcurrentLinkedQueue<>();
 
         public EventSender() {
             super();
@@ -152,19 +141,14 @@ public class DtmfSink extends AbstractSink implements org.restcomm.media.core.sp
 
         @Override
         public long perform() {
-            final Iterator<DtmfEventImpl> iterator = this.events.iterator();
+            final Iterator<DtmfEvent> iterator = this.events.iterator();
             while (iterator.hasNext()) {
-                DtmfEventImpl evt = iterator.next();
+                DtmfEvent evt = iterator.next();
 
                 // try to deliver or queue to buffer if not delivered
-                if (!listeners.dispatch(evt)) {
-                    if (logger.isInfoEnabled()) {
-                        logger.info(String.format("(%s) Not Delivered '%s' tone", getName(), evt.getTone()));
-                    }
-                } else {
-                    if (logger.isInfoEnabled()) {
-                        logger.info(String.format("(%s) Delivered '%s' tone", getName(), evt.getTone()));
-                    }
+                DtmfSink.this.notify(evt);
+                if (logger.isInfoEnabled()) {
+                    logger.info(String.format("(%s) Delivered '%s' tone", getName(), evt.getTone()));
                 }
 
                 // Remove event from collection
