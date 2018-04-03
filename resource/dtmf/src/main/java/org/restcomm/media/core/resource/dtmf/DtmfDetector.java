@@ -34,9 +34,8 @@ public interface DtmfDetector extends DtmfEventSubject {
      *
      * @param data     buffer with samples
      * @param duration buffer duration 
-     * @param sequenceNumber sequence number of RTP packet - used for out of band detection only
      * @return Detected digit, null if nothing is detected
      */
-    void detect(byte[] data, long duration, long sequenceNumber);
+    void detect(byte[] data, long duration);
 
 }

@@ -175,7 +175,7 @@ public class Rfc2833DtmfDetectorTest {
                 else
                     duration = (int) (((double) packet.get(Packet.TIMESTAMP_USEC) - lastTimestamp) * 1000);
 
-                detector.detect(rtpPayload, duration, rtpPacket.getSeqNumber());
+                detector.detect(rtpPayload, duration);
                 scheduler.schedule(new PlayPacketTask(pcap, detector, timestamp), duration, TimeUnit.MILLISECONDS);
             } else {
                 try {

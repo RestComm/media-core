@@ -30,15 +30,9 @@ public class Rfc2833DtmfDetector extends AbstractDtmfDetector {
 
     private final static String[] evtID = new String[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "#", "A", "B", "C", "D" };
 
-    private final DtmfDetectorProvider dtmfProvider = null;
-
     private DtmfDetector detector;
 
     private byte currTone = (byte) 0xFF;
-    private long latestSeq = 0;
-
-    private boolean hasEndOfEvent = false;
-    private long endSeq = 0;
 
     private final int toneInterval;
 
@@ -54,41 +48,18 @@ public class Rfc2833DtmfDetector extends AbstractDtmfDetector {
     }
 
     @Override
-    public void detect(byte[] data, long duration, long sequenceNumber) {
+    public void detect(byte[] data, long duration) {
 
         if (data.length != 4)
             return;
 
-        boolean endOfEvent = false;
+        boolean endOfEvent;
         endOfEvent = (data[1] & 0X80) != 0;
 
         // lets ignore end of event packets
-        if (endOfEvent) {
-            hasEndOfEvent = true;
-            endSeq = sequenceNumber;
+        if (endOfEvent)
             return;
-        }
 
-        // lets update sync data , allowing same tone come after 160ms from previous tone , not including end of tone
-        if (currTone == data[0]) {
-            if (hasEndOfEvent) {
-                if (sequenceNumber <= endSeq && sequenceNumber > (endSeq - 8)) {
-                    // out of order , belongs to same event
-                    // if comes after end of event then its new one
-                    return;
-                }
-            } else if ((sequenceNumber < (latestSeq + 8)) && sequenceNumber > (latestSeq - 8)) {
-                if (sequenceNumber > latestSeq)
-                    latestSeq = sequenceNumber;
-
-                return;
-            }
-        }
-
-        hasEndOfEvent = false;
-        endSeq = 0;
-
-        latestSeq = sequenceNumber;
         currTone = data[0];
         String symbol = evtID[currTone];
         long now = System.currentTimeMillis();

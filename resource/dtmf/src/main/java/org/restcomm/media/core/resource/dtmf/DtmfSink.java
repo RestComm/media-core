@@ -91,8 +91,10 @@ public class DtmfSink extends AbstractSink implements DtmfEventObserver, DtmfEve
 
     @Override
     public void onMediaTransfer(Frame buffer) throws IOException {
-        inbandDetector.detect(buffer.getData(), buffer.getDuration() / 1000000, 0);
-        oobDetector.detect(buffer.getData(), buffer.getDuration() / 1000000, buffer.getSequenceNumber());
+        if (buffer.getLength() == 4)
+            inbandDetector.detect(buffer.getData(), buffer.getDuration() / 1000000);
+        else
+            oobDetector.detect(buffer.getData(), buffer.getDuration() / 1000000);
     }
 
     @Override
