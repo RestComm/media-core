@@ -30,7 +30,6 @@ import org.restcomm.media.core.pcap.GenericPcapReader;
 import org.restcomm.media.core.pcap.PcapFile;
 import org.restcomm.media.core.resource.dtmf.DtmfEvent;
 import org.restcomm.media.core.resource.dtmf.DtmfEventObserver;
-import org.restcomm.media.core.rtp.RtpPacket;
 
 import java.io.IOException;
 import java.net.URL;
@@ -138,7 +137,7 @@ public class Rfc2833DtmfDetectorTest {
         PcapFile pcap = new PcapFile(inputFileUrl);
         try {
             pcap.open();
-            scheduler.schedule(new PlayPacketTask(pcap, detector, 0.0), 0, TimeUnit.MILLISECONDS);
+            scheduler.schedule(new PlayPacketTask(pcap, detector, null, 0, 0.0), 0, TimeUnit.MILLISECONDS);
         } catch (IOException e) {
             log.error("Could not read file", e);
             fail("DTMF tone detector test file access error");
@@ -149,34 +148,35 @@ public class Rfc2833DtmfDetectorTest {
 
         private PcapFile pcap;
         private Rfc2833DtmfDetector detector;
-        private double lastTimestamp;
+        private byte[] lastPacketRtpPayload;
+        private int lastPacketDuration;
+        private double lastPacketTimestamp;
 
-        public PlayPacketTask(PcapFile pcap, Rfc2833DtmfDetector detector, double lastTimestamp) {
+        public PlayPacketTask(PcapFile pcap, Rfc2833DtmfDetector detector, byte[] rtpPayload, int duration, double timestamp) {
             this.pcap = pcap;
             this.detector = detector;
-            this.lastTimestamp = lastTimestamp;
+            this.lastPacketRtpPayload = rtpPayload;
+            this.lastPacketDuration = duration;
+            this.lastPacketTimestamp = timestamp;
         }
 
         public void run() {
+            if (lastPacketRtpPayload != null)
+                detector.detect(lastPacketRtpPayload, lastPacketDuration);
             if (!pcap.isComplete()) {
                 final Packet packet = pcap.read();
                 byte[] payload = (byte[]) packet.get(GenericPcapReader.PAYLOAD);
 
-                final RtpPacket rtpPacket = new RtpPacket(false);
-                rtpPacket.wrap(payload);
-
-                byte[] rtpPayload = new byte[rtpPacket.getPayloadLength()];
-                rtpPacket.getPayload(rtpPayload);
+                byte[] rtpPayload = Arrays.copyOfRange(payload, 12, payload.length);;
 
                 double timestamp = (double) packet.get(Packet.TIMESTAMP_USEC);
                 int duration;
-                if (lastTimestamp == 0.0)
+                if (lastPacketTimestamp == 0.0)
                     duration = 20;
                 else
-                    duration = (int) (((double) packet.get(Packet.TIMESTAMP_USEC) - lastTimestamp) * 1000);
+                    duration = (int) ((timestamp - lastPacketTimestamp) * 1000);
 
-                detector.detect(rtpPayload, duration);
-                scheduler.schedule(new PlayPacketTask(pcap, detector, timestamp), duration, TimeUnit.MILLISECONDS);
+                scheduler.schedule(new PlayPacketTask(pcap, detector, rtpPayload, duration, timestamp), duration, TimeUnit.MILLISECONDS);
             } else {
                 try {
                     pcap.close();
