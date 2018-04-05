@@ -1,7 +1,7 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2017, Telestax Inc and individual contributors
- * by the @authors tag. 
+ * Copyright 2011-2018, Telestax Inc and individual contributors
+ * by the @authors tag.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -22,18 +22,19 @@
 package org.restcomm.media.core.resource.dtmf;
 
 /**
- * Listener that is notified about events raised by {@link DtmfDetector}.
- * 
- * @author Vladimir Morosev (vladimir.morosev@telestax.com)
+ * Class used to pass the DTMF data to event handler object.
  *
+ * @author Vladimir Morosev (vladimir.morosev@telestax.com)
  */
-public interface DtmfDetectorListener {
+public class DtmfEvent {
 
-    /**
-     * Event raised when DTMF signal is detected.
-     *
-     * @param tone Detected tone
-     */
-    void onDtmfDetected(String tone);
+    private final String tone;
 
+    public DtmfEvent(String tone) {
+        this.tone = tone;
+    }
+
+    public String getTone() {
+        return tone;
+    }
 }

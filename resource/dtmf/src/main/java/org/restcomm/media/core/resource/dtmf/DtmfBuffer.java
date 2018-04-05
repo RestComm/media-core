@@ -52,7 +52,7 @@ public class DtmfBuffer implements Serializable {
     private String lastSymbol;
 
     //Owner of this buffer
-    private DetectorImpl detector;
+    private DetectorImpl detectorImpl;
     private final static Logger logger = LogManager.getLogger(DtmfBuffer.class);
     
     
@@ -62,7 +62,7 @@ public class DtmfBuffer implements Serializable {
      * @param detector tone detector
      */
     public DtmfBuffer(DetectorImpl detector) {
-        this.detector = detector;
+        this.detectorImpl = detector;
     }
 
     /**
@@ -93,11 +93,11 @@ public class DtmfBuffer implements Serializable {
         if (!symbol.equals(lastSymbol) || (now - lastActivity > interdigitInterval)) {            
             lastActivity = now;
             lastSymbol = symbol;
-            
-            detector.fireEvent(symbol);
+
+            detectorImpl.fireEvent(symbol);
         }
         else
-        	lastActivity=now;
+            lastActivity=now;
     }
     
     public void updateTime()
@@ -115,16 +115,16 @@ public class DtmfBuffer implements Serializable {
             queue.poll();
         }
         queue.offer(evt);
-        logger.info(String.format("(%s) Buffer size: %d", detector.getName(), queue.size()));
+        logger.info(String.format("(%s) Buffer size: %d", detectorImpl.getName(), queue.size()));
     }
     
     /**
      * Flushes the buffer content.
      */
     public void flush() {
-        logger.info(String.format("(%s) Flush, buffer size: %d", detector.getName(), queue.size()));
+        logger.info(String.format("(%s) Flush, buffer size: %d", detectorImpl.getName(), queue.size()));
         while(queue.size()>0)
-        	detector.fireEvent(queue.poll());                
+            detectorImpl.fireEvent(queue.poll());
     }
     
     /**

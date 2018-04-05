@@ -22,20 +22,10 @@
 package org.restcomm.media.core.resource.dtmf;
 
 /**
- * Interface for DTMF detector component
+ * Interface implemented by classes that observe DTMF tone event.
  *
  * @author Vladimir Morosev (vladimir.morosev@telestax.com)
  */
-public interface DtmfDetector extends DtmfEventSubject {
-
-    /**
-     * The method that detects DTMF digit in provided audio buffer. Detection
-     * status is passed to the application layer through a listener pattern.
-     *
-     * @param data     buffer with samples
-     * @param duration buffer duration 
-     * @return Detected digit, null if nothing is detected
-     */
-    void detect(byte[] data, long duration);
-
+public interface DtmfEventObserver {
+    void onDtmfEvent(DtmfEvent event);
 }
