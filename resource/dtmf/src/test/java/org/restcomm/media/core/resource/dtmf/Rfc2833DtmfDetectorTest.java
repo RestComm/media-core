@@ -26,22 +26,21 @@ import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.restcomm.media.core.pcap.GenericPcapReader;
 import org.restcomm.media.core.pcap.PcapFile;
-import org.restcomm.media.core.resource.dtmf.DtmfEvent;
-import org.restcomm.media.core.resource.dtmf.DtmfEventObserver;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
-import org.mockito.ArgumentCaptor;
 
 /**
  * @author yulian oifa
@@ -64,7 +63,7 @@ public class Rfc2833DtmfDetectorTest {
     }
 
     @Test
-    public void testDtmf4DigitsFast() throws InterruptedException {
+    public void testDtmf4DigitsFast() {
         // given
         final int duration = 2000;
         final DtmfEventObserver observer = mock(DtmfEventObserver.class);
@@ -87,7 +86,7 @@ public class Rfc2833DtmfDetectorTest {
     }
 
     @Test
-    public void testDtmf4DigitsSlow() throws InterruptedException {
+    public void testDtmf4DigitsSlow() {
         // given
         final int duration = 6400;
         final DtmfEventObserver observer = mock(DtmfEventObserver.class);
@@ -110,7 +109,7 @@ public class Rfc2833DtmfDetectorTest {
     }
 
     @Test
-    public void testDtmf2DigitPairs() throws InterruptedException {
+    public void testDtmf2DigitPairs() {
         // given
         final int duration = 4100;
         final DtmfEventObserver observer = mock(DtmfEventObserver.class);
@@ -132,7 +131,7 @@ public class Rfc2833DtmfDetectorTest {
         detector.forget(observer);
     }
 
-    public void playDtmfPcapFile(String resourceName, Rfc2833DtmfDetector detector) {
+    private void playDtmfPcapFile(String resourceName, Rfc2833DtmfDetector detector) {
         final URL inputFileUrl = this.getClass().getResource(resourceName);
         PcapFile pcap = new PcapFile(inputFileUrl);
         try {
@@ -152,7 +151,7 @@ public class Rfc2833DtmfDetectorTest {
         private int lastPacketDuration;
         private double lastPacketTimestamp;
 
-        public PlayPacketTask(PcapFile pcap, Rfc2833DtmfDetector detector, byte[] rtpPayload, int duration, double timestamp) {
+        private PlayPacketTask(PcapFile pcap, Rfc2833DtmfDetector detector, byte[] rtpPayload, int duration, double timestamp) {
             this.pcap = pcap;
             this.detector = detector;
             this.lastPacketRtpPayload = rtpPayload;
@@ -161,20 +160,16 @@ public class Rfc2833DtmfDetectorTest {
         }
 
         public void run() {
-            if (lastPacketRtpPayload != null)
+            if (lastPacketRtpPayload != null) {
                 detector.detect(lastPacketRtpPayload, lastPacketDuration);
+            }
+
             if (!pcap.isComplete()) {
                 final Packet packet = pcap.read();
-                byte[] payload = (byte[]) packet.get(GenericPcapReader.PAYLOAD);
-
-                byte[] rtpPayload = Arrays.copyOfRange(payload, 12, payload.length);;
-
-                double timestamp = (double) packet.get(Packet.TIMESTAMP_USEC);
-                int duration;
-                if (lastPacketTimestamp == 0.0)
-                    duration = 20;
-                else
-                    duration = (int) ((timestamp - lastPacketTimestamp) * 1000);
+                final byte[] payload = (byte[]) packet.get(GenericPcapReader.PAYLOAD);
+                final byte[] rtpPayload = Arrays.copyOfRange(payload, 12, payload.length);
+                final double timestamp = (double) packet.get(Packet.TIMESTAMP_USEC);
+                final int duration = (lastPacketTimestamp == 0.0) ? 20 : (int) ((timestamp - lastPacketTimestamp) * 1000);
 
                 scheduler.schedule(new PlayPacketTask(pcap, detector, rtpPayload, duration, timestamp), duration, TimeUnit.MILLISECONDS);
             } else {
