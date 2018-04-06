@@ -11,7 +11,7 @@ node("cxs-slave-master") {
     }
 
     stage ('Versioning') {
-        sh "mvn versions:update-parent -DparentVersion=[${env.MAJOR_VERSION_NUMBER}]"
+        sh "mvn versions:update-parent -DparentVersion=${env.MAJOR_VERSION_NUMBER}"
         sh "mvn versions:set -DnewVersion=${env.MAJOR_VERSION_NUMBER}-${env.BUILD_NUMBER} -DprocessDependencies=false -DprocessParent=true -Dmaven.test.skip=true"
     }
 
