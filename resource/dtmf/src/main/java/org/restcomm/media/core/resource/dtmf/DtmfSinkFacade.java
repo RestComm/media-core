@@ -23,7 +23,6 @@ package org.restcomm.media.core.resource.dtmf;
 
 import java.io.IOException;
 
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -34,6 +33,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.restcomm.media.core.component.AbstractSink;
 import org.restcomm.media.core.component.audio.AudioOutput;
+import org.restcomm.media.core.component.oob.OOBOutput;
 import org.restcomm.media.core.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.core.scheduler.Task;
 import org.restcomm.media.core.spi.ComponentType;
@@ -43,70 +43,42 @@ import org.restcomm.media.core.spi.memory.Frame;
  * DTMF sink with in-band and out-of-band DTMF detector components
  *
  * @author Vladimir Morosev (vladimir.morosev@telestax.com)
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
-public class DtmfSink extends AbstractSink implements DtmfEventObserver, DtmfEventSubject {
+public class DtmfSinkFacade implements DtmfEventObserver, DtmfEventSubject {
 
     private static final long serialVersionUID = 450306501541827622L;
+    private static final Logger logger = LogManager.getLogger(DtmfSinkFacade.class);
 
-    private final DtmfDetectorProvider inbandDetectorProvider;
-
-    private DtmfDetector inbandDetector;
-    private DtmfDetector oobDetector;
+    private final InbandDtmfSink inbandSink;
+    private final Rfc2833DtmfSink oobSink;
 
     private Set<DtmfEventObserver> observers = ConcurrentHashMap.newKeySet();
 
-    private final EventSender eventSender;
-    private final PriorityQueueScheduler scheduler;
+    public DtmfSinkFacade(InbandDtmfSink inbandSink, Rfc2833DtmfSink oobSink) {
+        this.inbandSink = inbandSink;
+        this.inbandSink.observe(this);
 
-    private final AudioOutput output;
+        this.oobSink = oobSink;
+        this.oobSink.observe(this);
+    }
 
-    private static final Logger logger = LogManager.getLogger(DtmfSink.class);
+    public AudioOutput getInbandOutput() {
+        return this.inbandSink.getOutput();
+    }
 
-    public DtmfSink(String name, PriorityQueueScheduler scheduler) {
-        super(name);
-        
-        this.inbandDetectorProvider = null;
-        this.inbandDetector = inbandDetectorProvider.provide();
-        this.oobDetector = new Rfc2833DtmfDetector(500);
-        this.eventSender = new EventSender();
-        this.scheduler = scheduler;
-        
-        this.output = new AudioOutput(scheduler, ComponentType.DTMF_DETECTOR.getType());
-        this.output.join(this);
+    public OOBOutput getOutbandOutput() {
+        return this.oobSink.getOutput();
     }
     
-    public AudioOutput getAudioOutput() {
-        return this.output;
-    }
-
-    @Override
-    public void activate() {
-        output.start();
-    }
-
-    @Override
-    public void deactivate() {
-        output.stop();
-    }
-
-    @Override
-    public void onMediaTransfer(Frame buffer) throws IOException {
-        if (buffer.getLength() == 4)
-            inbandDetector.detect(buffer.getData(), buffer.getDuration() / 1000000);
-        else
-            oobDetector.detect(buffer.getData(), buffer.getDuration() / 1000000);
-    }
-
     @Override
     public void onDtmfEvent(DtmfEvent event) {
-        eventSender.events.add(new DtmfEvent(event.getTone()));
-        // schedule event delivery
-        scheduler.submit(eventSender, PriorityQueueScheduler.INPUT_QUEUE);
+        // Propagate DTMF Event to registered observers
+        notify(event);
     }
 
     @Override
     public void notify(DtmfEvent event) {
-        // Inform observers about DTMF tone detection
         for (DtmfEventObserver observer : observers) {
             observer.onDtmfEvent(event);
         }
@@ -125,38 +97,6 @@ public class DtmfSink extends AbstractSink implements DtmfEventObserver, DtmfEve
         final boolean removed = observers.remove(observer);
         if (removed && logger.isDebugEnabled()) {
             logger.debug("Unregistered observer DtmfEventObserver@" + observer.hashCode() + ". Count: " + observers.size());
-        }
-    }
-
-    public class EventSender extends Task {
-
-        private final Queue<DtmfEvent> events = new ConcurrentLinkedQueue<>();
-
-        public EventSender() {
-            super();
-        }
-
-        @Override
-        public int getQueueNumber() {
-            return PriorityQueueScheduler.INPUT_QUEUE;
-        }
-
-        @Override
-        public long perform() {
-            final Iterator<DtmfEvent> iterator = this.events.iterator();
-            while (iterator.hasNext()) {
-                DtmfEvent evt = iterator.next();
-
-                // try to deliver or queue to buffer if not delivered
-                DtmfSink.this.notify(evt);
-                if (logger.isInfoEnabled()) {
-                    logger.info(String.format("(%s) Delivered '%s' tone", getName(), evt.getTone()));
-                }
-
-                // Remove event from collection
-                iterator.remove();
-            }
-            return 0;
         }
     }
 
