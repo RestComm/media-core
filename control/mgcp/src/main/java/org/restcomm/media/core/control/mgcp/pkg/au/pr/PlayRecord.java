@@ -28,9 +28,9 @@ import org.restcomm.media.core.control.mgcp.pkg.AbstractMgcpSignal;
 import org.restcomm.media.core.control.mgcp.pkg.SignalType;
 import org.restcomm.media.core.control.mgcp.pkg.au.AudioPackage;
 import org.restcomm.media.core.control.mgcp.pkg.au.SignalParameters;
-import org.restcomm.media.core.spi.dtmf.DtmfDetector;
-import org.restcomm.media.core.spi.dtmf.DtmfDetectorListener;
-import org.restcomm.media.core.spi.dtmf.DtmfEvent;
+import org.restcomm.media.core.resource.dtmf.DtmfSinkFacade;
+import org.restcomm.media.core.resource.dtmf.DtmfEventObserver;
+import org.restcomm.media.core.resource.dtmf.DtmfEvent;
 import org.restcomm.media.core.spi.player.Player;
 import org.restcomm.media.core.spi.player.PlayerEvent;
 import org.restcomm.media.core.spi.player.PlayerListener;
@@ -53,8 +53,8 @@ public class PlayRecord extends AbstractMgcpSignal {
     private final Player player;
     final PlayerListener playerListener;
 
-    private final DtmfDetector detector;
-    final DtmfDetectorListener detectorListener;
+    private final DtmfSinkFacade detector;
+    final DtmfEventObserver detectorObserver;
 
     private final Recorder recorder;
     final RecorderListener recorderListener;
@@ -62,7 +62,7 @@ public class PlayRecord extends AbstractMgcpSignal {
     // Execution Context
     private final PlayRecordContext context;
 
-    public PlayRecord(Player player, DtmfDetector detector, Recorder recorder, int requestId, NotifiedEntity notifiedEntity, Map<String, String> parameters) {
+    public PlayRecord(Player player, DtmfSinkFacade detector, Recorder recorder, int requestId, NotifiedEntity notifiedEntity, Map<String, String> parameters) {
         super(AudioPackage.PACKAGE_NAME, SYMBOL, SignalType.TIME_OUT, requestId, notifiedEntity, parameters);
 
         // Media Components
@@ -70,7 +70,7 @@ public class PlayRecord extends AbstractMgcpSignal {
         this.playerListener = new AudioPlayerListener();
 
         this.detector = detector;
-        this.detectorListener = new DetectorListener();
+        this.detectorObserver = new DetectorObserver();
 
         this.recorder = recorder;
         this.recorderListener = new AudioRecorderListener();
@@ -79,11 +79,11 @@ public class PlayRecord extends AbstractMgcpSignal {
         this.context = new PlayRecordContext(parameters);
 
         // Finite State Machine
-        this.fsm = PlayRecordFsmBuilder.INSTANCE.build(this, recorder, recorderListener, detector, detectorListener, player,
+        this.fsm = PlayRecordFsmBuilder.INSTANCE.build(this, recorder, recorderListener, detector, detectorObserver, player,
                 playerListener, context);
     }
     
-    public PlayRecord(Player player, DtmfDetector detector, Recorder recorder, int requestId, Map<String, String> parameters) {
+    public PlayRecord(Player player, DtmfSinkFacade detector, Recorder recorder, int requestId, Map<String, String> parameters) {
         this(player, detector, recorder, requestId, null, parameters);
     }
 
@@ -139,15 +139,15 @@ public class PlayRecord extends AbstractMgcpSignal {
     }
 
     /**
-     * Listens to DTMF events raised by the DTMF Detector.
+     * Observes for DTMF events raised by the DTMF Detector.
      * 
      * @author Henrique Rosa (henrique.rosa@telestax.com)
      *
      */
-    private final class DetectorListener implements DtmfDetectorListener {
+    private final class DetectorObserver implements DtmfEventObserver {
 
         @Override
-        public void process(DtmfEvent event) {
+        public void onDtmfEvent(DtmfEvent event) {
             final char tone = event.getTone().charAt(0);
             PlayRecord.this.context.setTone(tone);
             fsm.fire(PlayRecordEvent.DTMF_TONE, PlayRecord.this.context);

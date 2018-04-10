@@ -21,6 +21,8 @@
 
 package org.restcomm.media.core.resource.dtmf;
 
+import org.restcomm.media.core.scheduler.PriorityQueueScheduler;
+
 /**
  * Provides instances of {@link DtmfDetector}
  *
@@ -29,5 +31,7 @@ package org.restcomm.media.core.resource.dtmf;
 public interface DtmfDetectorProvider {
 
     DtmfDetector provide();
+
+    PriorityQueueScheduler getScheduler();
 
 }

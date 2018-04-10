@@ -22,7 +22,7 @@
 package org.restcomm.media.core.control.mgcp.endpoint;
 
 import org.restcomm.media.core.asr.AsrEngine;
-import org.restcomm.media.core.spi.dtmf.DtmfDetector;
+import org.restcomm.media.core.resource.dtmf.DtmfSinkFacade;
 import org.restcomm.media.core.spi.dtmf.DtmfGenerator;
 import org.restcomm.media.core.spi.player.Player;
 import org.restcomm.media.core.spi.recorder.Recorder;
@@ -39,7 +39,7 @@ public interface MediaGroup {
 
     Recorder getRecorder();
 
-    DtmfDetector getDetector();
+    DtmfSinkFacade getDetector();
 
     DtmfGenerator getGenerator();
 

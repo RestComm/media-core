@@ -38,7 +38,7 @@ import org.restcomm.media.core.control.mgcp.pkg.SignalType;
 import org.restcomm.media.core.control.mgcp.pkg.au.AudioPackage;
 import org.restcomm.media.core.control.mgcp.pkg.au.AudioSignalType;
 import org.restcomm.media.core.control.mgcp.pkg.au.SignalParameters;
-import org.restcomm.media.core.spi.dtmf.DtmfDetector;
+import org.restcomm.media.core.resource.dtmf.DtmfSinkFacade;
 import org.restcomm.media.core.spi.player.Player;
 
 import com.google.common.base.Optional;
@@ -58,7 +58,7 @@ public class AsrSignal extends AbstractMgcpSignal {
     // Finite State Machine
     private final AsrFsm fsm;
 
-    public AsrSignal(Player player, DtmfDetector detector, AsrEngine asrEngine, int requestId, NotifiedEntity notifiedEntity,
+    public AsrSignal(Player player, DtmfSinkFacade detector, AsrEngine asrEngine, int requestId, NotifiedEntity notifiedEntity,
             Map<String, String> parameters, ListeningScheduledExecutorService executor) {
         super(AudioPackage.PACKAGE_NAME, SYMBOL, SignalType.TIME_OUT, requestId, notifiedEntity, parameters);
         // Execution Context

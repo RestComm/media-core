@@ -28,9 +28,9 @@ import org.restcomm.media.core.control.mgcp.pkg.AbstractMgcpSignal;
 import org.restcomm.media.core.control.mgcp.pkg.SignalType;
 import org.restcomm.media.core.control.mgcp.pkg.au.AudioPackage;
 import org.restcomm.media.core.control.mgcp.pkg.au.SignalParameters;
-import org.restcomm.media.core.spi.dtmf.DtmfDetector;
-import org.restcomm.media.core.spi.dtmf.DtmfDetectorListener;
-import org.restcomm.media.core.spi.dtmf.DtmfEvent;
+import org.restcomm.media.core.resource.dtmf.DtmfSinkFacade;
+import org.restcomm.media.core.resource.dtmf.DtmfEventObserver;
+import org.restcomm.media.core.resource.dtmf.DtmfEvent;
 import org.restcomm.media.core.spi.player.Player;
 import org.restcomm.media.core.spi.player.PlayerEvent;
 import org.restcomm.media.core.spi.player.PlayerListener;
@@ -62,8 +62,8 @@ public class PlayCollect extends AbstractMgcpSignal {
     private final PlayCollectFsm fsm;
 
     // Media Components
-    private final DtmfDetector detector;
-    final DtmfDetectorListener detectorListener;
+    private final DtmfSinkFacade detector;
+    final DtmfEventObserver detectorObserver;
 
     private final Player player;
     final PlayerListener playerListener;
@@ -71,24 +71,24 @@ public class PlayCollect extends AbstractMgcpSignal {
     // Execution Context
     private final PlayCollectContext context;
 
-    public PlayCollect(Player player, DtmfDetector detector, int requestId, NotifiedEntity notifiedEntity, Map<String, String> parameters, ListeningScheduledExecutorService executor) {
+    public PlayCollect(Player player, DtmfSinkFacade detector, int requestId, NotifiedEntity notifiedEntity, Map<String, String> parameters, ListeningScheduledExecutorService executor) {
         super(AudioPackage.PACKAGE_NAME, SYMBOL, SignalType.TIME_OUT, requestId, notifiedEntity, parameters);
 
         // Media Components
         this.detector = detector;
-        this.detectorListener = new DetectorListener();
+        this.detectorObserver = new DetectorObserver();
 
         this.player = player;
         this.playerListener = new AudioPlayerListener();
 
         // Execution Context
-        this.context = new PlayCollectContext(detector, detectorListener, parameters);
+        this.context = new PlayCollectContext(detector, detectorObserver, parameters);
 
         // Build FSM
-        this.fsm = PlayCollectFsmBuilder.INSTANCE.build(detector, detectorListener, player, playerListener, this, executor, context);
+        this.fsm = PlayCollectFsmBuilder.INSTANCE.build(detector, detectorObserver, player, playerListener, this, executor, context);
     }
     
-    public PlayCollect(Player player, DtmfDetector detector, int requestId, Map<String, String> parameters, ListeningScheduledExecutorService executor) {
+    public PlayCollect(Player player, DtmfSinkFacade detector, int requestId, Map<String, String> parameters, ListeningScheduledExecutorService executor) {
         this(player, detector, requestId, null, parameters, executor);
     }
 
@@ -148,15 +148,15 @@ public class PlayCollect extends AbstractMgcpSignal {
     }
 
     /**
-     * Listens to DTMF events raised by the DTMF Detector.
+     * Observer for DTMF events raised by the DTMF Detector.
      * 
      * @author Henrique Rosa (henrique.rosa@telestax.com)
      *
      */
-    private final class DetectorListener implements DtmfDetectorListener {
+    private final class DetectorObserver implements DtmfEventObserver {
 
         @Override
-        public void process(DtmfEvent event) {
+        public void onDtmfEvent(DtmfEvent event) {
             final char tone = event.getTone().charAt(0);
             context.setLastTone(tone);
             fsm.fire(PlayCollectEvent.DTMF_TONE, PlayCollect.this.context);
