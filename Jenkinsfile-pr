@@ -1,0 +1,21 @@
+node("cxs-slave-master") {
+    echo sh(returnStdout: true, script: 'env')
+
+    configFileProvider(
+        [configFile(fileId: '37cb206e-6498-4d8a-9b3d-379cd0ccd99b',  targetLocation: 'settings.xml')]) {
+	    sh 'mkdir -p ~/.m2 && sed -i "s|@LOCAL_REPO_PATH@|$WORKSPACE/M2_REPO|g" $WORKSPACE/settings.xml && cp $WORKSPACE/settings.xml -f ~/.m2/settings.xml'
+    }
+
+    stage ('Checkout') {
+        checkout scm
+    }
+
+    stage ('Build') {
+        sh "mvn clean install -DskipTests"
+    }
+
+    stage ('Test') {
+        sh "mvn test"
+    }
+
+}
