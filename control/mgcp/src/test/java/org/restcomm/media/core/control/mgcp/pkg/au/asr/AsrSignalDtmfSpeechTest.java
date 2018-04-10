@@ -40,7 +40,7 @@ import org.restcomm.media.core.control.mgcp.pkg.MgcpEvent;
 import org.restcomm.media.core.control.mgcp.pkg.au.ReturnCode;
 import org.restcomm.media.core.control.mgcp.pkg.au.SignalParameters;
 import org.restcomm.media.core.control.mgcp.pkg.au.asr.AsrSignal;
-import org.restcomm.media.core.resource.dtmf.DtmfEventImpl;
+import org.restcomm.media.core.resource.dtmf.DtmfEvent;
 import org.restcomm.media.core.spi.listener.TooManyListenersException;
 
 /**
@@ -72,12 +72,11 @@ public class AsrSignalDtmfSpeechTest extends AsrSignalBaseTest {
         asr.execute();
 
         speakRecognizedText("text");
-        detectorListener.process(new DtmfEventImpl(detector, "#", -30));
+        detectorObserver.onDtmfEvent(new DtmfEvent("#"));
 
         waitForFinalResponse();
 
         // then
-        verify(detector, times(1)).activate();
         verify(player, never()).activate();
         verify(observer, times(2)).onEvent(eq(asr), eventCaptor.capture());
 
@@ -103,18 +102,16 @@ public class AsrSignalDtmfSpeechTest extends AsrSignalBaseTest {
 
         Thread.sleep(EPSILON_IN_MILLISECONDS);
 
-        verify(detector, times(1)).activate();
         verify(player, never()).activate();
         verify(observer, never()).onEvent(eq(asr), eventCaptor.capture());
 
         speechDetectorListener.onVoiceActivityDetected();
-        detectorListener.process(new DtmfEventImpl(detector, "#", -30));
+        detectorObserver.onDtmfEvent(new DtmfEvent("#"));
         asrEngineListener.onSpeechRecognized("text", true);
 
         waitForFinalResponse();
 
         // then
-        verify(detector, times(1)).activate();
         verify(player, never()).activate();
         verify(observer, times(2)).onEvent(eq(asr), eventCaptor.capture());
 
@@ -142,7 +139,6 @@ public class AsrSignalDtmfSpeechTest extends AsrSignalBaseTest {
 
         // then
         verify(asrEngine, times(1)).activate();
-        verify(detector, times(1)).activate();
         verify(player, never()).activate();
         verify(observer, times(1)).onEvent(eq(asr), eventCaptor.capture());
 
@@ -166,7 +162,6 @@ public class AsrSignalDtmfSpeechTest extends AsrSignalBaseTest {
 
         // then
         verify(asrEngine, times(1)).activate();
-        verify(detector, times(1)).activate();
         verify(player, never()).activate();
         verify(observer, times(2)).onEvent(eq(asr), eventCaptor.capture());
 
@@ -194,7 +189,6 @@ public class AsrSignalDtmfSpeechTest extends AsrSignalBaseTest {
 
         // then
         verify(asrEngine, times(1)).activate();
-        verify(detector, times(1)).activate();
         verify(player, never()).activate();
         verify(observer, times(1)).onEvent(eq(asr), eventCaptor.capture());
 
@@ -219,7 +213,6 @@ public class AsrSignalDtmfSpeechTest extends AsrSignalBaseTest {
 
         // then
         verify(asrEngine, times(1)).activate();
-        verify(detector, times(1)).activate();
         
         // when
         speakUnrecognizedText(MRT_IN_MILLISECONDS);
@@ -256,7 +249,6 @@ public class AsrSignalDtmfSpeechTest extends AsrSignalBaseTest {
 
         // then
         verify(asrEngine, times(1)).activate();
-        verify(detector, times(1)).activate();
         verify(player, never()).activate();
         verify(observer, times(2)).onEvent(eq(asr), eventCaptor.capture());
 
@@ -286,7 +278,6 @@ public class AsrSignalDtmfSpeechTest extends AsrSignalBaseTest {
 
         // then
         verify(asrEngine, times(1)).activate();
-        verify(detector, times(1)).activate();
         verify(player, never()).activate();
         verify(observer, times(2)).onEvent(eq(asr), eventCaptor.capture());
 
@@ -316,14 +307,13 @@ public class AsrSignalDtmfSpeechTest extends AsrSignalBaseTest {
 
         speakRecognizedText("text");
 
-        detectorListener.process(new DtmfEventImpl(detector, "1", -30));
-        detectorListener.process(new DtmfEventImpl(detector, "2", -30));
-        detectorListener.process(new DtmfEventImpl(detector, "#", -30));
+        detectorObserver.onDtmfEvent(new DtmfEvent("1"));
+        detectorObserver.onDtmfEvent(new DtmfEvent("2"));
+        detectorObserver.onDtmfEvent(new DtmfEvent("#"));
 
         waitForInterimResponse();
 
         // then
-        verify(detector, times(1)).activate();
         verify(player, never()).activate();
         verify(observer, times(2)).onEvent(eq(asr), eventCaptor.capture());
 
@@ -353,19 +343,18 @@ public class AsrSignalDtmfSpeechTest extends AsrSignalBaseTest {
 
         speakRecognizedText("first text");
 
-        detectorListener.process(new DtmfEventImpl(detector, "1", -30));
+        detectorObserver.onDtmfEvent(new DtmfEvent("1"));
 
         speakRecognizedText("second text");
         speakRecognizedText("third text");
 
         waitForInterimResponse();
 
-        detectorListener.process(new DtmfEventImpl(detector, "2", -30));
+        detectorObserver.onDtmfEvent(new DtmfEvent("2"));
 
         waitForInterimResponse();
 
         // then
-        verify(detector, times(1)).activate();
         verify(player, never()).activate();
         verify(observer, times(2)).onEvent(eq(asr), eventCaptor.capture());
 
@@ -391,13 +380,12 @@ public class AsrSignalDtmfSpeechTest extends AsrSignalBaseTest {
         asr.observe(observer);
         asr.execute();
 
-        detectorListener.process(new DtmfEventImpl(detector, "9", -30));
+        detectorObserver.onDtmfEvent(new DtmfEvent("9"));
 
         Thread.sleep(PST_IN_MILLISECONDS + EPSILON_IN_MILLISECONDS);
 
         // then
         verify(asrEngine, times(1)).activate();
-        verify(detector, times(1)).activate();
         verify(player, never()).activate();
         verify(observer, times(1)).onEvent(eq(asr), eventCaptor.capture());
 

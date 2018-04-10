@@ -33,8 +33,8 @@ import org.restcomm.media.core.control.mgcp.pkg.MgcpEventObserver;
 import org.restcomm.media.core.control.mgcp.pkg.au.SignalParameters;
 import org.restcomm.media.core.control.mgcp.pkg.au.asr.AsrSignal;
 import org.restcomm.media.core.resource.vad.VoiceActivityDetectorListener;
-import org.restcomm.media.core.spi.dtmf.DtmfDetector;
-import org.restcomm.media.core.spi.dtmf.DtmfDetectorListener;
+import org.restcomm.media.core.resource.dtmf.DtmfSinkFacade;
+import org.restcomm.media.core.resource.dtmf.DtmfEventObserver;
 import org.restcomm.media.core.spi.listener.TooManyListenersException;
 import org.restcomm.media.core.spi.player.Player;
 
@@ -65,19 +65,19 @@ public abstract class AsrSignalBaseTest {
 
     private ScheduledExecutorService threadPool;
     protected Player player;
-    protected DtmfDetector detector;
+    protected DtmfSinkFacade detector;
     protected AsrEngine asrEngine;
 
     private ListeningScheduledExecutorService executor;
     protected MgcpEventObserver observer;
     protected VoiceActivityDetectorListener speechDetectorListener;
     protected AsrEngineListener asrEngineListener;
-    protected DtmfDetectorListener detectorListener;
+    protected DtmfEventObserver detectorObserver;
 
     protected void before() throws TooManyListenersException {
         threadPool = Executors.newScheduledThreadPool(5);
         player = mock(Player.class);
-        detector = mock(DtmfDetector.class);
+        detector = mock(DtmfSinkFacade.class);
         asrEngine = mock(AsrEngine.class);
         when(asrEngine.getResponseTimeoutInMilliseconds()).thenReturn(RESPONSE_TIMEOUT_IN_MILLISECONDS);
         doAnswer(new Answer<Void>() {
@@ -104,10 +104,10 @@ public abstract class AsrSignalBaseTest {
         doAnswer(new Answer<Void>() {
             @Override
             public Void answer(InvocationOnMock invocation) throws Throwable {
-                detectorListener = invocation.getArgumentAt(0, DtmfDetectorListener.class);
+                detectorObserver = invocation.getArgumentAt(0, DtmfEventObserver.class);
                 return null;
             }
-        }).when(detector).addListener(any(DtmfDetectorListener.class));
+        }).when(detector).observe(any(DtmfEventObserver.class));
         executor = MoreExecutors.listeningDecorator(threadPool);
         observer = mock(MgcpEventObserver.class);
     }

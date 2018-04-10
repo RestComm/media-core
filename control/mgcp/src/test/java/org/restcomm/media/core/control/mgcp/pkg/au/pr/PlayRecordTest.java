@@ -41,10 +41,10 @@ import org.restcomm.media.core.control.mgcp.pkg.MgcpEvent;
 import org.restcomm.media.core.control.mgcp.pkg.MgcpEventObserver;
 import org.restcomm.media.core.control.mgcp.pkg.au.ReturnCode;
 import org.restcomm.media.core.control.mgcp.pkg.au.pr.PlayRecord;
-import org.restcomm.media.core.resource.dtmf.DtmfEventImpl;
+import org.restcomm.media.core.resource.dtmf.DtmfEvent;
+import org.restcomm.media.core.resource.dtmf.DtmfSinkFacade;
 import org.restcomm.media.core.resource.player.audio.AudioPlayerEvent;
 import org.restcomm.media.core.resource.recorder.audio.RecorderEventImpl;
-import org.restcomm.media.core.spi.dtmf.DtmfDetector;
 import org.restcomm.media.core.spi.player.Player;
 import org.restcomm.media.core.spi.player.PlayerEvent;
 import org.restcomm.media.core.spi.recorder.Recorder;
@@ -73,7 +73,7 @@ public class PlayRecordTest {
 
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
+        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
         final Player player = mock(Player.class);
         final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
 
@@ -88,10 +88,8 @@ public class PlayRecordTest {
         pr.recorderListener.process(recorderStop);
 
         // then
-        verify(detector, times(1)).activate();
         verify(recorder, times(1)).activate();
         verify(player, never()).activate();
-        verify(detector, times(1)).deactivate();
         verify(recorder, times(1)).deactivate();
         verify(observer, timeout(100)).onEvent(eq(pr), eventCaptor.capture());
 
@@ -112,7 +110,7 @@ public class PlayRecordTest {
         
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
+        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
         final Player player = mock(Player.class);
         final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
@@ -131,10 +129,8 @@ public class PlayRecordTest {
         pr.recorderListener.process(recorderStop);
         
         // then
-        verify(detector, times(1)).activate();
         verify(recorder, times(1)).activate();
         verify(player, times(3)).activate();
-        verify(detector, times(1)).deactivate();
         verify(recorder, times(1)).deactivate();
         verify(player, times(1)).deactivate();
         verify(observer, timeout(100)).onEvent(eq(pr), eventCaptor.capture());
@@ -155,7 +151,7 @@ public class PlayRecordTest {
 
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
+        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
         final Player player = mock(Player.class);
         final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
 
@@ -170,10 +166,8 @@ public class PlayRecordTest {
         pr.recorderListener.process(recorderStop);
 
         // then
-        verify(detector, times(1)).activate();
         verify(recorder, times(1)).activate();
         verify(player, never()).activate();
-        verify(detector, times(1)).deactivate();
         verify(recorder, times(1)).deactivate();
         verify(observer, timeout(100)).onEvent(eq(pr), eventCaptor.capture());
 
@@ -190,7 +184,7 @@ public class PlayRecordTest {
         
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
+        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
         final Player player = mock(Player.class);
         final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
@@ -205,10 +199,8 @@ public class PlayRecordTest {
         pr.recorderListener.process(recorderStop);
         
         // then
-        verify(detector, times(1)).activate();
         verify(recorder, times(1)).activate();
         verify(player, never()).activate();
-        verify(detector, times(1)).deactivate();
         verify(recorder, times(1)).deactivate();
         verify(observer, timeout(100)).onEvent(eq(pr), eventCaptor.capture());
         
@@ -226,7 +218,7 @@ public class PlayRecordTest {
         
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
+        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
         final Player player = mock(Player.class);
         final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
@@ -245,10 +237,8 @@ public class PlayRecordTest {
         pr.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
         
         // then
-        verify(detector, times(1)).activate();
         verify(recorder, times(1)).activate();
         verify(player, times(3)).activate();
-        verify(detector, times(1)).deactivate();
         verify(recorder, times(1)).deactivate();
         verify(player, times(1)).deactivate();
         verify(observer, timeout(100)).onEvent(eq(pr), eventCaptor.capture());
@@ -269,7 +259,7 @@ public class PlayRecordTest {
         
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
+        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
         final Player player = mock(Player.class);
         final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
@@ -288,10 +278,8 @@ public class PlayRecordTest {
         pr.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
         
         // then
-        verify(detector, times(1)).activate();
         verify(recorder, times(1)).activate();
         verify(player, times(3)).activate();
-        verify(detector, times(1)).deactivate();
         verify(recorder, times(1)).deactivate();
         verify(player, times(1)).deactivate();
         verify(observer, timeout(100)).onEvent(eq(pr), eventCaptor.capture());
@@ -313,7 +301,7 @@ public class PlayRecordTest {
         
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
+        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
         final Player player = mock(Player.class);
         final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
@@ -342,10 +330,8 @@ public class PlayRecordTest {
         pr.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
         
         // then
-        verify(detector, times(2)).activate();
         verify(recorder, times(2)).activate();
         verify(player, times(6)).activate();
-        verify(detector, times(2)).deactivate();
         verify(recorder, times(2)).deactivate();
         verify(player, times(2)).deactivate();
         verify(observer, timeout(100)).onEvent(eq(pr), eventCaptor.capture());
@@ -369,7 +355,7 @@ public class PlayRecordTest {
         
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
+        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
         final Player player = mock(Player.class);
         final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
@@ -398,10 +384,8 @@ public class PlayRecordTest {
         pr.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
         
         // then
-        verify(detector, times(2)).activate();
         verify(recorder, times(2)).activate();
         verify(player, times(6)).activate();
-        verify(detector, times(2)).deactivate();
         verify(recorder, times(2)).deactivate();
         verify(player, times(2)).deactivate();
         verify(observer, timeout(100)).onEvent(eq(pr), eventCaptor.capture());
@@ -426,7 +410,7 @@ public class PlayRecordTest {
         
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
+        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
         final Player player = mock(Player.class);
         final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
@@ -442,7 +426,7 @@ public class PlayRecordTest {
         pr.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
         
         // restart
-        pr.detectorListener.process(new DtmfEventImpl(detector, "*", 0));
+        pr.detectorObserver.onDtmfEvent(new DtmfEvent("*"));
         
         // replay initial prompt and do successful recording
         pr.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
@@ -454,11 +438,9 @@ public class PlayRecordTest {
         pr.recorderListener.process(recorderStop);
         
         // then
-        verify(detector, times(2)).activate();
         verify(recorder, times(2)).activate();
         verify(player, times(6)).activate();
         verify(player, times(2)).deactivate();
-        verify(detector, times(2)).deactivate();
         verify(recorder, times(2)).deactivate();
         verify(observer, timeout(100)).onEvent(eq(pr), eventCaptor.capture());
         
@@ -482,7 +464,7 @@ public class PlayRecordTest {
         
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
+        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
         final Player player = mock(Player.class);
         final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
@@ -498,14 +480,12 @@ public class PlayRecordTest {
         pr.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
         
         // restart
-        pr.detectorListener.process(new DtmfEventImpl(detector, "*", 0));
+        pr.detectorObserver.onDtmfEvent(new DtmfEvent("*"));
         
         // then
-        verify(detector, times(1)).activate();
         verify(recorder, times(1)).activate();
         verify(player, times(3)).activate();
         verify(player, times(1)).deactivate();
-        verify(detector, times(1)).deactivate();
         verify(recorder, times(1)).deactivate();
         verify(observer, timeout(100)).onEvent(eq(pr), eventCaptor.capture());
         
@@ -527,7 +507,7 @@ public class PlayRecordTest {
         
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
+        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
         final Player player = mock(Player.class);
         final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
@@ -543,18 +523,16 @@ public class PlayRecordTest {
         pr.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
         
         // re-input
-        pr.detectorListener.process(new DtmfEventImpl(detector, "*", 0));
+        pr.detectorObserver.onDtmfEvent(new DtmfEvent("*"));
         
         RecorderEventImpl recorderStop = new RecorderEventImpl(RecorderEvent.STOP, recorder);
         recorderStop.setQualifier(RecorderEvent.SUCCESS);
         pr.recorderListener.process(recorderStop);
         
         // then
-        verify(detector, times(2)).activate();
         verify(recorder, times(2)).activate();
         verify(player, times(3)).activate();
         verify(player, times(1)).deactivate();
-        verify(detector, times(2)).deactivate();
         verify(recorder, times(2)).deactivate();
         verify(observer, timeout(100)).onEvent(eq(pr), eventCaptor.capture());
         
@@ -578,7 +556,7 @@ public class PlayRecordTest {
         
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
+        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
         final Player player = mock(Player.class);
         final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
@@ -594,14 +572,12 @@ public class PlayRecordTest {
         pr.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
         
         // restart
-        pr.detectorListener.process(new DtmfEventImpl(detector, "*", 0));
+        pr.detectorObserver.onDtmfEvent(new DtmfEvent("*"));
         
         // then
-        verify(detector, times(1)).activate();
         verify(recorder, times(1)).activate();
         verify(player, times(3)).activate();
         verify(player, times(1)).deactivate();
-        verify(detector, times(1)).deactivate();
         verify(recorder, times(1)).deactivate();
         verify(observer, timeout(100)).onEvent(eq(pr), eventCaptor.capture());
 
@@ -619,7 +595,7 @@ public class PlayRecordTest {
 
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
+        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
         final Player player = mock(Player.class);
         final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
 
@@ -629,13 +605,11 @@ public class PlayRecordTest {
         pr.observe(observer);
         pr.execute();
 
-        pr.detectorListener.process(new DtmfEventImpl(detector, "*", 0));
+        pr.detectorObserver.onDtmfEvent(new DtmfEvent("*"));
 
         // then
-        verify(detector, times(1)).activate();
         verify(recorder, times(1)).activate();
         verify(player, never()).activate();
-        verify(detector, times(1)).deactivate();
         verify(recorder, times(1)).deactivate();
         verify(observer, timeout(100)).onEvent(eq(pr), eventCaptor.capture());
 
@@ -654,7 +628,7 @@ public class PlayRecordTest {
         
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
+        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
         final Player player = mock(Player.class);
         final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
@@ -664,13 +638,11 @@ public class PlayRecordTest {
         pr.observe(observer);
         pr.execute();
         
-        pr.detectorListener.process(new DtmfEventImpl(detector, "#", 0));
+        pr.detectorObserver.onDtmfEvent(new DtmfEvent("#"));
         
         // then
-        verify(detector, times(1)).activate();
         verify(recorder, times(1)).activate();
         verify(player, never()).activate();
-        verify(detector, times(1)).deactivate();
         verify(recorder, times(1)).deactivate();
         verify(observer, timeout(100)).onEvent(eq(pr), eventCaptor.capture());
         
@@ -690,7 +662,7 @@ public class PlayRecordTest {
         
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
+        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
         final Player player = mock(Player.class);
         final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
@@ -702,10 +674,8 @@ public class PlayRecordTest {
         pr.cancel();
         
         // then
-        verify(detector, never()).activate();
         verify(recorder, never()).activate();
         verify(player, times(1)).activate();
-        verify(detector, never()).deactivate();
         verify(recorder, never()).deactivate();
         verify(player, times(1)).deactivate();
         verify(observer, timeout(100)).onEvent(eq(pr), eventCaptor.capture());
@@ -724,7 +694,7 @@ public class PlayRecordTest {
         
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
+        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
         final Player player = mock(Player.class);
         final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
@@ -742,10 +712,8 @@ public class PlayRecordTest {
         pr.cancel();
         
         // then
-        verify(detector, times(1)).activate();
         verify(recorder, times(1)).activate();
         verify(player, times(3)).activate();
-        verify(detector, times(1)).deactivate();
         verify(recorder, times(1)).deactivate();
         verify(player, times(1)).deactivate();
         verify(observer, timeout(100)).onEvent(eq(pr), eventCaptor.capture());
@@ -766,7 +734,7 @@ public class PlayRecordTest {
         
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
+        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
         final Player player = mock(Player.class);
         final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
@@ -783,10 +751,8 @@ public class PlayRecordTest {
         pr.cancel();
 
         // then
-        verify(detector, times(1)).activate();
         verify(recorder, times(1)).activate();
         verify(player, times(3)).activate();
-        verify(detector, times(1)).deactivate();
         verify(recorder, times(1)).deactivate();
         verify(player, times(1)).deactivate();
         verify(observer, timeout(100)).onEvent(eq(pr), eventCaptor.capture());
@@ -806,7 +772,7 @@ public class PlayRecordTest {
         
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
+        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
         final Player player = mock(Player.class);
         final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
@@ -830,10 +796,8 @@ public class PlayRecordTest {
         pr.cancel();
         
         // then
-        verify(detector, times(1)).activate();
         verify(recorder, times(1)).activate();
         verify(player, times(5)).activate();
-        verify(detector, times(1)).deactivate();
         verify(recorder, times(1)).deactivate();
         verify(player, times(2)).deactivate();
         verify(observer, timeout(100)).onEvent(eq(pr), eventCaptor.capture());
@@ -855,7 +819,7 @@ public class PlayRecordTest {
         
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
+        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
         final Player player = mock(Player.class);
         final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
@@ -879,10 +843,8 @@ public class PlayRecordTest {
         pr.cancel();
         
         // then
-        verify(detector, times(1)).activate();
         verify(recorder, times(1)).activate();
         verify(player, times(5)).activate();
-        verify(detector, times(1)).deactivate();
         verify(recorder, times(1)).deactivate();
         verify(player, times(2)).deactivate();
         verify(observer, timeout(100)).onEvent(eq(pr), eventCaptor.capture());
@@ -904,7 +866,7 @@ public class PlayRecordTest {
         
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
+        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
         final Player player = mock(Player.class);
         final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
@@ -923,10 +885,8 @@ public class PlayRecordTest {
         pr.cancel();
         
         // then
-        verify(detector, times(1)).activate();
         verify(recorder, times(1)).activate();
         verify(player, times(2)).activate();
-        verify(detector, times(1)).deactivate();
         verify(recorder, times(1)).deactivate();
         verify(player, times(1)).deactivate();
         verify(observer, timeout(100)).onEvent(eq(pr), eventCaptor.capture());
@@ -948,7 +908,7 @@ public class PlayRecordTest {
         
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
+        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
         final Player player = mock(Player.class);
         final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
@@ -966,10 +926,8 @@ public class PlayRecordTest {
         pr.cancel();
         
         // then
-        verify(detector, times(1)).activate();
         verify(recorder, times(1)).activate();
         verify(player, times(2)).activate();
-        verify(detector, times(1)).deactivate();
         verify(recorder, times(1)).deactivate();
         verify(player, times(1)).deactivate();
         verify(observer, timeout(100)).onEvent(eq(pr), eventCaptor.capture());
