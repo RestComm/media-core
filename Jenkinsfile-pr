@@ -1,22 +1,52 @@
-node("cxs-slave-master") {
-    echo sh(returnStdout: true, script: 'env')
+pipeline {
+    agent none
 
-    configFileProvider(
-        [configFile(fileId: '37cb206e-6498-4d8a-9b3d-379cd0ccd99b',  targetLocation: 'settings.xml')]) {
-	    sh 'mkdir -p ~/.m2 && sed -i "s|@LOCAL_REPO_PATH@|$WORKSPACE/M2_REPO|g" $WORKSPACE/settings.xml && cp $WORKSPACE/settings.xml -f ~/.m2/settings.xml'
-    }
+    stages {
+        stage('Checkout') {
+            agent { node('cxs-slave-master') }
 
-    stage ('Checkout') {
-        checkout scm
-    }
+            configFileProvider([configFile(fileId: '37cb206e-6498-4d8a-9b3d-379cd0ccd99b', targetLocation: 'settings.xml')]) {
+                sh 'mkdir -p ~/.m2 && sed -i "s|@LOCAL_REPO_PATH@|$WORKSPACE/M2_REPO|g" $WORKSPACE/settings.xml && cp $WORKSPACE/settings.xml -f ~/.m2/settings.xml'
+            }
 
-    stage ('Build') {
-        sh "mvn clean install -DskipTests"
-    }
+            steps {
+                checkout scm
+            }
+        }
 
-    stage ('Test') {
-        sh "mvn test -Dmaven.test.failure.ignore=true"
-        junit testResults: '**/target/surefire-reports/*.xml', testDataPublishers: [[$class: 'StabilityTestDataPublisher']]
+        stage('Build') {
+            agent { node('cxs-slave-master') }
+            steps {
+                sh "mvn clean install -DskipTests"
+            }
+        }
+
+        stage('Test') {
+            agent { node('cxs-slave-master') }
+            steps {
+                sh 'mvn test -Dmaven.test.failure.ignore=true'
+                junit testResults: '**/target/surefire-reports/*.xml', testDataPublishers: [[$class: 'StabilityTestDataPublisher']]
+            }
+        }
+
+        stage('UserApproval') {
+            agent none
+
+            milestone()
+
+            input {
+                message "Waiting for maintainer review"
+                parameters {
+                    choice(choices: 'fix\nfeat\nbreaking_change\nreject', description: 'Review Result', name: 'REVIEW_RESULT')
+                }
+            }
+
+            milestone()
+
+            steps {
+                echo "Review Result is $REVIEW_RESULT"
+            }
+        }
     }
 
 }
