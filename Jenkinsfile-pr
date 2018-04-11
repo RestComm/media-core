@@ -56,7 +56,7 @@ pipeline {
                             sh "mvn build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.nextIncrementalVersion}-SNAPSHOT versions:commit"
                         } else if("$RELEASE_SCOPE" == "feat") {
                             sh "mvn build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.nextMinorVersion}.0-SNAPSHOT versions:commit"
-                        } if("$RELEASE_SCOPE" == "breaking_change") {
+                        } else if("$RELEASE_SCOPE" == "breaking_change") {
                             sh "mvn build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.nextMajorVersion}.0.0-SNAPSHOT versions:commit"
                         }
 
