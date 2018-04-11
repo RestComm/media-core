@@ -33,9 +33,9 @@ pipeline {
 
             steps {
                 milestone 1
-                input message: 'Waiting for maintainer review', parameters: [choice(name: 'REVIEW_RESULT', choices: 'fix\nfeat\nbreaking_change\nreject', description: 'Review Result')]
+                def reviewResult = input message: 'Waiting for maintainer review', parameters: [choice(name: 'REVIEW_RESULT', choices: 'fix\nfeat\nbreaking_change\nreject', description: 'Review Result')]
                 milestone 2
-                echo "Review Result is $REVIEW_RESULT"
+                echo "Review Result is ${reviewResult}"
             }
         }
     }
