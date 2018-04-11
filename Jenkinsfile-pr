@@ -5,11 +5,11 @@ pipeline {
         stage('Checkout') {
             agent { node('cxs-slave-master') }
 
-            configFileProvider([configFile(fileId: '37cb206e-6498-4d8a-9b3d-379cd0ccd99b', targetLocation: 'settings.xml')]) {
-                sh 'mkdir -p ~/.m2 && sed -i "s|@LOCAL_REPO_PATH@|$WORKSPACE/M2_REPO|g" $WORKSPACE/settings.xml && cp $WORKSPACE/settings.xml -f ~/.m2/settings.xml'
-            }
-
             steps {
+                configFileProvider([configFile(fileId: '37cb206e-6498-4d8a-9b3d-379cd0ccd99b', targetLocation: 'settings.xml')]) {
+                    sh 'mkdir -p ~/.m2 && sed -i "s|@LOCAL_REPO_PATH@|$WORKSPACE/M2_REPO|g" $WORKSPACE/settings.xml && cp $WORKSPACE/settings.xml -f ~/.m2/settings.xml'
+                }
+
                 checkout scm
             }
         }
@@ -32,18 +32,15 @@ pipeline {
         stage('UserApproval') {
             agent none
 
-            milestone()
-
-            input {
-                message "Waiting for maintainer review"
-                parameters {
-                    choice(choices: 'fix\nfeat\nbreaking_change\nreject', description: 'Review Result', name: 'REVIEW_RESULT')
-                }
-            }
-
-            milestone()
-
             steps {
+                milestone()
+                input {
+                    message "Waiting for maintainer review"
+                    parameters {
+                        choice(choices: 'fix\nfeat\nbreaking_change\nreject', description: 'Review Result', name: 'REVIEW_RESULT')
+                    }
+                }
+                milestone()
                 echo "Review Result is $REVIEW_RESULT"
             }
         }
