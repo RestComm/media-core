@@ -46,10 +46,10 @@ pipeline {
         }
 
         stage('ContinuousIntegration') {
-            lock('Versioning') {
-                agent { node('cxs-slave-master') }
-    
-                steps {
+            agent { node('cxs-slave-master') }
+
+            steps {
+                lock('Versioning') {
                     script {
                         // Increment project version according to release scope
                         if("$RELEASE_SCOPE" == "fix") {
