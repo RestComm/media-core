@@ -49,6 +49,10 @@ pipeline {
             agent { node('cxs-slave-master') }
 
             steps {
+                configFileProvider([configFile(fileId: '37cb206e-6498-4d8a-9b3d-379cd0ccd99b', targetLocation: 'settings.xml')]) {
+                    sh 'mkdir -p ~/.m2 && sed -i "s|@LOCAL_REPO_PATH@|$WORKSPACE/M2_REPO|g" $WORKSPACE/settings.xml && cp $WORKSPACE/settings.xml -f ~/.m2/settings.xml'
+                }
+
                 lock('media-core-master') {
                     script {
                         // Increment project version according to release scope
