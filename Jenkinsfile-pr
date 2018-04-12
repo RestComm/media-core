@@ -49,7 +49,7 @@ pipeline {
             agent { node('cxs-slave-master') }
 
             steps {
-                lock('Versioning') {
+                lock('media-core-master') {
                     script {
                         // Increment project version according to release scope
                         if("$RELEASE_SCOPE" == "fix") {
