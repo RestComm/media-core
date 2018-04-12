@@ -48,8 +48,8 @@ pipeline {
                     env.COMMIT_MSG = userInput['COMMIT_MSG']
                     env.COMMIT_AUTHOR = sh(script: 'git log -1 --pretty=format:\'%an <%ae>\'', returnStdout: true).trim()
                 }
+                milestone 1
             }
-            milestone 1
         }
 
         stage('ContinuousIntegration') {
