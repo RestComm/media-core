@@ -1,0 +1,47 @@
+node("cxs-slave-master") {
+    echo sh(returnStdout: true, script: 'env')
+
+    configFileProvider(
+        [configFile(fileId: '37cb206e-6498-4d8a-9b3d-379cd0ccd99b',  targetLocation: 'settings.xml')]) {
+	    sh 'mkdir -p ~/.m2 && sed -i "s|@LOCAL_REPO_PATH@|$WORKSPACE/M2_REPO|g" $WORKSPACE/settings.xml && cp $WORKSPACE/settings.xml -f ~/.m2/settings.xml'
+    }
+
+    stage('Checkout') {
+        checkout scm
+    }
+
+    lock('media-core-master') {
+        stage('Versioning') {
+            // Increment project version according to release scope
+            if(env.FEATURE_SCOPE == 'fix') {
+                sh 'mvn build-helper:parse-version versions:set -DnewVersion=\\${parsedVersion.majorVersion}.\\${parsedVersion.minorVersion}.\\${parsedVersion.nextIncrementalVersion}-SNAPSHOT versions:commit'
+            } else if(env.FEATURE_SCOPE == 'feat') {
+                sh 'mvn build-helper:parse-version versions:set -DnewVersion=\\${parsedVersion.majorVersion}.\\${parsedVersion.nextMinorVersion}.0-SNAPSHOT versions:commit'
+            } else if(env.FEATURE_SCOPE == 'breaking_change') {
+                sh 'mvn build-helper:parse-version versions:set -DnewVersion=\\${parsedVersion.nextMajorVersion}.0.0-SNAPSHOT versions:commit'
+            }
+
+            // Read current project version
+            def pom = readMavenPom file: 'pom.xml'
+            env.NEXT_VERSION = pom.version
+            echo "Updated project version to $NEXT_VERSION"
+        }
+
+        stage('Merge') {
+            sh 'git checkout master'
+            sh 'git merge --squash $BRANCH_NAME'
+            sh 'git commit -a --author="$COMMIT_AUTHOR" --message="$COMMIT_MSG"'
+            def gitLog = sh(script: 'git log -1 --pretty=format:full', returnStdout: true)
+            echo "${gitLog}"
+        }
+
+        stage('Push') {
+            withCredentials([usernamePassword(credentialsId: 'CXSGithub', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+                // TODO Push to master branch
+                // Invalidate older builds forcing re-scan of PR
+                // Aims to maintain master healthy and prevent that one PR tramples another
+                milestone 2
+            }
+        }
+    }
+}
