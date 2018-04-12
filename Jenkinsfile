@@ -57,36 +57,38 @@ pipeline {
 
             steps {
                 lock('media-core-master') {
-                    // Increment project version according to release scope
-                    if(env.FEATURE_SCOPE == 'fix') {
-                        sh 'mvn build-helper:parse-version versions:set -DnewVersion=\\${parsedVersion.majorVersion}.\\${parsedVersion.minorVersion}.\\${parsedVersion.nextIncrementalVersion}-SNAPSHOT versions:commit'
-                    } else if(env.FEATURE_SCOPE == 'feat') {
-                        sh 'mvn build-helper:parse-version versions:set -DnewVersion=\\${parsedVersion.majorVersion}.\\${parsedVersion.nextMinorVersion}.0-SNAPSHOT versions:commit'
-                    } else if(env.FEATURE_SCOPE == 'breaking_change') {
-                        sh 'mvn build-helper:parse-version versions:set -DnewVersion=\\${parsedVersion.nextMajorVersion}.0.0-SNAPSHOT versions:commit'
-                    }
+                    script {
+                        // Increment project version according to release scope
+                        if(env.FEATURE_SCOPE == 'fix') {
+                            sh 'mvn build-helper:parse-version versions:set -DnewVersion=\\${parsedVersion.majorVersion}.\\${parsedVersion.minorVersion}.\\${parsedVersion.nextIncrementalVersion}-SNAPSHOT versions:commit'
+                        } else if(env.FEATURE_SCOPE == 'feat') {
+                            sh 'mvn build-helper:parse-version versions:set -DnewVersion=\\${parsedVersion.majorVersion}.\\${parsedVersion.nextMinorVersion}.0-SNAPSHOT versions:commit'
+                        } else if(env.FEATURE_SCOPE == 'breaking_change') {
+                            sh 'mvn build-helper:parse-version versions:set -DnewVersion=\\${parsedVersion.nextMajorVersion}.0.0-SNAPSHOT versions:commit'
+                        }
 
-                    // Save next project version
-                    def pom = readMavenPom file: 'pom.xml'
-                    env.NEXT_VERSION = pom.version
-                    echo "Updated project version to $NEXT_VERSION"
+                        // Save next project version
+                        def pom = readMavenPom file: 'pom.xml'
+                        env.NEXT_VERSION = pom.version
+                        echo "Updated project version to $NEXT_VERSION"
 
-                    // Merge feature
-                    env.COMMIT_AUTHOR = sh(script: 'git log -1 --pretty=format:\'%an <%ae>\'', returnStdout: true).trim()
+                        // Merge feature
+                        env.COMMIT_AUTHOR = sh(script: 'git log -1 --pretty=format:\'%an <%ae>\'', returnStdout: true).trim()
 
-                    sh 'git checkout master'
-                    sh 'git merge --squash $BRANCH_NAME'
-                    sh 'git commit -a --author="$COMMIT_AUTHOR" --message="$COMMIT_MSG"'
+                        sh 'git checkout master'
+                        sh 'git merge --squash $BRANCH_NAME'
+                        sh 'git commit -a --author="$COMMIT_AUTHOR" --message="$COMMIT_MSG"'
 
-                    def gitLog = sh(script: 'git log -1 --pretty=format:full', returnStdout: true)
-                    echo "${gitLog}"
+                        def gitLog = sh(script: 'git log -1 --pretty=format:full', returnStdout: true)
+                        echo "${gitLog}"
 
-                    // Push changes
-                    withCredentials([usernamePassword(credentialsId: 'CXSGithub', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
-                        // TODO Push to master branch
-                        // Invalidate older builds forcing re-scan of PR
-                        // Aims to maintain master healthy and prevent that one PR tramples another
-                        milestone 2
+                        // Push changes
+                        withCredentials([usernamePassword(credentialsId: 'CXSGithub', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+                            // TODO Push to master branch
+                            // Invalidate older builds forcing re-scan of PR
+                            // Aims to maintain master healthy and prevent that one PR tramples another
+                            milestone 2
+                        }
                     }
                 }
             }
