@@ -46,22 +46,20 @@ pipeline {
                          text(name: 'COMMIT_MSG', defaultValue: '', description: 'Commit Message')]
                     env.FEATURE_SCOPE = userInput['FEATURE_SCOPE']
                     env.COMMIT_MSG = userInput['COMMIT_MSG']
-                    env.COMMIT_AUTHOR = sh(script: 'git log -1 --pretty=format:\'%an <%ae>\'', returnStdout: true).trim()
                 }
                 milestone 1
             }
         }
 
         stage('ContinuousIntegration') {
-            agent { node('cxs-slave-master') }
+            agent none
 
             steps {
                 script {
                     def media_core_ci_job = build(job: "media-core-ci",
                         parameters:[string(name: 'BRANCH_NAME', value: "${env.BRANCH_NAME}"),
                                     string(name: 'FEATURE_SCOPE', value: "${env.FEATURE_SCOPE}"),
-                                    string(name: 'COMMIT_MSG', value: "${env.COMMIT_MSG}"),
-                                    string(name: 'COMMIT_AUTHOR', value: "${env.COMMIT_AUTHOR}")])
+                                    string(name: 'COMMIT_MSG', value: "${env.COMMIT_MSG}")])
                 }
             }
         }

@@ -28,9 +28,12 @@ node("cxs-slave-master") {
         }
 
         stage('Merge') {
+            env.COMMIT_AUTHOR = sh(script: 'git log -1 --pretty=format:\'%an <%ae>\'', returnStdout: true).trim()
+        
             sh 'git checkout master'
             sh 'git merge --squash $BRANCH_NAME'
             sh 'git commit -a --author="$COMMIT_AUTHOR" --message="$COMMIT_MSG"'
+
             def gitLog = sh(script: 'git log -1 --pretty=format:full', returnStdout: true)
             echo "${gitLog}"
         }
