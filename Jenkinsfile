@@ -58,6 +58,9 @@ pipeline {
             steps {
                 lock('media-core-master') {
                     script {
+                        // Find feature author
+                        env.COMMIT_AUTHOR = sh(script: 'git log -1 --pretty=format:\'%an <%ae>\'', returnStdout: true).trim()
+
                         // Increment project version according to release scope
                         if(env.FEATURE_SCOPE == 'fix') {
                             sh 'mvn build-helper:parse-version versions:set -DnewVersion=\\${parsedVersion.majorVersion}.\\${parsedVersion.minorVersion}.\\${parsedVersion.nextIncrementalVersion}-SNAPSHOT versions:commit'
@@ -67,16 +70,17 @@ pipeline {
                             sh 'mvn build-helper:parse-version versions:set -DnewVersion=\\${parsedVersion.nextMajorVersion}.0.0-SNAPSHOT versions:commit'
                         }
 
-                        // Save next project version
+                        sh 'git add *'
+                        sh 'git commit -m "Updated project version to $NEXT_VERSION"'
+
+                        // Save project version
                         def pom = readMavenPom file: 'pom.xml'
                         env.NEXT_VERSION = pom.version
                         echo "Updated project version to $NEXT_VERSION"
 
                         // Merge feature
-                        env.COMMIT_AUTHOR = sh(script: 'git log -1 --pretty=format:\'%an <%ae>\'', returnStdout: true).trim()
-
                         sh 'git checkout master'
-                        sh 'git merge --squash $BRANCH_NAME'
+                        sh 'git merge --squash origin/$BRANCH_NAME'
                         sh 'git commit -a --author="$COMMIT_AUTHOR" --message="$COMMIT_MSG"'
 
                         def gitLog = sh(script: 'git log -1 --pretty=format:full', returnStdout: true)
