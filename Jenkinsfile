@@ -85,7 +85,7 @@ pipeline {
                         sh 'git merge --squash origin/$BRANCH_NAME'
                         sh 'git commit -a --author="$COMMIT_AUTHOR" --message="$COMMIT_MSG"'
 
-                        def gitLog = sh(script: 'git log -1 --pretty=format:full', returnStdout: true)
+                        def gitLog = sh(script: 'git log -1 --pretty=full', returnStdout: true)
                         echo "${gitLog}"
 
                         // Push changes
