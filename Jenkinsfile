@@ -42,11 +42,13 @@ pipeline {
 
             steps {
                 script {
-                    def userInput = input message: 'Waiting for maintainer review', parameters:
-                        [choice(name: 'FEATURE_SCOPE', choices: 'fix\nfeat\nbreaking_change', description: 'Release Scope'),
-                         text(name: 'COMMIT_MSG', defaultValue: '', description: 'Commit Message')]
-                    env.FEATURE_SCOPE = userInput['FEATURE_SCOPE']
-                    env.COMMIT_MSG = userInput['COMMIT_MSG']
+                    timeout(time:5, unit:'DAYS') {
+                        def userInput = input message: 'Waiting for maintainer review', parameters:
+                            [choice(name: 'FEATURE_SCOPE', choices: 'fix\nfeat\nbreaking_change', description: 'Release Scope'),
+                             text(name: 'COMMIT_MSG', defaultValue: '', description: 'Commit Message')]
+                        env.FEATURE_SCOPE = userInput['FEATURE_SCOPE']
+                        env.COMMIT_MSG = userInput['COMMIT_MSG']
+                    }
                 }
                 milestone 1
             }
@@ -70,7 +72,7 @@ pipeline {
                             sh 'mvn build-helper:parse-version versions:set -DnewVersion=\\${parsedVersion.nextMajorVersion}.0.0-SNAPSHOT versions:commit'
                         }
 
-                        sh 'git add *'
+                        sh 'git add -u'
                         sh 'git commit -m "Updated project version to $NEXT_VERSION"'
 
                         // Save project version
