@@ -44,7 +44,7 @@ import org.restcomm.media.core.control.mgcp.pkg.MgcpEventObserver;
 import org.restcomm.media.core.control.mgcp.pkg.au.ReturnCode;
 import org.restcomm.media.core.control.mgcp.pkg.au.pc.PlayCollect;
 import org.restcomm.media.core.resource.dtmf.DtmfEvent;
-import org.restcomm.media.core.resource.dtmf.DtmfSinkFacade;
+import org.restcomm.media.core.resource.dtmf.DtmfEventSubject;
 import org.restcomm.media.core.resource.player.audio.AudioPlayerEvent;
 import org.restcomm.media.core.resource.player.audio.AudioPlayerImpl;
 import org.restcomm.media.core.spi.ResourceUnavailableException;
@@ -81,7 +81,7 @@ public class PlayCollectTest {
         parameters.put("eik", "#");
 
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -115,7 +115,7 @@ public class PlayCollectTest {
         parameters.put("mx", "2");
 
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -153,7 +153,7 @@ public class PlayCollectTest {
         parameters.put("ni", "true");
 
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -188,7 +188,7 @@ public class PlayCollectTest {
         parameters.put("na", "2");
 
         final Player player = mock(Player.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -225,7 +225,7 @@ public class PlayCollectTest {
         parameters.put("iek", "true");
 
         final Player player = mock(Player.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -258,7 +258,7 @@ public class PlayCollectTest {
         parameters.put("iek", "false");
 
         final Player player = mock(Player.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -290,7 +290,7 @@ public class PlayCollectTest {
         // mx parameter defaults to 1
 
         final Player player = mock(Player.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -319,7 +319,7 @@ public class PlayCollectTest {
         parameters.put("sik", "345");
 
         final Player player = mock(Player.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -354,7 +354,7 @@ public class PlayCollectTest {
         parameters.put("na", "1");
 
         final Player player = mock(Player.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -383,7 +383,7 @@ public class PlayCollectTest {
         parameters.put("dp", "xxxxx");
 
         final Player player = mock(Player.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -418,7 +418,7 @@ public class PlayCollectTest {
         parameters.put("dp", "x.AB");
 
         final Player player = mock(Player.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -455,7 +455,7 @@ public class PlayCollectTest {
         parameters.put("dp", "9xA*");
 
         final Player player = mock(Player.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -486,7 +486,7 @@ public class PlayCollectTest {
         parameters.put("dp", "9xA*|9AC");
 
         final Player player = mock(Player.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -518,7 +518,7 @@ public class PlayCollectTest {
         parameters.put("fdt", "10");
 
         final Player player = mock(Player.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -548,7 +548,7 @@ public class PlayCollectTest {
         parameters.put("fdt", "5");
 
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -580,7 +580,7 @@ public class PlayCollectTest {
         parameters.put("idt", "30");
 
         final Player player = mock(Player.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -610,7 +610,7 @@ public class PlayCollectTest {
         parameters.put("ip", "dummy1.wav,dummy2.wav");
 
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -649,7 +649,7 @@ public class PlayCollectTest {
         parameters.put("idt", "5");
 
         final Player player = mock(Player.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -679,7 +679,7 @@ public class PlayCollectTest {
         parameters.put("dp", "xx");
 
         final Player player = mock(Player.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -715,7 +715,7 @@ public class PlayCollectTest {
         parameters.put("rsk", "A");
 
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -758,7 +758,7 @@ public class PlayCollectTest {
         parameters.put("rsk", "A");
 
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -803,7 +803,7 @@ public class PlayCollectTest {
         parameters.put("idt", "10");
 
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -866,7 +866,7 @@ public class PlayCollectTest {
         parameters.put("idt", "5");
 
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -921,7 +921,7 @@ public class PlayCollectTest {
         parameters.put("mx", "3");
 
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -973,7 +973,7 @@ public class PlayCollectTest {
         parameters.put("dp", "xxA");
 
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -1031,7 +1031,7 @@ public class PlayCollectTest {
         parameters.put("idt", "3");
 
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -1094,7 +1094,7 @@ public class PlayCollectTest {
         parameters.put("idt", "5");
 
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -1145,7 +1145,7 @@ public class PlayCollectTest {
         parameters.put("mx", "3");
 
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -1196,7 +1196,7 @@ public class PlayCollectTest {
         parameters.put("dp", "xxA");
 
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -1247,7 +1247,7 @@ public class PlayCollectTest {
         parameters.put("sa", "success1.wav,success2.wav");
 
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -1290,7 +1290,7 @@ public class PlayCollectTest {
         parameters.put("sa", "success1.wav,success2.wav");
 
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -1334,7 +1334,7 @@ public class PlayCollectTest {
         parameters.put("idt", "5");
 
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -1377,7 +1377,7 @@ public class PlayCollectTest {
         parameters.put("fa", "failure1.wav,failure2.wav");
 
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -1418,7 +1418,7 @@ public class PlayCollectTest {
         parameters.put("fa", "failure1.wav,failure2.wav");
 
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -1462,7 +1462,7 @@ public class PlayCollectTest {
         parameters.put("idt", "5");
 
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -1500,7 +1500,7 @@ public class PlayCollectTest {
         parameters.put("fa", "failure.wav");
 
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -1536,7 +1536,7 @@ public class PlayCollectTest {
         parameters.put("pa", "success.wav");
 
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -1571,7 +1571,7 @@ public class PlayCollectTest {
         parameters.put("pa", "success.wav");
 
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -1599,7 +1599,7 @@ public class PlayCollectTest {
         parameters.put("pa", "success.wav");
 
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -1636,7 +1636,7 @@ public class PlayCollectTest {
         parameters.put("sa", "success.wav");
 
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -1670,7 +1670,7 @@ public class PlayCollectTest {
         parameters.put("sa", "success1.wav,success2.wav,success3.wav");
 
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -1707,7 +1707,7 @@ public class PlayCollectTest {
         parameters.put("fa", "failure1.wav,failure2.wav,failure3.wav");
 
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -1745,7 +1745,7 @@ public class PlayCollectTest {
         parameters.put("idt", "10");
 
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);
@@ -1794,7 +1794,7 @@ public class PlayCollectTest {
         parameters.put("idt", "10");
 
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
-        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
+        final DtmfEventSubject detector = mock(DtmfEventSubject.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, 1, parameters, executor);

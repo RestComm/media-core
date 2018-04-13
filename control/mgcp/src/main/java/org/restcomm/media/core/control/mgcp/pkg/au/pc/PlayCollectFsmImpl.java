@@ -32,7 +32,7 @@ import org.restcomm.media.core.control.mgcp.pkg.au.OperationFailed;
 import org.restcomm.media.core.control.mgcp.pkg.au.Playlist;
 import org.restcomm.media.core.control.mgcp.pkg.au.ReturnCode;
 import org.restcomm.media.core.spi.ResourceUnavailableException;
-import org.restcomm.media.core.resource.dtmf.DtmfSinkFacade;
+import org.restcomm.media.core.resource.dtmf.DtmfEventSubject;
 import org.restcomm.media.core.resource.dtmf.DtmfEventObserver;
 import org.restcomm.media.core.spi.listener.TooManyListenersException;
 import org.restcomm.media.core.spi.player.Player;
@@ -57,7 +57,7 @@ public class PlayCollectFsmImpl extends
     private final MgcpEventSubject mgcpEventSubject;
 
     // Media Components
-    private final DtmfSinkFacade detector;
+    private final DtmfEventSubject detector;
     final DtmfEventObserver detectorObserver;
 
     private final Player player;
@@ -66,7 +66,7 @@ public class PlayCollectFsmImpl extends
     // Execution Context
     private final PlayCollectContext context;
 
-    public PlayCollectFsmImpl(DtmfSinkFacade detector, DtmfEventObserver detectorObserver, Player player,
+    public PlayCollectFsmImpl(DtmfEventSubject detector, DtmfEventObserver detectorObserver, Player player,
             PlayerListener playerListener, MgcpEventSubject mgcpEventSubject, ListeningScheduledExecutorService executor,
             PlayCollectContext context) {
         super();

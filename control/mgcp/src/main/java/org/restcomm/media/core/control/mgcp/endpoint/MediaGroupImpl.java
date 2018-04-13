@@ -28,11 +28,8 @@ import org.restcomm.media.core.component.audio.AudioComponent;
 import org.restcomm.media.core.component.audio.AudioOutput;
 import org.restcomm.media.core.component.oob.OOBComponent;
 import org.restcomm.media.core.component.oob.OOBOutput;
-import org.restcomm.media.core.resource.dtmf.DtmfDetector;
-import org.restcomm.media.core.resource.dtmf.DtmfDetectorProvider;
-import org.restcomm.media.core.resource.dtmf.InbandDtmfSink;
-import org.restcomm.media.core.resource.dtmf.Rfc2833DtmfDetector;
-import org.restcomm.media.core.resource.dtmf.Rfc2833DtmfSink;
+import org.restcomm.media.core.resource.dtmf.DtmfSinkFacadeProvider;
+import org.restcomm.media.core.resource.dtmf.DtmfEventSubject;
 import org.restcomm.media.core.resource.dtmf.DtmfSinkFacade;
 import org.restcomm.media.core.resource.player.audio.AudioPlayerImpl;
 import org.restcomm.media.core.resource.recorder.audio.AudioRecorderImpl;
@@ -42,8 +39,6 @@ import org.restcomm.media.core.spi.player.Player;
 import org.restcomm.media.core.spi.player.PlayerProvider;
 import org.restcomm.media.core.spi.recorder.Recorder;
 import org.restcomm.media.core.spi.recorder.RecorderProvider;
-
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -55,17 +50,15 @@ public class MediaGroupImpl implements MediaGroup {
     private final AudioComponent audioComponent;
     private final OOBComponent oobComponent;
 
-    private static final AtomicInteger detectorId = new AtomicInteger(0);
-
     private final Player player;
     private final Recorder recorder;
-    private final DtmfSinkFacade detector;
+    private final DtmfEventSubject detector;
     private final DtmfGenerator generator;
     private final AsrEngine asrEngine;
 
     // TODO Add list of enum that declare which media components are created in the media group
     public MediaGroupImpl(AudioComponent audioComponent, OOBComponent oobComponent, PlayerProvider players,
-            RecorderProvider recorders, DtmfDetectorProvider detectors, AsrEngineProvider asrEngines) {
+            RecorderProvider recorders, DtmfSinkFacadeProvider detectors, AsrEngineProvider asrEngines) {
         // Media Components
         this.audioComponent = audioComponent;
         this.oobComponent = oobComponent;
@@ -87,13 +80,8 @@ public class MediaGroupImpl implements MediaGroup {
         return player;
     }
 
-    private DtmfSinkFacade initializeDetector(DtmfDetectorProvider detectors) {
-        AudioOutput output = new AudioOutput(detectors.getScheduler(), ComponentType.DTMF_DETECTOR.getType());
-        OOBOutput oobOutput = new OOBOutput(detectors.getScheduler(), ComponentType.DTMF_DETECTOR.getType());
-        int id = detectorId.getAndIncrement();
-        InbandDtmfSink inbandSink = new InbandDtmfSink("inband-dtmf-sink-" + id, detectors.provide(), output);
-        Rfc2833DtmfSink oobSink = new Rfc2833DtmfSink("oob-dtmf-sink-" + id, new Rfc2833DtmfDetector(500), oobOutput);
-        DtmfSinkFacade detector = new DtmfSinkFacade(inbandSink, oobSink);
+    private DtmfEventSubject initializeDetector(DtmfSinkFacadeProvider detectors) {
+        DtmfSinkFacade detector = detectors.provide();
         this.audioComponent.addOutput(detector.getInbandOutput());
         this.oobComponent.addOutput(detector.getOutbandOutput());
         // writeComponents++
@@ -143,7 +131,7 @@ public class MediaGroupImpl implements MediaGroup {
     }
 
     @Override
-    public DtmfSinkFacade getDetector() {
+    public DtmfEventSubject getDetector() {
         return this.detector;
     }
 

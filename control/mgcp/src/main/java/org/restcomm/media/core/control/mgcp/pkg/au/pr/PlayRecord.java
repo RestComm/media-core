@@ -28,7 +28,7 @@ import org.restcomm.media.core.control.mgcp.pkg.AbstractMgcpSignal;
 import org.restcomm.media.core.control.mgcp.pkg.SignalType;
 import org.restcomm.media.core.control.mgcp.pkg.au.AudioPackage;
 import org.restcomm.media.core.control.mgcp.pkg.au.SignalParameters;
-import org.restcomm.media.core.resource.dtmf.DtmfSinkFacade;
+import org.restcomm.media.core.resource.dtmf.DtmfEventSubject;
 import org.restcomm.media.core.resource.dtmf.DtmfEventObserver;
 import org.restcomm.media.core.resource.dtmf.DtmfEvent;
 import org.restcomm.media.core.spi.player.Player;
@@ -53,7 +53,7 @@ public class PlayRecord extends AbstractMgcpSignal {
     private final Player player;
     final PlayerListener playerListener;
 
-    private final DtmfSinkFacade detector;
+    private final DtmfEventSubject detector;
     final DtmfEventObserver detectorObserver;
 
     private final Recorder recorder;
@@ -62,7 +62,7 @@ public class PlayRecord extends AbstractMgcpSignal {
     // Execution Context
     private final PlayRecordContext context;
 
-    public PlayRecord(Player player, DtmfSinkFacade detector, Recorder recorder, int requestId, NotifiedEntity notifiedEntity, Map<String, String> parameters) {
+    public PlayRecord(Player player, DtmfEventSubject detector, Recorder recorder, int requestId, NotifiedEntity notifiedEntity, Map<String, String> parameters) {
         super(AudioPackage.PACKAGE_NAME, SYMBOL, SignalType.TIME_OUT, requestId, notifiedEntity, parameters);
 
         // Media Components
@@ -83,7 +83,7 @@ public class PlayRecord extends AbstractMgcpSignal {
                 playerListener, context);
     }
     
-    public PlayRecord(Player player, DtmfSinkFacade detector, Recorder recorder, int requestId, Map<String, String> parameters) {
+    public PlayRecord(Player player, DtmfEventSubject detector, Recorder recorder, int requestId, Map<String, String> parameters) {
         this(player, detector, recorder, requestId, null, parameters);
     }
 

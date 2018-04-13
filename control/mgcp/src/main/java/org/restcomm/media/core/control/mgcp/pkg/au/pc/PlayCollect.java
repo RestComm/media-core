@@ -28,7 +28,7 @@ import org.restcomm.media.core.control.mgcp.pkg.AbstractMgcpSignal;
 import org.restcomm.media.core.control.mgcp.pkg.SignalType;
 import org.restcomm.media.core.control.mgcp.pkg.au.AudioPackage;
 import org.restcomm.media.core.control.mgcp.pkg.au.SignalParameters;
-import org.restcomm.media.core.resource.dtmf.DtmfSinkFacade;
+import org.restcomm.media.core.resource.dtmf.DtmfEventSubject;
 import org.restcomm.media.core.resource.dtmf.DtmfEventObserver;
 import org.restcomm.media.core.resource.dtmf.DtmfEvent;
 import org.restcomm.media.core.spi.player.Player;
@@ -62,7 +62,7 @@ public class PlayCollect extends AbstractMgcpSignal {
     private final PlayCollectFsm fsm;
 
     // Media Components
-    private final DtmfSinkFacade detector;
+    private final DtmfEventSubject detector;
     final DtmfEventObserver detectorObserver;
 
     private final Player player;
@@ -71,7 +71,7 @@ public class PlayCollect extends AbstractMgcpSignal {
     // Execution Context
     private final PlayCollectContext context;
 
-    public PlayCollect(Player player, DtmfSinkFacade detector, int requestId, NotifiedEntity notifiedEntity, Map<String, String> parameters, ListeningScheduledExecutorService executor) {
+    public PlayCollect(Player player, DtmfEventSubject detector, int requestId, NotifiedEntity notifiedEntity, Map<String, String> parameters, ListeningScheduledExecutorService executor) {
         super(AudioPackage.PACKAGE_NAME, SYMBOL, SignalType.TIME_OUT, requestId, notifiedEntity, parameters);
 
         // Media Components
@@ -88,7 +88,7 @@ public class PlayCollect extends AbstractMgcpSignal {
         this.fsm = PlayCollectFsmBuilder.INSTANCE.build(detector, detectorObserver, player, playerListener, this, executor, context);
     }
     
-    public PlayCollect(Player player, DtmfSinkFacade detector, int requestId, Map<String, String> parameters, ListeningScheduledExecutorService executor) {
+    public PlayCollect(Player player, DtmfEventSubject detector, int requestId, Map<String, String> parameters, ListeningScheduledExecutorService executor) {
         this(player, detector, requestId, null, parameters, executor);
     }
 

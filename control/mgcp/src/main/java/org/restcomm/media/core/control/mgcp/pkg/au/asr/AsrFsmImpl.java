@@ -37,7 +37,7 @@ import org.restcomm.media.core.drivers.asr.AsrDriverException;
 import org.restcomm.media.core.drivers.asr.UnknownAsrDriverException;
 import org.restcomm.media.core.resource.dtmf.DtmfEvent;
 import org.restcomm.media.core.resource.dtmf.DtmfEventObserver;
-import org.restcomm.media.core.resource.dtmf.DtmfSinkFacade;
+import org.restcomm.media.core.resource.dtmf.DtmfEventSubject;
 import org.restcomm.media.core.resource.vad.VoiceActivityDetectorListener;
 import org.restcomm.media.core.spi.ResourceUnavailableException;
 import org.restcomm.media.core.spi.listener.TooManyListenersException;
@@ -58,7 +58,7 @@ public class AsrFsmImpl extends AbstractStateMachine<AsrFsm, AsrState, AsrEvent,
     private static final Logger log = LogManager.getLogger(AsrFsmImpl.class);
 
     // Media Components
-    private final DtmfSinkFacade detector;
+    private final DtmfEventSubject detector;
     private final DtmfEventObserver detectorObserver;
 
     private final Player player;
@@ -82,7 +82,7 @@ public class AsrFsmImpl extends AbstractStateMachine<AsrFsm, AsrState, AsrEvent,
     private final MgcpEventSubject mgcpEventSubject;
     private final ListeningScheduledExecutorService executor;
 
-    public AsrFsmImpl(DtmfSinkFacade detector, Player player, AsrEngine asrEngine, MgcpEventSubject mgcpEventSubject,
+    public AsrFsmImpl(DtmfEventSubject detector, Player player, AsrEngine asrEngine, MgcpEventSubject mgcpEventSubject,
             ListeningScheduledExecutorService executor, AsrContext context) {
         super();
 

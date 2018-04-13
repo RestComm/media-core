@@ -34,7 +34,7 @@ import org.restcomm.media.core.control.mgcp.pkg.au.OperationComplete;
 import org.restcomm.media.core.control.mgcp.pkg.au.OperationFailed;
 import org.restcomm.media.core.control.mgcp.pkg.au.Playlist;
 import org.restcomm.media.core.control.mgcp.pkg.au.ReturnCode;
-import org.restcomm.media.core.resource.dtmf.DtmfSinkFacade;
+import org.restcomm.media.core.resource.dtmf.DtmfEventSubject;
 import org.restcomm.media.core.resource.dtmf.DtmfEventObserver;
 import org.restcomm.media.core.spi.ResourceUnavailableException;
 import org.restcomm.media.core.spi.listener.TooManyListenersException;
@@ -57,7 +57,7 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
     private final MgcpEventSubject mgcpEventSubject;
 
     // Media Components
-    private final DtmfSinkFacade detector;
+    private final DtmfEventSubject detector;
     final DtmfEventObserver detectorObserver;
 
     private final Player player;
@@ -70,7 +70,7 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
     private final PlayRecordContext context;
 
     public PlayRecordFsmImpl(MgcpEventSubject mgcpEventSubject, Recorder recorder, RecorderListener recorderListener,
-            DtmfSinkFacade detector, DtmfEventObserver detectorObserver, Player player, PlayerListener playerListener,
+            DtmfEventSubject detector, DtmfEventObserver detectorObserver, Player player, PlayerListener playerListener,
             PlayRecordContext context) {
         super();
         // Event Listener

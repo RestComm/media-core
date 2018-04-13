@@ -25,7 +25,7 @@ import java.util.Map;
 
 import org.restcomm.media.core.control.mgcp.pkg.au.Playlist;
 import org.restcomm.media.core.control.mgcp.pkg.au.SignalParameters;
-import org.restcomm.media.core.resource.dtmf.DtmfSinkFacade;
+import org.restcomm.media.core.resource.dtmf.DtmfEventSubject;
 import org.restcomm.media.core.resource.dtmf.DtmfEventObserver;
 
 import com.google.common.base.Optional;
@@ -53,7 +53,7 @@ public class PlayCollectContext {
     private int attempt;
     private int returnCode;
 
-    public PlayCollectContext(DtmfSinkFacade detector, DtmfEventObserver detectorObserver, Map<String, String> parameters) {
+    public PlayCollectContext(DtmfEventSubject detector, DtmfEventObserver detectorObserver, Map<String, String> parameters) {
         // Signal Options
         this.parameters = parameters;
 
