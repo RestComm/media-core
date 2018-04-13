@@ -72,13 +72,13 @@ pipeline {
                             sh 'mvn build-helper:parse-version versions:set -DnewVersion=\\${parsedVersion.nextMajorVersion}.0.0-SNAPSHOT versions:commit'
                         }
 
-                        sh 'git add -u'
-                        sh 'git commit -m "Updated project version to $NEXT_VERSION"'
-
                         // Save project version
                         def pom = readMavenPom file: 'pom.xml'
                         env.NEXT_VERSION = pom.version
                         echo "Updated project version to $NEXT_VERSION"
+
+                        sh 'git add -u'
+                        sh 'git commit -m "Updated project version to $NEXT_VERSION"'
 
                         // Merge feature
                         sh 'git checkout master'
