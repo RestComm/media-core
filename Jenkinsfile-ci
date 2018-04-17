@@ -11,7 +11,7 @@ pipeline {
                     sh 'mkdir -p ~/.m2 && sed -i "s|@LOCAL_REPO_PATH@|$WORKSPACE/M2_REPO|g" $WORKSPACE/settings.xml && cp $WORKSPACE/settings.xml -f ~/.m2/settings.xml'
                 }
                 checkout scm
-                echo scm.dump()
+                def remotes = scm.getUserRemoteConfigs()
             }
 
         }
@@ -81,7 +81,7 @@ pipeline {
                         sh 'git commit -m "Updated project version to $NEXT_VERSION"'
 
                         // Merge feature
-                        sh 'git checkout master'
+                        sh 'git checkout ${remotes[1].getRefspec()}'
                         sh 'git merge --squash origin/$BRANCH_NAME'
                         sh 'git commit -a --author="$COMMIT_AUTHOR" --message="$COMMIT_MSG"'
 
@@ -90,7 +90,7 @@ pipeline {
 
                         // Push changes
                         withCredentials([usernamePassword(credentialsId: 'CXSGithub', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
-                            sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/RestComm/media-core.git master'
+                            // sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/RestComm/media-core.git ${remotes[1].getRefspec()}'
 
                             // Invalidate older builds forcing re-scan of PR
                             // Aims to maintain master healthy and prevent that one PR tramples another
