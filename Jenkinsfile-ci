@@ -12,11 +12,8 @@ pipeline {
                 }
                 script {
                     checkout scm
-                    echo "Use Remote Configs ${scm.getUserRemoteConfigs()}"
-                    def remoteConfig = scmVars.getUserRemoteConfigs()[0];
-                    echo "Remote Config ${remoteConfig}"
-                    echo "Ref Specs ${remoteConfig.getRefspec()}"
-                    def refSpecs = remoteConfig.getRefspec().split(' ');
+                    def remoteConfig = scm.getUserRemoteConfigs()[0];
+                    def refSpecs = remoteConfig.getRefspec().split();
                     env.REF_FROM = "${refSpecs[0]}"
                     env.REF_TO = "${refSpecs[1]}"
                 }
