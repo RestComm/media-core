@@ -11,11 +11,17 @@ pipeline {
                     sh 'mkdir -p ~/.m2 && sed -i "s|@LOCAL_REPO_PATH@|$WORKSPACE/M2_REPO|g" $WORKSPACE/settings.xml && cp $WORKSPACE/settings.xml -f ~/.m2/settings.xml'
                 }
                 script {
+                    // Checkout PR branch
                     checkout scm
+
+                    // Read useful SCM data
                     def remoteConfig = scm.getUserRemoteConfigs()[0];
                     def refSpecs = remoteConfig.getRefspec().split();
                     env.REF_FROM = "${refSpecs[0]}"
                     env.REF_TO = "${refSpecs[1]}"
+
+                    def gitConfig = sh(script: 'git config --list', returnStdout: true)
+                    echo "Git Configuration:\n${gitConfig}"
                 }
             }
         }
@@ -89,9 +95,7 @@ pipeline {
                         sh 'git commit -m "Updated project version to $NEXT_VERSION"'
 
                         // Merge feature
-                        echo 'REF_TO is $REF_TO'
-                        echo 'REF_FROM is $REF_FROM'
-                        sh 'git checkout $REF_TO'
+                        sh 'git checkout master'
                         sh 'git merge --squash origin/$BRANCH_NAME'
                         sh 'git commit -a --author="$COMMIT_AUTHOR" --message="$COMMIT_MSG"'
 
@@ -100,7 +104,7 @@ pipeline {
 
                         // Push changes
                         withCredentials([usernamePassword(credentialsId: 'CXSGithub', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
-                            // sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/RestComm/media-core.git $REF_TO'
+                            sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/RestComm/media-core.git master'
 
                             // Invalidate older builds forcing re-scan of PR
                             // Aims to maintain master healthy and prevent that one PR tramples another
