@@ -89,7 +89,9 @@ pipeline {
                         sh 'git commit -m "Updated project version to $NEXT_VERSION"'
 
                         // Merge feature
-                        sh 'git checkout ${env.REF_TO}'
+                        echo 'REF_TO is $REF_TO'
+                        echo 'REF_FROM is $REF_FROM'
+                        sh 'git checkout $REF_TO'
                         sh 'git merge --squash origin/$BRANCH_NAME'
                         sh 'git commit -a --author="$COMMIT_AUTHOR" --message="$COMMIT_MSG"'
 
@@ -98,7 +100,7 @@ pipeline {
 
                         // Push changes
                         withCredentials([usernamePassword(credentialsId: 'CXSGithub', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
-                            // sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/RestComm/media-core.git ${env.REF_TO}'
+                            // sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/RestComm/media-core.git $REF_TO'
 
                             // Invalidate older builds forcing re-scan of PR
                             // Aims to maintain master healthy and prevent that one PR tramples another
