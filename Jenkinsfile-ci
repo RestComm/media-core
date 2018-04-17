@@ -12,7 +12,8 @@ pipeline {
                 }
                 script {
                     def scmVars = checkout scm
-                    def refspecs = scmVars.getUserRemoteConfigs()[0].getRefspec().tokenize(' ');
+                    def remoteConfig = scmVars.userRemoteConfigs[0];
+                    def (fromRef, toRef) = remoteConfig.getRefspec().tokenize(' ');
                 }
             }
         }
@@ -82,7 +83,7 @@ pipeline {
                         sh 'git commit -m "Updated project version to $NEXT_VERSION"'
 
                         // Merge feature
-                        sh 'git checkout ${refspecs[1]}'
+                        sh 'git checkout ${toRef}'
                         sh 'git merge --squash origin/$BRANCH_NAME'
                         sh 'git commit -a --author="$COMMIT_AUTHOR" --message="$COMMIT_MSG"'
 
@@ -91,7 +92,7 @@ pipeline {
 
                         // Push changes
                         withCredentials([usernamePassword(credentialsId: 'CXSGithub', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
-                            // sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/RestComm/media-core.git ${refspecs[1]}'
+                            // sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/RestComm/media-core.git ${toRef}'
 
                             // Invalidate older builds forcing re-scan of PR
                             // Aims to maintain master healthy and prevent that one PR tramples another
