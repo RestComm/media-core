@@ -1,4 +1,4 @@
-#!groovy​
+#!/usr/bin/env groovy
 node("cxs-slave-master") {
 
     configFileProvider(
