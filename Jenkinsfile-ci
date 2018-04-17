@@ -12,7 +12,9 @@ pipeline {
                 }
                 script {
                     def scmVars = checkout scm
-                    def remoteConfig = scmVars.userRemoteConfigs[0];
+                    echo "SCM Contents ${scmVars}"
+                    echo "Use Remote Configs ${scmVars.getUserRemoteConfigs()}"
+                    def remoteConfig = scmVars.getUserRemoteConfigs()[0];
                     echo "Remote Config ${remoteConfig}"
                     echo "Ref Specs ${remoteConfig.getRefspec()}"
                     def refSpecs = remoteConfig.getRefspec().split(' ');
