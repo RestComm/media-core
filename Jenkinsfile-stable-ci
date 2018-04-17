@@ -1,0 +1,60 @@
+node("cxs-slave-master") {
+    echo sh(returnStdout: true, script: 'env')
+
+    configFileProvider(
+        [configFile(fileId: '37cb206e-6498-4d8a-9b3d-379cd0ccd99b',  targetLocation: 'settings.xml')]) {
+	    sh 'mkdir -p ~/.m2 && sed -i "s|@LOCAL_REPO_PATH@|$WORKSPACE/M2_REPO|g" $WORKSPACE/settings.xml && cp $WORKSPACE/settings.xml -f ~/.m2/settings.xml'
+    }
+
+    stage ('Checkout') {
+        checkout scm
+
+        // Find feature author
+        env.COMMIT_AUTHOR = sh(script: 'git log -1 --pretty=format:\'%an <%ae>\'', returnStdout: true).trim()
+    }
+
+    stage ('Build') {
+        sh 'mvn clean install -DskipTests'
+    }
+
+    stage ('Test') {
+        sh 'mvn test'
+        junit testResults: '**/target/surefire-reports/*.xml', testDataPublishers: [[$class: 'StabilityTestDataPublisher']]
+    }
+
+    stage ('Versioning') {
+        // Increment project version. Only patches are allowed in stable branches
+        sh 'mvn build-helper:parse-version versions:set -DnewVersion=\\${parsedVersion.majorVersion}.\\${parsedVersion.minorVersion}.\\${parsedVersion.nextIncrementalVersion} versions:commit'
+
+        // Save release version
+        def pom = readMavenPom file: 'pom.xml'
+        env.RELEASE_VERSION = "${pom.version}"
+        echo 'Set release version to ${env.RELEASE_VERSION}'
+
+        sh 'git add -u'
+        sh 'git commit -m "Updated project version to $NEXT_VERSION"'
+    }
+
+    stage('Integration') {
+        // Merge feature
+        sh 'git checkout master'
+        sh 'git merge --squash origin/$BRANCH_NAME'
+        sh 'git commit -a --author="$COMMIT_AUTHOR" --message="$COMMIT_MSG"'
+    }
+
+    stage ('Deploy') {
+        sh 'mvn package deploy:deploy -Pattach-sources,generate-javadoc,maven-release -DskipTests -DskipNexusStagingDeployMojo -DaltDeploymentRepository=nexus::default::$CXS_NEXUS2_URL'
+    }
+
+    stage('Release') {
+        sh "mvn clean deploy -DskipTests=true -Dgpg.passphrase=${env.GPG_PASSPHRASE} -Pattach-sources,generate-javadoc,release-sign-artifacts,cxs-oss-release"
+    }
+
+    stage('Tag') {
+        withCredentials([usernamePassword(credentialsId: 'CXSGithub', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+            sh 'git tag ${env.RELEASE_VERSION}''
+            sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/RestComm/media-core.git --tags'
+        }
+    }
+
+}

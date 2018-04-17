@@ -11,6 +11,7 @@ pipeline {
                     sh 'mkdir -p ~/.m2 && sed -i "s|@LOCAL_REPO_PATH@|$WORKSPACE/M2_REPO|g" $WORKSPACE/settings.xml && cp $WORKSPACE/settings.xml -f ~/.m2/settings.xml'
                 }
                 checkout scm
+                echo scm.dump()
             }
 
         }
@@ -89,7 +90,7 @@ pipeline {
 
                         // Push changes
                         withCredentials([usernamePassword(credentialsId: 'CXSGithub', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
-                            // TODO Push to master branch
+                            sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/RestComm/media-core.git master'
 
                             // Invalidate older builds forcing re-scan of PR
                             // Aims to maintain master healthy and prevent that one PR tramples another
