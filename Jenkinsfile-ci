@@ -22,6 +22,9 @@ pipeline {
 
                     def gitConfig = sh(script: 'git config --list', returnStdout: true)
                     echo "Git Configuration:\n${gitConfig}"
+
+                    def remoteBranches = sh(script: 'git branch -r', returnStdout: true)
+                    echo "Remote Branches:\n${remoteBranches}"
                 }
             }
         }
