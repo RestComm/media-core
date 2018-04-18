@@ -10,6 +10,21 @@ node("cxs-slave-master") {
     stage ('Checkout') {
         checkout scm
 
+        // Read useful SCM data
+        def remoteConfig = scm.getUserRemoteConfigs()[0];
+        def refSpecs = remoteConfig.getRefspec().split();
+        env.REF_FROM = "${refSpecs[0]}"
+        env.REF_TO = "${refSpecs[1]}"
+
+        def gitConfig = sh(script: 'git config --list', returnStdout: true)
+        echo "Git Configuration:\n${gitConfig}"
+
+        def remoteBranches = sh(script: 'git branch -r', returnStdout: true)
+        echo "Remote Branches:\n${remoteBranches}"
+
+        env.BRANCH_BASE = remoteBranches.split('\n')[1]
+        echo "Target branch is $BRANCH_BASE"
+
         // Find feature author
         env.COMMIT_AUTHOR = sh(script: 'git log -1 --pretty=format:\'%an <%ae>\'', returnStdout: true).trim()
     }
@@ -21,6 +36,21 @@ node("cxs-slave-master") {
     stage ('Test') {
         sh 'mvn test'
         junit testResults: '**/target/surefire-reports/*.xml', testDataPublishers: [[$class: 'StabilityTestDataPublisher']]
+    }
+
+    stage('UserApproval') {
+        agent none
+
+        steps {
+            script {
+                timeout(time:5, unit:'DAYS') {
+                    def userInput = input message: 'Waiting for maintainer review', parameters:
+                            [text(name: 'COMMIT_MSG', defaultValue: '', description: 'Commit Message')]
+                    env.COMMIT_MSG = userInput['COMMIT_MSG']
+                }
+            }
+            milestone 1
+        }
     }
 
     stage ('Versioning') {
@@ -38,9 +68,10 @@ node("cxs-slave-master") {
 
     stage('Integration') {
         // Merge feature
-        sh 'git checkout master'
+        sh 'git checkout $BRANCH_BASE'
         sh 'git merge --squash origin/$BRANCH_NAME'
         sh 'git commit -a --author="$COMMIT_AUTHOR" --message="$COMMIT_MSG"'
+        sh 'git push origin $BRANCH_BASE'
     }
 
     stage ('Deploy') {
@@ -53,7 +84,7 @@ node("cxs-slave-master") {
 
     stage('Tag') {
         withCredentials([usernamePassword(credentialsId: 'CXSGithub', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
-            sh 'git tag ${env.RELEASE_VERSION}''
+            sh 'git tag ${env.RELEASE_VERSION}'
             sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/RestComm/media-core.git --tags'
         }
     }
