@@ -48,6 +48,9 @@ node("cxs-slave-master") {
     lock('media-core-master') {
 
         stage('Versioning') {
+            // Create local branch
+            sh 'git checkout -b local_branch'
+
             // Increment project version according to release scope
             if(env.FEATURE_SCOPE == 'fix') {
                 sh 'mvn build-helper:parse-version versions:set -DnewVersion=\\${parsedVersion.majorVersion}.\\${parsedVersion.minorVersion}.\\${parsedVersion.nextIncrementalVersion}-SNAPSHOT versions:commit'
@@ -69,15 +72,16 @@ node("cxs-slave-master") {
         stage('Integration') {
             // Merge feature to base branch
             sh 'git checkout $BRANCH_BASE'
-            sh 'git merge --squash origin/$BRANCH_NAME'
+            sh 'git merge --squash local_branch'
             sh 'git commit -a --author="$COMMIT_AUTHOR" --message="$COMMIT_MSG"'
+            sh 'git branch -d local_branch'
 
             def gitLog = sh(script: 'git log -1 --pretty=full', returnStdout: true)
             echo "${gitLog}"
 
             // Push Changes to base branch
             withCredentials([usernamePassword(credentialsId: 'CXSGithub', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
-                // TODO Push changes to base branch
+                // Push changes to base branch
                 //sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/RestComm/media-core.git $BRANCH_BASE'
             }
 
