@@ -49,7 +49,7 @@ node("cxs-slave-master") {
 
         stage('Versioning') {
             // Create local branch
-            sh 'git checkout -b local_branch'
+            sh 'git branch local_branch && git checkout local_branch'
 
             // Increment project version according to release scope
             if(env.FEATURE_SCOPE == 'fix') {
