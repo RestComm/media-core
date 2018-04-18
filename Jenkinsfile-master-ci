@@ -1,125 +1,89 @@
 #!/usr/bin/env groovy
-pipeline {
-    agent none
+node("cxs-slave-master") {
 
-    stages {
-        stage('Checkout') {
-            agent { node('cxs-slave-master') }
+    configFileProvider([configFile(fileId: '37cb206e-6498-4d8a-9b3d-379cd0ccd99b',  targetLocation: 'settings.xml')]) {
+        sh 'mkdir -p ~/.m2 && sed -i "s|@LOCAL_REPO_PATH@|$WORKSPACE/M2_REPO|g" $WORKSPACE/settings.xml && cp $WORKSPACE/settings.xml -f ~/.m2/settings.xml'
+    }
 
-            steps {
-                configFileProvider([configFile(fileId: '37cb206e-6498-4d8a-9b3d-379cd0ccd99b', targetLocation: 'settings.xml')]) {
-                    sh 'mkdir -p ~/.m2 && sed -i "s|@LOCAL_REPO_PATH@|$WORKSPACE/M2_REPO|g" $WORKSPACE/settings.xml && cp $WORKSPACE/settings.xml -f ~/.m2/settings.xml'
-                }
-                script {
-                    // Checkout PR branch
-                    checkout scm
+    stage ('Checkout') {
+        // Checkout PR branch
+        checkout scm
 
-                    // Read useful SCM data
-                    def remoteConfig = scm.getUserRemoteConfigs()[0];
-                    def refSpecs = remoteConfig.getRefspec().split();
-                    env.REF_FROM = "${refSpecs[0]}"
-                    env.REF_TO = "${refSpecs[1]}"
+        // Find base branch
+        def remoteBranches = sh(script: 'git branch -r', returnStdout: true)
+        env.BRANCH_BASE = remoteBranches.split('\n')[1]
+        echo "Target branch is $BRANCH_BASE"
 
-                    def gitConfig = sh(script: 'git config --list', returnStdout: true)
-                    echo "Git Configuration:\n${gitConfig}"
+        // Find contributor
+        env.COMMIT_AUTHOR = sh(script: 'git log -1 --pretty=format:\'%an <%ae>\'', returnStdout: true).trim()
+    }
 
-                    def remoteBranches = sh(script: 'git branch -r', returnStdout: true)
-                    echo "Remote Branches:\n${remoteBranches}"
+    stage('Build') {
+        sh "mvn clean install -DskipTests"
+    }
 
-                    env.BRANCH_BASE = remoteBranches.split('\n')[1]
-                    echo "Target branch is $BRANCH_BASE"
+    stage('Test') {
+        sh 'mvn test -Dmaven.test.failure.ignore=true'
+        junit testResults: '**/target/surefire-reports/*.xml', testDataPublishers: [[$class: 'StabilityTestDataPublisher']]
+    }
+}
 
-                    // Find feature author
-                    env.COMMIT_AUTHOR = sh(script: 'git log -1 --pretty=format:\'%an <%ae>\'', returnStdout: true).trim()
-                }
+stage('UserApproval') {
+    timeout(time:5, unit:'DAYS') {
+        def userInput = input message: 'Waiting for maintainer review', parameters:
+                [choice(name: 'FEATURE_SCOPE', choices: 'fix\nfeat\nbreaking_change', description: 'Release Scope'),
+                 text(name: 'COMMIT_MSG', defaultValue: '', description: 'Commit Message')]
+        env.FEATURE_SCOPE = userInput['FEATURE_SCOPE']
+        env.COMMIT_MSG = userInput['COMMIT_MSG']
+    }
+    milestone 1
+}
+
+node("cxs-slave-master") {
+
+    configFileProvider([configFile(fileId: '37cb206e-6498-4d8a-9b3d-379cd0ccd99b',  targetLocation: 'settings.xml')]) {
+        sh 'mkdir -p ~/.m2 && sed -i "s|@LOCAL_REPO_PATH@|$WORKSPACE/M2_REPO|g" $WORKSPACE/settings.xml && cp $WORKSPACE/settings.xml -f ~/.m2/settings.xml'
+    }
+
+    lock('media-core-master') {
+
+        stage('Versioning') {
+            // Increment project version according to release scope
+            if(env.FEATURE_SCOPE == 'fix') {
+                sh 'mvn build-helper:parse-version versions:set -DnewVersion=\\${parsedVersion.majorVersion}.\\${parsedVersion.minorVersion}.\\${parsedVersion.nextIncrementalVersion}-SNAPSHOT versions:commit'
+            } else if(env.FEATURE_SCOPE == 'feat') {
+                sh 'mvn build-helper:parse-version versions:set -DnewVersion=\\${parsedVersion.majorVersion}.\\${parsedVersion.nextMinorVersion}.0-SNAPSHOT versions:commit'
+            } else if(env.FEATURE_SCOPE == 'breaking_change') {
+                sh 'mvn build-helper:parse-version versions:set -DnewVersion=\\${parsedVersion.nextMajorVersion}.0.0-SNAPSHOT versions:commit'
             }
-        }
 
-        stage('Build') {
-            agent { node('cxs-slave-master') }
-            steps {
-                configFileProvider([configFile(fileId: '37cb206e-6498-4d8a-9b3d-379cd0ccd99b', targetLocation: 'settings.xml')]) {
-                    sh 'mkdir -p ~/.m2 && sed -i "s|@LOCAL_REPO_PATH@|$WORKSPACE/M2_REPO|g" $WORKSPACE/settings.xml && cp $WORKSPACE/settings.xml -f ~/.m2/settings.xml'
-                }
-                sh "mvn clean install -DskipTests"
-            }
-        }
+            // Save project version
+            def pom = readMavenPom file: 'pom.xml'
+            env.NEXT_VERSION = pom.version
+            echo "Updated project version to $NEXT_VERSION"
 
-        stage('Test') {
-            agent { node('cxs-slave-master') }
-            steps {
-                configFileProvider([configFile(fileId: '37cb206e-6498-4d8a-9b3d-379cd0ccd99b', targetLocation: 'settings.xml')]) {
-                    sh 'mkdir -p ~/.m2 && sed -i "s|@LOCAL_REPO_PATH@|$WORKSPACE/M2_REPO|g" $WORKSPACE/settings.xml && cp $WORKSPACE/settings.xml -f ~/.m2/settings.xml'
-                }
-                sh 'mvn test -Dmaven.test.failure.ignore=true'
-                junit testResults: '**/target/surefire-reports/*.xml', testDataPublishers: [[$class: 'StabilityTestDataPublisher']]
-            }
-        }
-
-        stage('UserApproval') {
-            agent none
-
-            steps {
-                script {
-                    timeout(time:5, unit:'DAYS') {
-                        def userInput = input message: 'Waiting for maintainer review', parameters:
-                            [choice(name: 'FEATURE_SCOPE', choices: 'fix\nfeat\nbreaking_change', description: 'Release Scope'),
-                             text(name: 'COMMIT_MSG', defaultValue: '', description: 'Commit Message')]
-                        env.FEATURE_SCOPE = userInput['FEATURE_SCOPE']
-                        env.COMMIT_MSG = userInput['COMMIT_MSG']
-                    }
-                }
-                milestone 1
-            }
+            sh 'git add -u'
+            sh 'git commit -m "Updated project version to $NEXT_VERSION"'
         }
 
         stage('Integration') {
-            agent { node('cxs-slave-master') }
+            // Merge feature to base branch
+            sh 'git checkout $BRANCH_BASE'
+            sh 'git merge --squash origin/$BRANCH_NAME'
+            sh 'git commit -a --author="$COMMIT_AUTHOR" --message="$COMMIT_MSG"'
 
-            steps {
-                configFileProvider([configFile(fileId: '37cb206e-6498-4d8a-9b3d-379cd0ccd99b', targetLocation: 'settings.xml')]) {
-                    sh 'mkdir -p ~/.m2 && sed -i "s|@LOCAL_REPO_PATH@|$WORKSPACE/M2_REPO|g" $WORKSPACE/settings.xml && cp $WORKSPACE/settings.xml -f ~/.m2/settings.xml'
-                }
+            def gitLog = sh(script: 'git log -1 --pretty=full', returnStdout: true)
+            echo "${gitLog}"
 
-                lock('media-core-master') {
-                    script {
-                        // Increment project version according to release scope
-                        if(env.FEATURE_SCOPE == 'fix') {
-                            sh 'mvn build-helper:parse-version versions:set -DnewVersion=\\${parsedVersion.majorVersion}.\\${parsedVersion.minorVersion}.\\${parsedVersion.nextIncrementalVersion}-SNAPSHOT versions:commit'
-                        } else if(env.FEATURE_SCOPE == 'feat') {
-                            sh 'mvn build-helper:parse-version versions:set -DnewVersion=\\${parsedVersion.majorVersion}.\\${parsedVersion.nextMinorVersion}.0-SNAPSHOT versions:commit'
-                        } else if(env.FEATURE_SCOPE == 'breaking_change') {
-                            sh 'mvn build-helper:parse-version versions:set -DnewVersion=\\${parsedVersion.nextMajorVersion}.0.0-SNAPSHOT versions:commit'
-                        }
-
-                        // Save project version
-                        def pom = readMavenPom file: 'pom.xml'
-                        env.NEXT_VERSION = pom.version
-                        echo "Updated project version to $NEXT_VERSION"
-
-                        sh 'git add -u'
-                        sh 'git commit -m "Updated project version to $NEXT_VERSION"'
-
-                        // Merge feature
-                        sh 'git checkout $BRANCH_BASE'
-                        sh 'git merge --squash origin/$BRANCH_NAME'
-                        sh 'git commit -a --author="$COMMIT_AUTHOR" --message="$COMMIT_MSG"'
-
-                        def gitLog = sh(script: 'git log -1 --pretty=full', returnStdout: true)
-                        echo "${gitLog}"
-
-                        // Push changes
-                        withCredentials([usernamePassword(credentialsId: 'CXSGithub', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
-                            // Push changes to base branch
-                            sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/RestComm/media-core.git $BRANCH_BASE'
-
-                            // Invalidate older builds forcing re-scan of PR
-                            // Aims to maintain master healthy and prevent that one PR tramples another
-                            milestone 2
-                        }
-                    }
-                }
+            // Push Changes to base branch
+            withCredentials([usernamePassword(credentialsId: 'CXSGithub', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+                // TODO Push changes to base branch
+                //sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/RestComm/media-core.git $BRANCH_BASE'
             }
+
+            // Invalidate older builds forcing re-scan of PR
+            // Aims to maintain master healthy and prevent that one PR tramples another
+            milestone 2
         }
     }
 }

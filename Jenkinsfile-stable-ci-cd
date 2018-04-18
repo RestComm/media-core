@@ -10,15 +10,6 @@ node("cxs-slave-master") {
     stage ('Checkout') {
         checkout scm
 
-        // Read useful SCM data
-        def remoteConfig = scm.getUserRemoteConfigs()[0];
-        def refSpecs = remoteConfig.getRefspec().split();
-        env.REF_FROM = "${refSpecs[0]}"
-        env.REF_TO = "${refSpecs[1]}"
-
-        def gitConfig = sh(script: 'git config --list', returnStdout: true)
-        echo "Git Configuration:\n${gitConfig}"
-
         def remoteBranches = sh(script: 'git branch -r', returnStdout: true)
         echo "Remote Branches:\n${remoteBranches}"
 
