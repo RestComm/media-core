@@ -18,6 +18,26 @@ node("cxs-slave-master") {
         def pom = readMavenPom file: 'pom.xml'
         env.RELEASE_VERSION = "${pom.version}-${env.BUILD_NUMBER}"
         echo 'Set release version to ${env.RELEASE_VERSION}'
+
+        // Tokenize version
+        def versionTokens = ${env.RELEASE_VERSION}.split('.')
+        env.MAJOR_VERSION = versionTokens[0]
+        env.MINOR_VERSION = versionTokens[1]
+        env.PATCH_VERSION = versionTokens[2]
+    }
+
+    stage('VerifyBranch') {
+        // Verify if branch exists
+        env.RELEASE_BRANCH = "stable-$MAJOR_VERSION-$MINOR_VERSION"
+        def branchExists = sh(script: 'git ls-remote --heads git@github.com:RestComm/media-core.git ${env.RELEASE_BRANCH} | wc -l', returnStdout: true)
+
+        if(${branchExists} == 1) {
+            echo 'Branch $RELEASE_BRANCH already exists. Aborting job.'
+            currentBuild.result = 'FAILURE'
+            return
+        } else {
+            echo 'Branch $RELEASE_BRANCH does not exist. Proceeding to next stage.'
+        }
     }
 
     stage ('Build') {
@@ -30,11 +50,7 @@ node("cxs-slave-master") {
     }
 
     stage('Branch') {
-        // Tokenize version
-        def (MAJOR_VERSION, MINOR_VERSION, PATCH_VERSION) = ${env.RELEASE_VERSION}.tokenize( '.' )
-
         withCredentials([usernamePassword(credentialsId: 'CXSGithub', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
-            env.RELEASE_BRANCH = "stable-$MAJOR_VERSION-$MINOR_VERSION"
             sh 'git checkout -b ${env.RELEASE_BRANCH}'
             sh 'git commit -a -m "New stable release ${env.RELEASE_VERSION}"'
             sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/RestComm/media-core.git origin/${env.RELEASE_BRANCH}'
