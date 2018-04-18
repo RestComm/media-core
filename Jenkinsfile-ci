@@ -26,8 +26,8 @@ pipeline {
                     def remoteBranches = sh(script: 'git branch -r', returnStdout: true)
                     echo "Remote Branches:\n${remoteBranches}"
 
-                    env.BRANCH_TARGET = remoteBranches.split('\n')[1]
-                    echo "Target branch is $TARGET_BRANCH"
+                    env.BRANCH_BASE = remoteBranches.split('\n')[1]
+                    echo "Target branch is $BRANCH_BASE"
                 }
             }
         }
@@ -101,7 +101,7 @@ pipeline {
                         sh 'git commit -m "Updated project version to $NEXT_VERSION"'
 
                         // Merge feature
-                        sh 'git checkout $BRANCH_TARGET'
+                        sh 'git checkout $BRANCH_BASE'
                         sh 'git merge --squash origin/$BRANCH_NAME'
                         sh 'git commit -a --author="$COMMIT_AUTHOR" --message="$COMMIT_MSG"'
 
@@ -110,7 +110,7 @@ pipeline {
 
                         // Push changes
                         withCredentials([usernamePassword(credentialsId: 'CXSGithub', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
-                            sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/RestComm/media-core.git $BRANCH_TARGET'
+                            sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/RestComm/media-core.git $BRANCH_BASE'
 
                             // Invalidate older builds forcing re-scan of PR
                             // Aims to maintain master healthy and prevent that one PR tramples another
