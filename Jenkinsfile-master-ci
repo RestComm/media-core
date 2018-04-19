@@ -1,9 +1,9 @@
 #!/usr/bin/env groovy
-def BRANC_BASE
-def COMMIT_AUTHOR
-def FEATURE_SCOPE
-def COMMIT_MSG
-def RELEASE_VERSION
+def branchBase
+def commitAuthor
+def featureScope
+def commitMsg
+def releaseVersion
 
 node("cxs-slave-master") {
 
@@ -17,11 +17,11 @@ node("cxs-slave-master") {
 
         // Find base branch
         def remoteBranches = sh(script: 'git branch -r', returnStdout: true)
-        BRANCH_BASE = remoteBranches.split('\n')[1]
-        echo "Target branch is $BRANCH_BASE"
+        branchBase = remoteBranches.split('\n')[1]
+        echo "Target branch is ${branchBase}"
 
         // Find contributor
-        COMMIT_AUTHOR = sh(script: 'git log -1 --pretty=format:\'%an <%ae>\'', returnStdout: true).trim()
+        commitAuthor = sh(script: 'git log -1 --pretty=format:\'%an <%ae>\'', returnStdout: true).trim()
     }
 
     stage('Build') {
@@ -37,10 +37,10 @@ node("cxs-slave-master") {
 stage('UserApproval') {
     timeout(time:5, unit:'DAYS') {
         def userInput = input message: 'Waiting for maintainer review', parameters:
-                [choice(name: 'FEATURE_SCOPE', choices: 'fix\nfeat\nbreaking_change', description: 'Release Scope'),
-                 text(name: 'COMMIT_MSG', defaultValue: '', description: 'Commit Message')]
-        FEATURE_SCOPE = userInput['FEATURE_SCOPE']
-        COMMIT_MSG = userInput['COMMIT_MSG']
+                [choice(name: 'featureScope', choices: 'fix\nfeat\nbreaking_change', description: 'Release Scope'),
+                 text(name: 'commitMsg', defaultValue: '', description: 'Commit Message')]
+        featureScope = userInput['featureScope']
+        commitMsg = userInput['commitMsg']
     }
     milestone 1
 }
@@ -60,18 +60,18 @@ node("cxs-slave-master") {
             sh 'git branch local_branch && git checkout local_branch'
 
             // Increment project version according to release scope
-            if(FEATURE_SCOPE == 'fix') {
+            if(${featureScope} == 'fix') {
                 sh 'mvn build-helper:parse-version versions:set -DnewVersion=\\${parsedVersion.majorVersion}.\\${parsedVersion.minorVersion}.\\${parsedVersion.nextIncrementalVersion}-SNAPSHOT versions:commit'
-            } else if(FEATURE_SCOPE == 'feat') {
+            } else if(${featureScope} == 'feat') {
                 sh 'mvn build-helper:parse-version versions:set -DnewVersion=\\${parsedVersion.majorVersion}.\\${parsedVersion.nextMinorVersion}.0-SNAPSHOT versions:commit'
-            } else if(FEATURE_SCOPE == 'breaking_change') {
+            } else if(${featureScope} == 'breaking_change') {
                 sh 'mvn build-helper:parse-version versions:set -DnewVersion=\\${parsedVersion.nextMajorVersion}.0.0-SNAPSHOT versions:commit'
             }
 
             // Save project version
             def pom = readMavenPom file: 'pom.xml'
-            RELEASE_VERSION = pom.version
-            echo "Updated project version to $RELEASE_VERSION"
+            releaseVersion = pom.version
+            echo "Updated project version to ${releaseVersion}"
 
             sh 'git add -u'
             sh 'git commit -m "Updated project version to $NEXT_VERSION"'
@@ -79,9 +79,9 @@ node("cxs-slave-master") {
 
         stage('Integration') {
             // Merge feature to base branch
-            sh 'git checkout $BRANCH_BASE'
+            sh 'git checkout ${branchBase}'
             sh 'git merge --squash local_branch'
-            sh 'git commit -a --author="$COMMIT_AUTHOR" --message="$COMMIT_MSG"'
+            sh 'git commit -a --author="${commitAuthor}" --message="${commitMsg}"'
             sh 'git branch -d local_branch'
 
             def gitLog = sh(script: 'git log -1 --pretty=full', returnStdout: true)
@@ -90,7 +90,7 @@ node("cxs-slave-master") {
             // Push Changes to base branch
             withCredentials([usernamePassword(credentialsId: 'CXSGithub', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
                 // Push changes to base branch
-                //sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/RestComm/media-core.git $BRANCH_BASE'
+                //sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/RestComm/media-core.git $[branchBase}'
             }
 
             // Invalidate older builds forcing re-scan of PR
