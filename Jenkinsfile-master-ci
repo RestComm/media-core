@@ -29,8 +29,8 @@ node("cxs-slave-master") {
     }
 
     stage('Test') {
-        // TODO sh 'mvn test -Dmaven.test.failure.ignore=true'
-        // TODO junit testResults: '**/target/surefire-reports/*.xml', testDataPublishers: [[$class: 'StabilityTestDataPublisher']]
+        sh 'mvn test -Dmaven.test.failure.ignore=true'
+        junit testResults: '**/target/surefire-reports/*.xml', testDataPublishers: [[$class: 'StabilityTestDataPublisher']]
     }
 }
 
@@ -74,7 +74,7 @@ node("cxs-slave-master") {
             echo "Updated project version to ${releaseVersion}"
 
             sh 'git add -u'
-            sh 'git commit -m "Updated project version to $NEXT_VERSION"'
+            sh "git commit -m \"Updated project version to ${releaseVersion}\""
         }
 
         stage('Integration') {
@@ -82,7 +82,6 @@ node("cxs-slave-master") {
             sh "git checkout ${branchBase}"
             sh 'git merge --squash local_branch'
             sh "git commit -a --author=\"${commitAuthor}\" --message=\"${commitMsg}\""
-            sh 'git branch -d local_branch'
 
             def gitLog = sh(script: 'git log -1 --pretty=full', returnStdout: true)
             echo "${gitLog}"
@@ -92,6 +91,9 @@ node("cxs-slave-master") {
                 // Push changes to base branch
                 //sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/RestComm/media-core.git $[branchBase}'
             }
+
+            // Delete local branch
+            sh 'git branch -D local_branch'
 
             // Invalidate older builds forcing re-scan of PR
             // Aims to maintain master healthy and prevent that one PR tramples another
