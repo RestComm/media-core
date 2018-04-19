@@ -29,8 +29,8 @@ node("cxs-slave-master") {
     }
 
     stage('Test') {
-        sh 'mvn test -Dmaven.test.failure.ignore=true'
-        junit testResults: '**/target/surefire-reports/*.xml', testDataPublishers: [[$class: 'StabilityTestDataPublisher']]
+        // TODO sh 'mvn test -Dmaven.test.failure.ignore=true'
+        // TODO junit testResults: '**/target/surefire-reports/*.xml', testDataPublishers: [[$class: 'StabilityTestDataPublisher']]
     }
 }
 
