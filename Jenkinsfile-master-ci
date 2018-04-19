@@ -12,7 +12,7 @@ node("cxs-slave-master") {
     }
 
     stage ('Checkout') {
-        // Checkout PR branch
+        // Checkout PR
         checkout scm
 
         // Find base branch
@@ -51,9 +51,10 @@ node("cxs-slave-master") {
         sh 'mkdir -p ~/.m2 && sed -i "s|@LOCAL_REPO_PATH@|$WORKSPACE/M2_REPO|g" $WORKSPACE/settings.xml && cp $WORKSPACE/settings.xml -f ~/.m2/settings.xml'
     }
 
-    lock('media-core-master') {
+    lock("media-core-${branchBase}") {
 
         stage('Versioning') {
+            // Checkout PR
             checkout scm
 
             // Create local branch
@@ -89,7 +90,7 @@ node("cxs-slave-master") {
             // Push Changes to base branch
             withCredentials([usernamePassword(credentialsId: 'CXSGithub', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
                 // Push changes to base branch
-                //sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/RestComm/media-core.git $[branchBase}'
+                sh "git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/RestComm/media-core.git ${branchBase}"
             }
 
             // Delete local branch

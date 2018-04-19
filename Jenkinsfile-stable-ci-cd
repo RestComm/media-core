@@ -1,83 +1,117 @@
 #!/usr/bin/env groovy
-node("cxs-slave-master") {
-    echo sh(returnStdout: true, script: 'env')
 
-    configFileProvider(
-        [configFile(fileId: '37cb206e-6498-4d8a-9b3d-379cd0ccd99b',  targetLocation: 'settings.xml')]) {
-	    sh 'mkdir -p ~/.m2 && sed -i "s|@LOCAL_REPO_PATH@|$WORKSPACE/M2_REPO|g" $WORKSPACE/settings.xml && cp $WORKSPACE/settings.xml -f ~/.m2/settings.xml'
+def branchBase
+def commitAuthor
+def commitMsg
+def releaseVersion
+
+node("cxs-slave-master") {
+
+    configFileProvider([configFile(fileId: '37cb206e-6498-4d8a-9b3d-379cd0ccd99b', targetLocation: 'settings.xml')]) {
+        sh 'mkdir -p ~/.m2 && sed -i "s|@LOCAL_REPO_PATH@|$WORKSPACE/M2_REPO|g" $WORKSPACE/settings.xml && cp $WORKSPACE/settings.xml -f ~/.m2/settings.xml'
     }
 
-    stage ('Checkout') {
+    stage('Checkout') {
+        // Checkout PR
         checkout scm
 
+        // Find base branch
         def remoteBranches = sh(script: 'git branch -r', returnStdout: true)
-        echo "Remote Branches:\n${remoteBranches}"
+        branchBase = remoteBranches.split('\n')[1]
+        echo "Target branch is ${branchBase}"
 
-        env.BRANCH_BASE = remoteBranches.split('\n')[1]
-        echo "Target branch is $BRANCH_BASE"
-
-        // Find feature author
-        env.COMMIT_AUTHOR = sh(script: 'git log -1 --pretty=format:\'%an <%ae>\'', returnStdout: true).trim()
+        // Find contributor
+        commitAuthor = sh(script: 'git log -1 --pretty=format:\'%an <%ae>\'', returnStdout: true).trim()
     }
 
-    stage ('Build') {
-        sh 'mvn clean install -DskipTests'
+    stage('Build') {
+        sh "mvn clean install -DskipTests"
     }
 
-    stage ('Test') {
+    stage('Test') {
         sh 'mvn test'
         junit testResults: '**/target/surefire-reports/*.xml', testDataPublishers: [[$class: 'StabilityTestDataPublisher']]
     }
+}
 
-    stage('UserApproval') {
-        agent none
+stage('UserApproval') {
+    agent none
 
-        steps {
-            script {
-                timeout(time:5, unit:'DAYS') {
-                    def userInput = input message: 'Waiting for maintainer review', parameters:
-                            [text(name: 'COMMIT_MSG', defaultValue: '', description: 'Commit Message')]
-                    env.COMMIT_MSG = userInput['COMMIT_MSG']
-                }
+    steps {
+        script {
+            timeout(time:5, unit:'DAYS') {
+                def userInput = input message: 'Waiting for maintainer review', parameters:
+                        [text(name: 'commitMsg', defaultValue: '', description: 'Commit Message')]
+                commitMsg = userInput['commitMsg']
             }
-            milestone 1
+        }
+        milestone 1
+    }
+}
+
+node("cxs-slave-master") {
+
+    configFileProvider([configFile(fileId: '37cb206e-6498-4d8a-9b3d-379cd0ccd99b',  targetLocation: 'settings.xml')]) {
+        sh 'mkdir -p ~/.m2 && sed -i "s|@LOCAL_REPO_PATH@|$WORKSPACE/M2_REPO|g" $WORKSPACE/settings.xml && cp $WORKSPACE/settings.xml -f ~/.m2/settings.xml'
+    }
+
+    lock("media-core-${branchBase}") {
+
+        stage('Versioning') {
+            // Checkout PR
+            checkout scm
+
+            // Create local branch
+            sh 'git branch local_branch && git checkout local_branch'
+
+            // Increment project version. Only patches are allowed in stable branches
+            sh 'mvn build-helper:parse-version versions:set -DnewVersion=\\${parsedVersion.majorVersion}.\\${parsedVersion.minorVersion}.\\${parsedVersion.nextIncrementalVersion} versions:commit'
+
+            // Save project version
+            def pom = readMavenPom file: 'pom.xml'
+            releaseVersion = pom.version
+            echo "Updated project version to ${releaseVersion}"
+
+            sh 'git add -u'
+            sh "git commit -m \"Updated project version to ${releaseVersion}\""
+        }
+
+        stage('Integration') {
+            // Merge feature to base branch
+            sh "git checkout ${branchBase}"
+            sh 'git merge --squash local_branch'
+            sh "git commit -a --author=\"${commitAuthor}\" --message=\"${commitMsg}\""
+
+            def gitLog = sh(script: 'git log -1 --pretty=full', returnStdout: true)
+            echo "${gitLog}"
+
+            // Push Changes to base branch
+            withCredentials([usernamePassword(credentialsId: 'CXSGithub', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+                // Push changes to base branch
+                sh "git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/RestComm/media-core.git ${branchBase}"
+            }
+
+            // Delete local branch
+            sh 'git branch -D local_branch'
+
+            // Invalidate older builds forcing re-scan of PR
+            // Aims to maintain master healthy and prevent that one PR tramples another
+            milestone 2
         }
     }
 
-    stage ('Versioning') {
-        // Increment project version. Only patches are allowed in stable branches
-        sh 'mvn build-helper:parse-version versions:set -DnewVersion=\\${parsedVersion.majorVersion}.\\${parsedVersion.minorVersion}.\\${parsedVersion.nextIncrementalVersion} versions:commit'
-
-        // Save release version
-        def pom = readMavenPom file: 'pom.xml'
-        env.RELEASE_VERSION = "${pom.version}"
-        echo 'Set release version to ${env.RELEASE_VERSION}'
-
-        sh 'git add -u'
-        sh 'git commit -m "Updated project version to $NEXT_VERSION"'
-    }
-
-    stage('Integration') {
-        // Merge feature
-        sh 'git checkout $BRANCH_BASE'
-        sh 'git merge --squash origin/$BRANCH_NAME'
-        sh 'git commit -a --author="$COMMIT_AUTHOR" --message="$COMMIT_MSG"'
-        sh 'git push origin $BRANCH_BASE'
-    }
-
-    stage ('Deploy') {
-        sh 'mvn package deploy:deploy -Pattach-sources,generate-javadoc,maven-release -DskipTests -DskipNexusStagingDeployMojo -DaltDeploymentRepository=nexus::default::$CXS_NEXUS2_URL'
-    }
-
-    stage('Release') {
-        sh "mvn clean deploy -DskipTests=true -Dgpg.passphrase=${env.GPG_PASSPHRASE} -Pattach-sources,generate-javadoc,release-sign-artifacts,cxs-oss-release"
-    }
-
-    stage('Tag') {
+    stage('Delivery') {
+        // Tag release
         withCredentials([usernamePassword(credentialsId: 'CXSGithub', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
-            sh 'git tag ${env.RELEASE_VERSION}'
-            sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/RestComm/media-core.git --tags'
+            sh "git tag ${releaseVersion}"
+            sh "git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/RestComm/media-core.git --tags"
         }
+
+        // Deploy to CXS Nexus
+        sh 'mvn package deploy:deploy -Pattach-sources,generate-javadoc,maven-release -DskipTests -DskipNexusStagingDeployMojo -DaltDeploymentRepository=nexus::default::$CXS_NEXUS2_URL'
+
+        // Release to Sonatype
+        sh "mvn clean deploy -DskipTests=true -Dgpg.passphrase=${env.GPG_PASSPHRASE} -Pattach-sources,generate-javadoc,release-sign-artifacts,cxs-oss-release"
     }
 
 }
