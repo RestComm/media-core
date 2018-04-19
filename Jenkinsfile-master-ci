@@ -1,4 +1,10 @@
 #!/usr/bin/env groovy
+def BRANC_BASE
+def COMMIT_AUTHOR
+def FEATURE_SCOPE
+def COMMIT_MSG
+def RELEASE_VERSION
+
 node("cxs-slave-master") {
 
     configFileProvider([configFile(fileId: '37cb206e-6498-4d8a-9b3d-379cd0ccd99b',  targetLocation: 'settings.xml')]) {
@@ -11,11 +17,11 @@ node("cxs-slave-master") {
 
         // Find base branch
         def remoteBranches = sh(script: 'git branch -r', returnStdout: true)
-        env.BRANCH_BASE = remoteBranches.split('\n')[1]
+        BRANCH_BASE = remoteBranches.split('\n')[1]
         echo "Target branch is $BRANCH_BASE"
 
         // Find contributor
-        env.COMMIT_AUTHOR = sh(script: 'git log -1 --pretty=format:\'%an <%ae>\'', returnStdout: true).trim()
+        COMMIT_AUTHOR = sh(script: 'git log -1 --pretty=format:\'%an <%ae>\'', returnStdout: true).trim()
     }
 
     stage('Build') {
@@ -33,8 +39,8 @@ stage('UserApproval') {
         def userInput = input message: 'Waiting for maintainer review', parameters:
                 [choice(name: 'FEATURE_SCOPE', choices: 'fix\nfeat\nbreaking_change', description: 'Release Scope'),
                  text(name: 'COMMIT_MSG', defaultValue: '', description: 'Commit Message')]
-        env.FEATURE_SCOPE = userInput['FEATURE_SCOPE']
-        env.COMMIT_MSG = userInput['COMMIT_MSG']
+        FEATURE_SCOPE = userInput['FEATURE_SCOPE']
+        COMMIT_MSG = userInput['COMMIT_MSG']
     }
     milestone 1
 }
@@ -48,22 +54,24 @@ node("cxs-slave-master") {
     lock('media-core-master') {
 
         stage('Versioning') {
+            checkout scm
+
             // Create local branch
             sh 'git branch local_branch && git checkout local_branch'
 
             // Increment project version according to release scope
-            if(env.FEATURE_SCOPE == 'fix') {
+            if(FEATURE_SCOPE == 'fix') {
                 sh 'mvn build-helper:parse-version versions:set -DnewVersion=\\${parsedVersion.majorVersion}.\\${parsedVersion.minorVersion}.\\${parsedVersion.nextIncrementalVersion}-SNAPSHOT versions:commit'
-            } else if(env.FEATURE_SCOPE == 'feat') {
+            } else if(FEATURE_SCOPE == 'feat') {
                 sh 'mvn build-helper:parse-version versions:set -DnewVersion=\\${parsedVersion.majorVersion}.\\${parsedVersion.nextMinorVersion}.0-SNAPSHOT versions:commit'
-            } else if(env.FEATURE_SCOPE == 'breaking_change') {
+            } else if(FEATURE_SCOPE == 'breaking_change') {
                 sh 'mvn build-helper:parse-version versions:set -DnewVersion=\\${parsedVersion.nextMajorVersion}.0.0-SNAPSHOT versions:commit'
             }
 
             // Save project version
             def pom = readMavenPom file: 'pom.xml'
-            env.NEXT_VERSION = pom.version
-            echo "Updated project version to $NEXT_VERSION"
+            RELEASE_VERSION = pom.version
+            echo "Updated project version to $RELEASE_VERSION"
 
             sh 'git add -u'
             sh 'git commit -m "Updated project version to $NEXT_VERSION"'
