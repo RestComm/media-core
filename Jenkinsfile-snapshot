@@ -1,5 +1,5 @@
+#!/usr/bin/env groovy
 node("cxs-slave-master") {
-    echo sh(returnStdout: true, script: 'env')
 
     configFileProvider(
         [configFile(fileId: '37cb206e-6498-4d8a-9b3d-379cd0ccd99b',  targetLocation: 'settings.xml')]) {
@@ -11,11 +11,12 @@ node("cxs-slave-master") {
     }
 
     stage ('Build') {
-        sh "mvn clean install -DskipTests=true"
+        sh "mvn clean install -DskipTests"
     }
 
     stage ('Test') {
-        sh "mvn clean install -Dmaven.test.failure.ignore=true"
+        sh "mvn test -Dmaven.test.failure.ignore=true"
+        junit testResults: '**/target/surefire-reports/*.xml', testDataPublishers: [[$class: 'StabilityTestDataPublisher']]
     }
 
     stage ('Deploy') {
