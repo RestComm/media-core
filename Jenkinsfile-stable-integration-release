@@ -21,7 +21,8 @@ node("cxs-slave-master") {
         echo "Target branch is ${branchBase}"
 
         // Find contributor
-        commitAuthor = sh(script: 'git log -1 --pretty=format:\'%an <%ae>\'', returnStdout: true).trim()
+        commitAuthor = sh(script: 'git log -1 HEAD~2 --pretty=format:\'%an <%ae>\'', returnStdout: true).trim()
+        echo "Author is ${commitAuthor}"
     }
 
     stage('Build') {
