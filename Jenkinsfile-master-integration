@@ -22,6 +22,10 @@ node("cxs-slave-master") {
 
         // Find contributor
         commitAuthor = sh(script: 'git log -1 --pretty=format:\'%an <%ae>\'', returnStdout: true).trim()
+        echo "Author is ${commitAuthor}"
+
+        def logHistory = sh(script: 'git log -5 --pretty=full', returnStdout: true).trim()
+        echo "${logHistory}"
     }
 
     stage('Build') {
@@ -82,7 +86,7 @@ node("cxs-slave-master") {
             // Merge feature to base branch
             sh "git checkout ${branchBase}"
             sh 'git merge --squash local_branch'
-            sh "git commit -a --author=\"${commitAuthor}\" --message=\"${commitMsg}\""
+            sh "git commit -a --author=\\"${commitAuthor}\\" --message=\\"${commitMsg}\\""
 
             def gitLog = sh(script: 'git log -1 --pretty=full', returnStdout: true)
             echo "${gitLog}"
