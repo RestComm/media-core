@@ -17,7 +17,7 @@ node("cxs-slave-master") {
 
         // Find base branch
         def remoteBranches = sh(script: 'git branch -r', returnStdout: true)
-        branchBase = remoteBranches.split('\n')[1]
+        branchBase = remoteBranches.split('\n')[1].split('/')[1].trim()
         echo "Target branch is ${branchBase}"
 
         // Find contributor
