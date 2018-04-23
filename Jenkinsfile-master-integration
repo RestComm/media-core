@@ -89,7 +89,7 @@ node("cxs-slave-master") {
             echo "${gitLog}"
 
             // Push Changes to base branch
-            withCredentials([usernamePassword(credentialsId: 'CXSGithub', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+            withCredentials([usernamePassword(credentialsId: 'ed9ceaaf-b58f-4705-9a9e-da932610cd91', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
                 // Push changes to base branch
                 sh "git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/RestComm/media-core.git ${branchBase}"
             }
