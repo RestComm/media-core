@@ -86,7 +86,7 @@ node("cxs-slave-master") {
             // Merge feature to base branch
             sh "git checkout ${branchBase}"
             sh 'git merge --squash local_branch'
-            sh "git commit -a --author=\\"${commitAuthor}\\" --message=\\"${commitMsg}\\""
+            sh "git commit -a --author=\"${commitAuthor}\" --message=\"${commitMsg}\""
 
             def gitLog = sh(script: 'git log -1 --pretty=full', returnStdout: true)
             echo "${gitLog}"
