@@ -58,6 +58,9 @@ node("cxs-slave-master") {
             // Checkout PR
             checkout scm
 
+            // Delete local branch
+            sh 'git branch -D local_branch'
+
             // Create local branch
             sh 'git branch local_branch && git checkout local_branch'
 
