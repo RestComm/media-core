@@ -92,7 +92,7 @@ node("cxs-slave-master") {
             withCredentials([usernamePassword(credentialsId: 'CXSGithub', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
                 // Push changes to base branch
                 env.BASE_BRANCH = "${branchBase}"
-                sh('git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/RestComm/media-core.git $BASE_BRANCH')
+                sh('git push --force https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/RestComm/media-core.git $BASE_BRANCH')
             }
 
             // Delete local branch
