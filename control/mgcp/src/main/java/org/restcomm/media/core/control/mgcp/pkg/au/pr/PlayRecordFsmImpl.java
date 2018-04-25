@@ -283,6 +283,7 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
         }
 
         // Activate DTMF detector and bind observer
+        // TODO Avoid castig when detector is activated
         ((DtmfSinkFacade) this.detector).activate();
         this.detector.observe(this.detectorObserver);
     }
@@ -310,8 +311,9 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
             log.trace("Exited COLLECTING state");
         }
 
-        ((DtmfSinkFacade) this.detector).deactivate();
         // Deactivate DTMF detector and release observer
+        // TODO Avoid castig when detector is deactivated
+        ((DtmfSinkFacade) this.detector).deactivate();
         this.detector.forget(this.detectorObserver);
     }
 

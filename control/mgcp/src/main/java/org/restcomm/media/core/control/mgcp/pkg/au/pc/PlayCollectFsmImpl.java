@@ -334,6 +334,7 @@ public class PlayCollectFsmImpl extends
         }
 
         // Activate DTMF detector and bind observer
+        // TODO Avoid castig when detector is activated
         ((DtmfSinkFacade) this.detector).activate();
         this.detector.observe(this.detectorObserver);
     }
@@ -394,6 +395,7 @@ public class PlayCollectFsmImpl extends
             log.trace("Exited COLLECTING state");
         }
 
+        // TODO Avoid castig when detector is deactivated
         ((DtmfSinkFacade) this.detector).deactivate();
         this.detector.forget(this.detectorObserver);
     }

@@ -239,6 +239,7 @@ public class AsrFsmImpl extends AbstractStateMachine<AsrFsm, AsrState, AsrEvent,
 
         if (context.isEndInputKeySpecified()) {
             // Activate DTMF detector and bind observer
+            // TODO Avoid castig when detector is activated
             ((DtmfSinkFacade) this.detector).activate();
             this.detector.observe(this.detectorObserver);
         }
@@ -314,6 +315,7 @@ public class AsrFsmImpl extends AbstractStateMachine<AsrFsm, AsrState, AsrEvent,
         this.asrEngine.stopSpeechDetection();
 
         if (context.isEndInputKeySpecified()) {
+            // TODO Avoid castig when detector is deactivated
             ((DtmfSinkFacade) this.detector).deactivate();
             this.detector.forget(this.detectorObserver);
         }
