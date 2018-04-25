@@ -86,6 +86,7 @@ public class AsrSignalSpeechTest extends AsrSignalBaseTest {
         waitForFinalResponse();
 
         // then
+        verify(detector, times(1)).activate();
         verify(player, never()).activate();
         verify(observer, times(4)).onEvent(eq(asr), eventCaptor.capture());
 
@@ -116,6 +117,7 @@ public class AsrSignalSpeechTest extends AsrSignalBaseTest {
 
         Thread.sleep(EPSILON_IN_MILLISECONDS);
 
+        verify(detector, times(1)).activate();
         verify(player, never()).activate();
         verify(observer, never()).onEvent(eq(asr), eventCaptor.capture());
 
@@ -127,6 +129,7 @@ public class AsrSignalSpeechTest extends AsrSignalBaseTest {
         waitForFinalResponse();
 
         // then
+        verify(detector, times(1)).activate();
         verify(player, never()).activate();
         verify(observer, times(2)).onEvent(eq(asr), eventCaptor.capture());
 
@@ -154,6 +157,7 @@ public class AsrSignalSpeechTest extends AsrSignalBaseTest {
         asr.observe(observer);
         asr.execute();
 
+        verify(detector, times(1)).activate();
         verify(player, never()).activate();
         verify(observer, times(1)).onEvent(eq(asr), eventCaptor.capture());
 
@@ -175,6 +179,7 @@ public class AsrSignalSpeechTest extends AsrSignalBaseTest {
 
         Thread.sleep(EPSILON_IN_MILLISECONDS);
 
+        verify(detector, times(1)).activate();
         verify(player, never()).activate();
         verify(observer, never()).onEvent(eq(asr), eventCaptor.capture());
 
@@ -182,6 +187,7 @@ public class AsrSignalSpeechTest extends AsrSignalBaseTest {
         asrEngineListener.onDriverError(new AsrDriverException("test purposes"));
 
         // then
+        verify(detector, times(1)).activate();
         verify(player, never()).activate();
         verify(observer, times(2)).onEvent(eq(asr), eventCaptor.capture());
 
@@ -206,6 +212,7 @@ public class AsrSignalSpeechTest extends AsrSignalBaseTest {
 
         // then
         verify(asrEngine, times(1)).activate();
+        verify(detector, times(1)).activate();
         verify(player, never()).activate();
         verify(observer, times(1)).onEvent(eq(asr), eventCaptor.capture());
 
@@ -229,6 +236,7 @@ public class AsrSignalSpeechTest extends AsrSignalBaseTest {
 
         // then
         verify(asrEngine, times(1)).activate();
+        verify(detector, times(1)).activate();
         verify(player, never()).activate();
         verify(observer, times(2)).onEvent(eq(asr), eventCaptor.capture());
 
@@ -256,6 +264,7 @@ public class AsrSignalSpeechTest extends AsrSignalBaseTest {
 
         // then
         verify(asrEngine, times(1)).activate();
+        verify(detector, times(1)).activate();
         verify(player, never()).activate();
         verify(observer, times(1)).onEvent(eq(asr), eventCaptor.capture());
 
@@ -279,6 +288,7 @@ public class AsrSignalSpeechTest extends AsrSignalBaseTest {
         speechDetectorListener.onVoiceActivityDetected();
 
         verify(asrEngine, times(1)).activate();
+        verify(detector, times(1)).activate();
 
         speakUnrecognizedText(MRT_IN_MILLISECONDS);
 
@@ -288,6 +298,7 @@ public class AsrSignalSpeechTest extends AsrSignalBaseTest {
 
         // then
         verify(asrEngine, times(1)).activate();
+        verify(detector, times(1)).activate();
         verify(player, never()).activate();
         verify(observer, times(1)).onEvent(eq(asr), eventCaptor.capture());
 
@@ -314,6 +325,7 @@ public class AsrSignalSpeechTest extends AsrSignalBaseTest {
 
         // then
         verify(asrEngine, times(1)).activate();
+        verify(detector, times(1)).activate();
         verify(player, never()).activate();
         verify(observer, times(2)).onEvent(eq(asr), eventCaptor.capture());
 
@@ -345,6 +357,7 @@ public class AsrSignalSpeechTest extends AsrSignalBaseTest {
 
         // then
         verify(asrEngine, times(1)).activate();
+        verify(detector, times(1)).activate();
         verify(player, never()).activate();
         verify(observer, times(2)).onEvent(eq(asr), eventCaptor.capture());
 
@@ -421,6 +434,7 @@ public class AsrSignalSpeechTest extends AsrSignalBaseTest {
 
         // then
         verify(asrEngine, times(1)).activate();
+        verify(detector, times(1)).activate();
         verify(player, never()).activate();
         verify(observer, times(1)).onEvent(eq(asr), eventCaptor.capture());
 
@@ -452,6 +466,7 @@ public class AsrSignalSpeechTest extends AsrSignalBaseTest {
 
         // then
         verify(asrEngine, times(1)).activate();
+        verify(detector, times(1)).activate();
         verify(player, never()).activate();
         verify(observer, times(1)).onEvent(eq(asr), eventCaptor.capture());
 

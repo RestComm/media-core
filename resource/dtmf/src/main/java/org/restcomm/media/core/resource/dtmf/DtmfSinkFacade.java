@@ -71,6 +71,16 @@ public class DtmfSinkFacade implements DtmfEventObserver, DtmfEventSubject {
         return this.oobSink.getOutput();
     }
     
+    public void activate() {
+        this.inbandSink.activate();
+        this.oobSink.activate();
+    }
+
+    public void deactivate() {
+        this.inbandSink.deactivate();
+        this.oobSink.deactivate();
+    }
+
     @Override
     public void onDtmfEvent(DtmfEvent event) {
         // Propagate DTMF Event to registered observers

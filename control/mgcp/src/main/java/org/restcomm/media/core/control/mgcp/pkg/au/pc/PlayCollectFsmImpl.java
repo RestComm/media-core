@@ -33,6 +33,7 @@ import org.restcomm.media.core.control.mgcp.pkg.au.Playlist;
 import org.restcomm.media.core.control.mgcp.pkg.au.ReturnCode;
 import org.restcomm.media.core.spi.ResourceUnavailableException;
 import org.restcomm.media.core.resource.dtmf.DtmfEventSubject;
+import org.restcomm.media.core.resource.dtmf.DtmfSinkFacade;
 import org.restcomm.media.core.resource.dtmf.DtmfEventObserver;
 import org.restcomm.media.core.spi.listener.TooManyListenersException;
 import org.restcomm.media.core.spi.player.Player;
@@ -333,6 +334,7 @@ public class PlayCollectFsmImpl extends
         }
 
         // Activate DTMF detector and bind observer
+        ((DtmfSinkFacade) this.detector).activate();
         this.detector.observe(this.detectorObserver);
     }
 
@@ -392,6 +394,7 @@ public class PlayCollectFsmImpl extends
             log.trace("Exited COLLECTING state");
         }
 
+        ((DtmfSinkFacade) this.detector).deactivate();
         this.detector.forget(this.detectorObserver);
     }
 

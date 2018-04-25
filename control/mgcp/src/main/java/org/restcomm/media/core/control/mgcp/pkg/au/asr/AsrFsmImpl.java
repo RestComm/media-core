@@ -38,6 +38,7 @@ import org.restcomm.media.core.drivers.asr.UnknownAsrDriverException;
 import org.restcomm.media.core.resource.dtmf.DtmfEvent;
 import org.restcomm.media.core.resource.dtmf.DtmfEventObserver;
 import org.restcomm.media.core.resource.dtmf.DtmfEventSubject;
+import org.restcomm.media.core.resource.dtmf.DtmfSinkFacade;
 import org.restcomm.media.core.resource.vad.VoiceActivityDetectorListener;
 import org.restcomm.media.core.spi.ResourceUnavailableException;
 import org.restcomm.media.core.spi.listener.TooManyListenersException;
@@ -238,6 +239,7 @@ public class AsrFsmImpl extends AbstractStateMachine<AsrFsm, AsrState, AsrEvent,
 
         if (context.isEndInputKeySpecified()) {
             // Activate DTMF detector and bind observer
+            ((DtmfSinkFacade) this.detector).activate();
             this.detector.observe(this.detectorObserver);
         }
 
@@ -312,6 +314,7 @@ public class AsrFsmImpl extends AbstractStateMachine<AsrFsm, AsrState, AsrEvent,
         this.asrEngine.stopSpeechDetection();
 
         if (context.isEndInputKeySpecified()) {
+            ((DtmfSinkFacade) this.detector).deactivate();
             this.detector.forget(this.detectorObserver);
         }
     }

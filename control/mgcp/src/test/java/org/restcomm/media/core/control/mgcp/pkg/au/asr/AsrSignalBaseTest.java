@@ -33,7 +33,7 @@ import org.restcomm.media.core.control.mgcp.pkg.MgcpEventObserver;
 import org.restcomm.media.core.control.mgcp.pkg.au.SignalParameters;
 import org.restcomm.media.core.control.mgcp.pkg.au.asr.AsrSignal;
 import org.restcomm.media.core.resource.vad.VoiceActivityDetectorListener;
-import org.restcomm.media.core.resource.dtmf.DtmfEventSubject;
+import org.restcomm.media.core.resource.dtmf.DtmfSinkFacade;
 import org.restcomm.media.core.resource.dtmf.DtmfEventObserver;
 import org.restcomm.media.core.spi.listener.TooManyListenersException;
 import org.restcomm.media.core.spi.player.Player;
@@ -65,7 +65,7 @@ public abstract class AsrSignalBaseTest {
 
     private ScheduledExecutorService threadPool;
     protected Player player;
-    protected DtmfEventSubject detector;
+    protected DtmfSinkFacade detector;
     protected AsrEngine asrEngine;
 
     private ListeningScheduledExecutorService executor;
@@ -77,7 +77,7 @@ public abstract class AsrSignalBaseTest {
     protected void before() throws TooManyListenersException {
         threadPool = Executors.newScheduledThreadPool(5);
         player = mock(Player.class);
-        detector = mock(DtmfEventSubject.class);
+        detector = mock(DtmfSinkFacade.class);
         asrEngine = mock(AsrEngine.class);
         when(asrEngine.getResponseTimeoutInMilliseconds()).thenReturn(RESPONSE_TIMEOUT_IN_MILLISECONDS);
         doAnswer(new Answer<Void>() {
