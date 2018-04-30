@@ -6,50 +6,41 @@ def releaseVersion
 node("cxs-slave-master") {
 
     configFileProvider(
-        [configFile(fileId: '37cb206e-6498-4d8a-9b3d-379cd0ccd99b',  targetLocation: 'settings.xml')]) {
-	    sh 'mkdir -p ~/.m2 && sed -i "s|@LOCAL_REPO_PATH@|$WORKSPACE/M2_REPO|g" $WORKSPACE/settings.xml && cp $WORKSPACE/settings.xml -f ~/.m2/settings.xml'
+            [configFile(fileId: '37cb206e-6498-4d8a-9b3d-379cd0ccd99b', targetLocation: 'settings.xml')]) {
+        sh 'mkdir -p ~/.m2 && sed -i "s|@LOCAL_REPO_PATH@|$WORKSPACE/M2_REPO|g" $WORKSPACE/settings.xml && cp $WORKSPACE/settings.xml -f ~/.m2/settings.xml'
     }
 
-    stage ('Checkout') {
+    stage('Checkout') {
         checkout scm
     }
 
-    stage ('Versioning') {
+    stage('Branch') {
         // Drop -SNAPSHOT qualifier
         sh 'mvn versions:set -DremoveSnapshot versions:commit'
 
         // Save release version
         def pom = readMavenPom file: 'pom.xml'
-        releaseVersion = "${pom.version}"
+        releaseVersion = pom.version
         echo "Set release version to ${releaseVersion}"
-    }
 
-    stage('VerifyBranch') {
         // Verify if branch exists
-        def versionTokens = ${releaseVersion}.split('.')
+        def versionTokens = releaseVersion.split('\\.')
         releaseBranch = "stable-${versionTokens[0]}-${versionTokens[1]}"
-        def branchExists = sh(script: "git ls-remote --heads git@github.com:RestComm/media-core.git ${releaseBranch} | wc -l", returnStdout: true)
+        echo "Release branch name is ${releaseBranch}"
 
-        if(${branchExists} == 1) {
-            echo "Branch ${releaseBranch} already exists. Aborting job."
-            currentBuild.result = 'FAILURE'
-            return
-        } else {
-            echo "Branch ${releaseBranch} does not exist. Proceeding to next stage."
-        }
-    }
-
-    stage ('Build') {
-        sh 'mvn clean install -DskipTests'
-    }
-
-    stage ('Test') {
-        sh 'mvn test'
-        junit testResults: '**/target/surefire-reports/*.xml', testDataPublishers: [[$class: 'StabilityTestDataPublisher']]
-    }
-
-    stage('Branch') {
         withCredentials([usernamePassword(credentialsId: 'CXSGithub', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+            env.RELEASE_BRANCH = releaseBranch
+            def branchExists = sh(script: 'git ls-remote --heads https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com:RestComm/media-core.git $RELEASE_BRANCH | wc -l', returnStdout: true)
+
+            if (branchExists == 1) {
+                echo "Branch ${releaseBranch} already exists. Aborting job."
+                currentBuild.result = 'FAILURE'
+                return
+            } else {
+                echo "Branch ${releaseBranch} does not exist. Proceeding to next stage."
+            }
+
+            // Create stable branch
             sh "git checkout -b ${releaseBranch}"
             sh "git commit -a -m \"New stable release ${releaseVersion}\""
             env.RELEASE_BRANCH = "${releaseBranch}"
@@ -57,19 +48,18 @@ node("cxs-slave-master") {
         }
     }
 
-    stage('Tag') {
+    stage('Release') {
+        // Tag code
         withCredentials([usernamePassword(credentialsId: 'CXSGithub', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
             sh "git tag ${releaseVersion}"
             sh('git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/RestComm/media-core.git --tags')
         }
-    }
 
-    stage ('Deploy') {
+        // Deploy to CXS Nexus
         sh 'mvn package deploy:deploy -Pattach-sources,generate-javadoc,maven-release -DskipTests -DskipNexusStagingDeployMojo -DaltDeploymentRepository=nexus::default::$CXS_NEXUS2_URL'
-    }
 
-    stage ('Release') {
-        sh 'mvn clean deploy -DskipTests -Dgpg.passphrase=${env.GPG_PASSPHRASE} -Pattach-sources,generate-javadoc,release-sign-artifacts,cxs-oss-release'
+        // Release to Sonatype
+        sh "mvn clean deploy -DskipTests -Dgpg.passphrase=${env.GPG_PASSPHRASE} -Pattach-sources,generate-javadoc,release-sign-artifacts,cxs-oss-release"
     }
 
 }
