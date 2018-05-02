@@ -22,12 +22,6 @@
 
 package org.restcomm.media.core.resource.dtmf;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.restcomm.media.core.component.AbstractSink;
@@ -45,7 +39,12 @@ import org.restcomm.media.core.spi.format.Formats;
 import org.restcomm.media.core.spi.listener.Listeners;
 import org.restcomm.media.core.spi.listener.TooManyListenersException;
 import org.restcomm.media.core.spi.memory.Frame;
-import org.restcomm.media.core.spi.pooling.PooledObject;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Implements inband DTMF detector.
@@ -62,7 +61,7 @@ import org.restcomm.media.core.spi.pooling.PooledObject;
  * @author amit bhayani
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
-public class DetectorImpl extends AbstractSink implements DtmfDetector, PooledObject {
+public class DetectorImpl extends AbstractSink implements DtmfDetector {
 
     private static final long serialVersionUID = 450306501541827622L;
 
@@ -269,7 +268,7 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector, PooledOb
     /**
      * Searches maximum value in the specified array.
      * 
-     * @param data[] input data.
+     * @param data input data.
      * @return the index of the maximum value in the data array.
      */
     private int getMax(double data[]) {
@@ -490,15 +489,4 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector, PooledOb
         }
     }
 
-    @Override
-    public void checkIn() {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void checkOut() {
-        // TODO Auto-generated method stub
-
-    }
 }
