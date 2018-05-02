@@ -37,7 +37,6 @@ import org.restcomm.media.core.spi.listener.Listeners;
 import org.restcomm.media.core.spi.listener.TooManyListenersException;
 import org.restcomm.media.core.spi.memory.Frame;
 import org.restcomm.media.core.spi.memory.Memory;
-import org.restcomm.media.core.spi.pooling.PooledObject;
 
 /**
  * InbandGenerator generates Inband DTMF Tone only for uncompressed LINEAR
@@ -55,7 +54,7 @@ import org.restcomm.media.core.spi.pooling.PooledObject;
  * @author amit bhayani
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
-public class GeneratorImpl extends AbstractSource implements DtmfGenerator, PooledObject {
+public class GeneratorImpl extends AbstractSource implements DtmfGenerator {
 
     private final static AudioFormat linear = FormatFactory.createAudioFormat("linear", 8000, 16, 1);
     private long period = 20000000L;
@@ -323,15 +322,4 @@ public class GeneratorImpl extends AbstractSource implements DtmfGenerator, Pool
         } 
     }
 
-    @Override
-    public void checkIn() {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void checkOut() {
-        // TODO Auto-generated method stub
-        
-    }
 }
