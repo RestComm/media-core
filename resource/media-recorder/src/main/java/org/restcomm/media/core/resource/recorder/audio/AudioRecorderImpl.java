@@ -35,7 +35,6 @@ import org.restcomm.media.core.spi.dtmf.DtmfTonesData;
 import org.restcomm.media.core.spi.listener.Listeners;
 import org.restcomm.media.core.spi.listener.TooManyListenersException;
 import org.restcomm.media.core.spi.memory.Frame;
-import org.restcomm.media.core.spi.pooling.PooledObject;
 import org.restcomm.media.core.spi.recorder.Recorder;
 import org.restcomm.media.core.spi.recorder.RecorderEvent;
 import org.restcomm.media.core.spi.recorder.RecorderListener;
@@ -51,7 +50,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  * @author Pavel Chlupacek (pchlupacek)
  */
-public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledObject {
+public class AudioRecorderImpl extends AbstractSink implements Recorder {
 
     private static final long serialVersionUID = -5290778284867189598L;
 
@@ -271,33 +270,6 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
     @Override
     public void clearAllListeners() {
         listeners.clear();
-    }
-    
-    @Override
-    public void checkIn() {
-        // clear listeners
-        clearAllListeners();
-
-        // clean buffers
-        this.byteBuffer.clear();
-        this.data = null;
-        this.offset = 0;
-        this.len = 0;
-        
-        // reset internal state
-        this.recordDir = "";
-        this.postSpeechTimer = -1L;
-        this.preSpeechTimer = -1L;
-        this.lastPacketData = 0L;
-        this.startTime = 0L;
-        this.maxRecordTime = -1L;
-        this.qualifier = 0;
-        this.speechDetected = false;
-    }
-
-    @Override
-    public void checkOut() {
-        // TODO Auto-generated method stub
     }
 
     /**
