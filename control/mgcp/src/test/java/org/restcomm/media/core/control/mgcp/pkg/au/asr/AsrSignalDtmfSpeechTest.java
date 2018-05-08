@@ -39,8 +39,7 @@ import org.mockito.ArgumentCaptor;
 import org.restcomm.media.core.control.mgcp.pkg.MgcpEvent;
 import org.restcomm.media.core.control.mgcp.pkg.au.ReturnCode;
 import org.restcomm.media.core.control.mgcp.pkg.au.SignalParameters;
-import org.restcomm.media.core.control.mgcp.pkg.au.asr.AsrSignal;
-import org.restcomm.media.core.resource.dtmf.DtmfEventImpl;
+import org.restcomm.media.core.resource.dtmf.detector.DtmfEvent;
 import org.restcomm.media.core.spi.listener.TooManyListenersException;
 
 /**
@@ -72,7 +71,7 @@ public class AsrSignalDtmfSpeechTest extends AsrSignalBaseTest {
         asr.execute();
 
         speakRecognizedText("text");
-        detectorListener.process(new DtmfEventImpl(detector, "#", -30));
+        detectorObserver.onDtmfEvent(new DtmfEvent("#"));
 
         waitForFinalResponse();
 
@@ -108,7 +107,7 @@ public class AsrSignalDtmfSpeechTest extends AsrSignalBaseTest {
         verify(observer, never()).onEvent(eq(asr), eventCaptor.capture());
 
         speechDetectorListener.onVoiceActivityDetected();
-        detectorListener.process(new DtmfEventImpl(detector, "#", -30));
+        detectorObserver.onDtmfEvent(new DtmfEvent("#"));
         asrEngineListener.onSpeechRecognized("text", true);
 
         waitForFinalResponse();
@@ -316,9 +315,9 @@ public class AsrSignalDtmfSpeechTest extends AsrSignalBaseTest {
 
         speakRecognizedText("text");
 
-        detectorListener.process(new DtmfEventImpl(detector, "1", -30));
-        detectorListener.process(new DtmfEventImpl(detector, "2", -30));
-        detectorListener.process(new DtmfEventImpl(detector, "#", -30));
+        detectorObserver.onDtmfEvent(new DtmfEvent("1"));
+        detectorObserver.onDtmfEvent(new DtmfEvent("2"));
+        detectorObserver.onDtmfEvent(new DtmfEvent("#"));
 
         waitForInterimResponse();
 
@@ -353,14 +352,14 @@ public class AsrSignalDtmfSpeechTest extends AsrSignalBaseTest {
 
         speakRecognizedText("first text");
 
-        detectorListener.process(new DtmfEventImpl(detector, "1", -30));
+        detectorObserver.onDtmfEvent(new DtmfEvent("1"));
 
         speakRecognizedText("second text");
         speakRecognizedText("third text");
 
         waitForInterimResponse();
 
-        detectorListener.process(new DtmfEventImpl(detector, "2", -30));
+        detectorObserver.onDtmfEvent(new DtmfEvent("2"));
 
         waitForInterimResponse();
 
@@ -391,7 +390,7 @@ public class AsrSignalDtmfSpeechTest extends AsrSignalBaseTest {
         asr.observe(observer);
         asr.execute();
 
-        detectorListener.process(new DtmfEventImpl(detector, "9", -30));
+        detectorObserver.onDtmfEvent(new DtmfEvent("9"));
 
         Thread.sleep(PST_IN_MILLISECONDS + EPSILON_IN_MILLISECONDS);
 

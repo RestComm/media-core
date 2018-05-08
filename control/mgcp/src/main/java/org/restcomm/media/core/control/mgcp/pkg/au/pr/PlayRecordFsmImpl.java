@@ -34,9 +34,10 @@ import org.restcomm.media.core.control.mgcp.pkg.au.OperationComplete;
 import org.restcomm.media.core.control.mgcp.pkg.au.OperationFailed;
 import org.restcomm.media.core.control.mgcp.pkg.au.Playlist;
 import org.restcomm.media.core.control.mgcp.pkg.au.ReturnCode;
+import org.restcomm.media.core.resource.dtmf.detector.DtmfEventSubject;
+import org.restcomm.media.core.resource.dtmf.detector.DtmfEventObserver;
+import org.restcomm.media.core.resource.dtmf.detector.DtmfSinkFacade;
 import org.restcomm.media.core.spi.ResourceUnavailableException;
-import org.restcomm.media.core.spi.dtmf.DtmfDetector;
-import org.restcomm.media.core.spi.dtmf.DtmfDetectorListener;
 import org.restcomm.media.core.spi.listener.TooManyListenersException;
 import org.restcomm.media.core.spi.player.Player;
 import org.restcomm.media.core.spi.player.PlayerListener;
@@ -57,8 +58,8 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
     private final MgcpEventSubject mgcpEventSubject;
 
     // Media Components
-    private final DtmfDetector detector;
-    final DtmfDetectorListener detectorListener;
+    private final DtmfEventSubject detector;
+    final DtmfEventObserver detectorObserver;
 
     private final Player player;
     final PlayerListener playerListener;
@@ -70,7 +71,7 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
     private final PlayRecordContext context;
 
     public PlayRecordFsmImpl(MgcpEventSubject mgcpEventSubject, Recorder recorder, RecorderListener recorderListener,
-            DtmfDetector detector, DtmfDetectorListener detectorListener, Player player, PlayerListener playerListener,
+            DtmfEventSubject detector, DtmfEventObserver detectorObserver, Player player, PlayerListener playerListener,
             PlayRecordContext context) {
         super();
         // Event Listener
@@ -81,7 +82,7 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
         this.recorderListener = recorderListener;
 
         this.detector = detector;
-        this.detectorListener = detectorListener;
+        this.detectorObserver = detectorObserver;
 
         this.player = player;
         this.playerListener = playerListener;
@@ -281,13 +282,10 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
             log.trace("Entered COLLECTING state");
         }
 
-        try {
-            // Activate DTMF detector and bind listener
-            this.detector.addListener(this.detectorListener);
-            this.detector.activate();
-        } catch (TooManyListenersException e) {
-            log.error("Too many DTMF listeners", e);
-        }
+        // Activate DTMF detector and bind observer
+        // TODO Avoid castig when detector is activated
+        ((DtmfSinkFacade) this.detector).activate();
+        this.detector.observe(this.detectorObserver);
     }
 
     @Override
@@ -313,9 +311,10 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
             log.trace("Exited COLLECTING state");
         }
 
-        // Deactivate DTMF detector and release listener
-        this.detector.removeListener(this.detectorListener);
-        this.detector.deactivate();
+        // Deactivate DTMF detector and release observer
+        // TODO Avoid castig when detector is deactivated
+        ((DtmfSinkFacade) this.detector).deactivate();
+        this.detector.forget(this.detectorObserver);
     }
 
     @Override

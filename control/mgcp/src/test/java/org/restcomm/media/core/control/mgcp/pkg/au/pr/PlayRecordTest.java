@@ -40,11 +40,10 @@ import org.mockito.ArgumentCaptor;
 import org.restcomm.media.core.control.mgcp.pkg.MgcpEvent;
 import org.restcomm.media.core.control.mgcp.pkg.MgcpEventObserver;
 import org.restcomm.media.core.control.mgcp.pkg.au.ReturnCode;
-import org.restcomm.media.core.control.mgcp.pkg.au.pr.PlayRecord;
-import org.restcomm.media.core.resource.dtmf.DtmfEventImpl;
+import org.restcomm.media.core.resource.dtmf.detector.DtmfEvent;
+import org.restcomm.media.core.resource.dtmf.detector.DtmfSinkFacade;
 import org.restcomm.media.core.resource.player.audio.AudioPlayerEvent;
 import org.restcomm.media.core.resource.recorder.audio.RecorderEventImpl;
-import org.restcomm.media.core.spi.dtmf.DtmfDetector;
 import org.restcomm.media.core.spi.player.Player;
 import org.restcomm.media.core.spi.player.PlayerEvent;
 import org.restcomm.media.core.spi.recorder.Recorder;
@@ -73,7 +72,7 @@ public class PlayRecordTest {
 
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
+        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
         final Player player = mock(Player.class);
         final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
 
@@ -112,7 +111,7 @@ public class PlayRecordTest {
         
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
+        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
         final Player player = mock(Player.class);
         final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
@@ -155,7 +154,7 @@ public class PlayRecordTest {
 
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
+        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
         final Player player = mock(Player.class);
         final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
 
@@ -190,7 +189,7 @@ public class PlayRecordTest {
         
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
+        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
         final Player player = mock(Player.class);
         final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
@@ -226,7 +225,7 @@ public class PlayRecordTest {
         
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
+        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
         final Player player = mock(Player.class);
         final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
@@ -269,7 +268,7 @@ public class PlayRecordTest {
         
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
+        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
         final Player player = mock(Player.class);
         final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
@@ -313,7 +312,7 @@ public class PlayRecordTest {
         
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
+        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
         final Player player = mock(Player.class);
         final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
@@ -369,7 +368,7 @@ public class PlayRecordTest {
         
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
+        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
         final Player player = mock(Player.class);
         final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
@@ -426,7 +425,7 @@ public class PlayRecordTest {
         
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
+        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
         final Player player = mock(Player.class);
         final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
@@ -442,7 +441,7 @@ public class PlayRecordTest {
         pr.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
         
         // restart
-        pr.detectorListener.process(new DtmfEventImpl(detector, "*", 0));
+        pr.detectorObserver.onDtmfEvent(new DtmfEvent("*"));
         
         // replay initial prompt and do successful recording
         pr.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
@@ -482,7 +481,7 @@ public class PlayRecordTest {
         
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
+        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
         final Player player = mock(Player.class);
         final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
@@ -498,7 +497,7 @@ public class PlayRecordTest {
         pr.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
         
         // restart
-        pr.detectorListener.process(new DtmfEventImpl(detector, "*", 0));
+        pr.detectorObserver.onDtmfEvent(new DtmfEvent("*"));
         
         // then
         verify(detector, times(1)).activate();
@@ -527,7 +526,7 @@ public class PlayRecordTest {
         
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
+        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
         final Player player = mock(Player.class);
         final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
@@ -543,7 +542,7 @@ public class PlayRecordTest {
         pr.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
         
         // re-input
-        pr.detectorListener.process(new DtmfEventImpl(detector, "*", 0));
+        pr.detectorObserver.onDtmfEvent(new DtmfEvent("*"));
         
         RecorderEventImpl recorderStop = new RecorderEventImpl(RecorderEvent.STOP, recorder);
         recorderStop.setQualifier(RecorderEvent.SUCCESS);
@@ -578,7 +577,7 @@ public class PlayRecordTest {
         
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
+        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
         final Player player = mock(Player.class);
         final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
@@ -594,7 +593,7 @@ public class PlayRecordTest {
         pr.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
         
         // restart
-        pr.detectorListener.process(new DtmfEventImpl(detector, "*", 0));
+        pr.detectorObserver.onDtmfEvent(new DtmfEvent("*"));
         
         // then
         verify(detector, times(1)).activate();
@@ -619,7 +618,7 @@ public class PlayRecordTest {
 
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
+        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
         final Player player = mock(Player.class);
         final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
 
@@ -629,7 +628,7 @@ public class PlayRecordTest {
         pr.observe(observer);
         pr.execute();
 
-        pr.detectorListener.process(new DtmfEventImpl(detector, "*", 0));
+        pr.detectorObserver.onDtmfEvent(new DtmfEvent("*"));
 
         // then
         verify(detector, times(1)).activate();
@@ -654,7 +653,7 @@ public class PlayRecordTest {
         
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
+        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
         final Player player = mock(Player.class);
         final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
@@ -664,7 +663,7 @@ public class PlayRecordTest {
         pr.observe(observer);
         pr.execute();
         
-        pr.detectorListener.process(new DtmfEventImpl(detector, "#", 0));
+        pr.detectorObserver.onDtmfEvent(new DtmfEvent("#"));
         
         // then
         verify(detector, times(1)).activate();
@@ -690,7 +689,7 @@ public class PlayRecordTest {
         
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
+        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
         final Player player = mock(Player.class);
         final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
@@ -724,7 +723,7 @@ public class PlayRecordTest {
         
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
+        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
         final Player player = mock(Player.class);
         final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
@@ -766,7 +765,7 @@ public class PlayRecordTest {
         
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
+        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
         final Player player = mock(Player.class);
         final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
@@ -806,7 +805,7 @@ public class PlayRecordTest {
         
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
+        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
         final Player player = mock(Player.class);
         final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
@@ -855,7 +854,7 @@ public class PlayRecordTest {
         
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
+        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
         final Player player = mock(Player.class);
         final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
@@ -904,7 +903,7 @@ public class PlayRecordTest {
         
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
+        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
         final Player player = mock(Player.class);
         final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
@@ -948,7 +947,7 @@ public class PlayRecordTest {
         
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
+        final DtmfSinkFacade detector = mock(DtmfSinkFacade.class);
         final Player player = mock(Player.class);
         final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         

@@ -1,7 +1,7 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
- * by the @authors tag. 
+ * Copyright 2011-2018, Telestax Inc and individual contributors
+ * by the @authors tag.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -19,30 +19,25 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.core.control.mgcp.endpoint;
+package org.restcomm.media.core.resource.dtmf.detector;
 
-import org.restcomm.media.core.asr.AsrEngine;
 import org.restcomm.media.core.resource.dtmf.detector.DtmfEventSubject;
-import org.restcomm.media.core.spi.dtmf.DtmfGenerator;
-import org.restcomm.media.core.spi.player.Player;
-import org.restcomm.media.core.spi.recorder.Recorder;
 
 /**
- * Holds media components.
- * 
- * @author Henrique Rosa (henrique.rosa@telestax.com)
+ * Interface for DTMF detector component
  *
+ * @author Vladimir Morosev (vladimir.morosev@telestax.com)
  */
-public interface MediaGroup {
+public interface DtmfDetector extends DtmfEventSubject {
 
-    Player getPlayer();
-
-    Recorder getRecorder();
-
-    DtmfEventSubject getDetector();
-
-    DtmfGenerator getGenerator();
-
-    AsrEngine getAsrEngine();
+    /**
+     * The method that detects DTMF digit in provided audio buffer. Detection
+     * status is passed to the application layer through a listener pattern.
+     *
+     * @param data     buffer with samples
+     * @param duration buffer duration 
+     * @return Detected digit, null if nothing is detected
+     */
+    void detect(byte[] data, long duration);
 
 }

@@ -26,11 +26,11 @@ import org.restcomm.media.core.asr.AsrEngineImpl;
 import org.restcomm.media.core.asr.AsrEngineProvider;
 import org.restcomm.media.core.component.audio.AudioComponent;
 import org.restcomm.media.core.component.oob.OOBComponent;
-import org.restcomm.media.core.resource.dtmf.DetectorImpl;
+import org.restcomm.media.core.resource.dtmf.detector.DtmfSinkFacadeProvider;
+import org.restcomm.media.core.resource.dtmf.detector.DtmfEventSubject;
+import org.restcomm.media.core.resource.dtmf.detector.DtmfSinkFacade;
 import org.restcomm.media.core.resource.player.audio.AudioPlayerImpl;
 import org.restcomm.media.core.resource.recorder.audio.AudioRecorderImpl;
-import org.restcomm.media.core.spi.dtmf.DtmfDetector;
-import org.restcomm.media.core.spi.dtmf.DtmfDetectorProvider;
 import org.restcomm.media.core.spi.dtmf.DtmfGenerator;
 import org.restcomm.media.core.spi.player.Player;
 import org.restcomm.media.core.spi.player.PlayerProvider;
@@ -49,13 +49,13 @@ public class MediaGroupImpl implements MediaGroup {
 
     private final Player player;
     private final Recorder recorder;
-    private final DtmfDetector detector;
+    private final DtmfEventSubject detector;
     private final DtmfGenerator generator;
     private final AsrEngine asrEngine;
 
     // TODO Add list of enum that declare which media components are created in the media group
     public MediaGroupImpl(AudioComponent audioComponent, OOBComponent oobComponent, PlayerProvider players,
-            RecorderProvider recorders, DtmfDetectorProvider detectors, AsrEngineProvider asrEngines) {
+            RecorderProvider recorders, DtmfSinkFacadeProvider detectors, AsrEngineProvider asrEngines) {
         // Media Components
         this.audioComponent = audioComponent;
         this.oobComponent = oobComponent;
@@ -77,11 +77,10 @@ public class MediaGroupImpl implements MediaGroup {
         return player;
     }
 
-    private DtmfDetector initializeDetector(DtmfDetectorProvider detectors) {
-        // TODO try getting rid of DetectorImpl cast
-        DetectorImpl detector = (DetectorImpl) detectors.provide();
-        this.audioComponent.addOutput(detector.getAudioOutput());
-        this.oobComponent.addOutput(detector.getOOBOutput());
+    private DtmfEventSubject initializeDetector(DtmfSinkFacadeProvider detectors) {
+        DtmfSinkFacade detector = detectors.provide();
+        this.audioComponent.addOutput(detector.getInbandOutput());
+        this.oobComponent.addOutput(detector.getOutbandOutput());
         // writeComponents++
         // writeDtmfComponents++
         // audioComponent.updateMode(readComponents!=0,true);
@@ -129,7 +128,7 @@ public class MediaGroupImpl implements MediaGroup {
     }
 
     @Override
-    public DtmfDetector getDetector() {
+    public DtmfEventSubject getDetector() {
         return this.detector;
     }
 

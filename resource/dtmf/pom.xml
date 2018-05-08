@@ -14,6 +14,16 @@
     <artifactId>media-core-resource-dtmf</artifactId>
     <name>media-core-resource-dtmf</name>
 
+    <dependencies>
+        <!-- Test -->
+        <dependency>
+            <groupId>org.restcomm.media.core</groupId>
+            <artifactId>media-core-pcap</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
             <plugin>

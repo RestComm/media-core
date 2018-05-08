@@ -22,8 +22,8 @@
 package org.restcomm.media.core.control.mgcp.pkg.au.pc;
 
 import org.restcomm.media.core.control.mgcp.pkg.MgcpEventSubject;
-import org.restcomm.media.core.spi.dtmf.DtmfDetector;
-import org.restcomm.media.core.spi.dtmf.DtmfDetectorListener;
+import org.restcomm.media.core.resource.dtmf.detector.DtmfEventSubject;
+import org.restcomm.media.core.resource.dtmf.detector.DtmfEventObserver;
 import org.restcomm.media.core.spi.player.Player;
 import org.restcomm.media.core.spi.player.PlayerListener;
 import org.squirrelframework.foundation.fsm.HistoryType;
@@ -48,8 +48,8 @@ public class PlayCollectFsmBuilder {
         // Finite State Machine
         this.builder = StateMachineBuilderFactory
                 .<PlayCollectFsm, PlayCollectState, PlayCollectEvent, PlayCollectContext> create(PlayCollectFsmImpl.class,
-                        PlayCollectState.class, PlayCollectEvent.class, PlayCollectContext.class, DtmfDetector.class,
-                        DtmfDetectorListener.class, Player.class, PlayerListener.class, MgcpEventSubject.class,
+                        PlayCollectState.class, PlayCollectEvent.class, PlayCollectContext.class, DtmfEventSubject.class,
+                        DtmfEventObserver.class, Player.class, PlayerListener.class, MgcpEventSubject.class,
                         ListeningScheduledExecutorService.class, PlayCollectContext.class);
 
         this.builder.defineFinishEvent(PlayCollectEvent.EVALUATE);
@@ -140,11 +140,11 @@ public class PlayCollectFsmBuilder {
         this.builder.onEntry(PlayCollectState.FAILED).callMethod("enterFailed");
     }
 
-    public PlayCollectFsm build(DtmfDetector detector, DtmfDetectorListener detectorListener, Player player,
+    public PlayCollectFsm build(DtmfEventSubject detector, DtmfEventObserver detectorObserver, Player player,
             PlayerListener playerListener, MgcpEventSubject eventSubject, ListeningScheduledExecutorService scheduler,
             PlayCollectContext context) {
         return builder.newStateMachine(PlayCollectState.PLAY_COLLECT,
-                StateMachineConfiguration.getInstance().enableDebugMode(false), detector, detectorListener, player,
+                StateMachineConfiguration.getInstance().enableDebugMode(false), detector, detectorObserver, player,
                 playerListener, eventSubject, scheduler, context);
     }
 

@@ -26,7 +26,7 @@ import org.restcomm.media.core.component.audio.AudioComponent;
 import org.restcomm.media.core.component.oob.OOBComponent;
 import org.restcomm.media.core.control.mgcp.endpoint.MediaGroup;
 import org.restcomm.media.core.control.mgcp.endpoint.MediaGroupImpl;
-import org.restcomm.media.core.spi.dtmf.DtmfDetectorProvider;
+import org.restcomm.media.core.resource.dtmf.detector.DtmfSinkFacadeProvider;
 import org.restcomm.media.core.spi.player.PlayerProvider;
 import org.restcomm.media.core.spi.recorder.RecorderProvider;
 
@@ -37,11 +37,11 @@ import org.restcomm.media.core.spi.recorder.RecorderProvider;
 public class MediaGroupProvider {
 
     private final PlayerProvider players;
-    private final DtmfDetectorProvider detectors;
+    private final DtmfSinkFacadeProvider detectors;
     private final RecorderProvider recorders;
     private final AsrEngineProvider asrEngines;
 
-    public MediaGroupProvider(PlayerProvider players, DtmfDetectorProvider detectors, RecorderProvider recorders, AsrEngineProvider asrEngines) {
+    public MediaGroupProvider(PlayerProvider players, DtmfSinkFacadeProvider detectors, RecorderProvider recorders, AsrEngineProvider asrEngines) {
         this.players = players;
         this.detectors = detectors;
         this.recorders = recorders;
