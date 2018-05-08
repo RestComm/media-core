@@ -22,8 +22,8 @@
 package org.restcomm.media.core.control.mgcp.pkg.au.pc;
 
 import org.restcomm.media.core.control.mgcp.pkg.MgcpEventSubject;
-import org.restcomm.media.core.resource.dtmf.DtmfEventSubject;
-import org.restcomm.media.core.resource.dtmf.DtmfEventObserver;
+import org.restcomm.media.core.resource.dtmf.detector.DtmfEventSubject;
+import org.restcomm.media.core.resource.dtmf.detector.DtmfEventObserver;
 import org.restcomm.media.core.spi.player.Player;
 import org.restcomm.media.core.spi.player.PlayerListener;
 import org.squirrelframework.foundation.fsm.HistoryType;

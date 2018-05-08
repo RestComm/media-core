@@ -22,7 +22,7 @@
 package org.restcomm.media.core.control.mgcp.endpoint;
 
 import org.restcomm.media.core.asr.AsrEngine;
-import org.restcomm.media.core.resource.dtmf.DtmfEventSubject;
+import org.restcomm.media.core.resource.dtmf.detector.DtmfEventSubject;
 import org.restcomm.media.core.spi.dtmf.DtmfGenerator;
 import org.restcomm.media.core.spi.player.Player;
 import org.restcomm.media.core.spi.recorder.Recorder;

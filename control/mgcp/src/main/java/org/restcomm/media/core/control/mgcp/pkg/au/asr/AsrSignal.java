@@ -38,7 +38,7 @@ import org.restcomm.media.core.control.mgcp.pkg.SignalType;
 import org.restcomm.media.core.control.mgcp.pkg.au.AudioPackage;
 import org.restcomm.media.core.control.mgcp.pkg.au.AudioSignalType;
 import org.restcomm.media.core.control.mgcp.pkg.au.SignalParameters;
-import org.restcomm.media.core.resource.dtmf.DtmfEventSubject;
+import org.restcomm.media.core.resource.dtmf.detector.DtmfEventSubject;
 import org.restcomm.media.core.spi.player.Player;
 
 import com.google.common.base.Optional;

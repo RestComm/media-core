@@ -19,16 +19,10 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.core.resource.dtmf;
+package org.restcomm.media.core.resource.dtmf.detector;
 
 import org.restcomm.media.core.component.audio.AudioOutput;
 import org.restcomm.media.core.component.oob.OOBOutput;
-import org.restcomm.media.core.resource.dtmf.DtmfDetectorProvider;
-import org.restcomm.media.core.resource.dtmf.DtmfSinkFacade;
-import org.restcomm.media.core.resource.dtmf.DtmfSinkFacadeProvider;
-import org.restcomm.media.core.resource.dtmf.InbandDtmfSink;
-import org.restcomm.media.core.resource.dtmf.Rfc2833DtmfSink;
-import org.restcomm.media.core.resource.dtmf.Rfc2833DtmfDetector;
 import org.restcomm.media.core.scheduler.PriorityQueueScheduler;
 import org.restcomm.media.core.spi.ComponentType;
 

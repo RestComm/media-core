@@ -29,6 +29,7 @@ import org.restcomm.media.core.spi.dtmf.DtmfEvent;
  * 
  * @author kulikov
  */
+@Deprecated
 public class DtmfEventImpl implements DtmfEvent {
 
     private DtmfDetector source;

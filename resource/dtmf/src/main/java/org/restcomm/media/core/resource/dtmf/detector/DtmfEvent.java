@@ -19,7 +19,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.core.resource.dtmf;
+package org.restcomm.media.core.resource.dtmf.detector;
 
 /**
  * Class used to pass the DTMF data to event handler object.

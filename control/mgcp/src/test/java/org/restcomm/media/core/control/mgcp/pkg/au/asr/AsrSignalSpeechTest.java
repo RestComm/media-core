@@ -43,10 +43,9 @@ import org.restcomm.media.core.control.mgcp.pkg.MgcpEvent;
 import org.restcomm.media.core.control.mgcp.pkg.au.ReturnCode;
 import org.restcomm.media.core.control.mgcp.pkg.au.ReturnParameters;
 import org.restcomm.media.core.control.mgcp.pkg.au.SignalParameters;
-import org.restcomm.media.core.control.mgcp.pkg.au.asr.AsrSignal;
 import org.restcomm.media.core.drivers.asr.AsrDriverException;
 import org.restcomm.media.core.drivers.asr.UnknownAsrDriverException;
-import org.restcomm.media.core.resource.dtmf.DtmfEvent;
+import org.restcomm.media.core.resource.dtmf.detector.DtmfEvent;
 import org.restcomm.media.core.spi.listener.TooManyListenersException;
 
 /**

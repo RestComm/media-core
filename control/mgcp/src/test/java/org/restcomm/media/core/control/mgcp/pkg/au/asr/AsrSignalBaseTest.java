@@ -31,10 +31,9 @@ import org.restcomm.media.core.asr.AsrEngine;
 import org.restcomm.media.core.asr.AsrEngineListener;
 import org.restcomm.media.core.control.mgcp.pkg.MgcpEventObserver;
 import org.restcomm.media.core.control.mgcp.pkg.au.SignalParameters;
-import org.restcomm.media.core.control.mgcp.pkg.au.asr.AsrSignal;
 import org.restcomm.media.core.resource.vad.VoiceActivityDetectorListener;
-import org.restcomm.media.core.resource.dtmf.DtmfSinkFacade;
-import org.restcomm.media.core.resource.dtmf.DtmfEventObserver;
+import org.restcomm.media.core.resource.dtmf.detector.DtmfSinkFacade;
+import org.restcomm.media.core.resource.dtmf.detector.DtmfEventObserver;
 import org.restcomm.media.core.spi.listener.TooManyListenersException;
 import org.restcomm.media.core.spi.player.Player;
 

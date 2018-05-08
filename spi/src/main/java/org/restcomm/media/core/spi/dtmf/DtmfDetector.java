@@ -29,6 +29,7 @@ import org.restcomm.media.core.spi.listener.TooManyListenersException;
  *
  * @author kulikov
  */
+@Deprecated
 public interface DtmfDetector extends MediaSink {
 
     /**

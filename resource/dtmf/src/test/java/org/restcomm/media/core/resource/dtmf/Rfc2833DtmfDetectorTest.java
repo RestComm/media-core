@@ -29,6 +29,9 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.restcomm.media.core.pcap.GenericPcapReader;
 import org.restcomm.media.core.pcap.PcapFile;
+import org.restcomm.media.core.resource.dtmf.detector.DtmfEvent;
+import org.restcomm.media.core.resource.dtmf.detector.DtmfEventObserver;
+import org.restcomm.media.core.resource.dtmf.detector.Rfc2833DtmfDetector;
 
 import java.io.IOException;
 import java.net.URL;

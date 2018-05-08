@@ -25,8 +25,8 @@ import java.util.Map;
 
 import org.restcomm.media.core.control.mgcp.pkg.au.Playlist;
 import org.restcomm.media.core.control.mgcp.pkg.au.SignalParameters;
-import org.restcomm.media.core.resource.dtmf.DtmfEventSubject;
-import org.restcomm.media.core.resource.dtmf.DtmfEventObserver;
+import org.restcomm.media.core.resource.dtmf.detector.DtmfEventSubject;
+import org.restcomm.media.core.resource.dtmf.detector.DtmfEventObserver;
 
 import com.google.common.base.Optional;
 

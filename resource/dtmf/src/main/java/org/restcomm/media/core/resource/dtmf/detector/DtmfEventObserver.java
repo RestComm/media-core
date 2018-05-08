@@ -19,16 +19,13 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.core.resource.dtmf;
+package org.restcomm.media.core.resource.dtmf.detector;
 
 /**
- * Subject interface for DTMF events.
+ * Interface implemented by classes that observe DTMF tone event.
  *
  * @author Vladimir Morosev (vladimir.morosev@telestax.com)
  */
-public interface DtmfEventSubject {
-
-    void notify(DtmfEvent event);
-    void observe(DtmfEventObserver observer);
-    void forget(DtmfEventObserver observer);
+public interface DtmfEventObserver {
+    void onDtmfEvent(DtmfEvent event);
 }

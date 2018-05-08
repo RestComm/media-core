@@ -1,4 +1,4 @@
-package org.restcomm.media.core.resource.dtmf;
+package org.restcomm.media.core.resource.dtmf.detector;
 
 import org.apache.logging.log4j.Logger;
 import org.restcomm.media.core.component.AbstractSink;

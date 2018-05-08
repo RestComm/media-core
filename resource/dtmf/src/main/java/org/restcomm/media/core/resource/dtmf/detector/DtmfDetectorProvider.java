@@ -19,23 +19,15 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.core.resource.dtmf;
+package org.restcomm.media.core.resource.dtmf.detector;
 
 /**
- * Interface for DTMF detector component
+ * Provides instances of {@link DtmfDetector}
  *
- * @author Vladimir Morosev (vladimir.morosev@telestax.com)
+ * @author Vladimir Morosev (vladimir.morosev@telestax.com) created on 09/03/2018
  */
-public interface DtmfDetector extends DtmfEventSubject {
+public interface DtmfDetectorProvider {
 
-    /**
-     * The method that detects DTMF digit in provided audio buffer. Detection
-     * status is passed to the application layer through a listener pattern.
-     *
-     * @param data     buffer with samples
-     * @param duration buffer duration 
-     * @return Detected digit, null if nothing is detected
-     */
-    void detect(byte[] data, long duration);
+    DtmfDetector provide();
 
 }

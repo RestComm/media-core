@@ -26,7 +26,7 @@ import org.restcomm.media.core.component.audio.AudioComponent;
 import org.restcomm.media.core.component.oob.OOBComponent;
 import org.restcomm.media.core.control.mgcp.endpoint.MediaGroup;
 import org.restcomm.media.core.control.mgcp.endpoint.MediaGroupImpl;
-import org.restcomm.media.core.resource.dtmf.DtmfSinkFacadeProvider;
+import org.restcomm.media.core.resource.dtmf.detector.DtmfSinkFacadeProvider;
 import org.restcomm.media.core.spi.player.PlayerProvider;
 import org.restcomm.media.core.spi.recorder.RecorderProvider;
 

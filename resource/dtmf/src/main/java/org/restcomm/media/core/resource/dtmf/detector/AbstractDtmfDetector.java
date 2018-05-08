@@ -19,76 +19,28 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.core.resource.dtmf;
-
-import java.io.IOException;
-
-import java.util.Iterator;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+package org.restcomm.media.core.resource.dtmf.detector;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.restcomm.media.core.component.AbstractSink;
-import org.restcomm.media.core.component.audio.AudioOutput;
-import org.restcomm.media.core.component.oob.OOBOutput;
-import org.restcomm.media.core.scheduler.PriorityQueueScheduler;
-import org.restcomm.media.core.scheduler.Task;
-import org.restcomm.media.core.spi.ComponentType;
-import org.restcomm.media.core.spi.memory.Frame;
+
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * DTMF sink with in-band and out-of-band DTMF detector components
+ * Abstract DTMF detector class - implements observer logic.
  *
  * @author Vladimir Morosev (vladimir.morosev@telestax.com)
- * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
-public class DtmfSinkFacade implements DtmfEventObserver, DtmfEventSubject {
+public abstract class AbstractDtmfDetector implements DtmfDetector {
 
-    private static final long serialVersionUID = 450306501541827622L;
-    private static final Logger logger = LogManager.getLogger(DtmfSinkFacade.class);
-
-    private final InbandDtmfSink inbandSink;
-    private final Rfc2833DtmfSink oobSink;
+    private static final Logger logger = LogManager.getLogger(AbstractDtmfDetector.class);
 
     private Set<DtmfEventObserver> observers = ConcurrentHashMap.newKeySet();
 
-    public DtmfSinkFacade(InbandDtmfSink inbandSink, Rfc2833DtmfSink oobSink) {
-        this.inbandSink = inbandSink;
-        this.inbandSink.observe(this);
-
-        this.oobSink = oobSink;
-        this.oobSink.observe(this);
-    }
-
-    public AudioOutput getInbandOutput() {
-        return this.inbandSink.getOutput();
-    }
-
-    public OOBOutput getOutbandOutput() {
-        return this.oobSink.getOutput();
-    }
-    
-    public void activate() {
-        this.inbandSink.activate();
-        this.oobSink.activate();
-    }
-
-    public void deactivate() {
-        this.inbandSink.deactivate();
-        this.oobSink.deactivate();
-    }
-
-    @Override
-    public void onDtmfEvent(DtmfEvent event) {
-        // Propagate DTMF Event to registered observers
-        notify(event);
-    }
-
     @Override
     public void notify(DtmfEvent event) {
+        // Inform observers about DTMF tone detection
         for (DtmfEventObserver observer : observers) {
             observer.onDtmfEvent(event);
         }

@@ -32,6 +32,7 @@ import org.restcomm.media.core.concurrent.ConcurrentCyclicFIFO;
  * 
  * @author Oifa Yulian
  */
+@Deprecated
 public class DtmfBuffer implements Serializable {
     
     //The interval between two TDMF tones
