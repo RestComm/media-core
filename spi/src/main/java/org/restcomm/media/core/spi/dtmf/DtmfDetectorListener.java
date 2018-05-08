@@ -28,6 +28,7 @@ import org.restcomm.media.core.spi.listener.Listener;
  *
  * @author kulikov
  */
+@Deprecated
 public interface DtmfDetectorListener extends Listener<DtmfEvent> {
     
 }

@@ -7,12 +7,22 @@
     <parent>
         <groupId>org.restcomm.media.core</groupId>
         <artifactId>media-core-resource</artifactId>
-        <version>8.1.2-SNAPSHOT</version>
+        <version>8.2.0-SNAPSHOT</version>
     </parent>
 
     <groupId>org.restcomm.media.core.resource</groupId>
     <artifactId>media-core-resource-dtmf</artifactId>
     <name>media-core-resource-dtmf</name>
+
+    <dependencies>
+        <!-- Test -->
+        <dependency>
+            <groupId>org.restcomm.media.core</groupId>
+            <artifactId>media-core-pcap</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>

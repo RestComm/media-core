@@ -1,7 +1,7 @@
 /*
  * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
- * by the @authors tag. 
+ * Copyright 2011-2018, Telestax Inc and individual contributors
+ * by the @authors tag.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -19,30 +19,13 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.core.control.mgcp.endpoint;
-
-import org.restcomm.media.core.asr.AsrEngine;
-import org.restcomm.media.core.resource.dtmf.detector.DtmfEventSubject;
-import org.restcomm.media.core.spi.dtmf.DtmfGenerator;
-import org.restcomm.media.core.spi.player.Player;
-import org.restcomm.media.core.spi.recorder.Recorder;
+package org.restcomm.media.core.resource.dtmf.detector;
 
 /**
- * Holds media components.
- * 
- * @author Henrique Rosa (henrique.rosa@telestax.com)
+ * Interface implemented by classes that observe DTMF tone event.
  *
+ * @author Vladimir Morosev (vladimir.morosev@telestax.com)
  */
-public interface MediaGroup {
-
-    Player getPlayer();
-
-    Recorder getRecorder();
-
-    DtmfEventSubject getDetector();
-
-    DtmfGenerator getGenerator();
-
-    AsrEngine getAsrEngine();
-
+public interface DtmfEventObserver {
+    void onDtmfEvent(DtmfEvent event);
 }

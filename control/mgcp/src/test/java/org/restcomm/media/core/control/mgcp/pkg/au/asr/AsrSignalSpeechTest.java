@@ -43,10 +43,9 @@ import org.restcomm.media.core.control.mgcp.pkg.MgcpEvent;
 import org.restcomm.media.core.control.mgcp.pkg.au.ReturnCode;
 import org.restcomm.media.core.control.mgcp.pkg.au.ReturnParameters;
 import org.restcomm.media.core.control.mgcp.pkg.au.SignalParameters;
-import org.restcomm.media.core.control.mgcp.pkg.au.asr.AsrSignal;
 import org.restcomm.media.core.drivers.asr.AsrDriverException;
 import org.restcomm.media.core.drivers.asr.UnknownAsrDriverException;
-import org.restcomm.media.core.resource.dtmf.DtmfEventImpl;
+import org.restcomm.media.core.resource.dtmf.detector.DtmfEvent;
 import org.restcomm.media.core.spi.listener.TooManyListenersException;
 
 /**
@@ -77,11 +76,11 @@ public class AsrSignalSpeechTest extends AsrSignalBaseTest {
         asr.observe(observer);
         asr.execute();
 
-        detectorListener.process(new DtmfEventImpl(detector, "1", -30)); // should be ignored
+        detectorObserver.onDtmfEvent(new DtmfEvent("1")); // should be ignored
         speakRecognizedText("one");
         speakRecognizedText("two");
         speakRecognizedText("three");
-        detectorListener.process(new DtmfEventImpl(detector, "#", -30));
+        detectorObserver.onDtmfEvent(new DtmfEvent("#"));
 
         waitForFinalResponse();
 
@@ -122,8 +121,8 @@ public class AsrSignalSpeechTest extends AsrSignalBaseTest {
         verify(observer, never()).onEvent(eq(asr), eventCaptor.capture());
 
         speechDetectorListener.onVoiceActivityDetected();
-        detectorListener.process(new DtmfEventImpl(detector, "1", -30)); // should be ignored
-        detectorListener.process(new DtmfEventImpl(detector, "#", -30));
+        detectorObserver.onDtmfEvent(new DtmfEvent("1")); // should be ignored
+        detectorObserver.onDtmfEvent(new DtmfEvent("#"));
         asrEngineListener.onSpeechRecognized("text", true);
 
         waitForFinalResponse();

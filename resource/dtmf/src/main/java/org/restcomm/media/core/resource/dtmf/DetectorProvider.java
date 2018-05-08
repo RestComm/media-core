@@ -31,6 +31,7 @@ import org.restcomm.media.core.spi.dtmf.DtmfDetectorProvider;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
+@Deprecated
 public class DetectorProvider implements DtmfDetectorProvider {
 
     private final PriorityQueueScheduler scheduler;

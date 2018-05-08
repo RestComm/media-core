@@ -61,6 +61,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * @author amit bhayani
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
+@Deprecated
 public class DetectorImpl extends AbstractSink implements DtmfDetector {
 
     private static final long serialVersionUID = 450306501541827622L;

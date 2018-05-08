@@ -19,15 +19,16 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.restcomm.media.core.resource.dtmf;
+package org.restcomm.media.core.resource.dtmf.detector;
 
 /**
- * Provides instances of {@link DtmfDetector}
+ * Subject interface for DTMF events.
  *
- * @author Vladimir Morosev (vladimir.morosev@telestax.com) created on 09/03/2018
+ * @author Vladimir Morosev (vladimir.morosev@telestax.com)
  */
-public interface DtmfDetectorProvider {
+public interface DtmfEventSubject {
 
-    DtmfDetector provide();
-
+    void notify(DtmfEvent event);
+    void observe(DtmfEventObserver observer);
+    void forget(DtmfEventObserver observer);
 }

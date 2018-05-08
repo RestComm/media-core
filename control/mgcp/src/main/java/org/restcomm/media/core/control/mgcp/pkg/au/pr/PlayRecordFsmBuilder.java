@@ -22,8 +22,8 @@
 package org.restcomm.media.core.control.mgcp.pkg.au.pr;
 
 import org.restcomm.media.core.control.mgcp.pkg.MgcpEventSubject;
-import org.restcomm.media.core.spi.dtmf.DtmfDetector;
-import org.restcomm.media.core.spi.dtmf.DtmfDetectorListener;
+import org.restcomm.media.core.resource.dtmf.detector.DtmfEventSubject;
+import org.restcomm.media.core.resource.dtmf.detector.DtmfEventObserver;
 import org.restcomm.media.core.spi.player.Player;
 import org.restcomm.media.core.spi.player.PlayerListener;
 import org.restcomm.media.core.spi.recorder.Recorder;
@@ -46,7 +46,7 @@ public class PlayRecordFsmBuilder {
     private PlayRecordFsmBuilder() {
         this.builder = StateMachineBuilderFactory.<PlayRecordFsm, PlayRecordState, PlayRecordEvent, PlayRecordContext> create(
                 PlayRecordFsmImpl.class, PlayRecordState.class, PlayRecordEvent.class, PlayRecordContext.class,
-                MgcpEventSubject.class, Recorder.class, RecorderListener.class, DtmfDetector.class, DtmfDetectorListener.class,
+                MgcpEventSubject.class, Recorder.class, RecorderListener.class, DtmfEventSubject.class, DtmfEventObserver.class,
                 Player.class, PlayerListener.class, PlayRecordContext.class);
 
         this.builder.defineFinishEvent(PlayRecordEvent.RECORD_SUCCESS);
@@ -139,11 +139,11 @@ public class PlayRecordFsmBuilder {
     }
 
     public PlayRecordFsm build(MgcpEventSubject mgcpEventSubject, Recorder recorder, RecorderListener recorderListener,
-            DtmfDetector detector, DtmfDetectorListener detectorListener, Player player, PlayerListener playerListener,
+            DtmfEventSubject detector, DtmfEventObserver detectorObserver, Player player, PlayerListener playerListener,
             PlayRecordContext context) {
         return this.builder.newStateMachine(PlayRecordState.LOADING_PLAYLIST,
                 StateMachineConfiguration.getInstance().enableDebugMode(false), mgcpEventSubject, recorder, recorderListener,
-                detector, detectorListener, player, playerListener, context);
+                detector, detectorObserver, player, playerListener, context);
     }
 
 }

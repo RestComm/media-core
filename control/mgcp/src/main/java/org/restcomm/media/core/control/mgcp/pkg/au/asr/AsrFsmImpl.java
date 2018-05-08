@@ -35,11 +35,12 @@ import org.restcomm.media.core.control.mgcp.pkg.au.*;
 import org.restcomm.media.core.drivers.asr.AsrDriverConfigurationException;
 import org.restcomm.media.core.drivers.asr.AsrDriverException;
 import org.restcomm.media.core.drivers.asr.UnknownAsrDriverException;
+import org.restcomm.media.core.resource.dtmf.detector.DtmfEvent;
+import org.restcomm.media.core.resource.dtmf.detector.DtmfEventObserver;
+import org.restcomm.media.core.resource.dtmf.detector.DtmfEventSubject;
+import org.restcomm.media.core.resource.dtmf.detector.DtmfSinkFacade;
 import org.restcomm.media.core.resource.vad.VoiceActivityDetectorListener;
 import org.restcomm.media.core.spi.ResourceUnavailableException;
-import org.restcomm.media.core.spi.dtmf.DtmfDetector;
-import org.restcomm.media.core.spi.dtmf.DtmfDetectorListener;
-import org.restcomm.media.core.spi.dtmf.DtmfEvent;
 import org.restcomm.media.core.spi.listener.TooManyListenersException;
 import org.restcomm.media.core.spi.player.Player;
 import org.restcomm.media.core.spi.player.PlayerEvent;
@@ -58,8 +59,8 @@ public class AsrFsmImpl extends AbstractStateMachine<AsrFsm, AsrState, AsrEvent,
     private static final Logger log = LogManager.getLogger(AsrFsmImpl.class);
 
     // Media Components
-    private final DtmfDetector detector;
-    private final DtmfDetectorListener detectorListener;
+    private final DtmfEventSubject detector;
+    private final DtmfEventObserver detectorObserver;
 
     private final Player player;
     private final PlayerListener playerListener;
@@ -82,7 +83,7 @@ public class AsrFsmImpl extends AbstractStateMachine<AsrFsm, AsrState, AsrEvent,
     private final MgcpEventSubject mgcpEventSubject;
     private final ListeningScheduledExecutorService executor;
 
-    public AsrFsmImpl(DtmfDetector detector, Player player, AsrEngine asrEngine, MgcpEventSubject mgcpEventSubject,
+    public AsrFsmImpl(DtmfEventSubject detector, Player player, AsrEngine asrEngine, MgcpEventSubject mgcpEventSubject,
             ListeningScheduledExecutorService executor, AsrContext context) {
         super();
 
@@ -90,7 +91,7 @@ public class AsrFsmImpl extends AbstractStateMachine<AsrFsm, AsrState, AsrEvent,
 
         // Media Components
         this.detector = detector;
-        this.detectorListener = new DetectorListener();
+        this.detectorObserver = new DetectorObserver();
 
         this.player = player;
         this.playerListener = new AudioPlayerListener();
@@ -237,13 +238,10 @@ public class AsrFsmImpl extends AbstractStateMachine<AsrFsm, AsrState, AsrEvent,
         }
 
         if (context.isEndInputKeySpecified()) {
-            try {
-                // Activate DTMF detector and bind listener
-                this.detector.addListener(this.detectorListener);
-                this.detector.activate();
-            } catch (TooManyListenersException e) {
-                log.error("Too many DTMF listeners", e);
-            }
+            // Activate DTMF detector and bind observer
+            // TODO Avoid castig when detector is activated
+            ((DtmfSinkFacade) this.detector).activate();
+            this.detector.observe(this.detectorObserver);
         }
 
         AsrContext.Parameters params = context.getParams();
@@ -317,8 +315,9 @@ public class AsrFsmImpl extends AbstractStateMachine<AsrFsm, AsrState, AsrEvent,
         this.asrEngine.stopSpeechDetection();
 
         if (context.isEndInputKeySpecified()) {
-            this.detector.removeListener(this.detectorListener);
-            this.detector.deactivate();
+            // TODO Avoid castig when detector is deactivated
+            ((DtmfSinkFacade) this.detector).deactivate();
+            this.detector.forget(this.detectorObserver);
         }
     }
 
@@ -684,14 +683,14 @@ public class AsrFsmImpl extends AbstractStateMachine<AsrFsm, AsrState, AsrEvent,
     }
 
     /**
-     * Listens to DTMF events raised by the DTMF Detector.
+     * Observes for DTMF events raised by the DTMF Detector.
      *
      * @author Henrique Rosa (henrique.rosa@telestax.com)
      */
-    private final class DetectorListener implements DtmfDetectorListener {
+    private final class DetectorObserver implements DtmfEventObserver {
 
         @Override
-        public void process(DtmfEvent event) {
+        public void onDtmfEvent(DtmfEvent event) {
             final char tone = event.getTone().charAt(0);
             context.setLastTone(tone);
             AsrFsmImpl.this.fire(AsrEvent.DTMF_TONE, AsrFsmImpl.this.context);

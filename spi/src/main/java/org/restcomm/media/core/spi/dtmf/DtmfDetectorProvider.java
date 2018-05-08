@@ -27,6 +27,7 @@ package org.restcomm.media.core.spi.dtmf;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
+@Deprecated
 public interface DtmfDetectorProvider {
 
     DtmfDetector provide();
