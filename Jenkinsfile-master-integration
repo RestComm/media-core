@@ -1,0 +1,131 @@
+#!/usr/bin/env groovy
+def featureScope
+def commitMsg
+def releaseVersion
+def commitAuthor
+
+node("cxs-slave-master") {
+
+    stage('Checkout') {
+        // Print environment
+        echo sh(returnStdout: true, script: 'env')
+
+        // Fetch maven settings
+        configFileProvider([configFile(fileId: '37cb206e-6498-4d8a-9b3d-379cd0ccd99b', targetLocation: 'settings.xml')]) {
+            sh 'mkdir -p ~/.m2 && sed -i "s|@LOCAL_REPO_PATH@|$WORKSPACE/M2_REPO|g" $WORKSPACE/settings.xml && cp $WORKSPACE/settings.xml -f ~/.m2/settings.xml'
+        }
+
+        // Checkout PR
+        checkout scm
+
+        // Find contributor
+        commitAuthor = sh(script: 'git log -1 HEAD --pretty=format:\'%an <%ae>\'', returnStdout: true).trim()
+        echo "Author is ${commitAuthor}"
+    }
+
+    stage('Build') {
+        sh "mvn clean install -DskipTests"
+    }
+
+    stage('Test') {
+        sh 'mvn test -Dmaven.test.failure.ignore=true'
+        junit testResults: '**/target/surefire-reports/*.xml', testDataPublishers: [[$class: 'StabilityTestDataPublisher']]
+    }
+}
+
+stage('UserApproval') {
+    timeout(time: 5, unit: 'DAYS') {
+        def userInput = input message: 'Waiting for maintainer review', parameters:
+                [choice(name: 'featureScope', choices: 'fix\nfeat\nbreaking_change', description: 'Release Scope'),
+                 text(name: 'commitMsg', defaultValue: '', description: 'Commit Message')]
+        featureScope = userInput['featureScope']
+        commitMsg = userInput['commitMsg']
+    }
+    milestone 1
+}
+
+node("cxs-slave-master") {
+
+    configFileProvider([configFile(fileId: '37cb206e-6498-4d8a-9b3d-379cd0ccd99b', targetLocation: 'settings.xml')]) {
+        sh 'mkdir -p ~/.m2 && sed -i "s|@LOCAL_REPO_PATH@|$WORKSPACE/M2_REPO|g" $WORKSPACE/settings.xml && cp $WORKSPACE/settings.xml -f ~/.m2/settings.xml'
+    }
+
+    def localBranch = "local-$CHANGE_BRANCH"
+
+    lock("media-core-$CHANGE_TARGET") {
+
+        stage('Versioning') {
+            // Checkout change branch
+            checkout scm
+            sh "git branch ${localBranch} && git checkout ${localBranch}"
+
+            // Increment project version according to release scope
+            if (featureScope == 'fix') {
+                sh 'mvn build-helper:parse-version versions:set -DnewVersion=\\${parsedVersion.majorVersion}.\\${parsedVersion.minorVersion}.\\${parsedVersion.nextIncrementalVersion}-SNAPSHOT versions:commit'
+            } else if (featureScope == 'feat') {
+                sh 'mvn build-helper:parse-version versions:set -DnewVersion=\\${parsedVersion.majorVersion}.\\${parsedVersion.nextMinorVersion}.0-SNAPSHOT versions:commit'
+            } else if (featureScope == 'breaking_change') {
+                sh 'mvn build-helper:parse-version versions:set -DnewVersion=\\${parsedVersion.nextMajorVersion}.0.0-SNAPSHOT versions:commit'
+            }
+
+            // Save project version
+            def pom = readMavenPom file: 'pom.xml'
+            releaseVersion = pom.version
+
+            sh 'git add -u'
+            sh "git commit -m \"Updated project version to ${releaseVersion}\""
+        }
+
+        stage('Integration') {
+            try {
+                // Merge feature to base branch
+                sh "git checkout $CHANGE_TARGET"
+                sh "git merge --squash ${localBranch}"
+                sh "git commit -a --author=\"${commitAuthor}\" --message=\"${commitMsg}\""
+
+                env.CURRENT_COMMIT = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
+
+                def gitLog = sh(script: 'git log -1 --pretty=full', returnStdout: true)
+                echo "${gitLog}"
+
+                // Push Changes to base branch
+                withCredentials([usernamePassword(credentialsId: 'CXSGithub', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+                    // Push changes to target branch
+                    sh('git push --force https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/RestComm/media-core.git $CHANGE_TARGET')
+                }
+            } catch (exc) {
+                throw exc
+            } finally {
+                // Delete local branch
+                sh "git branch -D ${localBranch}"
+            }
+
+            // Invalidate older builds forcing re-scan of PR
+            // Aims to maintain master healthy and prevent that one PR tramples another
+            milestone 2
+        }
+
+        stage('ClosePR') {
+            withCredentials([string(credentialsId: 'ed9ceaaf-b58f-4705-9a9e-da932610cd91', variable: 'GITHUB_TOKEN')]) {
+                // Add comment to relate PR to squashed commit hash using Github API
+                env.REQUEST_BODY = """
+                    {"body":"$CURRENT_COMMIT"}
+                """
+                def commentResponse = sh(returnStdout: true, script: 'curl --request POST -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/repos/RestComm/media-core/issues/$CHANGE_ID/comments --data $REQUEST_BODY')
+                echo "${commentResponse}"
+
+                // Set PR state to CLOSED using Github API
+                def closeResponse = sh(returnStdout: true, script: 'curl --request PATCH -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/repos/RestComm/media-core/pulls/$CHANGE_ID --data \'{"state":"closed"}\'')
+                echo "${closeResponse}"
+
+                // Delete remote branch
+                withCredentials([usernamePassword(credentialsId: 'CXSGithub', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+                    // Push changes to target branch
+                    sh('git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/RestComm/media-core.git --delete $CHANGE_BRANCH')
+                }
+            }
+
+            milestone 3
+        }
+    }
+}

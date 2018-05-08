@@ -52,6 +52,8 @@ We [publicly acknowledge our contributors]((http://www.telestax.com/opensource/a
 
 Many thanks to [SIPME](https://www.sipme.me/) for the ongoing support and contributions since 2010.
 
+Also, a big thanks to [JProfiler](https://www.ej-technologies.com/products/jprofiler/overview.html), for the Open Source License
+
 ## License [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bhttps%3A%2F%2Fgithub.com%2FRestComm%2Fmediaserver.svg?type=shield)](https://app.fossa.io/projects/git%2Bhttps%3A%2F%2Fgithub.com%2FRestComm%2Fmediaserver?ref=badge_shield)
 
 The RestComm Media Core project is is licensed under a dual license policy. The default license is the Free Open Source GNU Affero GPL v3.0.

@@ -22,10 +22,6 @@
 
 package org.restcomm.media.core.resource.player.audio;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.restcomm.media.core.component.AbstractSource;
@@ -47,14 +43,17 @@ import org.restcomm.media.core.spi.listener.TooManyListenersException;
 import org.restcomm.media.core.spi.memory.Frame;
 import org.restcomm.media.core.spi.player.Player;
 import org.restcomm.media.core.spi.player.PlayerListener;
-import org.restcomm.media.core.spi.pooling.PooledObject;
 import org.restcomm.media.core.spi.resource.TTSEngine;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * @author yulian oifa
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
-public class AudioPlayerImpl extends AbstractSource implements Player, TTSEngine, PooledObject {
+public class AudioPlayerImpl extends AbstractSource implements Player, TTSEngine {
 
     private static final long serialVersionUID = 8321615909592642344L;
 
@@ -84,12 +83,12 @@ public class AudioPlayerImpl extends AbstractSource implements Player, TTSEngine
      * 
      * @param name the name of the AudioPlayer to be created.
      * @param scheduler EDF job scheduler
-     * @param vc the TTS voice cache.
+     * @param remoteStreamProvider the TTS voice cache.
      */
     public AudioPlayerImpl(String name, PriorityQueueScheduler scheduler, RemoteStreamProvider remoteStreamProvider) {
         super(name, scheduler, PriorityQueueScheduler.INPUT_QUEUE);
         this.input = new AudioInput(ComponentType.PLAYER.getType(), packetSize);
-        this.listeners = new Listeners<PlayerListener>();
+        this.listeners = new Listeners<>();
         this.connect(this.input);
         this.remoteStreamProvider = remoteStreamProvider;
     }
@@ -278,15 +277,4 @@ public class AudioPlayerImpl extends AbstractSource implements Player, TTSEngine
         listeners.clear();
     }
 
-    @Override
-    public void checkIn() {
-        clearAllListeners();
-        track = null;
-    }
-
-    @Override
-    public void checkOut() {
-        // TODO Auto-generated method stub
-
-    }
 }

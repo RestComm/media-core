@@ -6,12 +6,12 @@
     <parent>
         <groupId>org.restcomm.media</groupId>
         <artifactId>media-parent</artifactId>
-        <version>8.0.0-SNAPSHOT</version>
+        <version>8.0.0-32</version>
     </parent>
 
     <groupId>org.restcomm.media</groupId>
     <artifactId>media-core</artifactId>
-    <version>8.0.0-SNAPSHOT</version>
+    <version>8.1.2-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>media-core</name>
 
