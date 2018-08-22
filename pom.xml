@@ -11,7 +11,7 @@
 
     <groupId>org.restcomm.media</groupId>
     <artifactId>media-core</artifactId>
-    <version>8.2.0-SNAPSHOT</version>
+    <version>7.0.0-109</version>
     <packaging>pom</packaging>
     <name>media-core</name>
 
