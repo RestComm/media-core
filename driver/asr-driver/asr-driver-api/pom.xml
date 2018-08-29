@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>org.restcomm.media.core.driver</groupId>
 		<artifactId>media-core-driver-asr</artifactId>
-		<version>8.2.0-SNAPSHOT</version>
+		<version>7.0.0-110</version>
 	</parent>
 
 	<groupId>org.restcomm.media.core.driver.asr</groupId>
