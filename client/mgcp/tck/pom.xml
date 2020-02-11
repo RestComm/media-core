@@ -148,7 +148,7 @@
 		<repository>
 			<id>jboss</id>
 			<name>JBoss Repository</name>
-			<url>http://repository.jboss.org/maven2</url>
+			<url>https://repository.jboss.org/maven2</url>
 			<snapshots>
 				<enabled>false</enabled>
 			</snapshots>
@@ -156,7 +156,7 @@
 		<repository>
 			<id>jboss-snapshots</id>
 			<name>JBoss Snapshot Repository</name>
-			<url>http://snapshots.jboss.org/maven2</url>
+			<url>https://snapshots.jboss.org/maven2</url>
 			<releases>
 				<enabled>false</enabled>
 			</releases>
