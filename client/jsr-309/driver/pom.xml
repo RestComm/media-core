@@ -183,7 +183,7 @@
         <repository>
             <id>jboss-public-repository-group</id>
             <name>JBoss Public Maven Repository Group</name>
-            <url>http://repository.jboss.org/nexus/content/groups/public</url>
+            <url>https://repository.jboss.org/nexus/content/groups/public</url>
             <layout>default</layout>
             <releases>
                 <enabled>true</enabled>
@@ -197,7 +197,7 @@
         <repository>
             <id>jboss-deprecated</id>
             <name>jboss-deprecated</name>
-            <url>http://repository.jboss.org/nexus/content/repositories/deprecated</url>
+            <url>https://repository.jboss.org/nexus/content/repositories/deprecated</url>
         </repository>
     </repositories>
 
@@ -205,7 +205,7 @@
         <pluginRepository>
             <id>jboss-public-repository-group</id>
             <name>JBoss Public Maven Repository Group</name>
-            <url>http://repository.jboss.org/nexus/content/groups/public/</url>
+            <url>https://repository.jboss.org/nexus/content/groups/public/</url>
             <layout>default</layout>
             <releases>
                 <enabled>true</enabled>
